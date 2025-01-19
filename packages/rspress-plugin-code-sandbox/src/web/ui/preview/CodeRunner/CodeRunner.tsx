@@ -1,7 +1,7 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { type ReactNode, createElement, useEffect, useState } from "react";
+import type { Files } from "../../../../shared/types";
 import { compileComponentFromFiles } from "./compiler";
-import { Files } from "../../../../shared/types";
 
 const DEBOUNCE_TIME = 500;
 
@@ -15,15 +15,7 @@ export const CodeRunner = ({ files, setError }: CodeRunnerProps) => {
 
 	const getComponent = async (files: Files) => {
 		try {
-			const start = performance.now();
 			const component = await compileComponentFromFiles(files);
-			const end = performance.now();
-
-			const diff = Math.round(end - start);
-			console.info(
-				`%cTranspiled in ${diff}ms`,
-				"background: #15889f; padding: 6px; color: white;"
-			);
 
 			if (component) {
 				setError(undefined);

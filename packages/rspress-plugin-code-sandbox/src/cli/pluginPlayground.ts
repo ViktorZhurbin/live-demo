@@ -1,18 +1,15 @@
-import { createProcessor } from "@mdx-js/mdx";
-import { RspressPlugin } from "@rspress/core";
 import fs from "node:fs";
 import path from "node:path";
-import remarkGFM from "remark-gfm";
+import type { RspressPlugin } from "@rspress/core";
+import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { RspackVirtualModulePlugin } from "rspack-plugin-virtual-module";
 import { visit } from "unist-util-visit";
+import { EntryFiles } from "../shared/constants";
 import type { PlaygroundProps } from "../shared/types";
-import {
-	getDemoDependencies,
-	getPackageJsonDependencies,
-} from "./helpers/getDependencies";
-import { getFilesAndImports } from "./helpers/getFilesAndImports";
+import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";
+import { parseImports } from "./helpers/parseImports";
 import { remarkPlugin } from "./remarkPlugin";
 
 export type DemoDataByPath = Record<string, PlaygroundProps>;
@@ -25,9 +22,9 @@ const demoDataByPath: DemoDataByPath = {};
  * - resolve the file content from the `src` attribute
  * - resolve relative imports inside that file
  * - resolve imported npm modules and inject a getImport getter as a virtual module, which make them available in browser
- * - create `files` and `dependencies` objects for each demo
+ * - create `files` object for each demo
  * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
- * with `<Playground files={files} dependencies={dependencies} />`
+ * with `<Playground files={files} />`
  */
 export function pluginPlayground(): RspressPlugin {
 	const playgroundVirtualModule = new RspackVirtualModulePlugin({});
@@ -50,66 +47,47 @@ export function pluginPlayground(): RspressPlugin {
 			// Collect all imports to make them available in browser through
 			// the `getImport` getter, injected as a virtual module
 			const allImports: Record<string, string> = { react: "react" };
-			const packageJsonDependencies = await getPackageJsonDependencies();
 
 			// Scan all MDX files
-			console.log({ routes });
 			for (const route of routes) {
-				// for testing purposes
-				// if (_skipForTesting(route.absolutePath)) continue
-
-				const isMdxFile = /\.mdx$/.test(route.absolutePath);
-
-				console.log({ isMdxFile, route });
-
-				if (!isMdxFile) continue;
+				if (!route.absolutePath.endsWith(".mdx")) continue;
 
 				try {
-					const processor = createProcessor({
-						format: path.extname(route.absolutePath).slice(1) as "mdx" | "md",
-						remarkPlugins: [remarkGFM],
-					});
+					const mdxAst = getMdxAst(route.absolutePath);
 
-					const mdxSource = fs.readFileSync(route.absolutePath, "utf-8");
-					const mdxAst = processor.parse(mdxSource);
+					// Find files containing `<code src='./path/to/Demo.tsx' />`,
+					visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
+						if (node.name !== "code") return;
 
-					const demoImportPaths: string[] = [];
+						const importPath = getMdxJsxAttribute(node, "src");
 
-					// Find files containing demo markup `<code src='./path/to/Demo.tsx' >`,
-					// and collect import paths in `demoImportPaths`.
-					// Eg: `demoImportPaths.push(['./path/to/Demo.tsx', ...])`
-					visit(mdxAst, "mdxJsxFlowElement", (node: any) => {
-						if (node.name === "code") {
-							const importPath = getMdxJsxAttribute(node, "src");
+						if (typeof importPath !== "string") return;
 
-							if (typeof importPath === "string") {
-								demoImportPaths.push(importPath);
-							}
+						if (!/.(j|t)sx$/.test(importPath)) {
+							throw new Error(
+								`Invalid src import path: ${importPath}. Check extension: only .jsx and .tsx file extensions are supported`
+							);
 						}
-					});
 
-					console.log({ demoImportPaths });
-
-					// Create files and dependencies objects for each demo
-					// These will be passed as props to Playground component
-					for (const importPath of demoImportPaths) {
-						const demo = getFilesAndImports({
-							importPath,
-							dirname: path.dirname(route.absolutePath),
-						});
-
-						Object.assign(allImports, demo.imports);
-
-						const dependencies = getDemoDependencies(
-							Object.keys(demo.imports),
-							packageJsonDependencies
+						const demoPath = path.join(
+							path.dirname(route.absolutePath),
+							importPath
 						);
 
+						if (!fs.existsSync(demoPath)) return;
+
+						const code = fs.readFileSync(demoPath, {
+							encoding: "utf8",
+						});
+
 						demoDataByPath[importPath] = {
-							dependencies,
-							files: demo.files,
+							files: { [EntryFiles.tsx]: code },
 						};
-					}
+
+						const demoImports = parseImports(code, path.extname(importPath));
+
+						Object.assign(allImports, demoImports);
+					});
 				} catch (e) {
 					console.error(e);
 					throw e;

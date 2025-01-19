@@ -31,14 +31,9 @@
 		"remark-gfm": "^3.0.1"
 	},
 	"devDependencies": {
-		"@babel/core": "^7.26.0",
-		"@babel/plugin-syntax-jsx": "^7.25.9",
-		"@babel/preset-typescript": "^7.26.0",
-		"@babel/types": "^7.26.5",
-		"@rsbuild/core": "1.1.13",
-		"@rsbuild/plugin-react": "^1.1.0",
+		"@oxc-project/types": "^0.47.1",
+		"@oxidation-compiler/napi": "^0.2.0",
 		"@rslib/core": "^0.3.2",
-		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
 		"@types/react": "^18",
@@ -47,14 +42,12 @@
 		"rspack-plugin-virtual-module": "^0.1.13",
 		"typescript": "^5.7.3",
 		"unified": "^10.1.2",
-		"unist-util-visit": "^4.1.2",
-		"vitest": "^3.0.1"
+		"unist-util-visit": "^4.1.2"
 	},
 	"peerDependencies": {
-		"@rspress/core": "^1.40.0",
+		"@rspress/core": "^1.1.0",
 		"react": ">=17.0.0",
-		"react-dom": ">=17.0.0",
-		"react-router-dom": "^6.8.1"
+		"react-dom": ">=17.0.0"
 	},
 	"private": true
 }

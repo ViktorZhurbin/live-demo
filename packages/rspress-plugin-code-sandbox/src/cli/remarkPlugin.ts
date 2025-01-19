@@ -2,7 +2,6 @@ import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { _skipForTesting } from "./helpers/_skipForTesting";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import type { DemoDataByPath } from "./pluginPlayground";
 
@@ -18,12 +17,9 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 }) => {
 	const demoDataByPath = getDemoDataByPath();
 
-	console.log({ demoDataByPath });
 	return (tree, vfile) => {
-		// if (_skipForTesting(vfile.path)) return;
-
 		// Transform <code src="./Component.tsx" />
-		// into <Playground files={files} dependencies={dependencies} />
+		// into <Playground files={files}  />
 		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
 			if (node.name !== "code") return;
 
@@ -33,15 +29,12 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				return;
 			}
 
-			const { files, dependencies } = demoDataByPath[importPath];
+			const { files } = demoDataByPath[importPath];
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "Playground",
-				attributes: getMdxJsxAttributes([
-					["files", JSON.stringify(files)],
-					["dependencies", JSON.stringify(dependencies)],
-				]),
+				attributes: getMdxJsxAttributes([["files", JSON.stringify(files)]]),
 			});
 		});
 	};

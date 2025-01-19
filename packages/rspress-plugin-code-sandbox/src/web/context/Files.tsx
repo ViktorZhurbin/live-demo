@@ -6,8 +6,6 @@ type FilesContextValue = {
 	setFiles: React.Dispatch<React.SetStateAction<Files>>;
 
 	updateFiles: (update: Files) => void;
-
-	dependencies: PlaygroundProps["dependencies"];
 };
 
 const FilesContext = createContext<FilesContextValue | undefined>(undefined);
@@ -30,8 +28,6 @@ function FilesProvider({ initialValue, children }: FilesProviderProps) {
 				files,
 				setFiles,
 				updateFiles,
-
-				dependencies: initialValue.dependencies,
 			}}
 		>
 			{children}

@@ -15,15 +15,12 @@ export const ResizablePanels = () => {
 		[styles.vertical]: isVertical,
 	});
 
-	const getHiddenClass = (isHidden: boolean) =>
-		clsx({ [styles.hiddenPanel]: isHidden });
-
 	return (
 		<div className={wrapperClass} ref={wrapperSize.ref}>
 			<PanelGroup
 				style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
 				direction={isVertical ? "vertical" : "horizontal"}
-				autoSaveId="react-babylonjs-playground"
+				autoSaveId="rspress-plugin-code-playground"
 			>
 				<Panel id="editor" defaultSize={50} order={isVertical ? 1 : 0}>
 					<EditorCodeMirror />

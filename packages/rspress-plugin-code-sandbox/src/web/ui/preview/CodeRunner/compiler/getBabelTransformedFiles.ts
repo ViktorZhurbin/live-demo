@@ -1,5 +1,4 @@
 import type babel from "@babel/standalone";
-import type { TransformOptions } from "@babel/core";
 import { Files } from "../../../../../shared/types";
 
 type Babel = typeof babel;
@@ -19,11 +18,9 @@ type GetBabelTransformedFiles = {
 export function getBabelTransformedFiles({ files }: GetBabelTransformedFiles) {
 	const { availablePresets, transform } = window.Babel;
 
-	const presetsJsx: TransformOptions["presets"] = [
-		[availablePresets.react, { pure: false }],
-	];
+	const presetsJsx = [[availablePresets.react, { pure: false }]];
 
-	const presetsTsx: TransformOptions["presets"] = presetsJsx.concat([
+	const presetsTsx = presetsJsx.concat([
 		[availablePresets.typescript, { allExtensions: true, isTSX: true }],
 	]);
 
