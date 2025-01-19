@@ -1,7 +1,19 @@
-import { type Plugin, rollup } from "@rollup/browser";
+import type { Plugin } from "@rollup/browser";
+import type rollup from "@rollup/browser";
+
 import { ENTRY_FILE_BASE, Language } from "@shared/constants";
 import { isRelativeImport, prepareFileNameWithExt } from "@shared/pathHelpers";
 import type { Files } from "@shared/types";
+
+type Rollup = typeof rollup;
+
+// rollup is loaded with html script tag
+// see builderConfig.html.tags in pluginPlayground
+declare global {
+	interface Window {
+		rollup: Rollup;
+	}
+}
 
 type GetBundledCode = {
 	files: Files;
@@ -12,7 +24,7 @@ export const getRollupBundledCode = async ({ files }: GetBundledCode) => {
 		name.includes(ENTRY_FILE_BASE),
 	);
 
-	const bundle = await rollup({
+	const bundle = await window.rollup.rollup({
 		input: entryFilename,
 		plugins: [loaderPlugin(files)],
 		external: (source) => {
@@ -40,7 +52,7 @@ export const getRollupBundledCode = async ({ files }: GetBundledCode) => {
 // Resolve and load modules to be bundled
 function loaderPlugin(files: Files): Plugin {
 	return {
-		name: "in-memory-loader",
+		name: "relative-imports-loader",
 		resolveId(source) {
 			if (Object.hasOwn(files, source)) {
 				return source;

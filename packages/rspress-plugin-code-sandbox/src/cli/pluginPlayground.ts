@@ -125,6 +125,13 @@ export function pluginPlayground(): RspressPlugin {
 							crossorigin: "anonymous",
 						},
 					},
+					{
+						tag: "script",
+						head: true,
+						attrs: {
+							src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.31.0/dist/rollup.browser.min.js",
+						},
+					},
 				],
 			},
 		},

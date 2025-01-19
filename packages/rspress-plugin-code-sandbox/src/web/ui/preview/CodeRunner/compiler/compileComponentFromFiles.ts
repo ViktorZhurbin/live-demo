@@ -4,7 +4,7 @@ import { getComponentFnFromCodeString } from "./getFnFromFunctionString";
 import { getRollupBundledCode } from "./getRollupBundledCode";
 
 export const compileComponentFromFiles = async (files: Files) => {
-	if (!window.Babel) return;
+	if (!(window.Babel || window.rollup)) return;
 
 	// Rollup requires plugins to handle JSX/TSX,
 	// but they don't work in the browser.
