@@ -2,6 +2,7 @@ import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { EditorCodeMirror } from "../../editor/EditorCodeMirror/EditorCodeMirror";
+import { FileTabs } from "../../editor/FileTabs/FileTabs";
 import { Preview } from "../../preview/Preview/Preview";
 import styles from "./ResizablePanels.module.css";
 
@@ -23,6 +24,7 @@ export const ResizablePanels = () => {
 				autoSaveId="rspress-plugin-code-playground"
 			>
 				<Panel id="editor" defaultSize={50} order={isVertical ? 1 : 0}>
+					<FileTabs />
 					<EditorCodeMirror />
 				</Panel>
 

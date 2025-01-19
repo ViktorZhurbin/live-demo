@@ -1,3 +1,4 @@
+import "./global.css";
 import type { PlaygroundProps } from "@shared/types";
 import type { KeyboardEventHandler } from "react";
 import { FilesProvider } from "../../../context/Files";
