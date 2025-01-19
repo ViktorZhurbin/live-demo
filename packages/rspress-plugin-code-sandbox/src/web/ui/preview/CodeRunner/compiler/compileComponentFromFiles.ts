@@ -1,4 +1,4 @@
-import { Files } from "../../../../../shared/types";
+import type { Files } from "@shared/types";
 import { getBabelTransformedFiles } from "./getBabelTransformedFiles";
 import { getComponentFnFromCodeString } from "./getFnFromFunctionString";
 import { getRollupBundledCode } from "./getRollupBundledCode";

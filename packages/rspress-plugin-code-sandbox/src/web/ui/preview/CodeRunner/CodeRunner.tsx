@@ -1,6 +1,6 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { type ReactNode, createElement, useEffect, useState } from "react";
-import type { Files } from "../../../../shared/types";
+import type { Files } from "@shared/types";
 import { compileComponentFromFiles } from "./compiler";
 
 const DEBOUNCE_TIME = 500;

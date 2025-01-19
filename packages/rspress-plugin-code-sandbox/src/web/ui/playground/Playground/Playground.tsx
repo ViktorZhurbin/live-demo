@@ -1,5 +1,5 @@
-import { KeyboardEventHandler } from "react";
-import type { PlaygroundProps } from "../../../../shared/types";
+import type { KeyboardEventHandler } from "react";
+import type { PlaygroundProps } from "@shared/types";
 import { FilesProvider } from "../../../context/Files";
 import { ResizablePanels } from "../ResizablePanels/ResizablePanels";
 import styles from "./Playground.module.css";

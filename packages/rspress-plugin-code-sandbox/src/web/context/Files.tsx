@@ -1,5 +1,5 @@
+import type { Files, PlaygroundProps } from "@shared/types";
 import { createContext, useCallback, useContext, useState } from "react";
-import type { Files, PlaygroundProps } from "../../shared/types";
 
 type FilesContextValue = {
 	files: Files;

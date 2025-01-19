@@ -1,10 +1,7 @@
 import { type Plugin, rollup } from "@rollup/browser";
-import { Files } from "../../../../../shared/types";
-import { ENTRY_FILE_BASE, Language } from "../../../../../shared/constants";
-import {
-	isRelativeImport,
-	prepareFileNameWithExt,
-} from "../../../../../shared/pathHelpers";
+import { ENTRY_FILE_BASE, Language } from "@shared/constants";
+import { isRelativeImport, prepareFileNameWithExt } from "@shared/pathHelpers";
+import type { Files } from "@shared/types";
 
 type GetBundledCode = {
 	files: Files;

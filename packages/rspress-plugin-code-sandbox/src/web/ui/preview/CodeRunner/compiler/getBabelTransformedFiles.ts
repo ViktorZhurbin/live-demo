@@ -1,5 +1,5 @@
 import type babel from "@babel/standalone";
-import { Files } from "../../../../../shared/types";
+import type { Files } from "@shared/types";
 
 type Babel = typeof babel;
 

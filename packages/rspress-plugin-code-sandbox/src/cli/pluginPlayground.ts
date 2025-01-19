@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
+import { EntryFiles } from "@shared/constants";
+import type { PlaygroundProps } from "@shared/types";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { RspackVirtualModulePlugin } from "rspack-plugin-virtual-module";
 import { visit } from "unist-util-visit";
-import { EntryFiles } from "../shared/constants";
-import type { PlaygroundProps } from "../shared/types";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";

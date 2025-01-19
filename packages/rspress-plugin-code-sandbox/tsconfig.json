@@ -8,7 +8,12 @@
 		"isolatedModules": true,
 		"resolveJsonModule": true,
 		"moduleResolution": "bundler",
-		"useDefineForClassFields": true
+		"useDefineForClassFields": true,
+
+		"paths": {
+			"@shared/*": ["./src/shared/*"]
+		}
 	},
+
 	"include": ["src"]
 }
