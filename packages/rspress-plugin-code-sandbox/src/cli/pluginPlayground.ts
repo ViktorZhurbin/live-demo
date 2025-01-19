@@ -87,9 +87,9 @@ export function pluginPlayground(): RspressPlugin {
 		},
 
 		// Add additional runtime modules
-		async addRuntimeModules(config, isProd) {
+		async addRuntimeModules() {
 			return {
-				// _playground_virtual_types: `export default ${JSON.stringify(typesMap)}`,
+				// _playground_virtual_modules: getVirtualModulesCode(allImports),
 			};
 		},
 

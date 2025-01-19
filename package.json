@@ -11,7 +11,8 @@
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",
 		"dev:lib": "pnpm --filter rspress-plugin-code-sandbox dev",
-		"build:lib": "pnpm --filter rspress-plugin-code-sandbox build"
+		"build:lib": "pnpm --filter rspress-plugin-code-sandbox build",
+		"build": "pnpm run build:lib && pnpm build:web"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4"
