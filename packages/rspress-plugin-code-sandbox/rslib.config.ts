@@ -1,4 +1,5 @@
 import { defineConfig } from "@rslib/core";
+import { pluginReact } from "@rsbuild/plugin-react";
 
 export default defineConfig({
 	source: {
@@ -16,4 +17,15 @@ export default defineConfig({
 	output: {
 		target: "web",
 	},
+
+	plugins: [pluginReact()],
+
+	performance: process.env.BUNDLE_ANALYZE
+		? {
+				bundleAnalyze: {
+					analyzerMode: "static",
+					openAnalyzer: true,
+				},
+		  }
+		: {},
 });

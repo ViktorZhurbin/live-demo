@@ -2,6 +2,7 @@
 	"name": "rspress-plugin-code-sandbox",
 	"version": "1.0.0",
 	"type": "module",
+	"license": "MIT",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -16,7 +17,7 @@
 	"scripts": {
 		"build": "rslib build",
 		"dev": "rslib build --watch",
-		"test": "vitest run"
+		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
 	},
 	"dependencies": {
 		"@codemirror/lang-javascript": "^6.2.2",
@@ -33,6 +34,7 @@
 	"devDependencies": {
 		"@oxc-project/types": "^0.47.1",
 		"@oxidation-compiler/napi": "^0.2.0",
+		"@rsbuild/plugin-react": "^1.1.0",
 		"@rslib/core": "^0.3.2",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
