@@ -1,14 +1,14 @@
 {
-  "compilerOptions": {
-    "lib": ["DOM", "ES2021"],
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "strict": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "bundler",
-    "useDefineForClassFields": true
-  },
-  "include": ["src"]
+	"compilerOptions": {
+		"lib": ["DOM", "es2022"],
+		"module": "ESNext",
+		"jsx": "react-jsx",
+		"strict": true,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"moduleResolution": "bundler",
+		"useDefineForClassFields": true
+	},
+	"include": ["src"]
 }

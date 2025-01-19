@@ -11,5 +11,11 @@
 		"rspress": "^1.40.0",
 		"rspress-plugin-code-sandbox": "workspace:*"
 	},
+	"devDependencies": {
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"react": "^18",
+		"react-dom": "^18"
+	},
 	"packageManager": "pnpm@9.13.2"
 }
