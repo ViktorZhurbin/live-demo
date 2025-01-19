@@ -12,7 +12,7 @@ function getImport(importName) {
 
 export { imports }
 
-export default getImport`
+export default getImport`;
 
 /**
  * Prepares a string template to be injected into
@@ -26,15 +26,21 @@ export default getImport`
  * getImport('react')
  */
 export const getVirtualModulesCode = (allImports: Record<string, string>) => {
-  const importModuleNames = Object.keys(allImports)
+	const importModuleNames = Object.keys(allImports);
 
-  const importStatements = importModuleNames.map(
-    (moduleName, index) => `import * as i_${index} from '${moduleName}';`
-  )
+	const importStatements = importModuleNames.map(
+		(moduleName, index) => `import * as i_${index} from '${moduleName}';`,
+	);
 
-  const importSetters = importModuleNames.map(
-    (moduleName, index) => `imports.set('${moduleName}', i_${index});`
-  )
+	const importSetters = importModuleNames.map(
+		(moduleName, index) => `imports.set('${moduleName}', i_${index});`,
+	);
 
-  return [getImportFnString, '\n', ...importStatements, '\n', ...importSetters].join('\n')
-}
+	return [
+		getImportFnString,
+		"\n",
+		...importStatements,
+		"\n",
+		...importSetters,
+	].join("\n");
+};

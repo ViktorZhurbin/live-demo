@@ -1,1 +1,1 @@
-export { compileComponentFromFiles } from './compileComponentFromFiles'
+export { compileComponentFromFiles } from "./compileComponentFromFiles";

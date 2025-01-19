@@ -1,6 +1,6 @@
 import { useDebouncedCallback } from "@mantine/hooks";
-import { type ReactNode, createElement, useEffect, useState } from "react";
 import type { Files } from "@shared/types";
+import { type ReactNode, createElement, useEffect, useState } from "react";
 import { compileComponentFromFiles } from "./compiler";
 
 const DEBOUNCE_TIME = 500;
@@ -29,7 +29,7 @@ export const CodeRunner = ({ files, setError }: CodeRunnerProps) => {
 
 	const getComponentDebounced = useDebouncedCallback(
 		getComponent,
-		DEBOUNCE_TIME
+		DEBOUNCE_TIME,
 	);
 
 	useEffect(() => {

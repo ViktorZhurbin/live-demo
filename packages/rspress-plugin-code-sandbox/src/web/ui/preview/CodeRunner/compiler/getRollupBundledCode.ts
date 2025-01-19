@@ -9,7 +9,7 @@ type GetBundledCode = {
 
 export const getRollupBundledCode = async ({ files }: GetBundledCode) => {
 	const entryFilename = Object.keys(files).find((name) =>
-		name.includes(ENTRY_FILE_BASE)
+		name.includes(ENTRY_FILE_BASE),
 	);
 
 	const bundle = await rollup({

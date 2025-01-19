@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { useFilesContext } from "../../../context/Files";
 import { CodeRunner } from "../CodeRunner/CodeRunner";
 import styles from "./Preview.module.css";
-import { useFilesContext } from "../../../context/Files";
 
 export const Preview = () => {
 	const { files } = useFilesContext();

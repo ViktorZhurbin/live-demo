@@ -1,7 +1,4 @@
-export const testPerformance = <T extends object>(
-	id: string,
-	fn: () => T
-) => {
+export const testPerformance = <T extends object>(id: string, fn: () => T) => {
 	const start = performance.now();
 	const result = fn();
 	const end = performance.now();
@@ -10,7 +7,7 @@ export const testPerformance = <T extends object>(
 
 	console.info(
 		`%${id} in ${diff}ms`,
-		"background: #15889f; padding: 6px; color: white;"
+		"background: #15889f; padding: 6px; color: white;",
 	);
 
 	return result;

@@ -1,7 +1,7 @@
 import { javascript } from "@codemirror/lang-javascript";
+import { useDark } from "@rspress/core/runtime";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
-import { useDark } from "@rspress/core/runtime";
 import "./EditorCodeMirror.css";
 import { useFilesContext } from "../../../context/Files";
 

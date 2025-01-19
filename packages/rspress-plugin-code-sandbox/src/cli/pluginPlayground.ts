@@ -65,13 +65,13 @@ export function pluginPlayground(): RspressPlugin {
 
 						if (!/.(j|t)sx$/.test(importPath)) {
 							throw new Error(
-								`Invalid src import path: ${importPath}. Check extension: only .jsx and .tsx file extensions are supported`
+								`Invalid src import path: ${importPath}. Check extension: only .jsx and .tsx file extensions are supported`,
 							);
 						}
 
 						const demoPath = path.join(
 							path.dirname(route.absolutePath),
-							importPath
+							importPath,
 						);
 
 						if (!fs.existsSync(demoPath)) return;
@@ -96,7 +96,7 @@ export function pluginPlayground(): RspressPlugin {
 
 			playgroundVirtualModule.writeModule(
 				"_playground_virtual_modules",
-				getVirtualModulesCode(allImports)
+				getVirtualModulesCode(allImports),
 			);
 		},
 

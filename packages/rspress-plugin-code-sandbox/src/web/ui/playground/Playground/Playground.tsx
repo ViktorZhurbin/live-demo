@@ -1,5 +1,5 @@
-import type { KeyboardEventHandler } from "react";
 import type { PlaygroundProps } from "@shared/types";
+import type { KeyboardEventHandler } from "react";
 import { FilesProvider } from "../../../context/Files";
 import { ResizablePanels } from "../ResizablePanels/ResizablePanels";
 import styles from "./Playground.module.css";
@@ -33,6 +33,6 @@ function parseProps(props: PlaygroundStringifiedProps): PlaygroundProps {
 	return Object.fromEntries(
 		Object.entries(props).map(([key, value]) => {
 			return [key, JSON.parse(value)];
-		})
+		}),
 	) as PlaygroundProps;
 }

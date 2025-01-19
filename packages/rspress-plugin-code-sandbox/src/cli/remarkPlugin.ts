@@ -41,7 +41,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 };
 
 function getMdxJsxAttributes(
-	attrs: Array<[string, string]>
+	attrs: Array<[string, string]>,
 ): MdxJsxFlowElement["attributes"] {
 	return attrs.map(([name, value]) => ({
 		name,
