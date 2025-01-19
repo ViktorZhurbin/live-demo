@@ -1,4 +1,4 @@
-import type { Language } from "./constants";
+import { Language } from "./constants";
 
 /** starting with ./ or ../  */
 const relativeImportRegex = /^\.{1,2}\//;
@@ -6,15 +6,16 @@ const relativeImportRegex = /^\.{1,2}\//;
 export const isRelativeImport = (importPath: string) =>
 	relativeImportRegex.test(importPath);
 
-const stripRelativeImport = (importPath: string) =>
+export const stripRelativeImport = (importPath: string) =>
 	importPath.replace(/[./]+/, "");
 
-export const getPathWithExt = (path: string, ext: Language) => {
-	return path.endsWith(ext) ? path : `${path}.${ext}`;
-};
+export const getPossiblePaths = (filePath: string) => {
+	const fileExt = filePath.split(".")[1];
+	const isAllowedLanguage = fileExt in Language;
 
-export const prepareFileNameWithExt = (importPath: string, ext: Language) => {
-	const baseName = stripRelativeImport(importPath);
+	const possiblePaths = isAllowedLanguage
+		? [filePath]
+		: Object.keys(Language).map((ext) => `${filePath}.${ext}`);
 
-	return getPathWithExt(baseName, ext);
+	return possiblePaths;
 };

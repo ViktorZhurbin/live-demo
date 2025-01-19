@@ -5,17 +5,25 @@ import { compileComponentFromFiles } from "./compiler";
 
 const DEBOUNCE_TIME = 500;
 
-type CodeRunnerProps = {
+export type CodeRunnerProps = {
 	files: Files;
+	entryFileName: string;
 	setError: (error: Error | undefined) => void;
 };
 
-export const CodeRunner = ({ files, setError }: CodeRunnerProps) => {
+export const CodeRunner = ({
+	files,
+	setError,
+	entryFileName,
+}: CodeRunnerProps) => {
 	const [component, setComponent] = useState<ReactNode | null>(null);
 
 	const getComponent = async (files: Files) => {
 		try {
-			const component = await compileComponentFromFiles(files);
+			const component = await compileComponentFromFiles({
+				files,
+				entryFileName,
+			});
 
 			if (component) {
 				setError(undefined);

@@ -5,7 +5,7 @@ import { CodeRunner } from "../CodeRunner/CodeRunner";
 import styles from "./Preview.module.css";
 
 export const Preview = () => {
-	const { files } = useFilesContext();
+	const { files, entryFileName } = useFilesContext();
 	const [error, setError] = useState<Error | undefined>();
 
 	const errorOverlay = error ? (
@@ -19,7 +19,11 @@ export const Preview = () => {
 				resetKeys={[files]}
 				fallback={errorOverlay}
 			>
-				<CodeRunner files={files} setError={setError} />
+				<CodeRunner
+					files={files}
+					entryFileName={entryFileName}
+					setError={setError}
+				/>
 			</ErrorBoundary>
 			{errorOverlay}
 		</div>

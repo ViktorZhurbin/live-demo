@@ -2,19 +2,17 @@ import { javascript } from "@codemirror/lang-javascript";
 import { useDark } from "@rspress/core/runtime";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import CodeMirror from "@uiw/react-codemirror";
+import { useActiveCode } from "../../../hooks/useActiveCode";
 import "./EditorCodeMirror.css";
-import { useFilesContext } from "../../../context/Files";
 
 export const EditorCodeMirror = () => {
 	const theme = useDark() ? vscodeDark : vscodeLight;
-	const { files, updateFiles } = useFilesContext();
+	const { code, updateCode } = useActiveCode();
 
 	return (
 		<CodeMirror
-			value={files["App.tsx"]}
-			onChange={(code) => {
-				updateFiles({ "App.tsx": code });
-			}}
+			value={code}
+			onChange={updateCode}
 			extensions={[javascript({ jsx: true, typescript: true })]}
 			theme={theme}
 			basicSetup={{

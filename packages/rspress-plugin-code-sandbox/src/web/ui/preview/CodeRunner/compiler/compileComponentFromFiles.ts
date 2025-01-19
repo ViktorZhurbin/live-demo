@@ -1,9 +1,17 @@
-import type { Files } from "@shared/types";
+import type { CodeRunnerProps } from "../CodeRunner";
 import { getBabelTransformedFiles } from "./getBabelTransformedFiles";
 import { getComponentFnFromCodeString } from "./getFnFromFunctionString";
 import { getRollupBundledCode } from "./getRollupBundledCode";
 
-export const compileComponentFromFiles = async (files: Files) => {
+type CompileComponentFromFiles = Pick<
+	CodeRunnerProps,
+	"files" | "entryFileName"
+>;
+
+export const compileComponentFromFiles = async ({
+	files,
+	entryFileName,
+}: CompileComponentFromFiles) => {
 	if (!(window.Babel || window.rollup)) return;
 
 	// Rollup requires plugins to handle JSX/TSX,
@@ -13,6 +21,7 @@ export const compileComponentFromFiles = async (files: Files) => {
 
 	// Bundle files into a single chunk
 	const bundledCode = await getRollupBundledCode({
+		entryFileName,
 		files: babelTransformedFiles,
 	});
 

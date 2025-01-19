@@ -1,3 +1,4 @@
+import type { PlaygroundProps } from "@shared/types";
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
@@ -29,23 +30,21 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				return;
 			}
 
-			const { files } = demoDataByPath[importPath];
-
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "Playground",
-				attributes: getMdxJsxAttributes([["files", JSON.stringify(files)]]),
+				attributes: getJsxAttributesFromProps(demoDataByPath[importPath]),
 			});
 		});
 	};
 };
 
-function getMdxJsxAttributes(
-	attrs: Array<[string, string]>,
+function getJsxAttributesFromProps(
+	props: PlaygroundProps,
 ): MdxJsxFlowElement["attributes"] {
-	return attrs.map(([name, value]) => ({
+	return Object.entries(props).map(([name, value]) => ({
 		name,
-		value,
+		value: JSON.stringify(value),
 		type: "mdxJsxAttribute",
 	}));
 }

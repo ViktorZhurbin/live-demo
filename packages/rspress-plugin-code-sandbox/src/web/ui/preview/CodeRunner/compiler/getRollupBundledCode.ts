@@ -1,9 +1,12 @@
 import type { Plugin } from "@rollup/browser";
 import type rollup from "@rollup/browser";
-
-import { ENTRY_FILE_BASE, Language } from "@shared/constants";
-import { isRelativeImport, prepareFileNameWithExt } from "@shared/pathHelpers";
+import {
+	getPossiblePaths,
+	isRelativeImport,
+	stripRelativeImport,
+} from "@shared/pathHelpers";
 import type { Files } from "@shared/types";
+import type { CodeRunnerProps } from "../CodeRunner";
 
 type Rollup = typeof rollup;
 
@@ -15,17 +18,14 @@ declare global {
 	}
 }
 
-type GetBundledCode = {
-	files: Files;
-};
+type GetBundledCode = Pick<CodeRunnerProps, "files" | "entryFileName">;
 
-export const getRollupBundledCode = async ({ files }: GetBundledCode) => {
-	const entryFilename = Object.keys(files).find((name) =>
-		name.includes(ENTRY_FILE_BASE),
-	);
-
+export const getRollupBundledCode = async ({
+	files,
+	entryFileName,
+}: GetBundledCode) => {
 	const bundle = await window.rollup.rollup({
-		input: entryFilename,
+		input: entryFileName,
 		plugins: [loaderPlugin(files)],
 		external: (source) => {
 			const isLocal = isRelativeImport(source) || files[source];
@@ -60,10 +60,15 @@ function loaderPlugin(files: Files): Plugin {
 
 			// resolve file name from the relative import
 			if (isRelativeImport(source)) {
-				const fileName = prepareFileNameWithExt(source, Language.tsx);
+				const fileName = stripRelativeImport(source);
 
-				if (Object.hasOwn(files, fileName)) {
-					return fileName;
+				// same helper should be used in `getFilesAndImports`
+				const pathsToCheck = getPossiblePaths(fileName);
+
+				for (const checkedPath of pathsToCheck) {
+					if (Object.hasOwn(files, checkedPath)) {
+						return checkedPath;
+					}
 				}
 			}
 

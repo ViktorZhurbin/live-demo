@@ -5,7 +5,12 @@ type FilesContextValue = {
 	files: Files;
 	setFiles: React.Dispatch<React.SetStateAction<Files>>;
 
+	activeFile: string;
+	setActiveFile: React.Dispatch<React.SetStateAction<string>>;
+
 	updateFiles: (update: Files) => void;
+
+	entryFileName: PlaygroundProps["entryFileName"];
 };
 
 const FilesContext = createContext<FilesContextValue | undefined>(undefined);
@@ -17,6 +22,7 @@ type FilesProviderProps = {
 
 function FilesProvider({ initialValue, children }: FilesProviderProps) {
 	const [files, setFiles] = useState(initialValue.files);
+	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
 	const updateFiles = useCallback((update: Files) => {
 		setFiles((prevFiles) => ({ ...prevFiles, ...update }));
@@ -28,6 +34,11 @@ function FilesProvider({ initialValue, children }: FilesProviderProps) {
 				files,
 				setFiles,
 				updateFiles,
+
+				activeFile,
+				setActiveFile,
+
+				entryFileName: initialValue.entryFileName,
 			}}
 		>
 			{children}

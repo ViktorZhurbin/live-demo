@@ -1,15 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
-import { EntryFiles } from "@shared/constants";
 import type { PlaygroundProps } from "@shared/types";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { RspackVirtualModulePlugin } from "rspack-plugin-virtual-module";
 import { visit } from "unist-util-visit";
+import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";
-import { parseImports } from "./helpers/parseImports";
 import { remarkPlugin } from "./remarkPlugin";
 
 export type DemoDataByPath = Record<string, PlaygroundProps>;
@@ -63,30 +62,17 @@ export function pluginPlayground(): RspressPlugin {
 
 						if (typeof importPath !== "string") return;
 
-						if (!/.(j|t)sx$/.test(importPath)) {
-							throw new Error(
-								`Invalid src import path: ${importPath}. Check extension: only .jsx and .tsx file extensions are supported`,
-							);
-						}
-
-						const demoPath = path.join(
-							path.dirname(route.absolutePath),
+						const demo = getFilesAndImports({
 							importPath,
-						);
-
-						if (!fs.existsSync(demoPath)) return;
-
-						const code = fs.readFileSync(demoPath, {
-							encoding: "utf8",
+							dirname: path.dirname(route.absolutePath),
 						});
 
+						Object.assign(allImports, demo.imports);
+
 						demoDataByPath[importPath] = {
-							files: { [EntryFiles.tsx]: code },
+							files: demo.files,
+							entryFileName: demo.entryFileName,
 						};
-
-						const demoImports = parseImports(code, path.extname(importPath));
-
-						Object.assign(allImports, demoImports);
 					});
 				} catch (e) {
 					console.error(e);

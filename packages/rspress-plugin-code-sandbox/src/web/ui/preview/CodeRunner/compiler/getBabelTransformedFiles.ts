@@ -1,5 +1,6 @@
 import type babel from "@babel/standalone";
 import type { Files } from "@shared/types";
+import type { CodeRunnerProps } from "../CodeRunner";
 
 type Babel = typeof babel;
 
@@ -11,9 +12,7 @@ declare global {
 	}
 }
 
-type GetBabelTransformedFiles = {
-	files: Files;
-};
+type GetBabelTransformedFiles = Pick<CodeRunnerProps, "files">;
 
 export function getBabelTransformedFiles({ files }: GetBabelTransformedFiles) {
 	const { availablePresets, transform } = window.Babel;
