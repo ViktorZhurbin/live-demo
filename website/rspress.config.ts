@@ -2,6 +2,8 @@ import * as path from "node:path";
 import { pluginPlayground } from "rspress-plugin-code-sandbox";
 import { defineConfig } from "rspress/config";
 
+console.log("NODE_ENV", process.env.NODE_ENV);
+
 export default defineConfig({
 	root: path.join(__dirname, "docs"),
 	plugins: [pluginPlayground()],

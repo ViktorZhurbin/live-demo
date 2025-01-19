@@ -18,6 +18,7 @@
 	height: 100%;
 	width: var(--handle-width);
 	position: relative;
+	border-left: var(--sp-layout-border);
 
 	&::after {
 		content: "";

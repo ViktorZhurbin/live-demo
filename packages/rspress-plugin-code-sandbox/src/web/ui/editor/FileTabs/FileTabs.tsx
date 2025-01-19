@@ -6,8 +6,6 @@ export const FileTabs = () => {
 	const { files, activeFile, setActiveFile } = useFilesContext();
 	const fileNames = Object.keys(files);
 
-	if (fileNames.length < 2) return null;
-
 	return (
 		<div className={styles.wrapper}>
 			{fileNames.map((name) => {

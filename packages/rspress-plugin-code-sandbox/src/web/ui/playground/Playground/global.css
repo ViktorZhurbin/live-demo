@@ -29,4 +29,6 @@ html {
 		--sp-colors-warning: #e7c400;
 		--sp-colors-warningSurface: #3a3000;
 	}
+
+	--sp-layout-border: 1px solid var(--sp-colors-surface2);
 }

@@ -1,17 +1,18 @@
 .wrapper {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  overflow: auto;
+	display: flex;
+	gap: 8px;
+	padding: 8px;
+	overflow: auto;
+	border-bottom: var(--sp-layout-border);
 }
 
 .tab,
-.tab[data-active='true'],
+.tab[data-active="true"],
 .tab:hover:not(:disabled) {
-  border: unset;
-  background-color: transparent;
+	border: unset;
+	background-color: transparent;
 
-  &:hover:not([data-active='true']) {
-    color: var(--sp-color-accent);
-  }
+	&:hover:not([data-active="true"]) {
+		color: var(--sp-color-accent);
+	}
 }
