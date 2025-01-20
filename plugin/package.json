@@ -1,5 +1,5 @@
 {
-	"name": "rspress-plugin-code-sandbox",
+	"name": "rspress-plugin-code-playground",
 	"version": "1.0.0",
 	"type": "module",
 	"license": "MIT",

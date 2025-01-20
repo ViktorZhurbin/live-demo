@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"rspress": "^1.40.0",
-		"rspress-plugin-code-sandbox": "workspace:*"
+		"rspress-plugin-code-playground": "workspace:*"
 	},
 	"devDependencies": {
 		"@babylonjs/core": "^7.44.0",

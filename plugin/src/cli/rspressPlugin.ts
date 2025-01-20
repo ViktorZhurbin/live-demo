@@ -25,12 +25,12 @@ const demoDataByPath: DemoDataByPath = {};
  * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
  * with `<Playground files={files} />`
  */
-export function pluginPlayground(): RspressPlugin {
+export function rspressPluginCodePlayground(): RspressPlugin {
 	const playgroundVirtualModule = new RspackVirtualModulePlugin({});
 	const getDemoDataByPath = () => demoDataByPath;
 
 	return {
-		name: "@rspress/plugin-playground",
+		name: "rspress-plugin-code-playground",
 
 		config(config) {
 			config.markdown = config.markdown || {};

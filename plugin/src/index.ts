@@ -1,1 +1,1 @@
-export { pluginPlayground } from "./cli/pluginPlayground";
+export { rspressPluginCodePlayground } from "./cli/rspressPlugin";

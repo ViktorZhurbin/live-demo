@@ -95,8 +95,8 @@ importers:
     dependencies:
       rspress:
         specifier: ^1.40.0
-        version: 1.40.0(webpack@5.97.1)
-      rspress-plugin-code-sandbox:
+        version: 1.40.0
+      rspress-plugin-code-playground:
         specifier: workspace:*
         version: link:../plugin
     devDependencies:
@@ -4530,7 +4530,7 @@ snapshots:
     dependencies:
       fs-extra: 11.3.0
 
-  rspress@1.40.0(webpack@5.97.1):
+  rspress@1.40.0:
     dependencies:
       '@rsbuild/core': 1.1.13
       '@rspress/core': 1.40.0(webpack@5.97.1)

@@ -6,8 +6,8 @@
 	"scripts": {
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",
-		"dev:lib": "pnpm --filter rspress-plugin-code-sandbox dev",
-		"build:lib": "pnpm --filter rspress-plugin-code-sandbox build",
+		"dev:lib": "pnpm --filter rspress-plugin-code-playground dev",
+		"build:lib": "pnpm --filter rspress-plugin-code-playground build",
 		"build": "pnpm run build:lib && pnpm build:web",
 		"format": "biome check --write",
 		"prepare": "husky"

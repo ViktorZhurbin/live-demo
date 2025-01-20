@@ -4,7 +4,7 @@ import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import type { DemoDataByPath } from "./pluginPlayground";
+import type { DemoDataByPath } from "./rspressPlugin";
 
 interface RemarkPluginProps {
 	getDemoDataByPath: () => DemoDataByPath;
