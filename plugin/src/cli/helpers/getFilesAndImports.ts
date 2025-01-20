@@ -26,7 +26,7 @@ export const getFilesAndImports = (params: {
 
 	const ast = JSON.parse(parsed.program) as Program;
 
-	const imports: Record<string, string> = {};
+	const imports = new Set<string>();
 
 	for (const statement of ast.body) {
 		if (statement.type !== "ImportDeclaration") continue;
@@ -42,7 +42,7 @@ export const getFilesAndImports = (params: {
 
 			files[nested.entryFileName] = nested.files[nested.entryFileName];
 		} else {
-			imports[importPath] = importPath;
+			imports.add(importPath);
 		}
 	}
 

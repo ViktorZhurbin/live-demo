@@ -1,7 +1,9 @@
-const getImportFnString = `const imports = new Map()
+const IMPORTS_MAP = "importsMap";
+
+const getImportFnString = `const ${IMPORTS_MAP} = new Map()
 
 function getImport(importName) {
-  const result = imports.get(importName)
+  const result = ${IMPORTS_MAP}.get(importName)
 
   if (!result) {
     throw new Error(\`Can't resolve \${importName}.\`)
@@ -9,8 +11,6 @@ function getImport(importName) {
 
   return result.default ?? result
 }
-
-export { imports }
 
 export default getImport`;
 
@@ -25,22 +25,19 @@ export default getImport`;
  *
  * getImport('react')
  */
-export const getVirtualModulesCode = (allImports: Record<string, string>) => {
-	const importModuleNames = Object.keys(allImports);
+export const getVirtualModulesCode = (allImports: Set<string>) => {
+	const moduleCodeString = Array.from(allImports).reduce<string>(
+		(acc, moduleName, index) => {
+			const name = `'${moduleName}'`;
+			const value = `i_${index}`;
 
-	const importStatements = importModuleNames.map(
-		(moduleName, index) => `import * as i_${index} from '${moduleName}';`,
-	);
+			const importStatement = `import * as ${value} from ${name};`;
+			const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
 
-	const importSetters = importModuleNames.map(
-		(moduleName, index) => `imports.set('${moduleName}', i_${index});`,
-	);
-
-	return [
+			return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
+		},
 		getImportFnString,
-		"\n",
-		...importStatements,
-		"\n",
-		...importSetters,
-	].join("\n");
+	);
+
+	return moduleCodeString;
 };

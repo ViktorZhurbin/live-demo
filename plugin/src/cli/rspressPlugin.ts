@@ -28,7 +28,7 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 	const getDemoDataByPath = () => demoDataByPath;
 	// Collect all imports to make them available in browser through
 	// the `getImport` getter, injected as a virtual module
-	const allImports: Record<string, string> = { react: "react" };
+	let allImports = new Set(["react"]);
 
 	return {
 		name: "rspress-plugin-code-playground",
@@ -64,7 +64,7 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 							dirname: path.dirname(route.absolutePath),
 						});
 
-						Object.assign(allImports, demo.imports);
+						allImports = new Set([...allImports, ...demo.imports]);
 
 						demoDataByPath[importPath] = {
 							files: demo.files,
