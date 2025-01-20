@@ -3,7 +3,6 @@ import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
 import type { PlaygroundProps } from "@shared/types";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import { RspackVirtualModulePlugin } from "rspack-plugin-virtual-module";
 import { visit } from "unist-util-visit";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
@@ -26,8 +25,10 @@ const demoDataByPath: DemoDataByPath = {};
  * with `<Playground files={files} />`
  */
 export function rspressPluginCodePlayground(): RspressPlugin {
-	const playgroundVirtualModule = new RspackVirtualModulePlugin({});
 	const getDemoDataByPath = () => demoDataByPath;
+	// Collect all imports to make them available in browser through
+	// the `getImport` getter, injected as a virtual module
+	const allImports: Record<string, string> = { react: "react" };
 
 	return {
 		name: "rspress-plugin-code-playground",
@@ -43,10 +44,6 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 		},
 
 		async routeGenerated(routes) {
-			// Collect all imports to make them available in browser through
-			// the `getImport` getter, injected as a virtual module
-			const allImports: Record<string, string> = { react: "react" };
-
 			// Scan all MDX files
 			for (const route of routes) {
 				if (!route.absolutePath.endsWith(".mdx")) continue;
@@ -79,26 +76,15 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 					throw e;
 				}
 			}
-
-			playgroundVirtualModule.writeModule(
-				"_playground_virtual_modules",
-				getVirtualModulesCode(allImports),
-			);
 		},
 
-		// Add additional runtime modules
 		async addRuntimeModules() {
 			return {
-				// _playground_virtual_modules: getVirtualModulesCode(allImports),
+				_playground_virtual_modules: getVirtualModulesCode(allImports),
 			};
 		},
 
 		builderConfig: {
-			tools: {
-				rspack: {
-					plugins: [playgroundVirtualModule],
-				},
-			},
 			html: {
 				tags: [
 					{

@@ -39,7 +39,6 @@
 		"mdast-util-mdx": "^3.0.0",
 		"react": "^18.3.1",
 		"remark-gfm": "^3.0.1",
-		"rspack-plugin-virtual-module": "^0.1.13",
 		"typescript": "^5.7.3",
 		"unified": "^10.1.2",
 		"unist-util-visit": "^4.1.2"
