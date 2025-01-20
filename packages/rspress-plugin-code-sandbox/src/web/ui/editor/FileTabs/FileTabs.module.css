@@ -3,6 +3,7 @@
 	gap: 8px;
 	padding: 8px;
 	overflow: auto;
+	border-top: var(--sp-layout-border);
 	border-bottom: var(--sp-layout-border);
 }
 

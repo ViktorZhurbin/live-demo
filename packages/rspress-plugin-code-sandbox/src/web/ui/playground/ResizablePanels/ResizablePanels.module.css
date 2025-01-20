@@ -13,7 +13,7 @@
 
 .resizeHandle {
 	--handle-width: 8px;
-	--handle-inset: calc(var(--handle-width) / 4);
+	--handle-inset: calc(var(--handle-width) / 2);
 
 	height: 100%;
 	width: var(--handle-width);
@@ -23,7 +23,7 @@
 	&::after {
 		content: "";
 		position: absolute;
-		inset: 0 var(--handle-inset);
+		inset: 0 var(--handle-inset) 0 0;
 		transition: background-color 0.1s ease-out;
 	}
 
@@ -32,7 +32,7 @@
 		height: var(--handle-width);
 
 		&::after {
-			inset: var(--handle-inset) 0;
+			inset: var(--handle-inset) 0 0 0;
 		}
 	}
 
