@@ -1,1 +1,1 @@
-export { rspressPluginCodePlayground } from "./cli/rspressPlugin";
+export { rspressPluginCodePlayground } from "./node/rspressPlugin";
