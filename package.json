@@ -2,19 +2,18 @@
 	"name": "forms",
 	"type": "module",
 	"license": "MIT",
-	"workspaces": [
-		"packages/*",
-		"website"
-	],
+	"workspaces": ["packages/*", "website"],
 	"scripts": {
 		"format": "biome check --write",
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",
 		"dev:lib": "pnpm --filter rspress-plugin-code-sandbox dev",
 		"build:lib": "pnpm --filter rspress-plugin-code-sandbox build",
-		"build": "pnpm run build:lib && pnpm build:web"
+		"build": "pnpm run build:lib && pnpm build:web",
+		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4"
+		"@biomejs/biome": "1.9.4",
+		"husky": "^9.1.7"
 	}
 }

@@ -4,8 +4,12 @@
 		"enabled": true
 	},
 	"files": {
-		"include": ["packages/**/src/**/*"],
-		"ignore": [],
+		"ignore": [
+			"**/node_modules/**/*",
+			"**/dist/**/*",
+			"**/build/**/*",
+			"**/doc_build/**/*"
+		],
 		"ignoreUnknown": true
 	},
 	"vcs": {
