@@ -1,16 +1,15 @@
 import { javascript } from "@codemirror/lang-javascript";
 import { useDark } from "@rspress/core/runtime";
-import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
-import CodeMirror from "@uiw/react-codemirror";
+import ReactCodeMirror from "@uiw/react-codemirror";
 import { useActiveCode } from "../../../hooks/useActiveCode";
 import "./EditorCodeMirror.css";
 
 export const EditorCodeMirror = () => {
-	const theme = useDark() ? vscodeDark : vscodeLight;
+	const theme = useDark() ? "dark" : "light";
 	const { code, updateCode } = useActiveCode();
 
 	return (
-		<CodeMirror
+		<ReactCodeMirror
 			value={code}
 			onChange={updateCode}
 			extensions={[javascript({ jsx: true, typescript: true })]}
