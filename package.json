@@ -2,14 +2,14 @@
 	"name": "forms",
 	"type": "module",
 	"license": "MIT",
-	"workspaces": ["packages/*", "website"],
+	"workspaces": ["plugin", "website"],
 	"scripts": {
-		"format": "biome check --write",
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",
 		"dev:lib": "pnpm --filter rspress-plugin-code-sandbox dev",
 		"build:lib": "pnpm --filter rspress-plugin-code-sandbox build",
 		"build": "pnpm run build:lib && pnpm build:web",
+		"format": "biome check --write",
 		"prepare": "husky"
 	},
 	"devDependencies": {
