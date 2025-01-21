@@ -1,7 +1,16 @@
-import type { FC } from "react";
+import React, { type FC } from "react";
+import { Tab, Tabs } from "rspress/theme";
 
-const App: FC = () => {
-	return <div>Hello there</div>;
+const Hello: FC = () => {
+	return (
+		<div>
+			Text
+			{/* <Tabs>
+				<Tab>Tab 1</Tab>
+				<Tab>Tab 2</Tab>
+			</Tabs> */}
+		</div>
+	);
 };
 
-export default App;
+export default Hello;

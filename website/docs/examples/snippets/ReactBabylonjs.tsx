@@ -2,7 +2,7 @@ import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import React, { type FC } from "react";
 import { Engine, Scene } from "react-babylonjs";
 
-const App: FC = () => {
+const ReactBabylon: FC = () => {
 	return (
 		<div style={{ flex: 1, display: "flex" }}>
 			<Engine
@@ -37,4 +37,4 @@ const App: FC = () => {
 	);
 };
 
-export default App;
+export default ReactBabylon;
