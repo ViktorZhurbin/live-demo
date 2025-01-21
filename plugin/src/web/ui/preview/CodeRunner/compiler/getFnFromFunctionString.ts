@@ -1,6 +1,5 @@
 import getImport from "_playground_virtual_modules";
-
-const GET_IMPORT_FN = "__get_import";
+import { GET_IMPORT_FN } from "./constants";
 
 type ExportObject = "module" | "exports";
 type ExportProperty = "exports" | "default";

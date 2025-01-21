@@ -2,14 +2,18 @@ const IMPORTS_MAP = "importsMap";
 
 const getImportFnString = `const ${IMPORTS_MAP} = new Map()
 
-function getImport(importName) {
+function getImport(importName, getDefault) {
   const result = ${IMPORTS_MAP}.get(importName)
 
   if (!result) {
     throw new Error(\`Can't resolve \${importName}.\`)
   }
 
-  return result.default ?? result
+	if (getDefault && typeof result === "object") {
+		return result.default || result
+	}
+
+	return result
 }
 
 export default getImport`;
