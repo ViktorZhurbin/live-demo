@@ -26,12 +26,14 @@
 		"react-resizable-panels": "^2.1.7"
 	},
 	"devDependencies": {
+		"@babel/types": "^7.26.5",
 		"@mdx-js/mdx": "^2.3.0",
 		"@oxc-project/types": "^0.47.1",
 		"@oxidation-compiler/napi": "^0.2.0",
 		"@rollup/browser": "^4.31.0",
 		"@rsbuild/plugin-react": "^1.1.0",
 		"@rslib/core": "^0.3.2",
+		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
 		"@types/react": "^18",
