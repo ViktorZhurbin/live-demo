@@ -1,5 +1,4 @@
 import type babel from "@babel/standalone";
-import { babelPluginTraverse } from "./babelPluginTraverse";
 
 type Babel = typeof babel;
 
@@ -25,10 +24,7 @@ export const babelTransformCode = (code: string, filename: string) => {
 
 	const presets = filename.endsWith(".tsx") ? presetsTsx : presetsJsx;
 
-	const fileResult = transform(code, {
-		presets,
-		// plugins: [babelPluginTraverse()],
-	});
+	const fileResult = transform(code, { presets });
 
 	return fileResult?.code ?? code;
 };

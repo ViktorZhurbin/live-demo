@@ -1,9 +1,6 @@
 import type { Node, PluginItem } from "@babel/core";
-import {
-	createGetImport,
-	createObjectPattern,
-	createVariableDeclaration,
-} from "./ast";
+import type { VariableDeclaration } from "@babel/types";
+import { GET_IMPORT_FN } from "../constants";
 
 export const babelPluginTraverse = (): PluginItem => {
 	let hasReactImported = false;
@@ -12,70 +9,93 @@ export const babelPluginTraverse = (): PluginItem => {
 		pre() {
 			hasReactImported = false;
 		},
+
 		visitor: {
 			ImportDeclaration(path) {
 				const pkg = path.node.source.value;
 				const code: Node[] = [];
-				const specifiers: (string | [string, string])[] = [];
+				const namedImports: string[] = [];
+
 				for (const specifier of path.node.specifiers) {
 					if (specifier.local.name === "React") {
 						hasReactImported = true;
 					}
-					// import X from 'foo'
-					if (specifier.type === "ImportDefaultSpecifier") {
-						// const ${specifier.local.name} = __get_import()
-						code.push(
-							createVariableDeclaration(
-								specifier.local.name,
-								createGetImport(pkg, true),
-							),
-						);
+					// import X from 'foo' || import * as X from 'foo'
+					if (
+						specifier.type === "ImportDefaultSpecifier" ||
+						specifier.type === "ImportNamespaceSpecifier"
+					) {
+						const isDefault = specifier.type === "ImportDefaultSpecifier";
+
+						const node = createGetImportDeclaration({
+							pkg,
+							isDefault,
+							imported: specifier.local.name,
+						});
+
+						code.push(node);
 					}
-					// import * as X from 'foo'
-					if (specifier.type === "ImportNamespaceSpecifier") {
-						// const ${specifier.local.name} = __get_import()
-						code.push(
-							createVariableDeclaration(
-								specifier.local.name,
-								createGetImport(pkg),
-							),
-						);
-					}
-					// import { a, b, c } from 'foo'
+
+					// import { a, b, importedName: localName } from 'pkg'
 					if (specifier.type === "ImportSpecifier") {
 						if (
 							"name" in specifier.imported &&
 							specifier.imported.name !== specifier.local.name
 						) {
-							// const {${specifier.imported.name}: ${specifier.local.name}} = __get_import()
-							specifiers.push([specifier.imported.name, specifier.local.name]);
+							// import { importedName: localName } from 'pkg'
+							namedImports.push(
+								`${specifier.imported.name}: ${specifier.local.name}`,
+							);
 						} else {
-							// const {${specifier.local.name}} = __get_import()
-							specifiers.push(specifier.local.name);
+							// import { localName } from 'pkg'
+							namedImports.push(specifier.local.name);
 						}
 					}
 				}
-				if (specifiers.length > 0) {
-					code.push(
-						createVariableDeclaration(
-							createObjectPattern(specifiers),
-							createGetImport(pkg),
-						),
-					);
+
+				if (namedImports.length > 0) {
+					const imported = `{ ${namedImports.join(", ")} }`;
+					const node = createGetImportDeclaration({ pkg, imported });
+
+					code.push(node);
 				}
+
 				path.replaceWithMultiple(code);
 			},
 			ExportSpecifier(path) {
 				// console.log("ExportSpecifier", path.node);
 			},
 		},
+
 		post(file) {
 			// Auto import React
 			if (!hasReactImported) {
-				file.ast.program.body.unshift(
-					createVariableDeclaration("React", createGetImport("react", true)),
-				);
+				const node = createGetImportDeclaration({
+					pkg: "react",
+					imported: "React",
+					isDefault: true,
+				});
+
+				file.ast.program.body.unshift(node);
 			}
 		},
 	};
 };
+
+function getParsedVariableDeclaration(code: string) {
+	const parsed = window.Babel?.packages.parser.parse(code);
+
+	return parsed.program.body[0] as VariableDeclaration;
+}
+
+function createGetImportDeclaration({
+	pkg,
+	imported,
+	isDefault = false,
+}: { imported: string; pkg: string; isDefault?: boolean }) {
+	const getImport = `${GET_IMPORT_FN}('${pkg}', ${isDefault})`;
+
+	const importString = `const ${imported} = ${getImport}`;
+
+	return getParsedVariableDeclaration(importString);
+}
