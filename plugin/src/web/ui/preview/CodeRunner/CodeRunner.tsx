@@ -29,7 +29,16 @@ export const CodeRunner = ({
 		if (!(window.Babel || window.rollup)) return;
 
 		try {
+			const start = performance.now();
 			const code = await bundleCode({ entryFileName, files });
+			const end = performance.now();
+
+			const diff = Math.round(end - start);
+
+			console.info(
+				`%cBundled in ${diff}ms`,
+				"background: #15889f; padding: 6px; color: white;",
+			);
 
 			if (code === prevCode && !error) return;
 

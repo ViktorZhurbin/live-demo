@@ -34,7 +34,7 @@ export const getFilesAndImports = (params: {
 		const importPath = statement.source.value;
 
 		if (isRelativeImport(importPath)) {
-			// Make relative imports available in the code editor
+			// Support local imports, and make each file editable
 			const nested = getFilesAndImports({
 				importPath,
 				dirname: path.dirname(resolvedPath),
@@ -65,6 +65,6 @@ function resolveFilePath({
 	}
 
 	throw new Error(
-		`Couldn't resolve src import path: ${importPath}. Only .jsx and .tsx files are supported`,
+		`Couldn't resolve \`src=${importPath}\`.\nOnly .jsx and .tsx files are supported`,
 	);
 }

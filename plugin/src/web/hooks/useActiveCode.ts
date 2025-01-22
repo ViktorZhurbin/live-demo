@@ -8,9 +8,7 @@ export const useActiveCode = () => {
 
 	const updateCode = useCallback(
 		(code: string) => {
-			updateFiles({
-				[activeFile]: code,
-			});
+			updateFiles({ [activeFile]: code });
 		},
 		[activeFile, updateFiles],
 	);
