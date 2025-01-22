@@ -4,7 +4,7 @@ import { GET_IMPORT_FN } from "./constants";
 type ExportObject = "module" | "exports";
 type ExportProperty = "exports" | "default";
 
-export function getComponentFnFromCodeString(code: string) {
+export function getFnFromString(code: string) {
 	/**
 	 * In CommonJS default export is either of the two forms:
 	 * - `module.exports = Component`

@@ -1,8 +1,8 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import type { Files } from "@shared/types";
-import { type ReactNode, createElement, useEffect, useState } from "react";
+import { type ReactElement, createElement, useEffect, useState } from "react";
 import { bundleCode } from "./compiler/bundleCode";
-import { getComponentFnFromCodeString } from "./compiler/getFnFromFunctionString";
+import { getFnFromString } from "./compiler/getFnFromString";
 
 const DEBOUNCE_TIME = 500;
 
@@ -17,22 +17,25 @@ export const CodeRunner = ({
 	setError,
 	entryFileName,
 }: CodeRunnerProps) => {
-	const [component, setComponent] = useState<ReactNode | null>(null);
+	const [prevCode, setPrevCode] = useState("");
+	const [dynamicComponent, setDynamicComponent] = useState<ReactElement | null>(
+		null,
+	);
 
 	const getComponent = async (files: Files) => {
 		if (!(window.Babel || window.rollup)) return;
 
 		try {
-			const bundledCode = await bundleCode({
-				entryFileName,
-				files,
-			});
+			const code = await bundleCode({ entryFileName, files });
 
-			const component = getComponentFnFromCodeString(bundledCode);
+			if (code === prevCode) return;
+
+			const component = getFnFromString(code);
 
 			if (component) {
 				setError(undefined);
-				setComponent(createElement(component));
+				setPrevCode(code);
+				setDynamicComponent(createElement(component));
 			}
 		} catch (e) {
 			console.error(e);
@@ -49,5 +52,5 @@ export const CodeRunner = ({
 		getComponentDebounced(files);
 	}, [getComponentDebounced, files]);
 
-	return component;
+	return dynamicComponent;
 };
