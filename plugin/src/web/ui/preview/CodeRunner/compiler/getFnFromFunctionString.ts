@@ -20,9 +20,8 @@ export function getComponentFnFromCodeString(code: string) {
 	const [OBJECT_NAME, ASSIGN_TO_PROP] = resolveExportType(code);
 
 	const fnArgNames = [GET_IMPORT_FN, OBJECT_NAME] as const;
-	const fnCode = replaceRequireWithGetImport(code);
 
-	const func = new Function(...fnArgNames, fnCode) as (
+	const func = new Function(...fnArgNames, code) as (
 		getImportFn: typeof getImport,
 		exportsObj: typeof exportObject,
 	) => void;
@@ -46,27 +45,9 @@ function resolveExportType(code: string): [ExportObject, ExportProperty] {
 		return ["module", "exports"];
 	}
 
-	if (code.includes("exports.default")) {
+	if (code.includes("exports.default") || code.includes('exports["default"]')) {
 		return ["exports", "default"];
 	}
 
 	throw new Error("Missing default export in the file");
-}
-
-/**
- * Replaces `require('module')` with `__get_import('module')`
- * to later call `getImport` that resolves external modules.
- *
- * This might better be done with a proper AST traversal,
- * but let's just say we are following the KISS principle here
- * (if we can say that after all of the above)
- */
-function replaceRequireWithGetImport(code: string) {
-	let fnString = code.replaceAll("require(", `${GET_IMPORT_FN}(`);
-
-	if (!fnString.includes("const React =")) {
-		fnString = `const React = ${GET_IMPORT_FN}('react');\n${fnString}`;
-	}
-
-	return fnString;
 }

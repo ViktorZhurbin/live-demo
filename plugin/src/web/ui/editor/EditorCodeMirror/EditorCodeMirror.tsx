@@ -19,6 +19,7 @@ export const EditorCodeMirror = () => {
 				lineNumbers: false,
 				foldGutter: false,
 				autocompletion: false,
+				tabSize: 2,
 			}}
 		/>
 	);

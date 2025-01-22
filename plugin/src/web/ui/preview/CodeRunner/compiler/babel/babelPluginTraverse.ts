@@ -5,7 +5,7 @@ import {
 	createVariableDeclaration,
 } from "./ast";
 
-export const babelTraverse = (): PluginItem => {
+export const babelPluginTraverse = (): PluginItem => {
 	let hasReactImported = false;
 
 	return {
@@ -14,12 +14,10 @@ export const babelTraverse = (): PluginItem => {
 		},
 		visitor: {
 			ImportDeclaration(path) {
-				console.log(path.node);
 				const pkg = path.node.source.value;
 				const code: Node[] = [];
 				const specifiers: (string | [string, string])[] = [];
 				for (const specifier of path.node.specifiers) {
-					console.log({ specifier });
 					if (specifier.local.name === "React") {
 						hasReactImported = true;
 					}
@@ -65,8 +63,10 @@ export const babelTraverse = (): PluginItem => {
 						),
 					);
 				}
-				console.log({ code });
 				path.replaceWithMultiple(code);
+			},
+			ExportSpecifier(path) {
+				// console.log("ExportSpecifier", path.node);
 			},
 		},
 		post(file) {

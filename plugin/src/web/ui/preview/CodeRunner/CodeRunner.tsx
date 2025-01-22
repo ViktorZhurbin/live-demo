@@ -1,7 +1,8 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import type { Files } from "@shared/types";
 import { type ReactNode, createElement, useEffect, useState } from "react";
-import { compileComponentFromFiles } from "./compiler";
+import { bundleCode } from "./compiler/bundleCode";
+import { getComponentFnFromCodeString } from "./compiler/getFnFromFunctionString";
 
 const DEBOUNCE_TIME = 500;
 
@@ -19,11 +20,15 @@ export const CodeRunner = ({
 	const [component, setComponent] = useState<ReactNode | null>(null);
 
 	const getComponent = async (files: Files) => {
+		if (!(window.Babel || window.rollup)) return;
+
 		try {
-			const component = await compileComponentFromFiles({
-				files,
+			const bundledCode = await bundleCode({
 				entryFileName,
+				files,
 			});
+
+			const component = getComponentFnFromCodeString(bundledCode);
 
 			if (component) {
 				setError(undefined);
