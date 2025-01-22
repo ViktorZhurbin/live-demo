@@ -1,27 +1,12 @@
-import type babel from "@babel/standalone";
+const { availablePresets, transform } = window.Babel;
 
-type Babel = typeof babel;
+const presetsJsx = [[availablePresets.react, { pure: false }]];
 
-// @babel/standalone is loaded with html script tag
-// see builderConfig.html.tags in pluginPlayground
-declare global {
-	interface Window {
-		Babel: Babel;
-	}
-}
+const presetsTsx = presetsJsx.concat([
+	[availablePresets.typescript, { allExtensions: true, isTSX: true }],
+]);
 
 export const babelTransformCode = (code: string, filename: string) => {
-	const { availablePresets, transform } = window.Babel;
-
-	const presetsJsx = [
-		[availablePresets.react, { pure: false }],
-		// [availablePresets.env, { modules: "commonjs" }],
-	];
-
-	const presetsTsx = presetsJsx.concat([
-		[availablePresets.typescript, { allExtensions: true, isTSX: true }],
-	]);
-
 	const presets = filename.endsWith(".tsx") ? presetsTsx : presetsJsx;
 
 	const fileResult = transform(code, { presets });

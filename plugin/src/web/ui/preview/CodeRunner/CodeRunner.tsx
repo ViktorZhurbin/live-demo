@@ -4,16 +4,19 @@ import { type ReactElement, createElement, useEffect, useState } from "react";
 import { bundleCode } from "./compiler/bundleCode";
 import { getFnFromString } from "./compiler/getFnFromString";
 
-const DEBOUNCE_TIME = 500;
+const DEBOUNCE_TIME = 800;
 
 export type CodeRunnerProps = {
 	files: Files;
 	entryFileName: string;
+
+	error: Error | undefined;
 	setError: (error: Error | undefined) => void;
 };
 
 export const CodeRunner = ({
 	files,
+	error,
 	setError,
 	entryFileName,
 }: CodeRunnerProps) => {
@@ -28,14 +31,18 @@ export const CodeRunner = ({
 		try {
 			const code = await bundleCode({ entryFileName, files });
 
-			if (code === prevCode) return;
+			if (code === prevCode && !error) return;
 
 			const component = getFnFromString(code);
 
-			if (component) {
+			if (typeof component === "function") {
 				setError(undefined);
 				setPrevCode(code);
 				setDynamicComponent(createElement(component));
+			} else {
+				throw new Error(
+					`Couldn't determine component export in ${entryFileName}.\n\nDoes the file have multiple exports?`,
+				);
 			}
 		} catch (e) {
 			console.error(e);

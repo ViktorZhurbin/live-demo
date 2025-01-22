@@ -1,6 +1,6 @@
 import type { Node, PluginItem } from "@babel/core";
 import type { VariableDeclaration } from "@babel/types";
-import { GET_IMPORT_FN } from "../constants";
+import { EXPORTS_OBJ, GET_IMPORT_FN } from "../constants";
 
 export const babelPluginTraverse = (): PluginItem => {
 	let hasReactImported = false;
@@ -13,6 +13,7 @@ export const babelPluginTraverse = (): PluginItem => {
 		visitor: {
 			ImportDeclaration(path) {
 				const pkg = path.node.source.value;
+
 				const code: Node[] = [];
 				const namedImports: string[] = [];
 
@@ -62,8 +63,11 @@ export const babelPluginTraverse = (): PluginItem => {
 
 				path.replaceWithMultiple(code);
 			},
+
 			ExportSpecifier(path) {
-				// console.log("ExportSpecifier", path.node);
+				path.parentPath.replaceWithSourceString(
+					`${EXPORTS_OBJ} = ${path.node.local.name}`,
+				);
 			},
 		},
 

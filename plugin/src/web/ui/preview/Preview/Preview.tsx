@@ -22,6 +22,7 @@ export const Preview = () => {
 				<CodeRunner
 					files={files}
 					entryFileName={entryFileName}
+					error={error}
 					setError={setError}
 				/>
 			</ErrorBoundary>

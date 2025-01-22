@@ -6,8 +6,11 @@ import {
 } from "@shared/pathHelpers";
 import type { Files } from "@shared/types";
 
-// Based off of https://rollupjs.org/faqs/#how-do-i-run-rollup-itself-in-a-browser
-// Resolve and load modules to be bundled
+/**
+ * Resolve and load in-memory files to be bundled
+ *
+ * Based off of @link https://rollupjs.org/faqs/#how-do-i-run-rollup-itself-in-a-browser
+ * */
 export const pluginResolveModules = (files: Files): Plugin => {
 	return {
 		name: "resolve-modules",

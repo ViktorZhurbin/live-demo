@@ -1,9 +1,11 @@
 import type { Plugin } from "@rollup/browser";
 import { babelTransformCode } from "../babel/babelTransformCode";
 
-// Rollup requires plugins to handle JSX/TSX,
-// but they don't work in the browser.
-// Using @babel/standalone to transform JSX/TSX into JS
+/**
+ * Rollup requires plugins to handle JSX/TSX,
+ * but they depend on node and don't work in the browser.
+ * Using @babel/standalone to transform JSX/TSX into JS
+ * */
 export const pluginBabelTransform = (): Plugin => {
 	return {
 		name: "babel-transform",

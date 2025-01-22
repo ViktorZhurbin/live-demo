@@ -1,53 +1,49 @@
 import getImport from "_playground_virtual_modules";
-import { GET_IMPORT_FN } from "./constants";
+import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
 
-type ExportObject = "module" | "exports";
-type ExportProperty = "exports" | "default";
-
-export function getFnFromString(code: string) {
+export function getFnFromString(fnCode: string) {
 	/**
-	 * In CommonJS default export is either of the two forms:
-	 * - `module.exports = Component`
-	 * - `exports.default = Component`
+	 * Export is transformed by babel to always be `exports.default`.
 	 *
-	 * We will plug in our `exportObject` into the function
-	 * to get the default exported componentFn assigned to it.
-	 */
-	const exportObject: {
-		[Prop in ExportProperty]?: React.FC;
-	} = {};
+	 * We will plug in `exportsStub` object into the function
+	 * as the second argument named 'exports'.
+	 * Then we will call the function, and get the exported componentFn
+	 * assigned to its `exportsStub.default` property.
+	 * */
+	const exportsStub: Record<string, React.FC> = {};
 
-	const [OBJECT_NAME, ASSIGN_TO_PROP] = resolveExportType(code);
+	const [OBJECT_NAME, ASSIGN_TO_PROP] = EXPORTS_OBJ.split(".");
 
-	const fnArgNames = [GET_IMPORT_FN, OBJECT_NAME] as const;
+	const fnArgNames = [GET_IMPORT_FN, OBJECT_NAME];
 
-	const func = new Function(...fnArgNames, code) as (
+	const func = new Function(...fnArgNames, fnCode) as (
 		getImportFn: typeof getImport,
-		exportsObj: typeof exportObject,
+		exportsObj: typeof exportsStub,
 	) => void;
 
 	/**
 	 * After this call:
 	 * - `getImport` would resolve external module imports
-	 * - `exportObject` would be `{ [ExportProperty]: componentFn }`
-	 *
-	 * Thus, we can grab the componentFn from `exportObject`
-	 */
-	func(getImport, exportObject);
+	 * - `exportsStub` would be `{ default: componentFn }`
+	 * */
+	func(getImport, exportsStub);
 
-	const componentFn = exportObject[ASSIGN_TO_PROP];
+	const componentFn = exportsStub[ASSIGN_TO_PROP];
 
 	return componentFn;
 }
 
-function resolveExportType(code: string): [ExportObject, ExportProperty] {
-	if (code.includes("module.exports")) {
-		return ["module", "exports"];
-	}
+// type ExportObject = "module" | "exports";
+// type ExportProperty = "exports" | "default";
 
-	if (code.includes("exports.default") || code.includes('exports["default"]')) {
-		return ["exports", "default"];
-	}
+// function resolveExportType(code: string): [ExportObject, ExportProperty] {
+// 	if (code.includes("module.exports")) {
+// 		return ["module", "exports"];
+// 	}
 
-	throw new Error("Missing default export in the file");
-}
+// 	if (code.includes("exports.default") || code.includes('exports["default"]')) {
+// 		return ["exports", "default"];
+// 	}
+
+// 	throw new Error("Missing default export in the file");
+// }

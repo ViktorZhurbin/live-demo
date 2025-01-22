@@ -1,7 +1,7 @@
 import React, { type FC } from "react";
 import { Tab, Tabs } from "rspress/theme";
 
-const Hello: FC = () => {
+const Hello2: FC = () => {
 	return (
 		<div>
 			<div>Tabs go here:</div>
@@ -13,4 +13,4 @@ const Hello: FC = () => {
 	);
 };
 
-export { Hello as default };
+export { Hello2 as Hello };

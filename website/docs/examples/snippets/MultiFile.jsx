@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "rspress/theme";
 import { Imported } from "./Imported";
 
-const MultiFile = () => {
+export const MultiFile = () => {
 	const [count, setCount] = useState(0);
 
 	React.useEffect(() => {
@@ -18,5 +18,3 @@ const MultiFile = () => {
 		</div>
 	);
 };
-
-export default MultiFile;
