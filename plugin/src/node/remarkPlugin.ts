@@ -19,8 +19,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	const demoDataByPath = getDemoDataByPath();
 
 	return (tree, vfile) => {
-		// Transform <code src="./Component.tsx" />
-		// into <Playground files={files}  />
+		// 1. External demo, ie <code src="./Component.tsx" />
 		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
 			if (node.name !== "code") return;
 
@@ -35,6 +34,28 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				name: "Playground",
 				attributes: getJsxAttributesFromProps(demoDataByPath[importPath]),
 			});
+		});
+
+		// 2. Inline ```jsx/tsx ``` markdown code blocks
+		visit(tree, "code", (node) => {
+			if (!node) return;
+
+			const isSupportedLang = node.lang && ["jsx", "tsx"].includes(node.lang);
+			const isPlayground = node.meta?.includes("playground");
+
+			if (!isPlayground || !isSupportedLang) return;
+
+			const entryFileName = `App.${node.lang}`;
+
+			Object.assign(node, {
+				type: "mdxJsxFlowElement",
+				name: "Playground",
+				attributes: getJsxAttributesFromProps({
+					entryFileName,
+					files: { [entryFileName]: node.value },
+				}),
+			});
+			return;
 		});
 	};
 };
