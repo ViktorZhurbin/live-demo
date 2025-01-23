@@ -9,7 +9,7 @@
 			"**/dist/**/*",
 			"**/build/**/*",
 			"**/doc_build/**/*",
-			"**/website-rb/**/*"
+			"**/website-rb/docs/**/*"
 		],
 		"ignoreUnknown": true
 	},

@@ -19,13 +19,4 @@ export default defineConfig({
 	},
 
 	plugins: [pluginReact()],
-
-	performance: process.env.BUNDLE_ANALYZE
-		? {
-				bundleAnalyze: {
-					analyzerMode: "static",
-					openAnalyzer: true,
-				},
-			}
-		: {},
 });

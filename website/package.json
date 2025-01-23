@@ -10,7 +10,7 @@
 		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
 	},
 	"dependencies": {
-		"rspress": "^1.40.0",
+		"rspress": "1.39.4",
 		"rspress-plugin-code-playground": "workspace:*"
 	},
 	"devDependencies": {
