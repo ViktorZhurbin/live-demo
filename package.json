@@ -2,7 +2,7 @@
 	"name": "forms",
 	"type": "module",
 	"license": "MIT",
-	"workspaces": ["plugin", "website"],
+	"workspaces": ["plugin", "website", "website-rb"],
 	"scripts": {
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",

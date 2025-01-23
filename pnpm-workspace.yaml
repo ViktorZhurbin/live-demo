@@ -1,3 +1,4 @@
 packages:
   - "plugin"
   - "website"
+  - "website-rb"

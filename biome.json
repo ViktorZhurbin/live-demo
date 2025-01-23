@@ -8,7 +8,8 @@
 			"**/node_modules/**/*",
 			"**/dist/**/*",
 			"**/build/**/*",
-			"**/doc_build/**/*"
+			"**/doc_build/**/*",
+			"**/website-rb/**/*"
 		],
 		"ignoreUnknown": true
 	},
