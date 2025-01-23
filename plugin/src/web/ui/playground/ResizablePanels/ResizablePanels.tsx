@@ -23,7 +23,15 @@ export const ResizablePanels = () => {
 				direction={isVertical ? "vertical" : "horizontal"}
 				autoSaveId="rspress-plugin-code-playground"
 			>
-				<Panel id="editor" defaultSize={50} order={isVertical ? 1 : 0}>
+				<Panel
+					id="editor"
+					defaultSize={50}
+					order={isVertical ? 1 : 0}
+					onKeyDown={(e) => {
+						// to avoid interfering with the Rspress global event listeners
+						e.stopPropagation();
+					}}
+				>
 					<FileTabs />
 					<EditorCodeMirror />
 				</Panel>

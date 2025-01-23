@@ -1,6 +1,5 @@
 import "./global.css";
 import type { PlaygroundProps } from "@shared/types";
-import type { KeyboardEventHandler } from "react";
 import { FilesProvider } from "../../../context/Files";
 import { ResizablePanels } from "../ResizablePanels/ResizablePanels";
 import styles from "./Playground.module.css";
@@ -12,14 +11,9 @@ type PlaygroundStringifiedProps = {
 export const Playground = (props: PlaygroundStringifiedProps) => {
 	const parsedProps = parseProps(props);
 
-	const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-		// to avoid interfering with the Rspress global event listeners
-		e.stopPropagation();
-	};
-
 	return (
 		<FilesProvider initialValue={parsedProps}>
-			<div className={styles.wrapper} onKeyDown={handleKeyDown}>
+			<div className={styles.wrapper}>
 				<ResizablePanels />
 			</div>
 		</FilesProvider>
