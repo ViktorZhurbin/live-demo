@@ -1,5 +1,5 @@
-import type { Files, PlaygroundProps } from "@shared/types";
 import { createContext, useCallback, useContext, useState } from "react";
+import type { Files, PlaygroundProps } from "shared/types";
 
 type FilesContextValue = {
 	files: Files;
@@ -11,6 +11,8 @@ type FilesContextValue = {
 	updateFiles: (update: Files) => void;
 
 	entryFileName: PlaygroundProps["entryFileName"];
+
+	getImport: (name: string) => void;
 };
 
 const FilesContext = createContext<FilesContextValue | undefined>(undefined);
@@ -18,9 +20,14 @@ const FilesContext = createContext<FilesContextValue | undefined>(undefined);
 type FilesProviderProps = {
 	children: React.ReactNode;
 	initialValue: PlaygroundProps;
+	getImport: (name: string) => void;
 };
 
-function FilesProvider({ initialValue, children }: FilesProviderProps) {
+function FilesProvider({
+	children,
+	getImport,
+	initialValue,
+}: FilesProviderProps) {
 	const [files, setFiles] = useState(initialValue.files);
 	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
@@ -39,6 +46,8 @@ function FilesProvider({ initialValue, children }: FilesProviderProps) {
 				setActiveFile,
 
 				entryFileName: initialValue.entryFileName,
+
+				getImport,
 			}}
 		>
 			{children}

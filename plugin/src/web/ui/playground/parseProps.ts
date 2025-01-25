@@ -1,7 +1,4 @@
-import type {
-	PlaygroundProps,
-	PlaygroundStringifiedProps,
-} from "@shared/types";
+import type { PlaygroundProps, PlaygroundStringifiedProps } from "shared/types";
 
 /**
  * Parse props, as they come JSON.stringified.

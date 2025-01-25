@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useFilesContext } from "../context/Files";
+import { useFilesContext } from "web/context";
 
 export const useActiveCode = () => {
 	const { files, activeFile, updateFiles } = useFilesContext();

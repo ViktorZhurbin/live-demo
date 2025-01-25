@@ -1,5 +1,6 @@
 .cm-theme {
 	height: 100%;
+	overflow: hidden;
 
 	.cm-editor {
 		height: 100%;

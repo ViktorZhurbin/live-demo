@@ -1,45 +1,75 @@
 import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
+import type { ReactElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { EditorCodeMirror } from "../../editor/EditorCodeMirror/EditorCodeMirror";
-import { FileTabs } from "../../editor/FileTabs/FileTabs";
-import { Preview } from "../../preview/Preview/Preview";
 import styles from "./ResizablePanels.module.css";
 
-const SMALL_THRESHOLD = 580;
+type ResizablePanelsProps = {
+	editor: ReactElement;
+	preview: ReactElement;
+	/**
+	 * Used for auto saving the panel sizes in local storage
+	 */
+	autoSaveId?: string;
+	/**
+	 * PanelGroup width at which it switched to vertical layout
+	 */
+	verticalThreshold?: number;
+	/**
+	 * Default panel sizes
+	 */
+	defaultPanelSizes?: { editor?: number; preview?: number };
+	classes?: {
+		wrapper?: string;
+		editorPanel?: string;
+		previewPanel?: string;
+	};
+};
 
-export const ResizablePanels = () => {
+export const ResizablePanels = (props: ResizablePanelsProps) => {
+	const {
+		classes,
+		autoSaveId,
+		verticalThreshold = 580,
+		defaultPanelSizes = { editor: 50, preview: 50 },
+	} = props;
+
 	const wrapperSize = useElementSize();
-	const isVertical = wrapperSize.width < SMALL_THRESHOLD;
+	const isVertical = wrapperSize.width < verticalThreshold;
 
-	const wrapperClass = clsx(styles.wrapper, {
+	const wrapperClass = clsx(styles.wrapper, classes?.wrapper, {
 		[styles.vertical]: isVertical,
 	});
 
 	return (
 		<div className={wrapperClass} ref={wrapperSize.ref}>
 			<PanelGroup
+				autoSaveId={autoSaveId}
 				style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
 				direction={isVertical ? "vertical" : "horizontal"}
-				autoSaveId="rspress-plugin-code-playground"
 			>
 				<Panel
 					id="editor"
-					defaultSize={50}
+					className={clsx(styles.editorPanel, classes?.editorPanel)}
+					defaultSize={defaultPanelSizes.editor}
 					order={isVertical ? 1 : 0}
 					onKeyDown={(e) => {
 						// to avoid interfering with the Rspress global event listeners
 						e.stopPropagation();
 					}}
 				>
-					<FileTabs />
-					<EditorCodeMirror />
+					{props.editor}
 				</Panel>
 
 				<PanelResizeHandle className={styles.resizeHandle} />
 
-				<Panel id="preview" defaultSize={50} order={isVertical ? 0 : 1}>
-					<Preview />
+				<Panel
+					id="preview"
+					className={classes?.previewPanel}
+					defaultSize={defaultPanelSizes.preview}
+					order={isVertical ? 0 : 1}
+				>
+					{props.preview}
 				</Panel>
 			</PanelGroup>
 		</div>

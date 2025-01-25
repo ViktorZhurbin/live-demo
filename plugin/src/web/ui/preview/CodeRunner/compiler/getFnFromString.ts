@@ -1,7 +1,9 @@
-import getImport from "_playground_virtual_modules";
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
 
-export function getFnFromString(fnCode: string) {
+export function getFnFromString(
+	fnCode: string,
+	getImport: (name: string) => void,
+) {
 	/**
 	 * Export is transformed by babel to always be `exports.default`.
 	 *

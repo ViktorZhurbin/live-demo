@@ -1,6 +1,7 @@
 import { useDebouncedCallback } from "@mantine/hooks";
-import type { Files } from "@shared/types";
 import { type ReactElement, createElement, useEffect, useState } from "react";
+import type { Files } from "shared/types";
+import { useFilesContext } from "web/context";
 import { bundleCode } from "./compiler/bundleCode";
 import { getFnFromString } from "./compiler/getFnFromString";
 
@@ -20,6 +21,8 @@ export const CodeRunner = ({
 	setError,
 	entryFileName,
 }: CodeRunnerProps) => {
+	const { getImport } = useFilesContext();
+
 	const [prevCode, setPrevCode] = useState("");
 	const [dynamicComponent, setDynamicComponent] = useState<ReactElement | null>(
 		null,
@@ -42,7 +45,7 @@ export const CodeRunner = ({
 
 			if (code === prevCode && !error) return;
 
-			const component = getFnFromString(code);
+			const component = getFnFromString(code, getImport);
 
 			if (typeof component === "function") {
 				setError(undefined);

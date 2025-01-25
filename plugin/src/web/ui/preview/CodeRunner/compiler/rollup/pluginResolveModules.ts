@@ -3,8 +3,8 @@ import {
 	getPossiblePaths,
 	isRelativeImport,
 	stripRelativeImport,
-} from "@shared/pathHelpers";
-import type { Files } from "@shared/types";
+} from "shared/pathHelpers";
+import type { Files } from "shared/types";
 
 /**
  * Resolve and load in-memory files to be bundled

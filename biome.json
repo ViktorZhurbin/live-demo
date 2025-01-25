@@ -9,6 +9,7 @@
 			"**/dist/**/*",
 			"**/build/**/*",
 			"**/doc_build/**/*",
+			"**/.rslib/**/*",
 			"**/website-rb/docs/**/*"
 		],
 		"ignoreUnknown": true

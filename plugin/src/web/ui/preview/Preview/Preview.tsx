@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useFilesContext } from "../../../context/Files";
+import { useFilesContext } from "web/context";
 import { CodeRunner } from "../CodeRunner/CodeRunner";
 import styles from "./Preview.module.css";
 

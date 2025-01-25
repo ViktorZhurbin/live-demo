@@ -1,5 +1,5 @@
-import { useFilesContext } from "../../../context/Files";
-import { Button } from "../../components/Button/Button";
+import { useFilesContext } from "web/context";
+import { Button } from "web/ui/components";
 import styles from "./FileTabs.module.css";
 
 export const FileTabs = () => {

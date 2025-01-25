@@ -2,7 +2,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { useDark } from "@rspress/core/runtime";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import ReactCodeMirror from "@uiw/react-codemirror";
-import { useActiveCode } from "../../../hooks/useActiveCode";
+import { useActiveCode } from "web/hooks/useActiveCode";
 import "./EditorCodeMirror.css";
 
 export const EditorCodeMirror = () => {

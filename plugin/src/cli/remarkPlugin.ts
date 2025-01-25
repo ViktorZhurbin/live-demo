@@ -1,10 +1,10 @@
-import type { PlaygroundProps } from "@shared/types";
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
+import type { PlaygroundProps } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import type { DemoDataByPath } from "./rspressPlugin";
+import type { DemoDataByPath } from "./main";
 
 interface RemarkPluginProps {
 	getDemoDataByPath: () => DemoDataByPath;

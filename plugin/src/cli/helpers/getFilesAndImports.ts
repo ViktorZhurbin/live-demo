@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Program } from "@oxc-project/types";
 import { parseSync } from "@oxidation-compiler/napi";
-import { getPossiblePaths, isRelativeImport } from "@shared/pathHelpers";
-import type { Files } from "@shared/types";
+import { getPossiblePaths, isRelativeImport } from "shared/pathHelpers";
+import type { Files } from "shared/types";
 
 export const getFilesAndImports = (params: {
 	importPath: string;

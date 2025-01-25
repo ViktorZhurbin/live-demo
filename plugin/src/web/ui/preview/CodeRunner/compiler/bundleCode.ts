@@ -1,4 +1,4 @@
-import { isRelativeImport } from "@shared/pathHelpers";
+import { isRelativeImport } from "shared/pathHelpers";
 import type { CodeRunnerProps } from "../CodeRunner";
 import { pluginBabelTransform } from "./rollup/pluginBabelTransform";
 import { pluginBabelTransformImportsExports } from "./rollup/pluginBabelTransformImportsExports";

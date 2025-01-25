@@ -1,22 +1,45 @@
 import { pluginReact } from "@rsbuild/plugin-react";
-import { defineConfig } from "@rslib/core";
+import { type LibConfig, defineConfig } from "@rslib/core";
+
+const sharedConfig: LibConfig = {
+	format: "esm",
+	syntax: "es2020",
+	dts: { bundle: true },
+};
 
 export default defineConfig({
-	source: {
-		entry: {
-			index: ["./src/**"],
-		},
-	},
 	lib: [
 		{
-			bundle: false,
-			dts: true,
-			format: "esm",
+			...sharedConfig,
+			source: {
+				entry: { index: "src/cli/index.ts" },
+			},
+			output: {
+				target: "node",
+				distPath: { root: "dist/cli" },
+				externals: ["@mdx-js/mdx"],
+			},
+		},
+		{
+			...sharedConfig,
+			source: {
+				entry: { index: "src/web/index.ts" },
+			},
+			output: {
+				target: "web",
+				distPath: { root: "dist/web" },
+				externals: ["@types/react"],
+			},
+			plugins: [pluginReact()],
 		},
 	],
-	output: {
-		target: "web",
-	},
 
-	plugins: [pluginReact()],
+	performance: process.env.BUNDLE_ANALYZE
+		? {
+				bundleAnalyze: {
+					analyzerMode: "static",
+					openAnalyzer: true,
+				},
+			}
+		: {},
 });

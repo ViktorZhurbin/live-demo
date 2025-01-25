@@ -1,8 +1,7 @@
-import fs from "node:fs";
 import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
-import type { PlaygroundProps } from "@shared/types";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
+import type { PlaygroundProps } from "shared/types";
 import { visit } from "unist-util-visit";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
@@ -26,6 +25,7 @@ const demoDataByPath: DemoDataByPath = {};
  */
 export function rspressPluginCodePlayground(): RspressPlugin {
 	const getDemoDataByPath = () => demoDataByPath;
+
 	// Collect all imports to make them available in browser through
 	// the `getImport` getter, injected as a virtual module
 	let allImports = new Set(["react"]);
@@ -110,10 +110,8 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 
 		markdown: {
 			remarkPlugins: [[remarkPlugin, { getDemoDataByPath }]],
-			// Perhaps we can move this to `remarkPlugin`
-			// to add it only when there's <code src"" />
-			// Not sure how `globalComponents` works, actually
-			globalComponents: [path.join(__dirname, "../web/ui/playground")],
+
+			globalComponents: [path.join(__dirname, "../../static/Playground.tsx")],
 		},
 	};
 }

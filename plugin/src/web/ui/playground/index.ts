@@ -1,1 +1,3 @@
-export { Playground as default } from "./Playground/Playground";
+export * from "./PlaygroundWrapper/PlaygroundWrapper";
+export * from "./ResizablePanels/ResizablePanels";
+export * from "./parseProps";

@@ -7,8 +7,4 @@
 	flex-direction: column;
 	height: 100%;
 	margin-block: 10px;
-
-	&.fullHeight {
-		height: calc(100dvh - var(--rp-nav-height));
-	}
 }
