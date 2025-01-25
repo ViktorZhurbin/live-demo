@@ -28,7 +28,7 @@ export default defineConfig({
 			output: {
 				target: "web",
 				distPath: { root: "dist/web" },
-				externals: ["@types/react"],
+				externals: ["@types/react", "_playground_virtual_modules"],
 			},
 			plugins: [pluginReact()],
 		},

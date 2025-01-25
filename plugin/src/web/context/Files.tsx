@@ -11,8 +11,6 @@ type FilesContextValue = {
 	updateFiles: (update: Files) => void;
 
 	entryFileName: PlaygroundProps["entryFileName"];
-
-	getImport: (name: string) => void;
 };
 
 const FilesContext = createContext<FilesContextValue | undefined>(undefined);
@@ -20,14 +18,9 @@ const FilesContext = createContext<FilesContextValue | undefined>(undefined);
 type FilesProviderProps = {
 	children: React.ReactNode;
 	initialValue: PlaygroundProps;
-	getImport: (name: string) => void;
 };
 
-function FilesProvider({
-	children,
-	getImport,
-	initialValue,
-}: FilesProviderProps) {
+function FilesProvider({ children, initialValue }: FilesProviderProps) {
 	const [files, setFiles] = useState(initialValue.files);
 	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
@@ -46,8 +39,6 @@ function FilesProvider({
 				setActiveFile,
 
 				entryFileName: initialValue.entryFileName,
-
-				getImport,
 			}}
 		>
 			{children}

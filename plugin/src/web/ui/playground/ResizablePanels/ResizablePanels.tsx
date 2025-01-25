@@ -12,7 +12,10 @@ type ResizablePanelsProps = {
 	 */
 	autoSaveId?: string;
 	/**
-	 * PanelGroup width at which it switched to vertical layout
+	 * Layout width threshold in px.
+	 * When width of the ResizablePanels' wrapper div is smaller,
+	 * the panels are arranged vertically.
+	 * Otherwise, the panels are arranged horizontally.
 	 */
 	verticalThreshold?: number;
 	/**

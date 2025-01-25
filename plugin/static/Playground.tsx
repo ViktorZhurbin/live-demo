@@ -1,5 +1,4 @@
 import "../dist/web/index.css";
-import getImport from "_playground_virtual_modules";
 import {
 	EditorCodeMirror,
 	FileTabs,
@@ -25,7 +24,7 @@ const Playground = (props: PlaygroundStringifiedProps) => {
 	const preview = <Preview />;
 
 	return (
-		<FilesProvider initialValue={parsedProps} getImport={getImport}>
+		<FilesProvider initialValue={parsedProps}>
 			<PlaygroundWrapper>
 				<ResizablePanels editor={editor} preview={preview} />
 			</PlaygroundWrapper>
