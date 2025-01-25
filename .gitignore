@@ -6,6 +6,9 @@
 # Dist
 node_modules
 dist/
+build/
+doc_build/
+.rslib/
 
 # IDE
 .vscode/*

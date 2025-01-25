@@ -4,14 +4,7 @@
 		"enabled": true
 	},
 	"files": {
-		"ignore": [
-			"**/node_modules/**/*",
-			"**/dist/**/*",
-			"**/build/**/*",
-			"**/website-rb/**/*",
-			"**/.rslib/**/*",
-			"**/website-rb/docs/**/*"
-		],
+		"ignore": ["website-rb/**/*"],
 		"ignoreUnknown": true
 	},
 	"vcs": {
