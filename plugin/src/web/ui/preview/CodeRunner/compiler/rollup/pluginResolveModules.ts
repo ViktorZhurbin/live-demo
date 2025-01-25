@@ -23,7 +23,7 @@ export const pluginResolveModules = (files: Files): Plugin => {
 			if (isRelativeImport(source)) {
 				const fileName = stripRelativeImport(source);
 
-				// same helper should be used in `getFilesAndImports`
+				// same helper should be used in cli, check `getFilesAndImports`
 				const pathsToCheck = getPossiblePaths(fileName);
 
 				for (const checkedPath of pathsToCheck) {

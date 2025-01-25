@@ -1,70 +1,46 @@
-import fs from "node:fs";
 import path from "node:path";
-import type { Program } from "@oxc-project/types";
-import { parseSync } from "@oxidation-compiler/napi";
-import { getPossiblePaths, isRelativeImport } from "shared/pathHelpers";
-import type { Files } from "shared/types";
+import { toMerged } from "es-toolkit";
+import { isRelativeImport } from "shared/pathHelpers";
+import type { PathWithAllowedExt } from "shared/types";
+import { getFilesAndAst } from "./getFilesAndAst";
+import { resolveFileInfo } from "./resolveFileInfo";
 
 export const getFilesAndImports = (params: {
-	importPath: string;
-	dirname: string;
+	fileName: PathWithAllowedExt;
+	absolutePath: PathWithAllowedExt;
+	imports: Set<string>;
 }) => {
-	const { importPath, dirname } = params;
+	const { absolutePath, fileName, imports } = params;
 
-	const resolvedPath = resolveFilePath({ importPath, dirname });
-	const entryFileName = path.basename(resolvedPath);
-	const code = fs.readFileSync(resolvedPath, { encoding: "utf8" });
-
-	const files: Files = {
-		[entryFileName]: code,
-	};
-
-	const parsed = parseSync(code, {
-		sourceType: "module",
-		sourceFilename: entryFileName,
+	const { files, ast } = getFilesAndAst({
+		absolutePath,
+		fileName,
 	});
 
-	const ast = JSON.parse(parsed.program) as Program;
-
-	const imports = new Set<string>();
+	let allFiles = files;
 
 	for (const statement of ast.body) {
 		if (statement.type !== "ImportDeclaration") continue;
 
 		const importPath = statement.source.value;
 
+		// Support local imports and multi-file demos
 		if (isRelativeImport(importPath)) {
-			// Support local imports, and make each file editable
+			const dirname = path.dirname(absolutePath);
+			const fileInfo = resolveFileInfo({ importPath, dirname });
+
 			const nested = getFilesAndImports({
-				importPath,
-				dirname: path.dirname(resolvedPath),
+				imports,
+				...fileInfo,
 			});
 
-			files[nested.entryFileName] = nested.files[nested.entryFileName];
+			allFiles = toMerged(allFiles, nested.files);
 		} else {
 			imports.add(importPath);
 		}
 	}
 
-	return { files, imports, entryFileName };
+	return {
+		files: allFiles,
+	};
 };
-
-function resolveFilePath({
-	dirname,
-	importPath,
-}: { importPath: string; dirname: string }) {
-	const absolutePath = path.join(dirname, importPath);
-
-	// same helper should be used in `getRollupBundledCode`
-	const pathsToCheck = getPossiblePaths(absolutePath);
-
-	for (const checkedPath of pathsToCheck) {
-		if (fs.existsSync(checkedPath)) {
-			return checkedPath;
-		}
-	}
-
-	throw new Error(
-		`Couldn't resolve \`src=${importPath}\`.\nOnly .jsx and .tsx files are supported`,
-	);
-}

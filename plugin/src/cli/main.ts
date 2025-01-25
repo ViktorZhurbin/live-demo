@@ -7,6 +7,7 @@ import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";
+import { resolveFileInfo } from "./helpers/resolveFileInfo";
 import { remarkPlugin } from "./remarkPlugin";
 
 export type DemoDataByPath = Record<string, PlaygroundProps>;
@@ -30,7 +31,7 @@ export function rspressPluginCodePlayground(options?: {
 
 	// Collect all imports to make them available in browser through
 	// the `getImport` getter, injected as a virtual module
-	let allImports = new Set(["react"]);
+	const imports = new Set(["react"]);
 
 	return {
 		name: "rspress-plugin-code-playground",
@@ -61,16 +62,19 @@ export function rspressPluginCodePlayground(options?: {
 
 						if (typeof importPath !== "string") return;
 
-						const demo = getFilesAndImports({
+						const entryFile = resolveFileInfo({
 							importPath,
 							dirname: path.dirname(route.absolutePath),
 						});
 
-						allImports = new Set([...allImports, ...demo.imports]);
+						const demo = getFilesAndImports({
+							imports,
+							...entryFile,
+						});
 
 						demoDataByPath[importPath] = {
 							files: demo.files,
-							entryFileName: demo.entryFileName,
+							entryFileName: entryFile.fileName,
 						};
 					});
 				} catch (e) {
@@ -82,7 +86,7 @@ export function rspressPluginCodePlayground(options?: {
 
 		async addRuntimeModules() {
 			return {
-				_playground_virtual_modules: getVirtualModulesCode(allImports),
+				_playground_virtual_modules: getVirtualModulesCode(imports),
 			};
 		},
 

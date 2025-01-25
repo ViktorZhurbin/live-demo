@@ -1,5 +1,6 @@
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
+import { Language } from "shared/constants";
 import type { PlaygroundProps } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
@@ -38,12 +39,11 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 		// 2. Inline ```jsx/tsx ``` markdown code blocks
 		visit(tree, "code", (node) => {
-			if (!node) return;
+			if (!node?.lang) return;
 
-			const isSupportedLang = node.lang && ["jsx", "tsx"].includes(node.lang);
 			const isPlayground = node.meta?.includes("playground");
 
-			if (!isPlayground || !isSupportedLang) return;
+			if (!(isPlayground || node.lang in Language)) return;
 
 			const entryFileName = `App.${node.lang}`;
 

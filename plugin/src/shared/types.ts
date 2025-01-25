@@ -1,3 +1,7 @@
+import type { Language } from "./constants";
+
+export type PathWithAllowedExt = `${string}.${Language}`;
+
 export type Files = Record<string, string>;
 
 export type PlaygroundProps = {
