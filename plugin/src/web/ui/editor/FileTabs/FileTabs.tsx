@@ -2,9 +2,17 @@ import { usePlaygroundContext } from "web/context";
 import { Button } from "web/ui/components";
 import styles from "./FileTabs.module.css";
 
-export const FileTabs = () => {
+type FileTabsProps = {
+	hideSingleTab?: boolean;
+};
+
+export const FileTabs = (props: FileTabsProps) => {
 	const { files, activeFile, setActiveFile } = usePlaygroundContext();
 	const fileNames = Object.keys(files);
+
+	if (props.hideSingleTab && fileNames.length === 1) {
+		return null;
+	}
 
 	return (
 		<div className={styles.wrapper}>

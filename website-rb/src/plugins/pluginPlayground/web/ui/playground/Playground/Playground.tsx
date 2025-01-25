@@ -6,6 +6,7 @@ import {
   PlaygroundProvider,
   PlaygroundWrapper,
   ResizablePanels,
+  FileTabs,
 } from 'rspress-plugin-code-playground/web'
 import 'rspress-plugin-code-playground/web/index.css'
 import { useIsPlaygroundPage } from '../../../hooks/location'
@@ -23,11 +24,23 @@ export const Playground = () => {
 
   const { currentFiles, language } = useFiles()
 
+  const editor = (
+    <>
+      <FileTabs hideSingleTab />
+      <EditorCodeMirror />
+    </>
+  )
+
   return (
-    <PlaygroundProvider initialValue={{ files: currentFiles, entryFileName: EntryFiles[language] }}>
+    <PlaygroundProvider
+      initialValue={{
+        files: currentFiles,
+        entryFileName: EntryFiles[language],
+      }}
+    >
       <PlaygroundWrapper ref={fullscreen.ref} className={wrapperClass}>
         <ControlPanel fullscreen={fullscreen} />
-        <ResizablePanels editor={<EditorCodeMirror />} />
+        <ResizablePanels editor={editor} />
       </PlaygroundWrapper>
     </PlaygroundProvider>
   )
