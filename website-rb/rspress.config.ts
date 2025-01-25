@@ -18,7 +18,7 @@ export default defineConfig({
 		defaultWrapCode: true,
 	},
 
-	plugins: [rspressPluginCodePlayground()],
+	plugins: [rspressPluginCodePlayground({ render: "src/Playground" })],
 
 	route: {
 		cleanUrls: true,

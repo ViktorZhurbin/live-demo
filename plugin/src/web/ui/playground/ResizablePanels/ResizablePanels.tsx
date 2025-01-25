@@ -2,11 +2,12 @@ import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
 import type { ReactElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { EditorCodeMirror, Preview } from "web/ui";
 import styles from "./ResizablePanels.module.css";
 
 type ResizablePanelsProps = {
-	editor: ReactElement;
-	preview: ReactElement;
+	editor?: ReactElement;
+	preview?: ReactElement;
 	/**
 	 * Used for auto saving the panel sizes in local storage
 	 */
@@ -61,7 +62,7 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 						e.stopPropagation();
 					}}
 				>
-					{props.editor}
+					{props.editor ?? <EditorCodeMirror />}
 				</Panel>
 
 				<PanelResizeHandle className={styles.resizeHandle} />
@@ -72,7 +73,7 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 					defaultSize={defaultPanelSizes.preview}
 					order={isVertical ? 0 : 1}
 				>
-					{props.preview}
+					{props.preview ?? <Preview />}
 				</Panel>
 			</PanelGroup>
 		</div>

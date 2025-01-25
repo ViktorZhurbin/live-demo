@@ -1,5 +1,23 @@
-// import { EditorCodeMirror } from "rspress-plugin-code-playground/web";
+import 'rspress-plugin-code-playground/web/index.css'
+import {
+  EditorCodeMirror,
+  FilesProvider,
+  PlaygroundStringifiedProps,
+  PlaygroundWrapper,
+  ResizablePanels,
+  parseProps,
+} from 'rspress-plugin-code-playground/web'
 
-// export default function Playground() {
-// 	return <EditorCodeMirror />;
-// }
+const Playground = (props: PlaygroundStringifiedProps) => {
+  const parsedProps = parseProps(props)
+
+  return (
+    <FilesProvider initialValue={parsedProps}>
+      <PlaygroundWrapper>
+        <ResizablePanels editor={<EditorCodeMirror />} />
+      </PlaygroundWrapper>
+    </FilesProvider>
+  )
+}
+
+export default Playground

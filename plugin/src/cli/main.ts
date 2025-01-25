@@ -23,7 +23,9 @@ const demoDataByPath: DemoDataByPath = {};
  * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
  * with `<Playground files={files} />`
  */
-export function rspressPluginCodePlayground(): RspressPlugin {
+export function rspressPluginCodePlayground(options?: {
+	render: string;
+}): RspressPlugin {
 	const getDemoDataByPath = () => demoDataByPath;
 
 	// Collect all imports to make them available in browser through
@@ -111,7 +113,9 @@ export function rspressPluginCodePlayground(): RspressPlugin {
 		markdown: {
 			remarkPlugins: [[remarkPlugin, { getDemoDataByPath }]],
 
-			globalComponents: [path.join(__dirname, "../../static/Playground.tsx")],
+			globalComponents: [
+				options?.render ?? path.join(__dirname, "../../static/Playground.tsx"),
+			],
 		},
 	};
 }
