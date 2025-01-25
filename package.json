@@ -14,6 +14,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"husky": "^9.1.7"
+		"@babylonjs/core": "7.40.2",
+		"@babylonjs/gui": "7.40.2",
+		"@types/react": "18",
+		"husky": "^9.1.7",
+		"react-babylonjs": "3.2.2"
 	}
 }

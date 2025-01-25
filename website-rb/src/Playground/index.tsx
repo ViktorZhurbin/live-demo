@@ -1,7 +1,7 @@
 import 'rspress-plugin-code-playground/web/index.css'
 import {
   EditorCodeMirror,
-  FilesProvider,
+  PlaygroundProvider,
   PlaygroundStringifiedProps,
   PlaygroundWrapper,
   ResizablePanels,
@@ -12,11 +12,11 @@ const Playground = (props: PlaygroundStringifiedProps) => {
   const parsedProps = parseProps(props)
 
   return (
-    <FilesProvider initialValue={parsedProps}>
+    <PlaygroundProvider initialValue={parsedProps}>
       <PlaygroundWrapper>
         <ResizablePanels editor={<EditorCodeMirror />} />
       </PlaygroundWrapper>
-    </FilesProvider>
+    </PlaygroundProvider>
   )
 }
 

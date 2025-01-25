@@ -35,6 +35,7 @@
 		"@codesandbox/sandpack-react": "^2.19.10",
 		"@monaco-editor/react": "^4.6.0",
 		"@rollup/browser": "^4.29.1",
+		"@rspress/core": "1.39.4",
 		"@shikijs/monaco": "^1.26.1",
 		"@stackblitz/sdk": "^1.11.0",
 		"@types/babel__standalone": "^7.1.9",
