@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useFilesContext } from "web/context";
+import { usePlaygroundContext } from "web/context";
 import { CodeRunner } from "../CodeRunner/CodeRunner";
 import styles from "./Preview.module.css";
 
 export const Preview = () => {
-	const { files, entryFileName } = useFilesContext();
+	const { files, entryFileName } = usePlaygroundContext();
 	const [error, setError] = useState<Error | undefined>();
 
 	const errorOverlay = error ? (

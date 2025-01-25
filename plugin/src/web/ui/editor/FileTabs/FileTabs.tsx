@@ -1,9 +1,9 @@
-import { useFilesContext } from "web/context";
+import { usePlaygroundContext } from "web/context";
 import { Button } from "web/ui/components";
 import styles from "./FileTabs.module.css";
 
 export const FileTabs = () => {
-	const { files, activeFile, setActiveFile } = useFilesContext();
+	const { files, activeFile, setActiveFile } = usePlaygroundContext();
 	const fileNames = Object.keys(files);
 
 	return (

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type { Files, PlaygroundProps } from "shared/types";
 
-type FilesContextValue = {
+type PlaygroundContextValue = {
 	files: Files;
 	setFiles: React.Dispatch<React.SetStateAction<Files>>;
 
@@ -13,14 +13,19 @@ type FilesContextValue = {
 	entryFileName: PlaygroundProps["entryFileName"];
 };
 
-const FilesContext = createContext<FilesContextValue | undefined>(undefined);
+const PlaygroundContext = createContext<PlaygroundContextValue | undefined>(
+	undefined,
+);
 
-type FilesProviderProps = {
+type PlaygroundProviderProps = {
 	children: React.ReactNode;
 	initialValue: PlaygroundProps;
 };
 
-function FilesProvider({ children, initialValue }: FilesProviderProps) {
+function PlaygroundProvider({
+	children,
+	initialValue,
+}: PlaygroundProviderProps) {
 	const [files, setFiles] = useState(initialValue.files);
 	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
@@ -29,7 +34,7 @@ function FilesProvider({ children, initialValue }: FilesProviderProps) {
 	}, []);
 
 	return (
-		<FilesContext.Provider
+		<PlaygroundContext.Provider
 			value={{
 				files,
 				setFiles,
@@ -42,18 +47,20 @@ function FilesProvider({ children, initialValue }: FilesProviderProps) {
 			}}
 		>
 			{children}
-		</FilesContext.Provider>
+		</PlaygroundContext.Provider>
 	);
 }
 
-const useFilesContext = () => {
-	const context = useContext(FilesContext);
+const usePlaygroundContext = () => {
+	const context = useContext(PlaygroundContext);
 
 	if (context === undefined) {
-		throw new Error("useFilesContext must be used within a FilesProvider");
+		throw new Error(
+			"usePlaygroundContext must be used within a PlaygroundContext",
+		);
 	}
 
 	return context;
 };
 
-export { FilesProvider, useFilesContext };
+export { PlaygroundProvider, usePlaygroundContext };

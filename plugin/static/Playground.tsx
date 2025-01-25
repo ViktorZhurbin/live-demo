@@ -2,7 +2,7 @@ import "../dist/web/index.css";
 import {
 	EditorCodeMirror,
 	FileTabs,
-	FilesProvider,
+	PlaygroundProvider,
 	type PlaygroundStringifiedProps,
 	PlaygroundWrapper,
 	Preview,
@@ -24,11 +24,11 @@ const Playground = (props: PlaygroundStringifiedProps) => {
 	const preview = <Preview />;
 
 	return (
-		<FilesProvider initialValue={parsedProps}>
+		<PlaygroundProvider initialValue={parsedProps}>
 			<PlaygroundWrapper>
 				<ResizablePanels editor={editor} preview={preview} />
 			</PlaygroundWrapper>
-		</FilesProvider>
+		</PlaygroundProvider>
 	);
 };
 
