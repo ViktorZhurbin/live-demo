@@ -5,6 +5,9 @@ const sharedConfig: LibConfig = {
 	format: "esm",
 	syntax: "es2020",
 	dts: { bundle: true },
+	output: {
+		cleanDistPath: true,
+	},
 };
 
 export default defineConfig({
@@ -15,6 +18,7 @@ export default defineConfig({
 				entry: { index: "src/cli/index.ts" },
 			},
 			output: {
+				...sharedConfig.output,
 				target: "node",
 				distPath: { root: "dist/cli" },
 				externals: ["@mdx-js/mdx"],
@@ -26,6 +30,7 @@ export default defineConfig({
 				entry: { index: "src/web/index.ts" },
 			},
 			output: {
+				...sharedConfig.output,
 				target: "web",
 				distPath: { root: "dist/web" },
 				externals: ["@types/react", "_playground_virtual_modules"],
