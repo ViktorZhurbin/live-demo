@@ -7,6 +7,6 @@ hero:
   tagline: Turn code snippets into interactive playgrounds
   actions:
     - theme: brand
-      text: Examples
-      link: /examples/overview
+      text: Get started
+      link: /guide/overview
 ---
