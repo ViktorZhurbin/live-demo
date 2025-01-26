@@ -19,12 +19,24 @@ export type LiveDemoResizablePanelsProps = {
    * When width of the ResizablePanels' wrapper div is smaller,
    * the panels are arranged vertically.
    * Otherwise, the panels are arranged horizontally.
+   * @defaultValue `580`
    */
   verticalThreshold?: number;
   /**
-   * Default panel sizes in % (1-100).
+   * Default panel sizes in %.
    */
-  defaultPanelSizes?: { editor?: number; preview?: number };
+  defaultPanelSizes?: {
+    /**
+     * Default panel size in %.
+     * @defaultValue `50`
+     */
+    editor?: number;
+    /**
+     * Default panel size in %.
+     * @defaultValue `50`
+     */
+    preview?: number;
+  };
   classes?: {
     wrapper?: string;
     editorPanel?: string;

@@ -1,4 +1,7 @@
-import type { LiveDemoResizablePanelsProps } from "web/ui";
+import type {
+  LiveDemoFileTabsProps,
+  LiveDemoResizablePanelsProps,
+} from "web/ui";
 import type { LiveDemoLanguage } from "./constants";
 
 export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
@@ -24,6 +27,7 @@ export type PluginOptions = {
   customLayout?: string;
 
   ui?: {
+    fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab">;
     resizablePanels?: Pick<
       LiveDemoResizablePanelsProps,
       "autoSaveId" | "defaultPanelSizes"
