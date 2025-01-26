@@ -1,31 +1,31 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { type ReactElement, createElement, useEffect, useState } from "react";
-import type { Files } from "shared/types";
+import type { LiveDemoFiles } from "shared/types";
 import { bundleCode } from "./compiler/bundleCode";
 import { getFnFromString } from "./compiler/getFnFromString";
 
 const DEBOUNCE_TIME = 800;
 
-export type CodeRunnerProps = {
-	files: Files;
+export type LiveDemoCodeRunnerProps = {
+	files: LiveDemoFiles;
 	entryFileName: string;
 
 	error: Error | undefined;
 	setError: (error: Error | undefined) => void;
 };
 
-export const CodeRunner = ({
+export const LiveDemoCodeRunner = ({
 	files,
 	error,
 	setError,
 	entryFileName,
-}: CodeRunnerProps) => {
+}: LiveDemoCodeRunnerProps) => {
 	const [prevCode, setPrevCode] = useState("");
 	const [dynamicComponent, setDynamicComponent] = useState<ReactElement | null>(
 		null,
 	);
 
-	const getComponent = async (files: Files) => {
+	const getComponent = async (files: LiveDemoFiles) => {
 		if (!(window.Babel || window.rollup)) return;
 
 		try {

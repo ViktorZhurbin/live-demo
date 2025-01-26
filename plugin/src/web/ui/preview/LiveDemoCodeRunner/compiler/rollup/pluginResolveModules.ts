@@ -4,14 +4,14 @@ import {
 	isRelativeImport,
 	stripRelativeImport,
 } from "shared/pathHelpers";
-import type { Files } from "shared/types";
+import type { LiveDemoFiles } from "shared/types";
 
 /**
  * Resolve and load in-memory files to be bundled
  *
  * Based off of @link https://rollupjs.org/faqs/#how-do-i-run-rollup-itself-in-a-browser
  * */
-export const pluginResolveModules = (files: Files): Plugin => {
+export const pluginResolveModules = (files: LiveDemoFiles): Plugin => {
 	return {
 		name: "resolve-modules",
 		resolveId(source) {

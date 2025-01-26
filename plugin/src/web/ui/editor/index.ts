@@ -1,2 +1,2 @@
-export * from "./FileTabs/FileTabs";
-export * from "./EditorCodeMirror/EditorCodeMirror";
+export * from "./LiveDemoFileTabs/LiveDemoFileTabs";
+export * from "./LiveDemoEditor/LiveDemoEditor";

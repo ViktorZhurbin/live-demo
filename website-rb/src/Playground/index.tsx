@@ -1,23 +1,23 @@
-import 'rspress-plugin-live-demo/web/index.css'
 import {
-  EditorCodeMirror,
-  PlaygroundProvider,
-  PlaygroundStringifiedProps,
-  PlaygroundWrapper,
-  ResizablePanels,
+  LiveDemoEditor,
+  LiveDemoProvider,
+  LiveDemoStringifiedProps,
+  LiveDemoWrapper,
+  LiveDemoResizablePanels,
   parseProps,
 } from 'rspress-plugin-live-demo/web'
+import 'rspress-plugin-live-demo/web/index.css'
 
-const Playground = (props: PlaygroundStringifiedProps) => {
+const LiveDemo = (props: LiveDemoStringifiedProps) => {
   const parsedProps = parseProps(props)
 
   return (
-    <PlaygroundProvider initialValue={parsedProps}>
-      <PlaygroundWrapper>
-        <ResizablePanels editor={<EditorCodeMirror />} />
-      </PlaygroundWrapper>
-    </PlaygroundProvider>
+    <LiveDemoProvider initialValue={parsedProps}>
+      <LiveDemoWrapper>
+        <LiveDemoResizablePanels editor={<LiveDemoEditor />} />
+      </LiveDemoWrapper>
+    </LiveDemoProvider>
   )
 }
 
-export default Playground
+export default LiveDemo

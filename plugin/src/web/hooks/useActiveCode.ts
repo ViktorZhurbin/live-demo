@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { usePlaygroundContext } from "web/context";
+import { useLiveDemoContext } from "web/context";
 
 export const useActiveCode = () => {
-	const { files, activeFile, updateFiles } = usePlaygroundContext();
+	const { files, activeFile, updateFiles } = useLiveDemoContext();
 
 	const code = files[activeFile] ?? "";
 

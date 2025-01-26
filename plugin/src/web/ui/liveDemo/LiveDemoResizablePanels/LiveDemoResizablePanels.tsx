@@ -2,10 +2,10 @@ import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
 import type { ReactElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { EditorCodeMirror, Preview } from "web/ui";
-import styles from "./ResizablePanels.module.css";
+import { LiveDemoEditor, LiveDemoPreview } from "web/ui";
+import styles from "./LiveDemoResizablePanels.module.css";
 
-type ResizablePanelsProps = {
+type LiveDemoResizablePanelsProps = {
 	editor?: ReactElement;
 	preview?: ReactElement;
 	/**
@@ -30,7 +30,9 @@ type ResizablePanelsProps = {
 	};
 };
 
-export const ResizablePanels = (props: ResizablePanelsProps) => {
+export const LiveDemoResizablePanels = (
+	props: LiveDemoResizablePanelsProps,
+) => {
 	const {
 		classes,
 		autoSaveId,
@@ -62,7 +64,7 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 						e.stopPropagation();
 					}}
 				>
-					{props.editor ?? <EditorCodeMirror />}
+					{props.editor ?? <LiveDemoEditor />}
 				</Panel>
 
 				<PanelResizeHandle className={styles.resizeHandle} />
@@ -73,7 +75,7 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 					defaultSize={defaultPanelSizes.preview}
 					order={isVertical ? 0 : 1}
 				>
-					{props.preview ?? <Preview />}
+					{props.preview ?? <LiveDemoPreview />}
 				</Panel>
 			</PanelGroup>
 		</div>

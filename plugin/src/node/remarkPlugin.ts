@@ -1,7 +1,7 @@
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import { Language } from "shared/constants";
-import type { PlaygroundProps } from "shared/types";
+import { LiveDemoLanguage } from "shared/constants";
+import type { LiveDemoProps } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
@@ -12,7 +12,7 @@ interface RemarkPluginProps {
 }
 
 /**
- * Inject <Playground /> into MDX
+ * Inject <LiveDemo /> into MDX
  */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	getDemoDataByPath,
@@ -32,7 +32,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
-				name: "Playground",
+				name: "LiveDemo",
 				attributes: getJsxAttributesFromProps(demoDataByPath[importPath]),
 			});
 		});
@@ -43,13 +43,13 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const isLive = node.meta?.includes("live");
 
-			if (!(isLive && node.lang in Language)) return;
+			if (!(isLive && node.lang in LiveDemoLanguage)) return;
 
 			const entryFileName = `App.${node.lang}`;
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
-				name: "Playground",
+				name: "LiveDemo",
 				attributes: getJsxAttributesFromProps({
 					entryFileName,
 					files: { [entryFileName]: node.value },
@@ -61,7 +61,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 };
 
 function getJsxAttributesFromProps(
-	props: PlaygroundProps,
+	props: LiveDemoProps,
 ): MdxJsxFlowElement["attributes"] {
 	return Object.entries(props).map(([name, value]) => ({
 		name,

@@ -1,4 +1,4 @@
-import getImport from "_playground_virtual_modules";
+import getImport from "_live_demo_virtual_modules";
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
 
 export function getFnFromString(fnCode: string) {

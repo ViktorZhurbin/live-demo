@@ -1,15 +1,15 @@
 import "./colors.css";
 import clsx from "clsx";
 import { type Ref, forwardRef } from "react";
-import styles from "./PlaygroundWrapper.module.css";
+import styles from "./LiveDemoWrapper.module.css";
 
-type PlaygroundWrapperProps = {
+type LiveDemoWrapperProps = {
 	className?: string;
 	children: React.ReactNode;
 };
 
-export const PlaygroundWrapper = forwardRef(
-	(props: PlaygroundWrapperProps, ref: Ref<HTMLDivElement>) => {
+export const LiveDemoWrapper = forwardRef(
+	(props: LiveDemoWrapperProps, ref: Ref<HTMLDivElement>) => {
 		return (
 			<div ref={ref} className={clsx(styles.wrapper, props.className)}>
 				{props.children}

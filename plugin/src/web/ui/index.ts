@@ -1,4 +1,4 @@
 export * from "./components";
 export * from "./editor";
-export * from "./playground";
+export * from "./liveDemo";
 export * from "./preview";

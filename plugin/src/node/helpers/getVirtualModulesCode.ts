@@ -25,7 +25,7 @@ export default getImport`;
  * when compiling code in the browser
  *
  * Usage:
- * import getImport from '_playground_virtual_modules'
+ * import getImport from '_live_demo_virtual_modules'
  *
  * getImport('react')
  */

@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import type { PlaygroundProps } from "shared/types";
+import type { LiveDemoProps } from "shared/types";
 import { visit } from "unist-util-visit";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
@@ -10,7 +10,7 @@ import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 import { remarkPlugin } from "./remarkPlugin";
 
-export type DemoDataByPath = Record<string, PlaygroundProps>;
+export type DemoDataByPath = Record<string, LiveDemoProps>;
 
 const demoDataByPath: DemoDataByPath = {};
 
@@ -22,7 +22,7 @@ const demoDataByPath: DemoDataByPath = {};
  * - resolve imported npm modules and inject a getImport getter as a virtual module, which make them available in browser
  * - create `files` object for each demo
  * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
- * with `<Playground files={files} />`
+ * with `<LiveDemo files={files} />`
  */
 export function rspressPluginLiveDemo(options?: {
 	render: string;
@@ -86,7 +86,7 @@ export function rspressPluginLiveDemo(options?: {
 
 		async addRuntimeModules() {
 			return {
-				_playground_virtual_modules: getVirtualModulesCode(imports),
+				_live_demo_virtual_modules: getVirtualModulesCode(imports),
 			};
 		},
 
@@ -118,7 +118,7 @@ export function rspressPluginLiveDemo(options?: {
 			remarkPlugins: [[remarkPlugin, { getDemoDataByPath }]],
 
 			globalComponents: [
-				options?.render ?? path.join(__dirname, "../../static/Playground.tsx"),
+				options?.render ?? path.join(__dirname, "../../static/LiveDemo.tsx"),
 			],
 		},
 	};

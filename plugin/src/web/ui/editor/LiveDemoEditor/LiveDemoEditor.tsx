@@ -3,9 +3,9 @@ import { useDark } from "@rspress/core/runtime";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { useActiveCode } from "web/hooks/useActiveCode";
-import "./EditorCodeMirror.css";
+import "./LiveDemoEditor.css";
 
-export const EditorCodeMirror = () => {
+export const LiveDemoEditor = () => {
 	const theme = useDark() ? vscodeDark : vscodeLight;
 	const { code, updateCode } = useActiveCode();
 

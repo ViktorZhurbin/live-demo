@@ -1,4 +1,4 @@
-export enum Language {
+export enum LiveDemoLanguage {
 	tsx = "tsx",
 	jsx = "jsx",
 }

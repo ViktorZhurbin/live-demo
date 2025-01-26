@@ -1,13 +1,13 @@
-import { usePlaygroundContext } from "web/context";
+import { useLiveDemoContext } from "web/context";
 import { Button } from "web/ui/components";
-import styles from "./FileTabs.module.css";
+import styles from "./LiveDemoFileTabs.module.css";
 
-type FileTabsProps = {
+type LiveDemoFileTabsProps = {
 	hideSingleTab?: boolean;
 };
 
-export const FileTabs = (props: FileTabsProps) => {
-	const { files, activeFile, setActiveFile } = usePlaygroundContext();
+export const LiveDemoFileTabs = (props: LiveDemoFileTabsProps) => {
+	const { files, activeFile, setActiveFile } = useLiveDemoContext();
 	const fileNames = Object.keys(files);
 
 	if (props.hideSingleTab && fileNames.length === 1) {

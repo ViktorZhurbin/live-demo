@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import type { Program } from "@babel/types";
 import { parseSync } from "@oxidation-compiler/napi";
-import type { Files, PathWithAllowedExt } from "shared/types";
+import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
 
 type GetFilesAndAst = {
 	fileName: string;
@@ -10,10 +10,10 @@ type GetFilesAndAst = {
 
 export const getFilesAndAst = (
 	params: GetFilesAndAst,
-): { files: Files; ast: Program } => {
+): { files: LiveDemoFiles; ast: Program } => {
 	const { absolutePath, fileName } = params;
 
-	const files: Files = {};
+	const files: LiveDemoFiles = {};
 
 	const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
 

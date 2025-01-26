@@ -1,4 +1,4 @@
-import { Language } from "./constants";
+import { LiveDemoLanguage } from "./constants";
 import type { PathWithAllowedExt } from "./types";
 
 /** starting with ./ or ../  */
@@ -15,12 +15,12 @@ export const getFileExt = (filename: string) => filename.split(".")[1];
 export const getPossiblePaths = (filePath: string): PathWithAllowedExt[] => {
 	const fileExt = getFileExt(filePath);
 
-	if (fileExt in Language) {
+	if (fileExt in LiveDemoLanguage) {
 		return [filePath] as PathWithAllowedExt[];
 	}
 
 	if (!fileExt) {
-		return Object.keys(Language).map(
+		return Object.keys(LiveDemoLanguage).map(
 			(ext) => `${filePath}.${ext}` as PathWithAllowedExt,
 		);
 	}

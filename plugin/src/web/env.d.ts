@@ -1,4 +1,4 @@
-declare module "_playground_virtual_modules" {
+declare module "_live_demo_virtual_modules" {
 	const getImport: (name: string) => void;
 
 	export default getImport;

@@ -1,2 +1,2 @@
-export * from "./Preview/Preview";
-export * from "./CodeRunner/CodeRunner";
+export * from "./LiveDemoPreview/LiveDemoPreview";
+export * from "./LiveDemoCodeRunner/LiveDemoCodeRunner";

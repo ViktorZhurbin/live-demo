@@ -4,7 +4,7 @@ import { babelPluginTraverse } from "../babel/babelPluginTraverse";
 /**
  * Transforms bundled code:
  * - replaces external imports with calls to getImport helper
- * which uses _playground_virtual_modules to resolve them
+ * which uses _live_demo_virtual_modules to resolve them
  * - updates export to always use `exports.default`
  * which is then used to get the component function
  */
