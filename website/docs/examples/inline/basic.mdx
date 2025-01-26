@@ -1,0 +1,57 @@
+---
+title: Basic
+---
+
+import { Tab, Tabs } from "rspress/theme";
+
+<Tabs>
+  <Tab label="JSX">
+    This snippet:
+
+    ````
+    ```jsx live
+    export const App = () => {
+      return <div>Hello World</div>;
+    };
+    ```
+    ````
+
+    Turns into:
+
+    ```jsx live
+    export const App = () => {
+      return <div>Hello World</div>;
+    };
+    ```
+
+  </Tab>
+	<Tab label="TSX">
+    This snippet:
+
+    ````
+    ```tsx live
+    import React from "react";
+
+    export const App = (): React.FC => {
+      return <div>Hello World</div>;
+    };
+    ```
+    ````
+
+    Turns into:
+
+    ```tsx live
+    import React from "react";
+
+    export const App = (): React.FC => {
+      return <div>Hello World</div>;
+    };
+    ```
+
+  </Tab>
+</Tabs>
+
+> [!NOTE]
+>
+> - Component needs to be exported
+> - External modules are not currently supported in inline demos

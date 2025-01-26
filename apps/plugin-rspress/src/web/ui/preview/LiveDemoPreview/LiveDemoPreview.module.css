@@ -1,7 +1,11 @@
 .wrapper {
 	position: relative;
-	padding-block: 12px;
 	height: 100%;
+	padding: 12px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
 	canvas {
 		outline: none;
