@@ -41,7 +41,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
       });
     });
 
-    // 2. Inline ```jsx/tsx ``` markdown code blocks
+    // 2. Inline demo, ie ```jsx/tsx SOME_CODE ``` code blocks
     visit(tree, "code", (node) => {
       if (!node?.lang) return;
 

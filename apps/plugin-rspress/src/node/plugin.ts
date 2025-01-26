@@ -14,12 +14,21 @@ export type DemoDataByPath = Record<string, LiveDemoProps>;
 
 const demoDataByPath: DemoDataByPath = {};
 
+/**
+ * Included by default for every demo
+ **/
+const defaultModules = ["react", "rspress/theme"];
+
 export function rspressPluginLiveDemo(options?: PluginOptions): RspressPlugin {
   const getDemoDataByPath = () => demoDataByPath;
+  const extraModules = options?.includeModules || [];
 
-  // Collect all imports to make them available in browser through
-  // the `getImport` getter, injected as a virtual module
-  const imports = new Set(["react"]);
+  /**
+   * Modules that will be available in demos,
+   * Eg, you can use `import { Card } from "rspress/theme"` in any demo,
+   * since it is included in defaultModules
+   **/
+  const imports = new Set(defaultModules.concat(extraModules));
 
   return {
     name: "rspress-plugin-live-demo",

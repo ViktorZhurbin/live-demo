@@ -25,6 +25,13 @@ export type LiveDemoStringifiedProps = {
 
 export type PluginOptions = {
   customLayout?: string;
+  /**
+   * Modules that will be available in demos,
+   * @example
+   * includeModules: ["@mantine/hooks"]
+   * Then you can use `import { ... } from "@mantine/hooks"` in any demo.
+   **/
+  includeModules?: string[];
 
   ui?: {
     fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab">;
