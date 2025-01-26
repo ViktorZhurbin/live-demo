@@ -23,6 +23,6 @@ export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
   }
 
   throw new Error(
-    `[LiveDemo]: Couldn't resolve \`src=${importPath}\`.\nOnly .jsx and .tsx files are supported`,
+    `[LiveDemo]: Couldn't resolve \`${importPath}\`.\nOnly .js(x) and .ts(x) files are supported`,
   );
 }
