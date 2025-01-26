@@ -29,6 +29,7 @@ export default defineConfig({
     checkDeadLinks: true,
   },
   themeConfig: {
+    enableScrollToTop: true,
     socialLinks: [
       {
         icon: "github",
