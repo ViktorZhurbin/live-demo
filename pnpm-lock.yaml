@@ -8,24 +8,12 @@ importers:
 
   .:
     devDependencies:
-      '@babylonjs/core':
-        specifier: 7.40.2
-        version: 7.40.2
-      '@babylonjs/gui':
-        specifier: 7.40.2
-        version: 7.40.2(@babylonjs/core@7.40.2)
       '@biomejs/biome':
         specifier: 1.9.4
         version: 1.9.4
-      '@types/react':
-        specifier: '18'
-        version: 18.3.18
       husky:
         specifier: ^9.1.7
         version: 9.1.7
-      react-babylonjs:
-        specifier: 3.2.2
-        version: 3.2.2(@babylonjs/core@7.40.2)(@babylonjs/gui@7.40.2(@babylonjs/core@7.40.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   plugin:
     dependencies:
@@ -123,7 +111,7 @@ importers:
       rspress:
         specifier: 1.39.4
         version: 1.39.4(webpack@5.97.1)
-      rspress-plugin-code-playground:
+      rspress-plugin-live-demo:
         specifier: workspace:*
         version: link:../plugin
     devDependencies:
@@ -184,7 +172,7 @@ importers:
       rspress:
         specifier: 1.39.4
         version: 1.39.4(webpack@5.97.1)
-      rspress-plugin-code-playground:
+      rspress-plugin-live-demo:
         specifier: workspace:*
         version: link:../plugin
     devDependencies:

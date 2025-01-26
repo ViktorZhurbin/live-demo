@@ -1,0 +1,1 @@
+export { rspressPluginLiveDemo } from "./plugin";

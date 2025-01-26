@@ -5,7 +5,7 @@ import type { PlaygroundProps } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import type { DemoDataByPath } from "./main";
+import type { DemoDataByPath } from "./plugin";
 
 interface RemarkPluginProps {
 	getDemoDataByPath: () => DemoDataByPath;
@@ -41,9 +41,9 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 		visit(tree, "code", (node) => {
 			if (!node?.lang) return;
 
-			const isPlayground = node.meta?.includes("playground");
+			const isLive = node.meta?.includes("live");
 
-			if (!(isPlayground || node.lang in Language)) return;
+			if (!(isLive && node.lang in Language)) return;
 
 			const entryFileName = `App.${node.lang}`;
 

@@ -15,12 +15,12 @@ export default defineConfig({
 		{
 			...sharedConfig,
 			source: {
-				entry: { index: "src/cli/index.ts" },
+				entry: { index: "src/node/index.ts" },
 			},
 			output: {
 				...sharedConfig.output,
 				target: "node",
-				distPath: { root: "dist/cli" },
+				distPath: { root: "dist/node" },
 				externals: ["@mdx-js/mdx"],
 			},
 		},

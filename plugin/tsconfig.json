@@ -15,7 +15,7 @@
 
 		"baseUrl": ".",
 		"paths": {
-			"cli/*": ["src/cli/*"],
+			"node/*": ["src/node/*"],
 			"shared/*": ["src/shared/*"],
 			"web/*": ["src/web/*"]
 		}

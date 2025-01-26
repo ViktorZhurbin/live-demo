@@ -19,7 +19,7 @@
 		"react": "18",
 		"react-dom": "18",
 		"react-resizable-panels": "^2.1.7",
-		"rspress-plugin-code-playground": "workspace:*",
+		"rspress-plugin-live-demo": "workspace:*",
 		"rspress": "1.39.4"
 	},
 	"devDependencies": {

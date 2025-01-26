@@ -1,4 +1,4 @@
-import 'rspress-plugin-code-playground/web/index.css'
+import 'rspress-plugin-live-demo/web/index.css'
 import {
   EditorCodeMirror,
   PlaygroundProvider,
@@ -6,7 +6,7 @@ import {
   PlaygroundWrapper,
   ResizablePanels,
   parseProps,
-} from 'rspress-plugin-code-playground/web'
+} from 'rspress-plugin-live-demo/web'
 
 const Playground = (props: PlaygroundStringifiedProps) => {
   const parsedProps = parseProps(props)

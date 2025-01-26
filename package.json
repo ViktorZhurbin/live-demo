@@ -6,18 +6,14 @@
 	"scripts": {
 		"dev:web": "pnpm --filter website dev",
 		"build:web": "pnpm --filter website build",
-		"dev:lib": "pnpm --filter rspress-plugin-code-playground dev",
-		"build:lib": "pnpm --filter rspress-plugin-code-playground build",
+		"dev:lib": "pnpm --filter rspress-plugin-live-demo dev",
+		"build:lib": "pnpm --filter rspress-plugin-live-demo build",
 		"build": "pnpm run build:lib && pnpm build:web",
 		"format": "biome check --write",
 		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@babylonjs/core": "7.40.2",
-		"@babylonjs/gui": "7.40.2",
-		"@types/react": "18",
-		"husky": "^9.1.7",
-		"react-babylonjs": "3.2.2"
+		"husky": "^9.1.7"
 	}
 }

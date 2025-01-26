@@ -1,10 +1,10 @@
 import * as path from "node:path";
-import { rspressPluginCodePlayground } from "rspress-plugin-code-playground";
+import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({
 	root: path.join(__dirname, "docs"),
-	plugins: [rspressPluginCodePlayground()],
+	plugins: [rspressPluginLiveDemo()],
 
 	title: "My Site",
 	icon: "/rspress-icon.png",

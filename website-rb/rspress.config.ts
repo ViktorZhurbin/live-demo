@@ -1,6 +1,6 @@
 import * as path from "node:path";
 import { defineConfig } from "rspress/config";
-import { pluginPlayground } from "./src/plugins/pluginPlayground";
+import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
 
 export default defineConfig({
 	base: "/react-babylonjs/",
@@ -18,7 +18,7 @@ export default defineConfig({
 		defaultWrapCode: true,
 	},
 
-	plugins: [pluginPlayground()],
+	plugins: [rspressPluginLiveDemo()],
 
 	route: {
 		cleanUrls: true,

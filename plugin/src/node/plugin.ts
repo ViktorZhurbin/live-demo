@@ -24,7 +24,7 @@ const demoDataByPath: DemoDataByPath = {};
  * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
  * with `<Playground files={files} />`
  */
-export function rspressPluginCodePlayground(options?: {
+export function rspressPluginLiveDemo(options?: {
 	render: string;
 }): RspressPlugin {
 	const getDemoDataByPath = () => demoDataByPath;
@@ -34,7 +34,7 @@ export function rspressPluginCodePlayground(options?: {
 	const imports = new Set(["react"]);
 
 	return {
-		name: "rspress-plugin-code-playground",
+		name: "rspress-plugin-live-demo",
 
 		config(config) {
 			config.markdown = config.markdown || {};

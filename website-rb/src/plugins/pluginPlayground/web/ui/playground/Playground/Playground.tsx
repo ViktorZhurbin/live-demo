@@ -7,8 +7,8 @@ import {
   PlaygroundWrapper,
   ResizablePanels,
   FileTabs,
-} from 'rspress-plugin-code-playground/web'
-import 'rspress-plugin-code-playground/web/index.css'
+} from 'rspress-plugin-live-demo/web'
+import 'rspress-plugin-live-demo/web/index.css'
 import { useIsPlaygroundPage } from '../../../hooks/location'
 import { useFiles } from '../../../hooks/useCurrentFiles'
 import { ControlPanel } from '../../controlPanel/ControlPanel/ControlPanel'
