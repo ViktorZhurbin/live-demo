@@ -4,6 +4,7 @@ import { defineConfig } from "rspress/config";
 
 export default defineConfig({
   root: path.join(__dirname, "docs"),
+
   plugins: [
     rspressPluginLiveDemo({
       ui: {
@@ -24,6 +25,9 @@ export default defineConfig({
     dark: "/icon-dark.svg",
   },
 
+  markdown: {
+    checkDeadLinks: true,
+  },
   themeConfig: {
     socialLinks: [
       {
