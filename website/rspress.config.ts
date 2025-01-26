@@ -3,50 +3,50 @@ import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({
-	root: path.join(__dirname, "docs"),
-	plugins: [
-		rspressPluginLiveDemo({
-			ui: {
-				resizablePanels: {
-					autoSaveId: "live-demo-docs",
-					defaultPanelSizes: { editor: 55, preview: 45 },
-				},
-			},
-		}),
-	],
+  root: path.join(__dirname, "docs"),
+  plugins: [
+    rspressPluginLiveDemo({
+      ui: {
+        resizablePanels: {
+          autoSaveId: "live-demo-docs",
+          defaultPanelSizes: { editor: 55, preview: 45 },
+        },
+      },
+    }),
+  ],
 
-	title: "Live Demo",
-	icon: "/icon-dark.png",
+  title: "Live Demo",
+  icon: "/icon-dark.png",
 
-	logoText: "Live Demo",
-	logo: {
-		light: "/icon-light.svg",
-		dark: "/icon-dark.svg",
-	},
+  logoText: "Live Demo",
+  logo: {
+    light: "/icon-light.svg",
+    dark: "/icon-dark.svg",
+  },
 
-	themeConfig: {
-		socialLinks: [
-			{
-				icon: "github",
-				mode: "link",
-				content: "https://github.com/ViktorZhurbin/live-demo",
-			},
-		],
-	},
+  themeConfig: {
+    socialLinks: [
+      {
+        icon: "github",
+        mode: "link",
+        content: "https://github.com/ViktorZhurbin/live-demo",
+      },
+    ],
+  },
 
-	route: {
-		cleanUrls: true,
-		exclude: ["**/snippets/**"],
-	},
+  route: {
+    cleanUrls: true,
+    exclude: ["**/snippets/**"],
+  },
 
-	builderConfig: {
-		performance: process.env.BUNDLE_ANALYZE
-			? {
-					bundleAnalyze: {
-						analyzerMode: "static",
-						openAnalyzer: true,
-					},
-				}
-			: {},
-	},
+  builderConfig: {
+    performance: process.env.BUNDLE_ANALYZE
+      ? {
+          bundleAnalyze: {
+            analyzerMode: "static",
+            openAnalyzer: true,
+          },
+        }
+      : {},
+  },
 });

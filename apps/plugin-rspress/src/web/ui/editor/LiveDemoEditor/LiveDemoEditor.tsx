@@ -6,21 +6,21 @@ import { useActiveCode } from "web/hooks/useActiveCode";
 import "./LiveDemoEditor.css";
 
 export const LiveDemoEditor = () => {
-	const theme = useDark() ? vscodeDark : vscodeLight;
-	const { code, updateCode } = useActiveCode();
+  const theme = useDark() ? vscodeDark : vscodeLight;
+  const { code, updateCode } = useActiveCode();
 
-	return (
-		<ReactCodeMirror
-			value={code}
-			onChange={updateCode}
-			extensions={[javascript({ jsx: true, typescript: true })]}
-			theme={theme}
-			basicSetup={{
-				lineNumbers: false,
-				foldGutter: false,
-				autocompletion: false,
-				tabSize: 2,
-			}}
-		/>
-	);
+  return (
+    <ReactCodeMirror
+      value={code}
+      onChange={updateCode}
+      extensions={[javascript({ jsx: true, typescript: true })]}
+      theme={theme}
+      basicSetup={{
+        lineNumbers: false,
+        foldGutter: false,
+        autocompletion: false,
+        tabSize: 2,
+      }}
+    />
+  );
 };

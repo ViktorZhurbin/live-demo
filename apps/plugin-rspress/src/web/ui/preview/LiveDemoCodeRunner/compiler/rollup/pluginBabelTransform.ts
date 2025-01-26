@@ -7,15 +7,15 @@ import { babelTransformCode } from "../babel/babelTransformCode";
  * Using @babel/standalone to transform JSX/TSX into JS
  * */
 export const pluginBabelTransform = (): Plugin => {
-	return {
-		name: "babel-transform",
-		transform(code, filename) {
-			const transformedCode = babelTransformCode(code, filename);
+  return {
+    name: "babel-transform",
+    transform(code, filename) {
+      const transformedCode = babelTransformCode(code, filename);
 
-			return {
-				code: transformedCode,
-				map: null,
-			};
-		},
-	};
+      return {
+        code: transformedCode,
+        map: null,
+      };
+    },
+  };
 };

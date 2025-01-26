@@ -1,20 +1,20 @@
 .wrapper {
-	display: flex;
-	gap: 8px;
-	padding: 8px;
-	overflow: auto;
-	min-height: max-content;
-	border-top: var(--sp-layout-border);
-	border-bottom: var(--sp-layout-border);
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  overflow: auto;
+  min-height: max-content;
+  border-top: var(--sp-layout-border);
+  border-bottom: var(--sp-layout-border);
 }
 
 .tab,
 .tab[data-active="true"],
 .tab:hover:not(:disabled) {
-	border: unset;
-	background-color: transparent;
+  border: unset;
+  background-color: transparent;
 
-	&:hover:not([data-active="true"]) {
-		color: var(--sp-color-accent);
-	}
+  &:hover:not([data-active="true"]) {
+    color: var(--sp-color-accent);
+  }
 }

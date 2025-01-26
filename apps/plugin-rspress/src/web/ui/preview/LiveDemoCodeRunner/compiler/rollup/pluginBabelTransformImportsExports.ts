@@ -9,20 +9,20 @@ import { babelPluginTraverse } from "../babel/babelPluginTraverse";
  * which is then used to get the component function
  */
 export const pluginBabelTransformImportsExports = (): Plugin => {
-	const { transform } = window.Babel;
+  const { transform } = window.Babel;
 
-	return {
-		name: "babel-transform-imports-exports",
-		renderChunk(code, chunk, options, meta) {
-			const fileResult = transform(code, {
-				sourceType: "module",
-				plugins: [babelPluginTraverse()],
-			});
+  return {
+    name: "babel-transform-imports-exports",
+    renderChunk(code, chunk, options, meta) {
+      const fileResult = transform(code, {
+        sourceType: "module",
+        plugins: [babelPluginTraverse()],
+      });
 
-			return {
-				code: fileResult?.code ?? code,
-				map: null,
-			};
-		},
-	};
+      return {
+        code: fileResult?.code ?? code,
+        map: null,
+      };
+    },
+  };
 };

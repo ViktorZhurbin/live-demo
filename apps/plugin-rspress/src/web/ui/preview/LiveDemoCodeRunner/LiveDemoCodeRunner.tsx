@@ -7,66 +7,66 @@ import { getFnFromString } from "./compiler/getFnFromString";
 const DEBOUNCE_TIME = 800;
 
 export type LiveDemoCodeRunnerProps = {
-	files: LiveDemoFiles;
-	entryFileName: string;
+  files: LiveDemoFiles;
+  entryFileName: string;
 
-	error: Error | undefined;
-	setError: (error: Error | undefined) => void;
+  error: Error | undefined;
+  setError: (error: Error | undefined) => void;
 };
 
 export const LiveDemoCodeRunner = ({
-	files,
-	error,
-	setError,
-	entryFileName,
+  files,
+  error,
+  setError,
+  entryFileName,
 }: LiveDemoCodeRunnerProps) => {
-	const [prevCode, setPrevCode] = useState("");
-	const [dynamicComponent, setDynamicComponent] = useState<ReactElement | null>(
-		null,
-	);
+  const [prevCode, setPrevCode] = useState("");
+  const [dynamicComponent, setDynamicComponent] = useState<ReactElement | null>(
+    null,
+  );
 
-	const getComponent = async (files: LiveDemoFiles) => {
-		if (!(window.Babel || window.rollup)) return;
+  const getComponent = async (files: LiveDemoFiles) => {
+    if (!(window.Babel || window.rollup)) return;
 
-		try {
-			const start = performance.now();
-			const code = await bundleCode({ entryFileName, files });
-			const end = performance.now();
+    try {
+      const start = performance.now();
+      const code = await bundleCode({ entryFileName, files });
+      const end = performance.now();
 
-			const diff = Math.round(end - start);
+      const diff = Math.round(end - start);
 
-			console.info(
-				`%cBundled in ${diff}ms`,
-				"background: #15889f; padding: 6px; color: white;",
-			);
+      console.info(
+        `%cBundled in ${diff}ms`,
+        "background: #15889f; padding: 6px; color: white;",
+      );
 
-			if (code === prevCode && !error) return;
+      if (code === prevCode && !error) return;
 
-			const component = getFnFromString(code);
+      const component = getFnFromString(code);
 
-			if (typeof component === "function") {
-				setError(undefined);
-				setPrevCode(code);
-				setDynamicComponent(createElement(component));
-			} else {
-				throw new Error(
-					`Couldn't determine component export in ${entryFileName}.\n\nDoes the file have multiple exports?`,
-				);
-			}
-		} catch (e) {
-			console.error(e);
-			setError(e as Error);
-		}
-	};
+      if (typeof component === "function") {
+        setError(undefined);
+        setPrevCode(code);
+        setDynamicComponent(createElement(component));
+      } else {
+        throw new Error(
+          `Couldn't determine component export in ${entryFileName}.\n\nDoes the file have multiple exports?`,
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      setError(e as Error);
+    }
+  };
 
-	const getComponentDebounced = useDebouncedCallback(
-		getComponent,
-		DEBOUNCE_TIME,
-	);
+  const getComponentDebounced = useDebouncedCallback(
+    getComponent,
+    DEBOUNCE_TIME,
+  );
 
-	useEffect(() => {
-		getComponentDebounced(files);
-	}, [getComponentDebounced, files]);
+  useEffect(() => {
+    getComponentDebounced(files);
+  }, [getComponentDebounced, files]);
 
-	return dynamicComponent;
+  return dynamicComponent;
 };

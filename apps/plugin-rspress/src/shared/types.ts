@@ -6,9 +6,9 @@ export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
 export type LiveDemoFiles = Record<string, string>;
 
 export type LiveDemoProps = {
-	files: LiveDemoFiles;
-	entryFileName: string;
-	options?: PluginOptions["ui"];
+  files: LiveDemoFiles;
+  entryFileName: string;
+  options?: PluginOptions["ui"];
 };
 
 /**
@@ -17,16 +17,16 @@ export type LiveDemoProps = {
  * tends to break MDX parsing.
  */
 export type LiveDemoStringifiedProps = {
-	[Key in keyof LiveDemoProps]: string;
+  [Key in keyof LiveDemoProps]: string;
 };
 
 export type PluginOptions = {
-	customLayout?: string;
+  customLayout?: string;
 
-	ui?: {
-		resizablePanels?: Pick<
-			LiveDemoResizablePanelsProps,
-			"autoSaveId" | "defaultPanelSizes"
-		>;
-	};
+  ui?: {
+    resizablePanels?: Pick<
+      LiveDemoResizablePanelsProps,
+      "autoSaveId" | "defaultPanelSizes"
+    >;
+  };
 };

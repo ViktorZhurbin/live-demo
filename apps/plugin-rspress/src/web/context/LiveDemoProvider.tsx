@@ -1,72 +1,72 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type {
-	LiveDemoFiles,
-	LiveDemoProps,
-	LiveDemoStringifiedProps,
+  LiveDemoFiles,
+  LiveDemoProps,
+  LiveDemoStringifiedProps,
 } from "shared/types";
 import { parseProps } from "./parseProps";
 
 type LiveDemoContextValue = {
-	files: LiveDemoFiles;
-	setFiles: React.Dispatch<React.SetStateAction<LiveDemoFiles>>;
+  files: LiveDemoFiles;
+  setFiles: React.Dispatch<React.SetStateAction<LiveDemoFiles>>;
 
-	activeFile: string;
-	setActiveFile: React.Dispatch<React.SetStateAction<string>>;
+  activeFile: string;
+  setActiveFile: React.Dispatch<React.SetStateAction<string>>;
 
-	updateFiles: (update: LiveDemoFiles) => void;
+  updateFiles: (update: LiveDemoFiles) => void;
 
-	options: LiveDemoProps["options"];
-	entryFileName: LiveDemoProps["entryFileName"];
+  options: LiveDemoProps["options"];
+  entryFileName: LiveDemoProps["entryFileName"];
 };
 
 const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
-	undefined,
+  undefined,
 );
 
 type LiveDemoProviderProps = {
-	children: React.ReactNode;
-	initialValue: LiveDemoStringifiedProps;
+  children: React.ReactNode;
+  initialValue: LiveDemoStringifiedProps;
 };
 
 function LiveDemoProvider(props: LiveDemoProviderProps) {
-	const initialValue = parseProps(props.initialValue);
+  const initialValue = parseProps(props.initialValue);
 
-	const [files, setFiles] = useState(initialValue.files);
-	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
+  const [files, setFiles] = useState(initialValue.files);
+  const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
-	const updateFiles = useCallback((update: LiveDemoFiles) => {
-		setFiles((prevFiles) => ({ ...prevFiles, ...update }));
-	}, []);
+  const updateFiles = useCallback((update: LiveDemoFiles) => {
+    setFiles((prevFiles) => ({ ...prevFiles, ...update }));
+  }, []);
 
-	return (
-		<LiveDemoContext.Provider
-			value={{
-				files,
-				setFiles,
-				updateFiles,
+  return (
+    <LiveDemoContext.Provider
+      value={{
+        files,
+        setFiles,
+        updateFiles,
 
-				activeFile,
-				setActiveFile,
+        activeFile,
+        setActiveFile,
 
-				options: initialValue.options,
-				entryFileName: initialValue.entryFileName,
-			}}
-		>
-			{props.children}
-		</LiveDemoContext.Provider>
-	);
+        options: initialValue.options,
+        entryFileName: initialValue.entryFileName,
+      }}
+    >
+      {props.children}
+    </LiveDemoContext.Provider>
+  );
 }
 
 const useLiveDemoContext = () => {
-	const context = useContext(LiveDemoContext);
+  const context = useContext(LiveDemoContext);
 
-	if (context === undefined) {
-		throw new Error(
-			"useLiveDemoContext must be used within a LiveDemoProvider",
-		);
-	}
+  if (context === undefined) {
+    throw new Error(
+      "useLiveDemoContext must be used within a LiveDemoProvider",
+    );
+  }
 
-	return context;
+  return context;
 };
 
 export { LiveDemoProvider, useLiveDemoContext };

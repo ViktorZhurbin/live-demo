@@ -1,12 +1,12 @@
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 
 export const getMdxJsxAttribute = (
-	node: MdxJsxFlowElement,
-	attrName: string,
+  node: MdxJsxFlowElement,
+  attrName: string,
 ) => {
-	const attribute = node.attributes.find((attr) => {
-		return attr.type === "mdxJsxAttribute" && attr.name === attrName;
-	});
+  const attribute = node.attributes.find((attr) => {
+    return attr.type === "mdxJsxAttribute" && attr.name === attrName;
+  });
 
-	return attribute?.value;
+  return attribute?.value;
 };

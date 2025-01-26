@@ -1,16 +1,16 @@
 .cm-theme {
-	height: 100%;
-	overflow: hidden;
+  height: 100%;
+  overflow: hidden;
 
-	.cm-editor {
-		height: 100%;
+  .cm-editor {
+    height: 100%;
 
-		&.cm-focused {
-			outline: unset;
-		}
-	}
+    &.cm-focused {
+      outline: unset;
+    }
+  }
 
-	.cm-content {
-		padding: 8px 6px;
-	}
+  .cm-content {
+    padding: 8px 6px;
+  }
 }

@@ -4,13 +4,13 @@ import remarkGFM from "remark-gfm";
 import type { Processor } from "unified";
 
 const processor = createProcessor({
-	format: "mdx",
-	remarkPlugins: [remarkGFM],
+  format: "mdx",
+  remarkPlugins: [remarkGFM],
 });
 
 export const getMdxAst = (filepath: string): ReturnType<Processor["parse"]> => {
-	const mdxSource = fs.readFileSync(filepath, "utf-8");
-	const mdxAst = processor.parse(mdxSource);
+  const mdxSource = fs.readFileSync(filepath, "utf-8");
+  const mdxAst = processor.parse(mdxSource);
 
-	return mdxAst;
+  return mdxAst;
 };

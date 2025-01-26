@@ -1,10 +1,10 @@
 .wrapper {
-	border: var(--sp-layout-border);
-	background-color: var(--sp-colors-surface1);
-	border-radius: 6px;
-	font-size: 0.85rem;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	margin-block: 10px;
+  border: var(--sp-layout-border);
+  background-color: var(--sp-colors-surface1);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-block: 10px;
 }

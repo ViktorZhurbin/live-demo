@@ -15,102 +15,102 @@ export type DemoDataByPath = Record<string, LiveDemoProps>;
 const demoDataByPath: DemoDataByPath = {};
 
 export function rspressPluginLiveDemo(options?: PluginOptions): RspressPlugin {
-	const getDemoDataByPath = () => demoDataByPath;
+  const getDemoDataByPath = () => demoDataByPath;
 
-	// Collect all imports to make them available in browser through
-	// the `getImport` getter, injected as a virtual module
-	const imports = new Set(["react"]);
+  // Collect all imports to make them available in browser through
+  // the `getImport` getter, injected as a virtual module
+  const imports = new Set(["react"]);
 
-	return {
-		name: "rspress-plugin-live-demo",
+  return {
+    name: "rspress-plugin-live-demo",
 
-		config(config) {
-			config.markdown = config.markdown || {};
-			// disable Rust compiler to use
-			// markdown.remarkPlugins and markdown.globalComponents
-			// https://rspress.dev/api/config/config-build#markdownglobalcomponents
-			config.markdown.mdxRs = false;
+    config(config) {
+      config.markdown = config.markdown || {};
+      // disable Rust compiler to use
+      // markdown.remarkPlugins and markdown.globalComponents
+      // https://rspress.dev/api/config/config-build#markdownglobalcomponents
+      config.markdown.mdxRs = false;
 
-			return config;
-		},
+      return config;
+    },
 
-		async routeGenerated(routes) {
-			// Scan all MDX files
-			for (const route of routes) {
-				if (!route.absolutePath.endsWith(".mdx")) continue;
+    async routeGenerated(routes) {
+      // Scan all MDX files
+      for (const route of routes) {
+        if (!route.absolutePath.endsWith(".mdx")) continue;
 
-				try {
-					const mdxAst = getMdxAst(route.absolutePath);
+        try {
+          const mdxAst = getMdxAst(route.absolutePath);
 
-					// Find files containing `<code src='./path/to/Demo.tsx' />`,
-					visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-						if (node.name !== "code") return;
+          // Find files containing `<code src='./path/to/Demo.tsx' />`,
+          visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
+            if (node.name !== "code") return;
 
-						const importPath = getMdxJsxAttribute(node, "src");
+            const importPath = getMdxJsxAttribute(node, "src");
 
-						if (typeof importPath !== "string") return;
+            if (typeof importPath !== "string") return;
 
-						const entryFile = resolveFileInfo({
-							importPath,
-							dirname: path.dirname(route.absolutePath),
-						});
+            const entryFile = resolveFileInfo({
+              importPath,
+              dirname: path.dirname(route.absolutePath),
+            });
 
-						const demo = getFilesAndImports({
-							imports,
-							...entryFile,
-						});
+            const demo = getFilesAndImports({
+              imports,
+              ...entryFile,
+            });
 
-						demoDataByPath[importPath] = {
-							files: demo.files,
-							entryFileName: entryFile.fileName,
-						};
-					});
-				} catch (e) {
-					console.error(e);
-					throw e;
-				}
-			}
-		},
+            demoDataByPath[importPath] = {
+              files: demo.files,
+              entryFileName: entryFile.fileName,
+            };
+          });
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
+      }
+    },
 
-		async addRuntimeModules() {
-			return {
-				_live_demo_virtual_modules: getVirtualModulesCode(imports),
-			};
-		},
+    async addRuntimeModules() {
+      return {
+        _live_demo_virtual_modules: getVirtualModulesCode(imports),
+      };
+    },
 
-		builderConfig: {
-			html: {
-				tags: [
-					// Load Babel and Rollup through script tags
-					{
-						tag: "script",
-						head: true,
-						attrs: {
-							src: "https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js",
-							integrity: "sha256-oShy6o2j0psqKWxRv6x8SC6BQZx1XyIHpJrZt3IA9Oo=",
-							crossorigin: "anonymous",
-						},
-					},
-					{
-						tag: "script",
-						head: true,
-						attrs: {
-							src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.31.0/dist/rollup.browser.min.js",
-						},
-					},
-				],
-			},
-		},
+    builderConfig: {
+      html: {
+        tags: [
+          // Load Babel and Rollup through script tags
+          {
+            tag: "script",
+            head: true,
+            attrs: {
+              src: "https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js",
+              integrity: "sha256-oShy6o2j0psqKWxRv6x8SC6BQZx1XyIHpJrZt3IA9Oo=",
+              crossorigin: "anonymous",
+            },
+          },
+          {
+            tag: "script",
+            head: true,
+            attrs: {
+              src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.31.0/dist/rollup.browser.min.js",
+            },
+          },
+        ],
+      },
+    },
 
-		markdown: {
-			remarkPlugins: [
-				[remarkPlugin, { getDemoDataByPath, options: options?.ui }],
-			],
+    markdown: {
+      remarkPlugins: [
+        [remarkPlugin, { getDemoDataByPath, options: options?.ui }],
+      ],
 
-			globalComponents: [
-				options?.customLayout ??
-					path.join(__dirname, "../../static/LiveDemo.tsx"),
-			],
-		},
-	};
+      globalComponents: [
+        options?.customLayout ??
+          path.join(__dirname, "../../static/LiveDemo.tsx"),
+      ],
+    },
+  };
 }

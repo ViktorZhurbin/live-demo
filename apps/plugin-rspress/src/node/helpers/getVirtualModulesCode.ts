@@ -30,18 +30,18 @@ export default getImport`;
  * getImport('react')
  */
 export const getVirtualModulesCode = (allImports: Set<string>) => {
-	const moduleCodeString = Array.from(allImports).reduce<string>(
-		(acc, moduleName, index) => {
-			const name = `'${moduleName}'`;
-			const value = `i_${index}`;
+  const moduleCodeString = Array.from(allImports).reduce<string>(
+    (acc, moduleName, index) => {
+      const name = `'${moduleName}'`;
+      const value = `i_${index}`;
 
-			const importStatement = `import * as ${value} from ${name};`;
-			const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
+      const importStatement = `import * as ${value} from ${name};`;
+      const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
 
-			return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
-		},
-		getImportFnString,
-	);
+      return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
+    },
+    getImportFnString,
+  );
 
-	return moduleCodeString;
+  return moduleCodeString;
 };

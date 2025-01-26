@@ -1,9 +1,9 @@
 [
-	{
-		"type": "dir",
-		"name": "inline",
-		"label": "Inline"
-	},
-	"index",
-	"other"
+  {
+    "type": "dir",
+    "name": "inline",
+    "label": "Inline"
+  },
+  "index",
+  "other"
 ]

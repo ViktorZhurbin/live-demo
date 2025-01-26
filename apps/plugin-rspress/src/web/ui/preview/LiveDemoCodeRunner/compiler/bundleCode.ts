@@ -7,27 +7,27 @@ import { pluginResolveModules } from "./rollup/pluginResolveModules";
 type BundleCode = Pick<LiveDemoCodeRunnerProps, "files" | "entryFileName">;
 
 export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
-	const bundle = await window.rollup.rollup({
-		input: entryFileName,
-		plugins: [
-			pluginResolveModules(files),
-			pluginBabelTransform(),
-			pluginBabelTransformImportsExports(),
-		],
-		external: (source) => {
-			const isResolvable = isRelativeImport(source) || files[source];
+  const bundle = await window.rollup.rollup({
+    input: entryFileName,
+    plugins: [
+      pluginResolveModules(files),
+      pluginBabelTransform(),
+      pluginBabelTransformImportsExports(),
+    ],
+    external: (source) => {
+      const isResolvable = isRelativeImport(source) || files[source];
 
-			return !isResolvable;
-		},
-	});
+      return !isResolvable;
+    },
+  });
 
-	const { output } = await bundle.generate({
-		generatedCode: "es2015",
-	});
+  const { output } = await bundle.generate({
+    generatedCode: "es2015",
+  });
 
-	const bundledCode = output[0].code;
+  const bundledCode = output[0].code;
 
-	// console.log(bundledCode);
+  // console.log(bundledCode);
 
-	return bundledCode;
+  return bundledCode;
 };

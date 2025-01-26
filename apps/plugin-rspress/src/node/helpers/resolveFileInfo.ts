@@ -4,25 +4,25 @@ import { getPossiblePaths } from "shared/pathHelpers";
 import type { PathWithAllowedExt } from "shared/types";
 
 type ResolveFileInfo = {
-	importPath: string;
-	dirname: string;
+  importPath: string;
+  dirname: string;
 };
 
 export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
-	const absolutePath = path.join(dirname, importPath);
+  const absolutePath = path.join(dirname, importPath);
 
-	// same helper should be used in web, check compiler/rollup
-	const pathsToCheck = getPossiblePaths(absolutePath);
+  // same helper should be used in web, check compiler/rollup
+  const pathsToCheck = getPossiblePaths(absolutePath);
 
-	for (const absolutePath of pathsToCheck) {
-		if (fs.existsSync(absolutePath)) {
-			const fileName = path.basename(absolutePath) as PathWithAllowedExt;
+  for (const absolutePath of pathsToCheck) {
+    if (fs.existsSync(absolutePath)) {
+      const fileName = path.basename(absolutePath) as PathWithAllowedExt;
 
-			return { absolutePath, fileName };
-		}
-	}
+      return { absolutePath, fileName };
+    }
+  }
 
-	throw new Error(
-		`[LiveDemo]: Couldn't resolve \`src=${importPath}\`.\nOnly .jsx and .tsx files are supported`,
-	);
+  throw new Error(
+    `[LiveDemo]: Couldn't resolve \`src=${importPath}\`.\nOnly .jsx and .tsx files are supported`,
+  );
 }

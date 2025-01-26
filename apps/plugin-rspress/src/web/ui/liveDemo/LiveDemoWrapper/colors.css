@@ -1,34 +1,34 @@
 html {
-	/* Colors copied from Sandpack theme
+  /* Colors copied from Sandpack theme
   https://github.com/codesandbox/sandpack/blob/main/sandpack-react/src/themes/index.ts
    */
-	--sp-colors-surface1: #ffffff;
-	--sp-colors-surface2: #efefef;
-	--sp-colors-surface3: #f3f3f3;
-	--sp-colors-disabled: #c5c5c5;
-	--sp-colors-base: #323232;
-	--sp-colors-clickable: #808080;
-	--sp-colors-hover: #4d4d4d;
-	--sp-colors-accent: #3973e0;
-	--sp-colors-error: #ea3323;
-	--sp-colors-errorSurface: #fcf1f0;
-	--sp-colors-warning: #6a4516;
-	--sp-colors-warningSurface: #fef2c0;
+  --sp-colors-surface1: #ffffff;
+  --sp-colors-surface2: #efefef;
+  --sp-colors-surface3: #f3f3f3;
+  --sp-colors-disabled: #c5c5c5;
+  --sp-colors-base: #323232;
+  --sp-colors-clickable: #808080;
+  --sp-colors-hover: #4d4d4d;
+  --sp-colors-accent: #3973e0;
+  --sp-colors-error: #ea3323;
+  --sp-colors-errorSurface: #fcf1f0;
+  --sp-colors-warning: #6a4516;
+  --sp-colors-warningSurface: #fef2c0;
 
-	&.dark {
-		--sp-colors-surface1: #151515;
-		--sp-colors-surface2: #252525;
-		--sp-colors-surface3: #2f2f2f;
-		--sp-colors-disabled: #4d4d4d;
-		--sp-colors-base: #808080;
-		--sp-colors-clickable: #999999;
-		--sp-colors-hover: #c5c5c5;
-		--sp-colors-accent: #e5e5e5;
-		--sp-colors-error: #ffb4a6;
-		--sp-colors-errorSurface: #690000;
-		--sp-colors-warning: #e7c400;
-		--sp-colors-warningSurface: #3a3000;
-	}
+  &.dark {
+    --sp-colors-surface1: #151515;
+    --sp-colors-surface2: #252525;
+    --sp-colors-surface3: #2f2f2f;
+    --sp-colors-disabled: #4d4d4d;
+    --sp-colors-base: #808080;
+    --sp-colors-clickable: #999999;
+    --sp-colors-hover: #c5c5c5;
+    --sp-colors-accent: #e5e5e5;
+    --sp-colors-error: #ffb4a6;
+    --sp-colors-errorSurface: #690000;
+    --sp-colors-warning: #e7c400;
+    --sp-colors-warningSurface: #3a3000;
+  }
 
-	--sp-layout-border: 1px solid var(--sp-colors-surface2);
+  --sp-layout-border: 1px solid var(--sp-colors-surface2);
 }

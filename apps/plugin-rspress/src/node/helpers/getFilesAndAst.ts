@@ -4,27 +4,27 @@ import { parseSync } from "@oxidation-compiler/napi";
 import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
 
 type GetFilesAndAst = {
-	fileName: string;
-	absolutePath: PathWithAllowedExt;
+  fileName: string;
+  absolutePath: PathWithAllowedExt;
 };
 
 export const getFilesAndAst = (
-	params: GetFilesAndAst,
+  params: GetFilesAndAst,
 ): { files: LiveDemoFiles; ast: Program } => {
-	const { absolutePath, fileName } = params;
+  const { absolutePath, fileName } = params;
 
-	const files: LiveDemoFiles = {};
+  const files: LiveDemoFiles = {};
 
-	const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
+  const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
 
-	files[fileName] = code;
+  files[fileName] = code;
 
-	const parsed = parseSync(code, {
-		sourceType: "module",
-		sourceFilename: fileName,
-	});
+  const parsed = parseSync(code, {
+    sourceType: "module",
+    sourceFilename: fileName,
+  });
 
-	const ast = JSON.parse(parsed.program) as Program;
+  const ast = JSON.parse(parsed.program) as Program;
 
-	return { files, ast };
+  return { files, ast };
 };

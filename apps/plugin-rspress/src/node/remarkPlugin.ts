@@ -8,80 +8,80 @@ import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import type { DemoDataByPath } from "./plugin";
 
 interface RemarkPluginProps {
-	options?: PluginOptions["ui"];
-	getDemoDataByPath: () => DemoDataByPath;
+  options?: PluginOptions["ui"];
+  getDemoDataByPath: () => DemoDataByPath;
 }
 
 /**
  * Inject <LiveDemo /> into MDX
  */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
-	options,
-	getDemoDataByPath,
+  options,
+  getDemoDataByPath,
 }) => {
-	const demoDataByPath = getDemoDataByPath();
+  const demoDataByPath = getDemoDataByPath();
 
-	return (tree, vfile) => {
-		// 1. External demo, ie <code src="./Component.tsx" />
-		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-			if (node.name !== "code") return;
+  return (tree, vfile) => {
+    // 1. External demo, ie <code src="./Component.tsx" />
+    visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
+      if (node.name !== "code") return;
 
-			const importPath = getMdxJsxAttribute(node, "src");
+      const importPath = getMdxJsxAttribute(node, "src");
 
-			if (typeof importPath !== "string" || !demoDataByPath[importPath]) {
-				return;
-			}
+      if (typeof importPath !== "string" || !demoDataByPath[importPath]) {
+        return;
+      }
 
-			const props = getPropsWithOptions(demoDataByPath[importPath], options);
+      const props = getPropsWithOptions(demoDataByPath[importPath], options);
 
-			Object.assign(node, {
-				type: "mdxJsxFlowElement",
-				name: "LiveDemo",
-				attributes: getJsxAttributesFromProps(props),
-			});
-		});
+      Object.assign(node, {
+        type: "mdxJsxFlowElement",
+        name: "LiveDemo",
+        attributes: getJsxAttributesFromProps(props),
+      });
+    });
 
-		// 2. Inline ```jsx/tsx ``` markdown code blocks
-		visit(tree, "code", (node) => {
-			if (!node?.lang) return;
+    // 2. Inline ```jsx/tsx ``` markdown code blocks
+    visit(tree, "code", (node) => {
+      if (!node?.lang) return;
 
-			const isLive = node.meta?.includes("live");
+      const isLive = node.meta?.includes("live");
 
-			if (!(isLive && node.lang in LiveDemoLanguage)) return;
+      if (!(isLive && node.lang in LiveDemoLanguage)) return;
 
-			const entryFileName = `App.${node.lang}`;
+      const entryFileName = `App.${node.lang}`;
 
-			const props = getPropsWithOptions(
-				{
-					entryFileName,
-					files: { [entryFileName]: node.value },
-				},
-				options,
-			);
+      const props = getPropsWithOptions(
+        {
+          entryFileName,
+          files: { [entryFileName]: node.value },
+        },
+        options,
+      );
 
-			Object.assign(node, {
-				type: "mdxJsxFlowElement",
-				name: "LiveDemo",
-				attributes: getJsxAttributesFromProps(props),
-			});
-			return;
-		});
-	};
+      Object.assign(node, {
+        type: "mdxJsxFlowElement",
+        name: "LiveDemo",
+        attributes: getJsxAttributesFromProps(props),
+      });
+      return;
+    });
+  };
 };
 
 function getPropsWithOptions(
-	props: LiveDemoProps,
-	options?: PluginOptions["ui"],
+  props: LiveDemoProps,
+  options?: PluginOptions["ui"],
 ) {
-	return options ? { ...props, options } : props;
+  return options ? { ...props, options } : props;
 }
 
 function getJsxAttributesFromProps(
-	props: LiveDemoProps,
+  props: LiveDemoProps,
 ): MdxJsxFlowElement["attributes"] {
-	return Object.entries(props).map(([name, value]) => ({
-		name,
-		value: JSON.stringify(value),
-		type: "mdxJsxAttribute",
-	}));
+  return Object.entries(props).map(([name, value]) => ({
+    name,
+    value: JSON.stringify(value),
+    type: "mdxJsxAttribute",
+  }));
 }
