@@ -14,7 +14,7 @@ Add `live` when declaring a code block:
 
 ```tsx live
 const Component = () => {
-	return <div>Hello there</div>;
+  return <div>Hello there</div>;
 };
 ```
 
