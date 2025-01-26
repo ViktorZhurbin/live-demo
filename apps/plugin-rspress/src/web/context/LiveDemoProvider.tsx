@@ -1,5 +1,10 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import type { LiveDemoFiles, LiveDemoProps } from "shared/types";
+import type {
+	LiveDemoFiles,
+	LiveDemoProps,
+	LiveDemoStringifiedProps,
+} from "shared/types";
+import { parseProps } from "./parseProps";
 
 type LiveDemoContextValue = {
 	files: LiveDemoFiles;
@@ -19,10 +24,12 @@ const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
 
 type LiveDemoProviderProps = {
 	children: React.ReactNode;
-	initialValue: LiveDemoProps;
+	initialValue: LiveDemoStringifiedProps;
 };
 
-function LiveDemoProvider({ children, initialValue }: LiveDemoProviderProps) {
+function LiveDemoProvider(props: LiveDemoProviderProps) {
+	const initialValue = parseProps(props.initialValue);
+
 	const [files, setFiles] = useState(initialValue.files);
 	const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
 
@@ -43,7 +50,7 @@ function LiveDemoProvider({ children, initialValue }: LiveDemoProviderProps) {
 				entryFileName: initialValue.entryFileName,
 			}}
 		>
-			{children}
+			{props.children}
 		</LiveDemoContext.Provider>
 	);
 }

@@ -7,13 +7,10 @@ import {
 	LiveDemoResizablePanels,
 	type LiveDemoStringifiedProps,
 	LiveDemoWrapper,
-	parseProps,
 	// @ts-ignore: triggers missing type declaration error at build time
 } from "../dist/web";
 
 const LiveDemo = (props: LiveDemoStringifiedProps) => {
-	const parsedProps = parseProps(props);
-
 	const editor = (
 		<>
 			<LiveDemoFileTabs />
@@ -24,7 +21,7 @@ const LiveDemo = (props: LiveDemoStringifiedProps) => {
 	const preview = <LiveDemoPreview />;
 
 	return (
-		<LiveDemoProvider initialValue={parsedProps}>
+		<LiveDemoProvider initialValue={props}>
 			<LiveDemoWrapper>
 				<LiveDemoResizablePanels editor={editor} preview={preview} />
 			</LiveDemoWrapper>
