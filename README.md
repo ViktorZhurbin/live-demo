@@ -12,11 +12,13 @@ This is a fork of `@rspress/plugin-playground` ([code](https://github.com/web-in
 
 Add `live` when declaring a code block:
 
+````mdx
 ```tsx live
 const Component = () => {
   return <div>Hello there</div>;
-};
+}
 ```
+````
 
 This mode currently doesn't support any imports. We can make it work if requested.
 
@@ -24,7 +26,7 @@ This mode currently doesn't support any imports. We can make it work if requeste
 
 You can also use the following notation:
 
-```tsx
+```mdx
 <code src='./path/to/Component.tsx' >
 ```
 
