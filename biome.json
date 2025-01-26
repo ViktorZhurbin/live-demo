@@ -4,7 +4,6 @@
 		"enabled": true
 	},
 	"files": {
-		"ignore": ["website-rb/**/*"],
 		"ignoreUnknown": true
 	},
 	"vcs": {
