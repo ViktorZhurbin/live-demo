@@ -1,0 +1,48 @@
+---
+title: Built-in components
+---
+
+import {Tab, Tabs, Badge, Card} from "rspress/theme";
+
+You can use built-in components:
+
+```jsx live
+import { Badge, Card } from "rspress/theme";
+
+export const App = () => {
+  return (
+    <div>
+      <Badge type="info">
+        Some Badge
+      </Badge>
+      <Card
+        title="Card Title"
+        content="Card Content"
+      />
+    </div>
+  )
+};
+```
+
+
+In MDX:
+
+````
+```jsx live
+import { Badge, Card } from "rspress/theme";
+
+export const App = () => {
+  return (
+    <div>
+      <Badge type="info">
+        Some Badge
+      </Badge>
+      <Card
+        title="Card Title"
+        content="Card Content"
+      />
+    </div>
+  )
+};
+```
+````

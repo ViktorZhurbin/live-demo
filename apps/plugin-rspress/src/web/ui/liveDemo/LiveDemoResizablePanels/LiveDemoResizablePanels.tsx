@@ -19,7 +19,7 @@ export type LiveDemoResizablePanelsProps = {
    * When width of the ResizablePanels' wrapper div is smaller,
    * the panels are arranged vertically.
    * Otherwise, the panels are arranged horizontally.
-   * @defaultValue `580`
+   * @defaultValue 550
    */
   verticalThreshold?: number;
   /**
@@ -54,7 +54,7 @@ export const LiveDemoResizablePanels = (
   const {
     classes,
     autoSaveId,
-    verticalThreshold = 580,
+    verticalThreshold = 550,
     defaultPanelSizes = { editor: 50, preview: 50 },
   } = mergedOptions;
 
