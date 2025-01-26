@@ -1,8 +1,17 @@
 [
   {
+    "type": "file",
+    "name": "overview",
+    "label": "Overview"
+  },
+  {
+    "type": "dir",
+    "name": "external",
+    "label": "External demos"
+  },
+  {
     "type": "dir",
     "name": "inline",
-    "label": "Inline"
-  },
-  "index"
+    "label": "Inline demos"
+  }
 ]

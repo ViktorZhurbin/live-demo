@@ -4,11 +4,11 @@ title: Basics
 
 import { Tab, Tabs } from "rspress/theme";
 
-Add `live` when declaring a code block to turn it into a live demo.
+To turn a code block into a live demo, add `live` after the language meta string.
 
 <Tabs>
   <Tab label="JSX">
-    This snippet:
+    This code block:
 
     ````
     ```jsx live
@@ -18,7 +18,7 @@ Add `live` when declaring a code block to turn it into a live demo.
     ```
     ````
 
-    Turns into:
+    Turns into this live demo:
 
     ```jsx live
     export const App = () => {
@@ -28,7 +28,7 @@ Add `live` when declaring a code block to turn it into a live demo.
 
   </Tab>
 	<Tab label="TSX">
-    This snippet:
+    This code block:
 
     ````
     ```tsx live
@@ -40,7 +40,7 @@ Add `live` when declaring a code block to turn it into a live demo.
     ```
     ````
 
-    Turns into:
+    Turns into this live demo:
 
     ```tsx live
     import React from "react";
@@ -53,7 +53,7 @@ Add `live` when declaring a code block to turn it into a live demo.
   </Tab>
 </Tabs>
 
+
 > [!NOTE]
 >
-> - Component needs to be **exported**
-> - External modules currently are not supported in inline demos
+> Code block needs to **define and export** a React component.

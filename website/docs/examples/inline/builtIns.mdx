@@ -1,0 +1,125 @@
+---
+title: Pre-defined imports
+---
+
+import { Tab, Tabs } from "rspress/theme";
+
+By default, imports from `"rspress/theme"` and `"react"` are available.
+
+## Using built-in Rspress components
+
+<Tabs>
+  <Tab label="Live">
+    ```jsx live
+    import { Badge, Card, SwitchAppearance } from "rspress/theme"
+
+    export const App = () => {
+      return (
+        <div>
+          <SwitchAppearance />
+          <br />
+          <Badge type="info">Some Badge</Badge>
+          <Card title="Card Title" content="Card Content" />
+        </div>
+      )
+    }
+    ```
+  </Tab>
+  <Tab label="file.mdx">
+    <pre>
+      ````
+      ```jsx live
+      import { Badge, Card, SwitchAppearance } from "rspress/theme"
+
+      export const App = () => {
+        return (
+          <div>
+            <SwitchAppearance />
+            <br />
+            <Badge type="info">
+              Some Badge
+            </Badge>
+            <Card
+              title="Card Title"
+              content="Card Content"
+            />
+          </div>
+        )
+      }
+      ```
+      ````
+    </pre>
+  </Tab>
+</Tabs>
+
+## Using React hooks
+
+<Tabs>
+  <Tab label="Live">
+    ```jsx live
+    import React from "react"
+    import { Badge, Card, SwitchAppearance } from "rspress/theme"
+
+    export const App = () => {
+      const [count, setCount] = React.useState(0)
+
+      const increment = () => {
+        setCount(prev => prev + 1)
+      }
+
+      const button = (
+        <button
+          onClick={increment}
+        >
+          Increment
+        </button>
+      )
+
+      return (
+        <div>
+          <Card
+            title={`Count is: ${count}`}
+            content={button}
+          />
+        </div>
+      )
+    }
+    ```
+  </Tab>
+
+  <Tab label="file.mdx">
+    <pre>
+      ````
+      ```jsx live
+      import React from "react"
+      import { Badge, Card, SwitchAppearance } from "rspress/theme"
+
+      export const App = () => {
+        const [count, setCount] = React.useState(0)
+
+        const increment = () => {
+          setCount(prev => prev + 1)
+        }
+
+        const button = (
+          <button
+            onClick={increment}
+          >
+            Increment
+          </button>
+        )
+
+        return (
+          <div>
+            <Card
+              title={`Count is: ${count}`}
+              content={button}
+            />
+          </div>
+        )
+      }
+      ```
+      ````
+    </pre>
+  </Tab>
+</Tabs>

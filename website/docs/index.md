@@ -8,5 +8,5 @@ hero:
   actions:
     - theme: brand
       text: Examples
-      link: /examples/
+      link: /examples/overview
 ---

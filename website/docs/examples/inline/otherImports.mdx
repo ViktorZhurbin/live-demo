@@ -1,0 +1,32 @@
+---
+title: Other imports
+---
+
+ External modules are not automatically resolved in inline demos (as they are in "external" demos). Ie, if you have `import { DateTime } from "luxon"` in the code block, it won't work out of the box.
+
+ > [!NOTE]
+ >
+ > If any of your "external" demos has an import from this library (ie, `import { ... } from "luxon"`), it will be available in your "inline" demos as well.
+
+ As an alternative, you can use `includeModules` option of the plugin.
+
+ ## `includeModules`
+
+`includeModules` option allows you to define modules that will be available in all demos. For example:
+
+```ts title='rspress.config.ts'
+import { defineConfig } from "rspress/config";
+import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
+
+export default defineConfig({
+  plugins: [
+    rspressPluginLiveDemo({
+      includeModules: ["luxon"],
+    }),
+  ],
+  // ...
+})
+```
+ Now you can use `import { ... } from "luxon"` in any demo.
+
+
