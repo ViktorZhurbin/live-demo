@@ -15,7 +15,7 @@ importers:
         specifier: ^9.1.7
         version: 9.1.7
 
-  plugin:
+  apps/plugin-rspress:
     dependencies:
       '@codemirror/lang-javascript':
         specifier: ^6.2.2
@@ -113,7 +113,7 @@ importers:
         version: 1.39.4
       rspress-plugin-live-demo:
         specifier: workspace:*
-        version: link:../plugin
+        version: link:../apps/plugin-rspress
     devDependencies:
       '@babylonjs/core':
         specifier: ^7.44.0
