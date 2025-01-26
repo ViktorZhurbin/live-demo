@@ -1,11 +1,13 @@
 import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
+import { toMerged } from "es-toolkit";
 import type { ReactElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useLiveDemoContext } from "web/context";
 import { LiveDemoEditor, LiveDemoPreview } from "web/ui";
 import styles from "./LiveDemoResizablePanels.module.css";
 
-type LiveDemoResizablePanelsProps = {
+export type LiveDemoResizablePanelsProps = {
 	editor?: ReactElement;
 	preview?: ReactElement;
 	/**
@@ -20,7 +22,7 @@ type LiveDemoResizablePanelsProps = {
 	 */
 	verticalThreshold?: number;
 	/**
-	 * Default panel sizes
+	 * Default panel sizes in % (1-100).
 	 */
 	defaultPanelSizes?: { editor?: number; preview?: number };
 	classes?: {
@@ -33,12 +35,16 @@ type LiveDemoResizablePanelsProps = {
 export const LiveDemoResizablePanels = (
 	props: LiveDemoResizablePanelsProps,
 ) => {
+	const { options } = useLiveDemoContext();
+	const pluginOptions = options?.resizablePanels ?? {};
+	const mergedOptions = toMerged(pluginOptions, props);
+
 	const {
 		classes,
 		autoSaveId,
 		verticalThreshold = 580,
 		defaultPanelSizes = { editor: 50, preview: 50 },
-	} = props;
+	} = mergedOptions;
 
 	const wrapperSize = useElementSize();
 	const isVertical = wrapperSize.width < verticalThreshold;

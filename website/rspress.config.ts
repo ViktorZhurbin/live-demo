@@ -4,7 +4,16 @@ import { defineConfig } from "rspress/config";
 
 export default defineConfig({
 	root: path.join(__dirname, "docs"),
-	plugins: [rspressPluginLiveDemo()],
+	plugins: [
+		rspressPluginLiveDemo({
+			ui: {
+				resizablePanels: {
+					autoSaveId: "live-demo-docs",
+					defaultPanelSizes: { editor: 55, preview: 45 },
+				},
+			},
+		}),
+	],
 
 	title: "Live Demo",
 	icon: "/icon-dark.png",

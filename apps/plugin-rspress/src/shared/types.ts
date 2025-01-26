@@ -1,3 +1,4 @@
+import type { LiveDemoResizablePanelsProps } from "web/ui";
 import type { LiveDemoLanguage } from "./constants";
 
 export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
@@ -7,6 +8,7 @@ export type LiveDemoFiles = Record<string, string>;
 export type LiveDemoProps = {
 	files: LiveDemoFiles;
 	entryFileName: string;
+	options?: PluginOptions["ui"];
 };
 
 /**
@@ -16,4 +18,15 @@ export type LiveDemoProps = {
  */
 export type LiveDemoStringifiedProps = {
 	[Key in keyof LiveDemoProps]: string;
+};
+
+export type PluginOptions = {
+	customLayout?: string;
+
+	ui?: {
+		resizablePanels?: Pick<
+			LiveDemoResizablePanelsProps,
+			"autoSaveId" | "defaultPanelSizes"
+		>;
+	};
 };

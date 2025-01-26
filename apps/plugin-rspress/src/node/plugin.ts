@@ -1,7 +1,7 @@
 import path from "node:path";
 import type { RspressPlugin } from "@rspress/core";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import type { LiveDemoProps } from "shared/types";
+import type { LiveDemoProps, PluginOptions } from "shared/types";
 import { visit } from "unist-util-visit";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { getMdxAst } from "./helpers/getMdxAst";
@@ -14,19 +14,7 @@ export type DemoDataByPath = Record<string, LiveDemoProps>;
 
 const demoDataByPath: DemoDataByPath = {};
 
-/**
- * Scan all files and:
- * - find nodes of the type `<code src='./path/to/Component.tsx' >`
- * - resolve the file content from the `src` attribute
- * - resolve relative imports inside that file
- * - resolve imported npm modules and inject a getImport getter as a virtual module, which make them available in browser
- * - create `files` object for each demo
- * - Through `remarkPlugin`, replace `<code src='./path/to/Component.tsx' >`
- * with `<LiveDemo files={files} />`
- */
-export function rspressPluginLiveDemo(options?: {
-	render: string;
-}): RspressPlugin {
+export function rspressPluginLiveDemo(options?: PluginOptions): RspressPlugin {
 	const getDemoDataByPath = () => demoDataByPath;
 
 	// Collect all imports to make them available in browser through
@@ -93,8 +81,8 @@ export function rspressPluginLiveDemo(options?: {
 		builderConfig: {
 			html: {
 				tags: [
+					// Load Babel and Rollup through script tags
 					{
-						// Babel is quite heavy, so we load it as a script tag
 						tag: "script",
 						head: true,
 						attrs: {
@@ -115,10 +103,13 @@ export function rspressPluginLiveDemo(options?: {
 		},
 
 		markdown: {
-			remarkPlugins: [[remarkPlugin, { getDemoDataByPath }]],
+			remarkPlugins: [
+				[remarkPlugin, { getDemoDataByPath, options: options?.ui }],
+			],
 
 			globalComponents: [
-				options?.render ?? path.join(__dirname, "../../static/LiveDemo.tsx"),
+				options?.customLayout ??
+					path.join(__dirname, "../../static/LiveDemo.tsx"),
 			],
 		},
 	};

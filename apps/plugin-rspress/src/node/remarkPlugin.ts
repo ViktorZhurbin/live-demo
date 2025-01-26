@@ -1,13 +1,14 @@
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { LiveDemoLanguage } from "shared/constants";
-import type { LiveDemoProps } from "shared/types";
+import type { LiveDemoProps, PluginOptions } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import type { DemoDataByPath } from "./plugin";
 
 interface RemarkPluginProps {
+	options?: PluginOptions["ui"];
 	getDemoDataByPath: () => DemoDataByPath;
 }
 
@@ -15,6 +16,7 @@ interface RemarkPluginProps {
  * Inject <LiveDemo /> into MDX
  */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
+	options,
 	getDemoDataByPath,
 }) => {
 	const demoDataByPath = getDemoDataByPath();
@@ -30,10 +32,12 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				return;
 			}
 
+			const props = getPropsWithOptions(demoDataByPath[importPath], options);
+
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "LiveDemo",
-				attributes: getJsxAttributesFromProps(demoDataByPath[importPath]),
+				attributes: getJsxAttributesFromProps(props),
 			});
 		});
 
@@ -47,18 +51,30 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const entryFileName = `App.${node.lang}`;
 
+			const props = getPropsWithOptions(
+				{
+					entryFileName,
+					files: { [entryFileName]: node.value },
+				},
+				options,
+			);
+
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "LiveDemo",
-				attributes: getJsxAttributesFromProps({
-					entryFileName,
-					files: { [entryFileName]: node.value },
-				}),
+				attributes: getJsxAttributesFromProps(props),
 			});
 			return;
 		});
 	};
 };
+
+function getPropsWithOptions(
+	props: LiveDemoProps,
+	options?: PluginOptions["ui"],
+) {
+	return options ? { ...props, options } : props;
+}
 
 function getJsxAttributesFromProps(
 	props: LiveDemoProps,

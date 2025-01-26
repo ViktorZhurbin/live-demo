@@ -15,6 +15,7 @@ type LiveDemoContextValue = {
 
 	updateFiles: (update: LiveDemoFiles) => void;
 
+	options: LiveDemoProps["options"];
 	entryFileName: LiveDemoProps["entryFileName"];
 };
 
@@ -47,6 +48,7 @@ function LiveDemoProvider(props: LiveDemoProviderProps) {
 				activeFile,
 				setActiveFile,
 
+				options: initialValue.options,
 				entryFileName: initialValue.entryFileName,
 			}}
 		>
