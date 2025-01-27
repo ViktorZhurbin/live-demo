@@ -33,7 +33,11 @@ export default defineConfig({
         ...sharedConfig.output,
         target: "web",
         distPath: { root: "dist/web" },
-        externals: ["@types/react", "_live_demo_virtual_modules"],
+        externals: [
+          "@types/react",
+          "@rspress/core",
+          "_live_demo_virtual_modules",
+        ],
       },
       plugins: [pluginReact()],
     },

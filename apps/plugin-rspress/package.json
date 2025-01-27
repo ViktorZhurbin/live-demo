@@ -24,41 +24,36 @@
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
     "@mantine/hooks": "^7.16.1",
+    "@rsbuild/plugin-react": "^1.1.0",
     "@oxidation-compiler/napi": "^0.2.0",
     "@tabler/icons-react": "^3.29.0",
     "@uiw/codemirror-theme-vscode": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
+    "clsx": "^2.1.1",
     "react-error-boundary": "^5.0.0",
     "react-resizable-panels": "^2.1.7"
   },
   "devDependencies": {
     "@babel/types": "^7.26.5",
-    "@mdx-js/mdx": "^2.3.0",
     "@microsoft/api-extractor": "^7.49.1",
     "@oxc-project/types": "^0.47.1",
     "@rollup/browser": "^4.31.0",
-    "@rsbuild/plugin-react": "^1.1.0",
     "@rslib/core": "^0.3.2",
-    "@rspress/core": "^1.40.2",
     "@types/babel__core": "^7.20.5",
     "@types/babel__standalone": "^7.1.9",
     "@types/mdast": "^3.0.15",
     "@types/react": "^18",
-    "clsx": "^2.1.1",
-    "es-toolkit": "^1.31.0",
-    "mdast-util-mdx": "^3.0.0",
     "react": "^18.3.1",
-    "remark-gfm": "^3.0.1",
-    "typescript": "^5.7.3",
-    "unified": "^10.1.2",
-    "unist-util-visit": "^4.1.2"
+    "typescript": "^5.7.3"
   },
   "peerDependencies": {
     "@mdx-js/mdx": ">=2.3.0",
-    "@rsbuild/core": ">=1.1.0",
     "@rspress/core": ">=1.1.0",
+    "mdast-util-mdx": "^3.0.0",
     "react": ">=17.0.0",
-    "react-dom": ">=17.0.0"
-  },
-  "private": true
+    "react-dom": ">=17.0.0",
+    "remark-gfm": "^3.0.1",
+    "unist-util-visit": "^4.1.2",
+    "unified": "^10.1.2"
+  }
 }
