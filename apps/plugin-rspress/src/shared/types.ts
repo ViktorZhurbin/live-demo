@@ -1,4 +1,5 @@
 import type {
+  LiveDemoEditorProps,
   LiveDemoFileTabsProps,
   LiveDemoResizablePanelsProps,
 } from "web/ui";
@@ -6,6 +7,9 @@ import type { LiveDemoLanguage } from "./constants";
 
 export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
 
+/**
+ * `Record<fileName, fileContentsString>`
+ */
 export type LiveDemoFiles = Record<string, string>;
 
 export type LiveDemoProps = {
@@ -24,6 +28,11 @@ export type LiveDemoStringifiedProps = {
 };
 
 export type PluginOptions = {
+  /**
+   * Path to custom layout file.
+   * @example
+   * customLayout: "./path/to/LiveDemo.tsx"
+   **/
   customLayout?: string;
   /**
    * Modules that will be available in demos,
@@ -33,8 +42,33 @@ export type PluginOptions = {
    **/
   includeModules?: string[];
 
+  /**
+   * Props passed from plugin to LiveDemo components.
+   * @example
+   * ui: {
+   *   fileTabs: {
+   *     hideSingleTab: true,
+   *   },
+   *   editor: {
+   *     basicSetup: {
+   *       lineNumbers: false,
+   *       foldGutter: false,
+   *       autocompletion: false,
+   *       tabSize: 2,
+   *     },
+   *   },
+   *   resizablePanels: {
+   *     autoSaveId: "my-auto-save-id",
+   *     defaultPanelSizes: {
+   *       editor: 50,
+   *       preview: 50,
+   *     },
+   *   },
+   * }
+   */
   ui?: {
     fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab">;
+    editor?: LiveDemoEditorProps;
     resizablePanels?: Pick<
       LiveDemoResizablePanelsProps,
       "autoSaveId" | "defaultPanelSizes"
