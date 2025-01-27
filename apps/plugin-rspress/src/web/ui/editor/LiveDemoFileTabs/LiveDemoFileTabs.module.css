@@ -4,7 +4,6 @@
   padding: 8px;
   overflow: auto;
   min-height: max-content;
-  border-top: var(--sp-layout-border);
   border-bottom: var(--sp-layout-border);
 }
 
