@@ -20,13 +20,13 @@
   border-radius: 6px;
   padding: 4px 8px;
 
-  color: var(--sp-colors-clickable);
-  background-color: var(--sp-colors-surface2);
-  border: 1px solid var(--sp-colors-surface3);
+  color: var(--live-demo-colors-clickable);
+  background-color: var(--live-demo-colors-surface2);
+  border: 1px solid var(--live-demo-colors-surface3);
 
   &:disabled {
     cursor: default;
-    color: var(--sp-colors-disabled);
+    color: var(--live-demo-colors-disabled);
   }
 
   &:focus,
@@ -35,17 +35,17 @@
   }
 
   &:hover:not(:disabled, [data-active="true"]) {
-    color: var(--sp-colors-hover);
-    background-color: var(--sp-colors-surface3);
+    color: var(--live-demo-colors-hover);
+    background-color: var(--live-demo-colors-surface3);
   }
 
   &[data-active="true"] {
-    color: var(--sp-colors-accent);
-    background-color: var(--sp-colors-surface3);
-    border: 1px solid var(--sp-colors-base);
+    color: var(--live-demo-colors-accent);
+    background-color: var(--live-demo-colors-surface3);
+    border: 1px solid var(--live-demo-colors-base);
 
     &:hover {
-      background-color: var(--sp-colors-surface2);
+      background-color: var(--live-demo-colors-surface2);
     }
   }
 

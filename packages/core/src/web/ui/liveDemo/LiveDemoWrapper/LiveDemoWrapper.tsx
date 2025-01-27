@@ -1,4 +1,3 @@
-import "./colors.css";
 import clsx from "clsx";
 import { useLiveDemoContext } from "web/context";
 import styles from "./LiveDemoWrapper.module.css";

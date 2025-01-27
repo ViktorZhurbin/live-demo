@@ -1,3 +1,4 @@
+import "./colors.css";
 import { LiveDemoProvider } from "web/context";
 import type { LiveDemoStringifiedProps } from "web/types";
 import {

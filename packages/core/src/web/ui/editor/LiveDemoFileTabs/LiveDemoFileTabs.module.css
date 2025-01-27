@@ -4,7 +4,7 @@
   padding: 8px;
   overflow: auto;
   min-height: max-content;
-  border-bottom: var(--sp-layout-border);
+  border-bottom: var(--live-demo-layout-border);
 }
 
 .tab,

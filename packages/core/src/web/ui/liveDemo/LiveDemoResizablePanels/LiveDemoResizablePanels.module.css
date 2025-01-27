@@ -23,7 +23,7 @@
   height: 100%;
   width: var(--handle-width);
   position: relative;
-  border-left: var(--sp-layout-border);
+  border-left: var(--live-demo-layout-border);
 
   &::after {
     content: "";
