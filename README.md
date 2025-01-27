@@ -47,3 +47,8 @@ You can use both relative and external package imports inside the `Component.(t|
 ### Typescript
 
 `@rspress/plugin-playground` [explicitly recommends](https://rspress.dev/plugin/official-plugins/playground#internal-components) not to use `.ts(x)`. If you do, you get red squiggly type errors all over in the editor.
+
+### Adding some niceties
+- resizable panels
+- panels view switcher
+- fullscreen view
