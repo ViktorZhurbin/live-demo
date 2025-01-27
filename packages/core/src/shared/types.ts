@@ -80,6 +80,9 @@ export type LiveDemoPluginOptions = {
    * }
    */
   ui?: {
+    controlPanel?: {
+      hide?: boolean;
+    };
     fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab"> & {
       hide?: boolean;
     };

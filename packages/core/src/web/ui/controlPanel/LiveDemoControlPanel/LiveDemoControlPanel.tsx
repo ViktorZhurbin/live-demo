@@ -1,4 +1,5 @@
 import { useElementSize } from "@mantine/hooks";
+import { useLiveDemoContext } from "web/context";
 import { useLocalStorageView } from "web/hooks/useLocalStorage";
 import { ToggleButtonGroup } from "../../components/ToggleButtonGroup/ToggleButtonGroup";
 import { ButtonFullscreen } from "./ButtonFullscreen";
@@ -12,11 +13,16 @@ const NARROW_THRESHOLD = 340;
 export const LiveDemoControlPanel = ({
   fullscreen,
 }: LiveDemoControlPanelProps) => {
+  const { options } = useLiveDemoContext();
   const wrapperEl = useElementSize();
 
   const isNarrow = wrapperEl.width < NARROW_THRESHOLD;
 
   const [panelsView, setPanelsView] = useLocalStorageView();
+
+  if (options?.controlPanel?.hide) {
+    return null;
+  }
 
   return (
     <div
