@@ -2,7 +2,7 @@
   "name": "forms",
   "type": "module",
   "license": "MIT",
-  "workspaces": ["apps/*", "website"],
+  "workspaces": ["packages/*", "website"],
   "scripts": {
     "build:web": "pnpm --filter website build",
     "build:lib": "pnpm --filter rspress-plugin-live-demo build",
