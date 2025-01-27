@@ -7,6 +7,7 @@ export default defineConfig({
 
   plugins: [
     liveDemoPluginRspress({
+      // customLayout: path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx"),
       ui: {
         resizablePanels: {
           autoSaveId: "live-demo-docs",

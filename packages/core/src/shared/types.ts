@@ -33,12 +33,6 @@ export type LiveDemoPropsFromPlugin = {
 
 export type LiveDemoPluginOptions = {
   /**
-   * Path to custom layout file.
-   * @example
-   * customLayout: "./path/to/LiveDemo.tsx"
-   **/
-  customLayout?: string;
-  /**
    * Modules that will be available in demos,
    * @example
    * includeModules: ["@mantine/hooks"]

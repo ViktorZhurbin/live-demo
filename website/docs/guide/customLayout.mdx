@@ -1,0 +1,77 @@
+---
+title: Custom Layout
+---
+
+You can customize the default layout using components exported from `@live-demo/core/web`.
+
+## 1. Define layout
+
+```tsx title="src/CustomLiveDemo/LiveDemo.tsx"
+// don't forget CSS!
+import "@live-demo/core/web/index.css";
+import {
+  LiveDemoControlPanel,
+  LiveDemoEditor,
+  LiveDemoFileTabs,
+  LiveDemoPreview,
+  LiveDemoProvider,
+  LiveDemoResizablePanels,
+  type LiveDemoStringifiedProps,
+  LiveDemoWrapper,
+} from "@live-demo/core/web";
+import { useDark } from "rspress/runtime";
+
+const CustomLiveDemo = (props: LiveDemoStringifiedProps) => {
+  // the core library doesn't have Rspress context,
+  // so we need to let it know when to use dark or light mode
+  const isDark = useDark();
+
+  // moved file tabs to bottom
+  const editor = (
+    <>
+      <LiveDemoEditor />
+      <LiveDemoFileTabs />
+    </>
+  );
+
+  // add custom styles, wrappers, elements, etc.
+  const preview = (
+    <>
+      <LiveDemoPreview />
+    </>
+  );
+
+  return (
+    <LiveDemoProvider pluginProps={props} isDark={isDark}>
+      <LiveDemoWrapper>
+        <LiveDemoResizablePanels editor={editor} preview={preview} />
+        {/* moved control panel to bottom */}
+        <LiveDemoControlPanel />
+      </LiveDemoWrapper>
+    </LiveDemoProvider>
+  );
+};
+
+// needs to be a default export!
+export default CustomLiveDemo;
+```
+
+## 2. Update config
+
+> [!NOTE]
+>
+> `customLayout` path needs to end with `LiveDemo.(jsx|tsx)`
+
+```ts
+import * as path from "node:path";
+import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+import { defineConfig } from "rspress/config";
+
+export default defineConfig({
+  plugins: [
+    liveDemoPluginRspress({
+      customLayout: path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")
+    })
+  ]
+})
+```

@@ -11,17 +11,40 @@ import type { RspressPlugin } from "@rspress/core";
 
 const demoDataByPath: DemoDataByPath = {};
 
+interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
+  /**
+   * Path to custom layout file.
+   * It will be injected as a global component:
+   * @see https://rspress.dev/api/config/config-build#markdownglobalcomponents
+   *
+   * The file has to have a default export.
+   * Path needs to end with `LiveDemo.(jsx|tsx)`.
+   *
+   * @example
+   * path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")
+   **/
+  customLayout?: string;
+}
+
 /**
  * Included by default for every demo
  **/
 const defaultModules = ["react", "rspress/theme"];
 
 export function liveDemoPluginRspress(
-  options?: LiveDemoPluginOptions,
+  options?: LiveDemoPluginRspressOptions,
 ): RspressPlugin {
+  const { customLayout, includeModules } = options ?? {};
+
+  if (customLayout && !/LiveDemo\.(jsx?|tsx)$/.test(customLayout)) {
+    throw new Error(
+      "[LiveDemo]: `customLayout` path should end with 'LiveDemo.(jsx?|tsx)',\nExample: `path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')`",
+    );
+  }
+
   const getDemoDataByPath = () => demoDataByPath;
 
-  const extraModules = options?.includeModules || [];
+  const extraModules = includeModules || [];
   const uniqueImports = new Set(defaultModules.concat(extraModules));
 
   return {
@@ -65,7 +88,7 @@ export function liveDemoPluginRspress(
       ],
 
       globalComponents: [
-        options?.customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),
+        customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),
       ],
     },
   };
