@@ -53,14 +53,12 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
       if (!(isLive && node.lang in LiveDemoLanguage)) return;
 
       const entryFileName = `App.${node.lang}`;
+      const baseProps = {
+        entryFileName,
+        files: { [entryFileName]: node.value },
+      };
 
-      const props = getPropsWithOptions(
-        {
-          entryFileName,
-          files: { [entryFileName]: node.value },
-        },
-        options,
-      );
+      const props = getPropsWithOptions(baseProps, options);
 
       Object.assign(node, {
         type: "mdxJsxFlowElement",
