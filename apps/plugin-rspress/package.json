@@ -39,7 +39,7 @@
     "@rollup/browser": "^4.31.0",
     "@rsbuild/plugin-react": "^1.1.0",
     "@rslib/core": "^0.3.2",
-    "@rspress/core": "1.39.4",
+    "@rspress/core": "^1.40.2",
     "@types/babel__core": "^7.20.5",
     "@types/babel__standalone": "^7.1.9",
     "@types/mdast": "^3.0.15",
