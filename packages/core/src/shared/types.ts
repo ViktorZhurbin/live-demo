@@ -80,7 +80,9 @@ export type LiveDemoPluginOptions = {
    * }
    */
   ui?: {
-    fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab">;
+    fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab"> & {
+      hide?: boolean;
+    };
     editor?: LiveDemoEditorProps;
     resizablePanels?: Pick<
       LiveDemoResizablePanelsProps,

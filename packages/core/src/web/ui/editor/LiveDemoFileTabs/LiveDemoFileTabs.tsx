@@ -17,7 +17,7 @@ export const LiveDemoFileTabs = (props: LiveDemoFileTabsProps) => {
   const { hideSingleTab } = mergedOptions;
   const fileNames = Object.keys(files);
 
-  if (hideSingleTab && fileNames.length === 1) {
+  if (mergedOptions.hide || (hideSingleTab && fileNames.length === 1)) {
     return null;
   }
 
