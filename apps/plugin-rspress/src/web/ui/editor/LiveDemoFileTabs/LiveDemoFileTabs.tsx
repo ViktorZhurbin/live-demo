@@ -1,4 +1,3 @@
-import { toMerged } from "es-toolkit";
 import { useLiveDemoContext } from "web/context";
 import { Button } from "web/ui/components";
 import styles from "./LiveDemoFileTabs.module.css";
@@ -13,10 +12,9 @@ export type LiveDemoFileTabsProps = {
 
 export const LiveDemoFileTabs = (props: LiveDemoFileTabsProps) => {
   const { files, activeFile, setActiveFile, options } = useLiveDemoContext();
-  const pluginOptions = options?.fileTabs ?? {};
+  const mergedOptions = Object.assign(options?.fileTabs ?? {}, props);
 
-  const { hideSingleTab } = toMerged(pluginOptions, props);
-
+  const { hideSingleTab } = mergedOptions;
   const fileNames = Object.keys(files);
 
   if (hideSingleTab && fileNames.length === 1) {

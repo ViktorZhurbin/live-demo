@@ -1,6 +1,5 @@
 import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
-import { toMerged } from "es-toolkit";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { PanelsView } from "web/constants/settings";
 import { useLiveDemoContext } from "web/context";
@@ -13,8 +12,7 @@ export const LiveDemoResizablePanels = (
   props: LiveDemoResizablePanelsProps,
 ) => {
   const { options } = useLiveDemoContext();
-  const pluginOptions = options?.resizablePanels ?? {};
-  const mergedOptions = toMerged(pluginOptions, props);
+  const mergedOptions = Object.assign(options?.resizablePanels ?? {}, props);
 
   const {
     classes,

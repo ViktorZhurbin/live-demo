@@ -1,5 +1,4 @@
 import path from "node:path";
-import { toMerged } from "es-toolkit";
 import { isRelativeImport } from "shared/pathHelpers";
 import type { PathWithAllowedExt } from "shared/types";
 import { getFilesAndAst } from "./getFilesAndAst";
@@ -17,7 +16,7 @@ export const getFilesAndImports = (params: {
     fileName,
   });
 
-  let allFiles = files;
+  const allFiles = { ...files };
 
   for (const statement of ast.body) {
     if (statement.type !== "ImportDeclaration") continue;
@@ -34,7 +33,7 @@ export const getFilesAndImports = (params: {
         ...fileInfo,
       });
 
-      allFiles = toMerged(allFiles, nested.files);
+      Object.assign(allFiles, nested.files);
     } else {
       imports.add(importPath);
     }
