@@ -1,7 +1,5 @@
-import type {
-  LiveDemoPropsFromPlugin,
-  LiveDemoStringifiedProps,
-} from "shared/types";
+import type { LiveDemoPropsFromPlugin } from "shared/types";
+import type { LiveDemoStringifiedProps } from "web/types";
 
 /**
  * Parse props, as they come JSON.stringified.

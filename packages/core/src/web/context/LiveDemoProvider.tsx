@@ -1,9 +1,6 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import type {
-  LiveDemoFiles,
-  LiveDemoPropsFromPlugin,
-  LiveDemoStringifiedProps,
-} from "shared/types";
+import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "shared/types";
+import type { LiveDemoStringifiedProps } from "web/types";
 import { parseProps } from "./parseProps";
 
 type LiveDemoContextValue = {

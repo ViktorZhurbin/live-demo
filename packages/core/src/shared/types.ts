@@ -31,15 +31,6 @@ export type LiveDemoPropsFromPlugin = {
   options?: LiveDemoPluginOptions["ui"];
 };
 
-/**
- * Props passed from plugin to LiveDemo components are JSON.stringified.
- * Without stringification having code strings (in `props.files`)
- * tends to break MDX parsing.
- */
-export type LiveDemoStringifiedProps = {
-  [Key in keyof LiveDemoPropsFromPlugin]: string;
-};
-
 export type LiveDemoPluginOptions = {
   /**
    * Path to custom layout file.

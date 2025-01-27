@@ -1,6 +1,6 @@
 import { useFullscreen } from "@mantine/hooks";
-import type { LiveDemoStringifiedProps } from "shared/types";
 import { LiveDemoProvider } from "web/context";
+import type { LiveDemoStringifiedProps } from "web/types";
 import {
   LiveDemoControlPanel,
   LiveDemoResizablePanels,
