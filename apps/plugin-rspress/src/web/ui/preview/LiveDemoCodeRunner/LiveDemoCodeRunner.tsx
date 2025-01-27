@@ -50,7 +50,7 @@ export const LiveDemoCodeRunner = ({
         setDynamicComponent(createElement(component));
       } else {
         throw new Error(
-          `Couldn't determine component export in ${entryFileName}.\n\nDoes the file have multiple exports?`,
+          `Couldn't determine a function export in ${entryFileName}.\n\nThe code needs to export a function.`,
         );
       }
     } catch (e) {

@@ -2,8 +2,8 @@
   "getStarted",
   {
     "type": "file",
-    "name": "overview",
-    "label": "Overview"
+    "name": "usage",
+    "label": "Usage"
   },
   {
     "type": "dir",
