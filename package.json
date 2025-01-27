@@ -5,8 +5,8 @@
   "workspaces": ["packages/*", "website"],
   "scripts": {
     "build:web": "pnpm --filter website build",
-    "build:lib": "pnpm --filter rspress-plugin-live-demo build",
-    "build": "pnpm run build:lib && pnpm build:web",
+    "build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
+    "build": "pnpm run build:rspress && pnpm build:web",
     "format": "biome check --write",
     "prepare": "husky"
   },

@@ -1,5 +1,5 @@
 {
-  "name": "rspress-plugin-live-demo",
+  "name": "@live-demo/plugin-rspress",
   "version": "1.0.0",
   "license": "MIT",
   "exports": {

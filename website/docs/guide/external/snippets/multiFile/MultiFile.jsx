@@ -1,5 +1,5 @@
+import { Button } from "@live-demo/plugin-rspress/web";
 import { useState } from "react";
-import { Button } from "rspress-plugin-live-demo/web";
 
 // local import
 import { Imported } from "./Imported";

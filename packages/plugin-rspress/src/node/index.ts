@@ -1,1 +1,1 @@
-export { rspressPluginLiveDemo } from "./plugin";
+export { liveDemoPluginRspress } from "./plugin";

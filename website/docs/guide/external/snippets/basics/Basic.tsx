@@ -1,5 +1,5 @@
+import { Button } from "@live-demo/plugin-rspress/web";
 import { useState } from "react";
-import { Button } from "rspress-plugin-live-demo/web";
 import { Badge, Card } from "rspress/theme";
 
 export const Basic = () => {

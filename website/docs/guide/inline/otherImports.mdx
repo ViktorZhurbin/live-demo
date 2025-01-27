@@ -16,11 +16,11 @@ title: Other imports
 
 ```ts title='rspress.config.ts'
 import { defineConfig } from "rspress/config";
-import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
+import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
 
 export default defineConfig({
   plugins: [
-    rspressPluginLiveDemo({
+    liveDemoPluginRspress({
       includeModules: ["luxon"],
     }),
   ],

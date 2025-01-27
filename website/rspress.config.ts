@@ -1,12 +1,12 @@
 import * as path from "node:path";
-import { rspressPluginLiveDemo } from "rspress-plugin-live-demo";
+import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({
   root: path.join(__dirname, "docs"),
 
   plugins: [
-    rspressPluginLiveDemo({
+    liveDemoPluginRspress({
       ui: {
         resizablePanels: {
           autoSaveId: "live-demo-docs",

@@ -19,7 +19,7 @@ const demoDataByPath: DemoDataByPath = {};
  **/
 const defaultModules = ["react", "rspress/theme"];
 
-export function rspressPluginLiveDemo(options?: PluginOptions): RspressPlugin {
+export function liveDemoPluginRspress(options?: PluginOptions): RspressPlugin {
   const getDemoDataByPath = () => demoDataByPath;
   const extraModules = options?.includeModules || [];
 
@@ -31,7 +31,7 @@ export function rspressPluginLiveDemo(options?: PluginOptions): RspressPlugin {
   const imports = new Set(defaultModules.concat(extraModules));
 
   return {
-    name: "rspress-plugin-live-demo",
+    name: "@live-demo/plugin-rspress",
 
     config(config) {
       config.markdown = config.markdown || {};
