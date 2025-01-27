@@ -1,4 +1,3 @@
-import { useFullscreen } from "@mantine/hooks";
 import { LiveDemoProvider } from "web/context";
 import type { LiveDemoStringifiedProps } from "web/types";
 import {
@@ -13,12 +12,10 @@ interface LiveDemoCoreProps {
 }
 
 export const LiveDemoCore = (props: LiveDemoCoreProps) => {
-  const fullscreen = useFullscreen();
-
   return (
     <LiveDemoProvider {...props}>
-      <LiveDemoWrapper ref={fullscreen.ref}>
-        <LiveDemoControlPanel fullscreen={fullscreen} />
+      <LiveDemoWrapper>
+        <LiveDemoControlPanel />
         <LiveDemoResizablePanels />
       </LiveDemoWrapper>
     </LiveDemoProvider>

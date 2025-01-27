@@ -1,11 +1,9 @@
 import { IconMaximize, IconMinimize } from "@tabler/icons-react";
+import { useLiveDemoContext } from "web/context";
 import { Button } from "../../components";
-import type { LiveDemoControlPanelProps } from "./types";
 
-type ButtonFullscreenProps = Pick<LiveDemoControlPanelProps, "fullscreen">;
-
-export const ButtonFullscreen = (props: ButtonFullscreenProps) => {
-  const { fullscreen } = props;
+export const ButtonFullscreen = () => {
+  const { fullscreen } = useLiveDemoContext();
 
   const Icon = fullscreen.fullscreen ? IconMinimize : IconMaximize;
   const text = fullscreen.fullscreen ? "Exit fullscreen" : "Fullscreen";

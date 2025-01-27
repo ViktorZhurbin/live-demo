@@ -1,6 +1,6 @@
 import "./colors.css";
 import clsx from "clsx";
-import { type Ref, forwardRef } from "react";
+import { useLiveDemoContext } from "web/context";
 import styles from "./LiveDemoWrapper.module.css";
 
 type LiveDemoWrapperProps = {
@@ -8,12 +8,12 @@ type LiveDemoWrapperProps = {
   children: React.ReactNode;
 };
 
-export const LiveDemoWrapper = forwardRef(
-  (props: LiveDemoWrapperProps, ref: Ref<HTMLDivElement>) => {
-    return (
-      <div ref={ref} className={clsx(styles.wrapper, props.className)}>
-        {props.children}
-      </div>
-    );
-  },
-);
+export const LiveDemoWrapper = (props: LiveDemoWrapperProps) => {
+  const { fullscreen } = useLiveDemoContext();
+
+  return (
+    <div ref={fullscreen.ref} className={clsx(styles.wrapper, props.className)}>
+      {props.children}
+    </div>
+  );
+};

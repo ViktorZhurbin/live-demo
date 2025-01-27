@@ -6,13 +6,10 @@ import { ButtonFullscreen } from "./ButtonFullscreen";
 import { ButtonWrapCode } from "./ButtonWrapCode";
 import styles from "./LiveDemoControlPanel.module.css";
 import { getPanelViewsValues } from "./labels";
-import type { LiveDemoControlPanelProps } from "./types";
 
 const NARROW_THRESHOLD = 340;
 
-export const LiveDemoControlPanel = ({
-  fullscreen,
-}: LiveDemoControlPanelProps) => {
+export const LiveDemoControlPanel = () => {
   const { options } = useLiveDemoContext();
   const wrapperEl = useElementSize();
 
@@ -40,7 +37,7 @@ export const LiveDemoControlPanel = ({
 
       <div className={styles.section}>
         <ButtonWrapCode />
-        <ButtonFullscreen fullscreen={fullscreen} />
+        <ButtonFullscreen />
       </div>
     </div>
   );
