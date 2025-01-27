@@ -52,3 +52,5 @@ You can use both relative and external package imports inside the `Component.(t|
 - resizable panels
 - panels view switcher
 - fullscreen view
+- toggle code wrap
+- etc.

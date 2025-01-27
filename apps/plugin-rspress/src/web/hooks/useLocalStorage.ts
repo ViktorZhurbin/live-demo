@@ -8,3 +8,10 @@ export const useLocalStorageView = () => {
     key: LocalStorage.PanelsView,
   });
 };
+
+export const useLocalStorageWrapCode = () => {
+  return useLocalStorage({
+    defaultValue: false,
+    key: LocalStorage.WrapCode,
+  });
+};
