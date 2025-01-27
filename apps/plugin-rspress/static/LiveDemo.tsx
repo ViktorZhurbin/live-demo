@@ -1,5 +1,7 @@
 import "../dist/web/index.css";
+import { useFullscreen } from "@mantine/hooks";
 import {
+  LiveDemoControlPanel,
   LiveDemoEditor,
   LiveDemoFileTabs,
   LiveDemoPreview,
@@ -11,6 +13,8 @@ import {
 } from "../dist/web";
 
 const LiveDemo = (props: LiveDemoStringifiedProps) => {
+  const fullscreen = useFullscreen();
+
   const editor = (
     <>
       <LiveDemoFileTabs />
@@ -22,7 +26,8 @@ const LiveDemo = (props: LiveDemoStringifiedProps) => {
 
   return (
     <LiveDemoProvider initialValue={props}>
-      <LiveDemoWrapper>
+      <LiveDemoWrapper ref={fullscreen.ref}>
+        <LiveDemoControlPanel fullscreen={fullscreen} />
         <LiveDemoResizablePanels editor={editor} preview={preview} />
       </LiveDemoWrapper>
     </LiveDemoProvider>

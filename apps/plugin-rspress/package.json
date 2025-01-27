@@ -15,9 +15,7 @@
     },
     "./web/index.css": "./dist/web/index.css"
   },
-
   "files": ["dist", "static"],
-
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",
@@ -27,6 +25,7 @@
     "@codemirror/lang-javascript": "^6.2.2",
     "@mantine/hooks": "^7.16.1",
     "@oxidation-compiler/napi": "^0.2.0",
+    "@tabler/icons-react": "^3.29.0",
     "@uiw/codemirror-theme-vscode": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
     "react-error-boundary": "^5.0.0",

@@ -1,48 +1,13 @@
 import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
 import { toMerged } from "es-toolkit";
-import type { ReactElement } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { PanelsView } from "web/constants/settings";
 import { useLiveDemoContext } from "web/context";
+import { useLocalStorageView } from "web/hooks/useLocalStorage";
 import { LiveDemoEditor, LiveDemoPreview } from "web/ui";
 import styles from "./LiveDemoResizablePanels.module.css";
-
-export type LiveDemoResizablePanelsProps = {
-  editor?: ReactElement;
-  preview?: ReactElement;
-  /**
-   * Used for auto saving the panel sizes in local storage
-   */
-  autoSaveId?: string;
-  /**
-   * Layout width threshold in px.
-   * When width of the ResizablePanels' wrapper div is smaller,
-   * the panels are arranged vertically.
-   * Otherwise, the panels are arranged horizontally.
-   * @defaultValue 550
-   */
-  verticalThreshold?: number;
-  /**
-   * Default panel sizes in %.
-   */
-  defaultPanelSizes?: {
-    /**
-     * Default panel size in %.
-     * @defaultValue `50`
-     */
-    editor?: number;
-    /**
-     * Default panel size in %.
-     * @defaultValue `50`
-     */
-    preview?: number;
-  };
-  classes?: {
-    wrapper?: string;
-    editorPanel?: string;
-    previewPanel?: string;
-  };
-};
+import type { LiveDemoResizablePanelsProps } from "./types";
 
 export const LiveDemoResizablePanels = (
   props: LiveDemoResizablePanelsProps,
@@ -58,11 +23,21 @@ export const LiveDemoResizablePanels = (
     defaultPanelSizes = { editor: 50, preview: 50 },
   } = mergedOptions;
 
+  const [panelsView] = useLocalStorageView();
+
   const wrapperSize = useElementSize();
   const isVertical = wrapperSize.width < verticalThreshold;
 
   const wrapperClass = clsx(styles.wrapper, classes?.wrapper, {
     [styles.vertical]: isVertical,
+  });
+
+  const editorClasses = clsx(styles.editorPanel, classes?.editorPanel, {
+    [styles.hiddenPanel]: panelsView === PanelsView.Preview,
+  });
+
+  const previewClasses = clsx(classes?.previewPanel, {
+    [styles.hiddenPanel]: panelsView === PanelsView.Editor,
   });
 
   return (
@@ -74,7 +49,7 @@ export const LiveDemoResizablePanels = (
       >
         <Panel
           id="editor"
-          className={clsx(styles.editorPanel, classes?.editorPanel)}
+          className={editorClasses}
           defaultSize={defaultPanelSizes.editor}
           order={isVertical ? 1 : 0}
           onKeyDown={(e) => {
@@ -89,7 +64,7 @@ export const LiveDemoResizablePanels = (
 
         <Panel
           id="preview"
-          className={classes?.previewPanel}
+          className={previewClasses}
           defaultSize={defaultPanelSizes.preview}
           order={isVertical ? 0 : 1}
         >
