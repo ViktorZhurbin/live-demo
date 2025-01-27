@@ -4,7 +4,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { PanelsView } from "web/constants/settings";
 import { useLiveDemoContext } from "web/context";
 import { useLocalStorageView } from "web/hooks/useLocalStorage";
-import { LiveDemoEditor, LiveDemoPreview } from "web/ui";
+import { LiveDemoEditor, LiveDemoFileTabs, LiveDemoPreview } from "web/ui";
 import styles from "./LiveDemoResizablePanels.module.css";
 import type { LiveDemoResizablePanelsProps } from "./types";
 
@@ -51,11 +51,16 @@ export const LiveDemoResizablePanels = (
           defaultSize={defaultPanelSizes.editor}
           order={isVertical ? 1 : 0}
           onKeyDown={(e) => {
-            // to avoid interfering with the Rspress global event listeners
+            // to avoid interfering with global event listeners
             e.stopPropagation();
           }}
         >
-          {props.editor ?? <LiveDemoEditor />}
+          {props.editor ?? (
+            <>
+              <LiveDemoFileTabs />
+              <LiveDemoEditor />
+            </>
+          )}
         </Panel>
 
         <PanelResizeHandle className={styles.resizeHandle} />

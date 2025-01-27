@@ -12,10 +12,23 @@ export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
  */
 export type LiveDemoFiles = Record<string, string>;
 
-export type LiveDemoProps = {
+export type DemoDataByPath = Record<string, LiveDemoPropsFromPlugin>;
+
+/**
+ * Modules that will be available in demos.
+ * @defaultValue `["react"]`
+ *
+ * These are collected from external demos at build time.
+ *
+ * You can also use `includeModules` option of the plugin,
+ * to make some modules available in inline demos.
+ **/
+export type UniqueImports = Set<string>;
+
+export type LiveDemoPropsFromPlugin = {
   files: LiveDemoFiles;
   entryFileName: string;
-  options?: PluginOptions["ui"];
+  options?: LiveDemoPluginOptions["ui"];
 };
 
 /**
@@ -24,10 +37,10 @@ export type LiveDemoProps = {
  * tends to break MDX parsing.
  */
 export type LiveDemoStringifiedProps = {
-  [Key in keyof LiveDemoProps]: string;
+  [Key in keyof LiveDemoPropsFromPlugin]: string;
 };
 
-export type PluginOptions = {
+export type LiveDemoPluginOptions = {
   /**
    * Path to custom layout file.
    * @example

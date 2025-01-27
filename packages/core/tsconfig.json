@@ -11,7 +11,14 @@
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "node/*": ["src/node/*"],
+      "shared/*": ["src/shared/*"],
+      "web/*": ["src/web/*"]
+    }
   },
 
   "include": ["src", "static", "rslib.config.ts"],

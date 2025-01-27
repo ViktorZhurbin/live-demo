@@ -1,0 +1,58 @@
+{
+  "name": "@live-demo/core",
+  "version": "1.0.0",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.mjs",
+      "default": "./dist/node/index.mjs"
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "import": "./dist/web/index.mjs",
+      "default": "./dist/web/index.mjs"
+    },
+    "./web/index.css": "./dist/web/index.css"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "rslib build",
+    "dev": "rslib build --watch",
+    "bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.2",
+    "@mantine/hooks": "^7.16.1",
+    "@rsbuild/plugin-react": "^1.1.0",
+    "@oxidation-compiler/napi": "^0.2.0",
+    "@tabler/icons-react": "^3.29.0",
+    "@uiw/codemirror-theme-vscode": "^4.23.7",
+    "@uiw/react-codemirror": "^4.23.7",
+    "clsx": "^2.1.1",
+    "react-error-boundary": "^5.0.0",
+    "react-resizable-panels": "^2.1.7"
+  },
+  "devDependencies": {
+    "@babel/types": "^7.26.5",
+    "@microsoft/api-extractor": "^7.49.1",
+    "@oxc-project/types": "^0.47.1",
+    "@rollup/browser": "^4.31.0",
+    "@rslib/core": "^0.3.2",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__standalone": "^7.1.9",
+    "@types/mdast": "^3.0.15",
+    "@types/react": "^18",
+    "react": "^18.3.1",
+    "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "@mdx-js/mdx": ">=2.3.0",
+    "mdast-util-mdx": "^3.0.0",
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
+    "remark-gfm": "^3.0.1",
+    "unist-util-visit": "^4.1.2",
+    "unified": "^10.1.2"
+  }
+}

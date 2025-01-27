@@ -1,14 +1,17 @@
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { LiveDemoLanguage } from "shared/constants";
-import type { LiveDemoProps, PluginOptions } from "shared/types";
+import type {
+  DemoDataByPath,
+  LiveDemoPluginOptions,
+  LiveDemoPropsFromPlugin,
+} from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import type { DemoDataByPath } from "./plugin";
 
 interface RemarkPluginProps {
-  options?: PluginOptions["ui"];
+  options?: LiveDemoPluginOptions["ui"];
   getDemoDataByPath: () => DemoDataByPath;
 }
 
@@ -70,14 +73,14 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 };
 
 function getPropsWithOptions(
-  props: LiveDemoProps,
-  options?: PluginOptions["ui"],
+  props: LiveDemoPropsFromPlugin,
+  options?: LiveDemoPluginOptions["ui"],
 ) {
   return options ? { ...props, options } : props;
 }
 
 function getJsxAttributesFromProps(
-  props: LiveDemoProps,
+  props: LiveDemoPropsFromPlugin,
 ): MdxJsxFlowElement["attributes"] {
   return Object.entries(props).map(([name, value]) => ({
     name,

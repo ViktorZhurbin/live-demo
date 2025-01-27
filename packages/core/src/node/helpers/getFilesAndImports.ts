@@ -1,15 +1,15 @@
 import path from "node:path";
 import { isRelativeImport } from "shared/pathHelpers";
-import type { PathWithAllowedExt } from "shared/types";
+import type { PathWithAllowedExt, UniqueImports } from "shared/types";
 import { getFilesAndAst } from "./getFilesAndAst";
 import { resolveFileInfo } from "./resolveFileInfo";
 
 export const getFilesAndImports = (params: {
   fileName: PathWithAllowedExt;
   absolutePath: PathWithAllowedExt;
-  imports: Set<string>;
+  uniqueImports: UniqueImports;
 }) => {
-  const { absolutePath, fileName, imports } = params;
+  const { absolutePath, fileName, uniqueImports } = params;
 
   const { files, ast } = getFilesAndAst({
     absolutePath,
@@ -29,13 +29,13 @@ export const getFilesAndImports = (params: {
       const fileInfo = resolveFileInfo({ importPath, dirname });
 
       const nested = getFilesAndImports({
-        imports,
+        uniqueImports,
         ...fileInfo,
       });
 
       Object.assign(allFiles, nested.files);
     } else {
-      imports.add(importPath);
+      uniqueImports.add(importPath);
     }
   }
 

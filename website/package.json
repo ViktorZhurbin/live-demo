@@ -10,6 +10,7 @@
     "bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
   },
   "dependencies": {
+    "@live-demo/core": "workspace:*",
     "@live-demo/plugin-rspress": "workspace:*",
     "rspress": "^1.40.2"
   },

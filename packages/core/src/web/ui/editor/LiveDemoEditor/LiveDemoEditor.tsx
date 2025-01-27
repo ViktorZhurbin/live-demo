@@ -1,5 +1,4 @@
 import { javascript } from "@codemirror/lang-javascript";
-import { useDark } from "@rspress/core/runtime";
 import { vscodeDark, vscodeLight } from "@uiw/codemirror-theme-vscode";
 import ReactCodeMirror, {
   EditorView,
@@ -28,10 +27,10 @@ import "./LiveDemoEditor.css";
 export interface LiveDemoEditorProps extends ReactCodeMirrorProps {}
 
 export const LiveDemoEditor = (props: LiveDemoEditorProps) => {
-  const { options } = useLiveDemoContext();
+  const { options, isDark } = useLiveDemoContext();
   const mergedOptions = Object.assign(options?.editor ?? {}, props);
 
-  const theme = useDark() ? vscodeDark : vscodeLight;
+  const theme = isDark ? vscodeDark : vscodeLight;
   const { code, updateCode } = useActiveCode();
   const [lineWrap] = useLocalStorageWrapCode();
 

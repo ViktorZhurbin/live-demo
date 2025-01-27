@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import type {
   LiveDemoFiles,
-  LiveDemoProps,
+  LiveDemoPropsFromPlugin,
   LiveDemoStringifiedProps,
 } from "shared/types";
 import { parseProps } from "./parseProps";
@@ -15,8 +15,9 @@ type LiveDemoContextValue = {
 
   updateFiles: (update: LiveDemoFiles) => void;
 
-  options: LiveDemoProps["options"];
-  entryFileName: LiveDemoProps["entryFileName"];
+  isDark: boolean;
+  options: LiveDemoPropsFromPlugin["options"];
+  entryFileName: LiveDemoPropsFromPlugin["entryFileName"];
 };
 
 const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
@@ -24,15 +25,16 @@ const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
 );
 
 type LiveDemoProviderProps = {
+  isDark: boolean;
   children: React.ReactNode;
-  initialValue: LiveDemoStringifiedProps;
+  pluginProps: LiveDemoStringifiedProps;
 };
 
 function LiveDemoProvider(props: LiveDemoProviderProps) {
-  const initialValue = parseProps(props.initialValue);
+  const pluginProps = parseProps(props.pluginProps);
 
-  const [files, setFiles] = useState(initialValue.files);
-  const [activeFile, setActiveFile] = useState(initialValue.entryFileName);
+  const [files, setFiles] = useState(pluginProps.files);
+  const [activeFile, setActiveFile] = useState(pluginProps.entryFileName);
 
   const updateFiles = useCallback((update: LiveDemoFiles) => {
     setFiles((prevFiles) => ({ ...prevFiles, ...update }));
@@ -48,8 +50,9 @@ function LiveDemoProvider(props: LiveDemoProviderProps) {
         activeFile,
         setActiveFile,
 
-        options: initialValue.options,
-        entryFileName: initialValue.entryFileName,
+        isDark: props.isDark,
+        options: pluginProps.options,
+        entryFileName: pluginProps.entryFileName,
       }}
     >
       {props.children}

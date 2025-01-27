@@ -1,4 +1,4 @@
-import { Button } from "@live-demo/plugin-rspress/web";
+import { Button } from "@live-demo/core/web";
 import { useState } from "react";
 import { Badge, Card } from "rspress/theme";
 
