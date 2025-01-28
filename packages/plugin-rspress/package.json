@@ -1,6 +1,14 @@
 {
   "name": "@live-demo/plugin-rspress",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "Rspress plugin for interactive live demos.",
+  "bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ViktorZhurbin/live-demo.git",
+    "directory": "packages/rspress-plugin"
+  },
+  "homepage": "https://live-demo.pages.dev",
   "license": "MIT",
   "exports": {
     ".": {
@@ -29,5 +37,10 @@
   },
   "peerDependencies": {
     "@rspress/core": ">=1.1.0"
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": ["rspress", "live-demo", "playground", "live-code", "code-editor"]
 }

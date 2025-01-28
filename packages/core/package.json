@@ -1,6 +1,14 @@
 {
   "name": "@live-demo/core",
-  "version": "1.0.0",
+  "version": "0.0.1",
+  "description": "Core components for @live-demo plugins.",
+  "bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ViktorZhurbin/live-demo.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://live-demo.pages.dev",
   "license": "MIT",
   "exports": {
     ".": {
@@ -15,7 +23,9 @@
     },
     "./web/index.css": "./dist/web/index.css"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rslib build",
     "dev": "rslib build --watch",
@@ -24,8 +34,8 @@
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
     "@mantine/hooks": "^7.16.1",
-    "@rsbuild/plugin-react": "^1.1.0",
     "@oxidation-compiler/napi": "^0.2.0",
+    "@rsbuild/plugin-react": "^1.1.0",
     "@tabler/icons-react": "^3.29.0",
     "@uiw/codemirror-theme-vscode": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
@@ -54,5 +64,16 @@
     "remark-gfm": "^3.0.1",
     "unist-util-visit": "^4.1.2",
     "unified": "^10.1.2"
-  }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": [
+    "react",
+    "live-demo",
+    "playground",
+    "live-code",
+    "code-editor"
+  ]
 }

@@ -4,6 +4,7 @@
     "enabled": true
   },
   "files": {
+    "ignore": ["package.json"],
     "ignoreUnknown": true
   },
   "vcs": {

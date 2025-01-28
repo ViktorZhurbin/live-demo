@@ -1,7 +1,6 @@
 {
-  "name": "forms",
-  "type": "module",
-  "license": "MIT",
+  "name": "live-demo-monorepo",
+  "private": true,
   "workspaces": ["packages/*", "website"],
   "scripts": {
     "build:web": "pnpm --filter website build",
@@ -19,6 +18,10 @@
     "node": ">=18"
   },
   "packageManager": "pnpm@10.1.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": ["webpack"]
