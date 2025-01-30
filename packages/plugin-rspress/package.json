@@ -1,6 +1,6 @@
 {
   "name": "@live-demo/plugin-rspress",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Rspress plugin for interactive live demos.",
   "bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "website",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -10,8 +10,8 @@
     "bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
   },
   "dependencies": {
-    "@live-demo/core": "workspace:*",
-    "@live-demo/plugin-rspress": "workspace:*",
+    "@live-demo/core": "0.0.3",
+    "@live-demo/plugin-rspress": "0.0.3",
     "rspress": "^1.40.2"
   },
   "devDependencies": {

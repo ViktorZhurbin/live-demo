@@ -45,7 +45,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       mdast-util-mdx:
-        specifier: ^3.0.0
+        specifier: '>=3.0.0'
         version: 3.0.0
       react-dom:
         specifier: '>=17.0.0'
@@ -57,14 +57,14 @@ importers:
         specifier: ^2.1.7
         version: 2.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       remark-gfm:
-        specifier: ^3.0.1
+        specifier: '>=3.0.0'
         version: 3.0.1
       unified:
-        specifier: ^10.1.2
+        specifier: '>=10.0.0'
         version: 10.1.2
       unist-util-visit:
-        specifier: ^4.1.2
-        version: 4.1.2
+        specifier: '>=4.0.0'
+        version: 5.0.0
     devDependencies:
       '@babel/types':
         specifier: ^7.26.5
@@ -134,14 +134,14 @@ importers:
   website:
     dependencies:
       '@live-demo/core':
-        specifier: workspace:*
-        version: link:../packages/core
+        specifier: 0.0.3
+        version: 0.0.3(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(@mdx-js/mdx@2.3.0)(@rsbuild/core@1.2.0)(codemirror@6.0.1)(mdast-util-mdx@3.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(remark-gfm@3.0.1)(unified@10.1.2)(unist-util-visit@5.0.0)
       '@live-demo/plugin-rspress':
-        specifier: workspace:*
-        version: link:../packages/plugin-rspress
+        specifier: 0.0.3
+        version: 0.0.3(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(@mdx-js/mdx@2.3.0)(@rsbuild/core@1.2.0)(@rspress/core@1.40.2(webpack@5.97.1))(codemirror@6.0.1)(mdast-util-mdx@3.0.0)(remark-gfm@3.0.1)(unified@10.1.2)(unist-util-visit@5.0.0)
       rspress:
         specifier: ^1.40.2
-        version: 1.40.2
+        version: 1.40.2(webpack@5.97.1)
     devDependencies:
       '@babylonjs/core':
         specifier: ^7.44.0
@@ -332,6 +332,22 @@ packages:
 
   '@lezer/lr@1.4.2':
     resolution: {integrity: sha512-pu0K1jCIdnQ12aWNaAVU5bzi7Bd1w54J3ECgANPmYLtQKP0HBj2cE/5coBD66MT10xbtIuUr7tg0Shbsvk0mDA==}
+
+  '@live-demo/core@0.0.3':
+    resolution: {integrity: sha512-3ifJoM6e0OPXDXUYBVVLBzd6RkV/lz/Z53SUu/c729lYLGq4qfQuTA/6lrzHpAct83CqOMMzVXbo0vB/XauQvw==}
+    peerDependencies:
+      '@mdx-js/mdx': '>=2.3.0'
+      mdast-util-mdx: '>=3.0.0'
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
+      remark-gfm: '>=3.0.0'
+      unified: '>=10.0.0'
+      unist-util-visit: '>=4.0.0'
+
+  '@live-demo/plugin-rspress@0.0.3':
+    resolution: {integrity: sha512-/lur6DZqLSQfR6T50p20q49yGOVmWTcgWdBlOxSs+HqlISkHIRk0/a0FuyyPmP2iAEwjXLMKx2VfQiMypHi+fg==}
+    peerDependencies:
+      '@rspress/core': '>=1.1.0'
 
   '@mantine/hooks@7.16.1':
     resolution: {integrity: sha512-+hER8E4d2ByfQ/DKIXGM3Euxb7IH5ArSjzzzoF21sG095iXIryOCob22ZanrmiXCoAzKKdxqgVj4Di67ikLYSQ==}
@@ -2633,6 +2649,60 @@ snapshots:
     dependencies:
       '@lezer/common': 1.2.3
 
+  '@live-demo/core@0.0.3(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(@mdx-js/mdx@2.3.0)(@rsbuild/core@1.2.0)(codemirror@6.0.1)(mdast-util-mdx@3.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(remark-gfm@3.0.1)(unified@10.1.2)(unist-util-visit@5.0.0)':
+    dependencies:
+      '@codemirror/lang-javascript': 6.2.2
+      '@mantine/hooks': 7.16.1(react@18.3.1)
+      '@mdx-js/mdx': 2.3.0
+      '@oxidation-compiler/napi': 0.2.0
+      '@rsbuild/plugin-react': 1.1.0(@rsbuild/core@1.2.0)
+      '@tabler/icons-react': 3.29.0(react@18.3.1)
+      '@uiw/codemirror-theme-vscode': 4.23.7(@codemirror/language@6.10.8)(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)
+      '@uiw/react-codemirror': 4.23.7(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(codemirror@6.0.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      clsx: 2.1.1
+      mdast-util-mdx: 3.0.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-error-boundary: 5.0.0(react@18.3.1)
+      react-resizable-panels: 2.1.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      remark-gfm: 3.0.1
+      unified: 10.1.2
+      unist-util-visit: 5.0.0
+    transitivePeerDependencies:
+      - '@babel/runtime'
+      - '@codemirror/autocomplete'
+      - '@codemirror/language'
+      - '@codemirror/lint'
+      - '@codemirror/search'
+      - '@codemirror/state'
+      - '@codemirror/theme-one-dark'
+      - '@codemirror/view'
+      - '@rsbuild/core'
+      - codemirror
+
+  '@live-demo/plugin-rspress@0.0.3(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(@mdx-js/mdx@2.3.0)(@rsbuild/core@1.2.0)(@rspress/core@1.40.2(webpack@5.97.1))(codemirror@6.0.1)(mdast-util-mdx@3.0.0)(remark-gfm@3.0.1)(unified@10.1.2)(unist-util-visit@5.0.0)':
+    dependencies:
+      '@live-demo/core': 0.0.3(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(@mdx-js/mdx@2.3.0)(@rsbuild/core@1.2.0)(codemirror@6.0.1)(mdast-util-mdx@3.0.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(remark-gfm@3.0.1)(unified@10.1.2)(unist-util-visit@5.0.0)
+      '@rspress/core': 1.40.2(webpack@5.97.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/runtime'
+      - '@codemirror/autocomplete'
+      - '@codemirror/language'
+      - '@codemirror/lint'
+      - '@codemirror/search'
+      - '@codemirror/state'
+      - '@codemirror/theme-one-dark'
+      - '@codemirror/view'
+      - '@mdx-js/mdx'
+      - '@rsbuild/core'
+      - codemirror
+      - mdast-util-mdx
+      - remark-gfm
+      - unified
+      - unist-util-visit
+
   '@mantine/hooks@7.16.1(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -4887,7 +4957,7 @@ snapshots:
     dependencies:
       fs-extra: 11.3.0
 
-  rspress@1.40.2:
+  rspress@1.40.2(webpack@5.97.1):
     dependencies:
       '@rsbuild/core': 1.2.0
       '@rspress/core': 1.40.2(webpack@5.97.1)
