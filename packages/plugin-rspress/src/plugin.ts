@@ -1,4 +1,5 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   type DemoDataByPath,
   type LiveDemoPluginOptions,
@@ -8,6 +9,10 @@ import {
   visitFilePaths,
 } from "@live-demo/core";
 import type { RspressPlugin } from "@rspress/core";
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const demoDataByPath: DemoDataByPath = {};
 
