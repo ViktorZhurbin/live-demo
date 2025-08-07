@@ -9,9 +9,10 @@ This plugin turns MDX code blocks and external files into interactive playground
 <code src="./external/snippets/basics/Basic" />
 
 ## Installation
-import { PackageManagerTabs } from 'rspress/theme';
 
-<PackageManagerTabs command="install @live-demo/plugin-rspress -D" />
+import { PackageManagerTabs } from "rspress/theme";
+
+<PackageManagerTabs command="install @live-demo/core @live-demo/plugin-rspress -D" />
 
 ## Register
 
@@ -20,6 +21,6 @@ import { defineConfig } from "rspress/config";
 import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
 
 export default defineConfig({
-  plugins: [liveDemoPluginRspress()]
-})
+	plugins: [liveDemoPluginRspress()],
+});
 ```
