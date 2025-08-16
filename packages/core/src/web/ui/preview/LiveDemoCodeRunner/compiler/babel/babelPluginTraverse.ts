@@ -96,7 +96,11 @@ function createGetImportDeclaration({
   pkg,
   imported,
   isDefault = false,
-}: { imported: string; pkg: string; isDefault?: boolean }) {
+}: {
+  imported: string;
+  pkg: string;
+  isDefault?: boolean;
+}) {
   const getImport = `${GET_IMPORT_FN}('${pkg}', ${isDefault})`;
 
   const importString = `const ${imported} = ${getImport}`;

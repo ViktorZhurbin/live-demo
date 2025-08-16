@@ -2,9 +2,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   type DemoDataByPath,
-  type LiveDemoPluginOptions,
   getVirtualModulesCode,
   htmlTags,
+  type LiveDemoPluginOptions,
   remarkPlugin,
   visitFilePaths,
 } from "@live-demo/core";

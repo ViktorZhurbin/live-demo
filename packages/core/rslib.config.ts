@@ -1,5 +1,5 @@
 import { pluginReact } from "@rsbuild/plugin-react";
-import { type LibConfig, defineConfig } from "@rslib/core";
+import { defineConfig, type LibConfig } from "@rslib/core";
 
 const sharedConfig: LibConfig = {
   format: "esm",

@@ -65,7 +65,7 @@ export const babelPluginTraverse = (): PluginItem => {
         }
         path.replaceWithMultiple(code);
       },
-      ExportSpecifier(path) {
+      ExportSpecifier(_path) {
         // console.log("ExportSpecifier", path.node);
       },
     },

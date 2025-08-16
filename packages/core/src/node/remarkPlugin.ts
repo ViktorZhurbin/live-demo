@@ -24,7 +24,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 }) => {
   const demoDataByPath = getDemoDataByPath();
 
-  return (tree, vfile) => {
+  return (tree, _vfile) => {
     // 1. External demo, ie <code src="./Component.tsx" />
     visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
       if (node.name !== "code") return;

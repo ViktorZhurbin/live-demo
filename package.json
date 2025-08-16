@@ -1,31 +1,36 @@
 {
-  "name": "live-demo-monorepo",
-  "private": true,
-  "workspaces": ["packages/*", "website"],
-  "scripts": {
-    "prepublish": "pnpm build:core && pnpm build:rspress",
-    "publish": "pnpm --filter @live-demo/core publish && pnpm --filter @live-demo/plugin-rspress publish",
-    "build:web": "pnpm --filter website build",
-    "build:core": "pnpm --filter @live-demo/core build",
-    "build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
-    "format": "biome check --write",
-    "prepare": "husky"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "husky": "^9.1.7"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "packageManager": "pnpm@10.1.0",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": ["webpack"]
-    }
-  }
+	"name": "live-demo-monorepo",
+	"private": true,
+	"workspaces": [
+		"packages/*",
+		"website"
+	],
+	"scripts": {
+		"prepublish": "pnpm build:core && pnpm build:rspress",
+		"publish": "pnpm --filter @live-demo/core publish && pnpm --filter @live-demo/plugin-rspress publish",
+		"build:web": "pnpm --filter website build",
+		"build:core": "pnpm --filter @live-demo/core build",
+		"build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
+		"format": "biome check --write",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.0",
+		"husky": "^9.1.7"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"packageManager": "pnpm@10.14.0",
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"pnpm": {
+		"peerDependencyRules": {
+			"ignoreMissing": [
+				"webpack"
+			]
+		}
+	}
 }

@@ -13,7 +13,7 @@ export const pluginBabelTransformImportsExports = (): Plugin => {
 
   return {
     name: "babel-transform-imports-exports",
-    renderChunk(code, chunk, options, meta) {
+    renderChunk(code, _chunk, _options, _meta) {
       const fileResult = transform(code, {
         sourceType: "module",
         plugins: [babelPluginTraverse()],

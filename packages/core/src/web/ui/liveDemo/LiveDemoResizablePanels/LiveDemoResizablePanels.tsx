@@ -45,6 +45,7 @@ export const LiveDemoResizablePanels = (
         style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
         direction={isVertical ? "vertical" : "horizontal"}
       >
+        {/** biome-ignore lint/correctness/useUniqueElementIds: not applicable */}
         <Panel
           id="editor"
           className={editorClasses}
@@ -65,6 +66,7 @@ export const LiveDemoResizablePanels = (
 
         <PanelResizeHandle className={styles.resizeHandle} />
 
+        {/** biome-ignore lint/correctness/useUniqueElementIds: not applicable */}
         <Panel
           id="preview"
           className={previewClasses}
