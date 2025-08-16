@@ -1,6 +1,6 @@
 {
 	"name": "website",
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"private": true,
 	"license": "MIT",
 	"scripts": {
@@ -12,16 +12,17 @@
 	"dependencies": {
 		"@live-demo/core": "workspace:*",
 		"@live-demo/plugin-rspress": "workspace:*",
-		"rspress": "^1.45.1"
+		"@react-three/drei": "^10.7.2",
+		"@react-three/fiber": "^9.3.0",
+		"@react-three/postprocessing": "^3.0.4",
+		"clsx": "^2.1.1",
+		"react": "^19",
+		"react-dom": "^19",
+		"rspress": "^1.45.1",
+		"three": "^0.179.1"
 	},
 	"devDependencies": {
-		"@babylonjs/core": "^7.44.0",
-		"@babylonjs/gui": "^7.44.0",
-		"@types/react": "^18",
-		"@types/react-dom": "^18",
-		"clsx": "^2.1.1",
-		"react": "^18",
-		"react-babylonjs": "^3.2.2",
-		"react-dom": "^18"
+		"@types/react": "^19",
+		"@types/react-dom": "^19"
 	}
 }
