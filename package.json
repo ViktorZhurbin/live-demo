@@ -11,6 +11,7 @@
 		"build:web": "pnpm --filter website build",
 		"build:core": "pnpm --filter @live-demo/core build",
 		"build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
+		"build:lib": "pnpm --filter @live-demo/* build",
 		"format": "biome check --write",
 		"prepare": "husky"
 	},
