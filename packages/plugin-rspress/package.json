@@ -1,46 +1,55 @@
 {
-  "name": "@live-demo/plugin-rspress",
-  "version": "0.0.4",
-  "description": "Rspress plugin for interactive live demos.",
-  "bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ViktorZhurbin/live-demo.git",
-    "directory": "packages/rspress-plugin"
-  },
-  "homepage": "https://live-demo.pages.dev",
-  "license": "MIT",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.mjs"
-    }
-  },
-  "files": ["dist", "static"],
-  "scripts": {
-    "build": "rslib build",
-    "dev": "rslib build --watch",
-    "bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
-  },
-  "dependencies": {
-    "@live-demo/core": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@microsoft/api-extractor": "^7.49.1",
-    "@rslib/core": "^0.3.2",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "typescript": "^5.7.3"
-  },
-  "peerDependencies": {
-    "@rspress/core": ">=1.1.0"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "keywords": ["rspress", "live-demo", "playground", "live-code", "code-editor"]
+	"name": "@live-demo/plugin-rspress",
+	"version": "0.0.4",
+	"description": "Rspress plugin for interactive live demos.",
+	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ViktorZhurbin/live-demo.git",
+		"directory": "packages/rspress-plugin"
+	},
+	"homepage": "https://live-demo.pages.dev",
+	"license": "MIT",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"static"
+	],
+	"scripts": {
+		"build": "rslib build",
+		"dev": "rslib build --watch",
+		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
+	},
+	"dependencies": {
+		"@live-demo/core": "workspace:*",
+		"react": "^18",
+		"react-dom": "^18"
+	},
+	"devDependencies": {
+		"@microsoft/api-extractor": "^7.49.1",
+		"@rslib/core": "^0.12.1",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"typescript": "^5.7.3"
+	},
+	"peerDependencies": {
+		"@rspress/core": ">=1.1.0"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"keywords": [
+		"rspress",
+		"live-demo",
+		"playground",
+		"live-code",
+		"code-editor"
+	]
 }
