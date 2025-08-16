@@ -8,7 +8,7 @@
 	"scripts": {
 		"prepublish": "pnpm build:core && pnpm build:rspress",
 		"publish": "pnpm --filter @live-demo/core publish && pnpm --filter @live-demo/plugin-rspress publish",
-		"build:web": "pnpm --filter website build",
+		"build:web": "pnpm run build:lib && pnpm --filter website build",
 		"build:core": "pnpm --filter @live-demo/core build",
 		"build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
 		"build:lib": "pnpm --filter @live-demo/* build",
