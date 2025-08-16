@@ -1,27 +1,27 @@
 {
-  "name": "website",
-  "version": "0.0.3",
-  "private": true,
-  "license": "MIT",
-  "scripts": {
-    "build": "rspress build",
-    "dev": "rspress dev --port 5173",
-    "preview": "rspress preview",
-    "bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
-  },
-  "dependencies": {
-    "@live-demo/core": "0.0.3",
-    "@live-demo/plugin-rspress": "0.0.3",
-    "rspress": "^1.40.2"
-  },
-  "devDependencies": {
-    "@babylonjs/core": "^7.44.0",
-    "@babylonjs/gui": "^7.44.0",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "clsx": "^2.1.1",
-    "react": "^18",
-    "react-babylonjs": "^3.2.2",
-    "react-dom": "^18"
-  }
+	"name": "website",
+	"version": "0.0.3",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"build": "rspress build",
+		"dev": "rspress dev --port 5173",
+		"preview": "rspress preview",
+		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
+	},
+	"dependencies": {
+		"@live-demo/core": "workspace:*",
+		"@live-demo/plugin-rspress": "workspace:*",
+		"rspress": "^1.45.1"
+	},
+	"devDependencies": {
+		"@babylonjs/core": "^7.44.0",
+		"@babylonjs/gui": "^7.44.0",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"clsx": "^2.1.1",
+		"react": "^18",
+		"react-babylonjs": "^3.2.2",
+		"react-dom": "^18"
+	}
 }
