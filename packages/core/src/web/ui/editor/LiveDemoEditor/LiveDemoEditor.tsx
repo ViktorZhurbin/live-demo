@@ -16,11 +16,11 @@ import "./LiveDemoEditor.css";
  * ```
  * {
  *    basicSetup: {
-        lineNumbers: false,
-        foldGutter: false,
-        autocompletion: false,
-        tabSize: 2,
-      }
+ *      lineNumbers: false,
+ *      foldGutter: false,
+ *      autocompletion: false,
+ *      tabSize: 2,
+ *    }
  * }
  * ```
  */
