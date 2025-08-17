@@ -1,8 +1,8 @@
 import { defineConfig, type UserConfig } from "tsdown";
+import lightningCss from "unplugin-lightningcss/rolldown";
 
 const sharedConfig: UserConfig = {
   dts: true,
-  target: "es2020",
 };
 
 export default defineConfig([
@@ -19,5 +19,6 @@ export default defineConfig([
     outDir: "dist/web",
     external: ["@types/react", "_live_demo_virtual_modules"],
     ...sharedConfig,
+    plugins: [lightningCss()],
   },
 ]);

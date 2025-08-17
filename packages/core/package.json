@@ -52,7 +52,8 @@
 		"@types/react": "^19",
 		"react": "^19",
 		"tsdown": "^0.14.1",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.2",
+		"unplugin-lightningcss": "^0.4.1"
 	},
 	"peerDependencies": {
 		"@mdx-js/mdx": ">=2.3.0",
