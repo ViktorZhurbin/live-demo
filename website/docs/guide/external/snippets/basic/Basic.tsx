@@ -1,6 +1,6 @@
 import { Button } from "@live-demo/core/web";
+import { Badge, Card } from "@rspress/core/theme";
 import { useState } from "react";
-import { Badge, Card } from "rspress/theme";
 
 export const Basic = () => {
   const [count, setCount] = useState(0);

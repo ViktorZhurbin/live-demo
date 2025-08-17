@@ -15,10 +15,10 @@
 		"@react-three/drei": "^10.7.2",
 		"@react-three/fiber": "^9.3.0",
 		"@react-three/postprocessing": "^3.0.4",
+		"@rspress/core": "^2.0.0-beta.27",
 		"clsx": "^2.1.1",
 		"react": "^19",
 		"react-dom": "^19",
-		"rspress": "^1.45.1",
 		"three": "^0.179.1"
 	},
 	"devDependencies": {

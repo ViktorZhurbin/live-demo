@@ -34,7 +34,7 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 /**
  * Included by default for every demo
  **/
-const defaultModules = ["react", "rspress/theme"];
+const defaultModules = ["react", "@rspress/core/theme"];
 
 export function liveDemoPluginRspress(
   options?: LiveDemoPluginRspressOptions,

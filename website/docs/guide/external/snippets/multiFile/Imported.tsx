@@ -1,4 +1,4 @@
-import { Badge, Card } from "rspress/theme";
+import { Badge, Card } from "@rspress/core/theme";
 
 type ImportedProps = {
   count: number;

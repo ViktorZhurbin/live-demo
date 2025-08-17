@@ -10,7 +10,7 @@ import {
   type LiveDemoStringifiedProps,
   LiveDemoWrapper,
 } from "@live-demo/core/web";
-import { useDark } from "rspress/runtime";
+import { useDark } from "@rspress/core/runtime";
 
 const CustomLiveDemo = (props: LiveDemoStringifiedProps) => {
   // the core library doesn't have Rspress context,
