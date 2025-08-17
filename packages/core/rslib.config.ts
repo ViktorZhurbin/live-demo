@@ -21,7 +21,7 @@ export default defineConfig({
         ...sharedConfig.output,
         target: "node",
         distPath: { root: "dist/node" },
-        externals: ["@types/react", "@mdx-js/mdx"],
+        externals: ["@types/react", "@mdx-js/mdx", "@types/mdast"],
       },
     },
     {
