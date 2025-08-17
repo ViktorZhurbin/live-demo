@@ -57,10 +57,6 @@ export function liveDemoPluginRspress(
 
     config(config) {
       config.markdown = config.markdown || {};
-      // disable Rust compiler to use
-      // markdown.remarkPlugins and markdown.globalComponents
-      // https://rspress.dev/api/config/config-build#markdownglobalcomponents
-      config.markdown.mdxRs = false;
 
       return config;
     },
