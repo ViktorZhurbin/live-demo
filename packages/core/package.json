@@ -1,6 +1,7 @@
 {
 	"name": "@live-demo/core",
 	"version": "0.0.6",
+	"type": "module",
 	"description": "Core components for @live-demo plugins.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
@@ -27,9 +28,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "rslib build",
-		"dev": "rslib build --watch",
-		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
+		"build": "tsdown",
+		"dev": "tsdown --watch"
 	},
 	"dependencies": {
 		"@codemirror/lang-javascript": "^6.2.4",
@@ -45,15 +45,14 @@
 	},
 	"devDependencies": {
 		"@babel/types": "^7.28.2",
-		"@microsoft/api-extractor": "^7.52.10",
 		"@oxc-project/types": "^0.82.1",
 		"@rollup/browser": "^4.46.2",
-		"@rslib/core": "^0.12.1",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
 		"@types/react": "^19",
 		"react": "^19",
+		"tsdown": "^0.14.1",
 		"typescript": "^5.9.2"
 	},
 	"peerDependencies": {
@@ -62,8 +61,8 @@
 		"react": ">=17.0.0",
 		"react-dom": ">=17.0.0",
 		"remark-gfm": ">=3.0.0",
-		"unist-util-visit": ">=4.0.0",
-		"unified": ">=10.0.0"
+		"unified": ">=10.0.0",
+		"unist-util-visit": ">=4.0.0"
 	},
 	"publishConfig": {
 		"access": "public",

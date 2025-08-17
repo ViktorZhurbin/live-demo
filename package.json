@@ -6,9 +6,9 @@
 		"website"
 	],
 	"scripts": {
-		"prepublish": "pnpm build:core && pnpm build:rspress",
-		"publish": "pnpm --filter @live-demo/core publish && pnpm --filter @live-demo/plugin-rspress publish",
-		"build:web": "pnpm run build:lib && pnpm --filter website build",
+		"prepublish": "pnpm build:lib",
+		"publish": "pnpm --filter @live-demo/* publish",
+		"build:web": "pnpm build:lib && pnpm --filter website build",
 		"build:core": "pnpm --filter @live-demo/core build",
 		"build:rspress": "pnpm --filter @live-demo/plugin-rspress build",
 		"build:lib": "pnpm --filter @live-demo/* build",
@@ -20,7 +20,7 @@
 		"husky": "^9.1.7"
 	},
 	"engines": {
-		"node": ">=18"
+		"node": ">=20"
 	},
 	"packageManager": "pnpm@10.14.0",
 	"publishConfig": {

@@ -1,6 +1,7 @@
 {
 	"name": "@live-demo/plugin-rspress",
 	"version": "0.0.6",
+	"type": "module",
 	"description": "Rspress plugin for interactive live demos.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
@@ -22,9 +23,8 @@
 		"static"
 	],
 	"scripts": {
-		"build": "rslib build",
-		"dev": "rslib build --watch",
-		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
+		"build": "tsdown",
+		"dev": "tsdown --watch"
 	},
 	"dependencies": {
 		"@live-demo/core": "workspace:*",
@@ -32,10 +32,9 @@
 		"react-dom": "^19"
 	},
 	"devDependencies": {
-		"@microsoft/api-extractor": "^7.52.10",
-		"@rslib/core": "^0.12.1",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"tsdown": "^0.14.1",
 		"typescript": "^5.9.2"
 	},
 	"peerDependencies": {

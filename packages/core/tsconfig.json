@@ -21,6 +21,6 @@
     }
   },
 
-  "include": ["src", "static", "rslib.config.ts"],
-  "exclude": ["node_modules", "dist", ".rslib"]
+  "include": ["src", "static"],
+  "exclude": ["node_modules", "dist"]
 }
