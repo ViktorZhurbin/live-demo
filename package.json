@@ -8,7 +8,7 @@
 	"scripts": {
 		"prepublish": "pnpm build:lib",
 		"publish": "pnpm --filter '@live-demo/*' publish",
-		"publish:beta": "pnpm --filter '@live-demo/*' publish --tag beta",
+		"publish:prerelease": "pnpm --filter '@live-demo/*' publish --tag prerelease",
 		"build:web": "pnpm build:lib && pnpm --filter website build",
 		"build:lib": "pnpm --filter '@live-demo/*' build",
 		"format": "biome check --write",
