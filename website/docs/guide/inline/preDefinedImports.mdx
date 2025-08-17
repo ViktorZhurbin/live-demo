@@ -2,16 +2,16 @@
 title: Pre-defined imports
 ---
 
-import { Tab, Tabs } from "rspress/theme";
+import { Tab, Tabs } from "@rspress/core/theme";
 
-By default, imports from `"rspress/theme"` and `"react"` are available.
+By default, imports from `"@rspress/core/theme"` and `"react"` are available.
 
 ## Using built-in Rspress components
 
 <Tabs>
   <Tab label="Live">
     ```jsx live
-    import { Badge, Card, SwitchAppearance } from "rspress/theme"
+    import { Badge, Card, SwitchAppearance } from "@rspress/core/theme"
 
     export const App = () => {
       return (
@@ -29,7 +29,7 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
     <pre>
       ````
       ```jsx live
-      import { Badge, Card, SwitchAppearance } from "rspress/theme"
+      import { Badge, Card, SwitchAppearance } from "@rspress/core/theme"
 
       export const App = () => {
         return (
@@ -53,7 +53,7 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
   <Tab label="Live">
     ```jsx live
     import React from "react"
-    import { Card } from "rspress/theme"
+    import { Card } from "@rspress/core/theme"
 
     export const App = () => {
       const [count, setCount] = React.useState(0)
@@ -87,7 +87,7 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
       ````
       ```jsx live
       import React from "react"
-      import { Card } from "rspress/theme"
+      import { Card } from "@rspress/core/theme"
 
       export const App = () => {
         const [count, setCount] = React.useState(0)
