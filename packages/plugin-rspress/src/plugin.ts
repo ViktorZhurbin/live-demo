@@ -55,12 +55,6 @@ export function liveDemoPluginRspress(
   return {
     name: "@live-demo/plugin-rspress",
 
-    config(config) {
-      config.markdown = config.markdown || {};
-
-      return config;
-    },
-
     async routeGenerated(routes) {
       const filePaths = routes.map((route) => route.absolutePath);
 
