@@ -1,7 +1,6 @@
 {
 	"name": "@live-demo/core",
 	"version": "0.1.0",
-	"type": "module",
 	"description": "Core components for @live-demo plugins.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
