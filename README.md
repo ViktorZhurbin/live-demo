@@ -1,24 +1,60 @@
 # Live Demo plugin for Rspress
 
-This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground).
+![demo](https://github.com/user-attachments/assets/70744765-a147-41bf-96d8-93f30aded8fb)
 
-## Docs
+## Quick start
 
-[Documentation website](https://live-demo.pages.dev) (quick start, examples, API, etc)
+### Install
+
+```sh
+npm install @live-demo/core @live-demo/plugin-rspress -D
+```
+
+### Register
+
+```ts
+import { defineConfig } from "rspress/config";
+import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+
+export default defineConfig({
+	plugins: [liveDemoPluginRspress()],
+});
+```
+
+### Use
+
+Now you can use it in your MDX files in either of the two ways:
+
+1. As an **"external"** demo (snippet in a dedicated file):
+
+```tsx
+<code src="../snippets/MyDemo.tsx" />
+```
+
+2. As an **"inline"** demo:
+````tsx
+```jsx live
+export const App = () => {
+  return <div>Hello World</div>;
+};
+```
+````
+
+
+## Docs 
+
+Usage, examples, API: https://live-demo.pages.dev/guide/getStarted
 
 ## Motivation
+This is a wildly reworked fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground), which adds some important features.
 
-### Multi-file demos
+### Features:
+- Multi-file demos with relative imports
+- Typescript support
 
-`@rspress/plugin-playground` can't handle local imports ([source](https://github.com/web-infra-dev/rspress/blob/main/packages/plugin-playground/src/cli/utils.ts#L16)), and doesn't fit more complex multi-file demos.
-
-### Typescript
-
-`@rspress/plugin-playground` [explicitly recommends](https://rspress.dev/plugin/official-plugins/playground#internal-components) not to use `.ts(x)`. If you still try, you get red squiggly type errors all over the editor.
-
-### Adding some niceties
+### Plus, some niceties:
+- toggle code wrap
 - resizable panels
 - layout switcher
 - fullscreen view
-- toggle code wrap
 - etc.
