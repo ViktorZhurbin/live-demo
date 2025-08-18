@@ -1,6 +1,6 @@
 import fs from "node:fs";
-import type { Program } from "@babel/types";
-import { parseSync } from "@oxidation-compiler/napi";
+import type { Program } from "@oxc-project/types";
+import { parseSync } from "oxc-parser";
 import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
 
 type GetFilesAndAst = {
@@ -19,12 +19,11 @@ export const getFilesAndAst = (
 
   files[fileName] = code;
 
-  const parsed = parseSync(code, {
+  const parsed = parseSync(fileName, code, {
     sourceType: "module",
-    sourceFilename: fileName,
   });
 
-  const ast = JSON.parse(parsed.program) as Program;
+  const ast = parsed.program;
 
   return { files, ast };
 };
