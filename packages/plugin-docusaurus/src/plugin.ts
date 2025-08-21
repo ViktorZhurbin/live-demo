@@ -1,13 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { LoadContext, Plugin } from "@docusaurus/types";
-import {
-  getVirtualModulesCode,
-  htmlTags,
-  type LiveDemoPluginOptions,
-  visitFilePaths,
-} from "@live-demo/core";
+import { htmlTags, type LiveDemoPluginOptions } from "@live-demo/core";
 import { glob } from "glob";
+// @ts-expect-error - webpack-virtual-modules doesn't have proper types
+import VirtualModulesPlugin from "webpack-virtual-modules";
 import { sharedDemoData } from "./shared";
 
 export interface LiveDemoPluginDocusaurusOptions extends LiveDemoPluginOptions {
@@ -38,64 +35,76 @@ export default function liveDemoPluginDocusaurus(
   const extraModules = includeModules || [];
   const uniqueImports = new Set(defaultModules.concat(extraModules));
 
+  // Helper function to generate virtual modules code
+  const generateVirtualModulesCode = () => {
+    // Create a simple virtual module that uses dynamic imports
+    return `
+// Virtual modules for live demos
+console.log('[LiveDemo] Virtual module loaded');
+
+const moduleMap = {
+  'react': () => import('react'),
+  '@docusaurus/theme-common': () => import('@docusaurus/theme-common')
+};
+
+async function getImport(moduleName, getDefault) {
+  console.log('[LiveDemo] Requesting module:', moduleName);
+
+  if (!moduleMap[moduleName]) {
+    throw new Error(\`Cannot resolve module: \${moduleName}\`);
+  }
+
+  try {
+    const module = await moduleMap[moduleName]();
+    console.log('[LiveDemo] Module loaded:', moduleName, module);
+
+    if (getDefault && module.default) {
+      return module.default;
+    }
+    return module;
+  } catch (error) {
+    console.error('[LiveDemo] Failed to load module:', moduleName, error);
+    throw error;
+  }
+}
+
+export default getImport;
+`;
+  };
+
+  // Create VirtualModulesPlugin instance with initial virtual modules
+  const virtualModulesPlugin = new VirtualModulesPlugin({
+    "node_modules/_live_demo_virtual_modules.js": generateVirtualModulesCode(),
+  });
+
   return {
     name: "@live-demo/plugin-docusaurus",
 
     async loadContent() {
-      // Find all markdown files in the Docusaurus content directories
-      const contentPaths = [
-        path.join(context.siteDir, "docs"),
-        path.join(context.siteDir, "blog"),
-        path.join(context.siteDir, "src/pages"),
-      ].filter((p) => fs.existsSync(p));
-
-      const filePaths: string[] = [];
-
-      for (const contentPath of contentPaths) {
-        const markdownFiles = await glob("**/*.{md,mdx}", {
-          cwd: contentPath,
-          absolute: true,
-        });
-        filePaths.push(...markdownFiles);
-      }
-
-      // Process the markdown files to extract live demo data
-      visitFilePaths({
-        filePaths,
-        uniqueImports,
-        demoDataByPath: sharedDemoData,
-      });
-
-      return { filePaths, demoDataByPath: sharedDemoData };
+      // TODO: Re-enable external file processing once MDX dependency issues are resolved
+      // For now, only support inline demos
+      return { filePaths: [], demoDataByPath: {} };
     },
 
     async contentLoaded({ actions }) {
-      const { createData } = actions;
-
-      // Create the virtual modules data
-      const virtualModulesCode = getVirtualModulesCode(uniqueImports);
-
-      await createData("live-demo-virtual-modules.js", virtualModulesCode);
+      // Virtual modules are already created in the plugin initialization
+      console.log(
+        "[LiveDemo] Virtual modules configured with webpack-virtual-modules",
+      );
     },
 
     getClientModules() {
       return [path.resolve(__dirname, "../theme/client.js")];
     },
 
-    configureWebpack() {
+    configureWebpack(config, isServer, utils) {
       return {
-        resolve: {
-          alias: {
-            "@live-demo/virtual-modules": path.resolve(
-              __dirname,
-              "../dist/virtual-modules.js",
-            ),
-          },
-        },
+        plugins: [virtualModulesPlugin],
       };
     },
 
     injectHtmlTags() {
+      // Provide basic HTML tags for now
       return {
         headTags: htmlTags.map((tag) => ({
           tagName: tag.tag,
@@ -105,6 +114,7 @@ export default function liveDemoPluginDocusaurus(
     },
 
     getThemePath() {
+      // Point to the built theme directory within dist
       return path.resolve(__dirname, "../theme");
     },
   };

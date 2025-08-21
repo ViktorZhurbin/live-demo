@@ -44,9 +44,9 @@ const config: Config = {
   plugins: [
     [
       liveDemoPluginDocusaurus,
-      // {
-      //   includeModules: ["@your/library"], // Optional: modules to include in demos
-      // },
+      {
+        //   includeModules: [], // Optional: modules to include in demos
+      },
     ],
   ],
 
@@ -56,34 +56,6 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          // remarkPlugins: [
-          //   [
-          //     liveDemoRemarkPlugin,
-          //     {
-          //       // Optional: customize UI components
-          //       options: {
-          //         controlPanel: { hide: false },
-          //         fileTabs: { hideSingleTab: false },
-          //         editor: {
-          //           basicSetup: {
-          //             lineNumbers: true,
-          //             foldGutter: true,
-          //           },
-          //         },
-          //       },
-          //     },
-          //   ],
-          // ],
-        },
-        theme: {
-          customCss: "./src/css/custom.css",
-        },
-      } satisfies Preset.Options,
-    ],
-    [
-      "@docusaurus/preset-classic",
-      {
-        docs: {
           remarkPlugins: [
             [
               liveDemoRemarkPlugin,
@@ -103,8 +75,40 @@ const config: Config = {
             ],
           ],
         },
-      },
+        theme: {
+          customCss: "./src/css/custom.css",
+        },
+      } satisfies Preset.Options,
     ],
+    // [
+    //   "classic",
+    //   {
+    //     docs: {
+    //       sidebarPath: "./sidebars.ts",
+    //       // remarkPlugins: [
+    //       //   [
+    //       //     liveDemoRemarkPlugin,
+    //       //     {
+    //       //       // Optional: customize UI components
+    //       //       options: {
+    //       //         controlPanel: { hide: false },
+    //       //         fileTabs: { hideSingleTab: false },
+    //       //         editor: {
+    //       //           basicSetup: {
+    //       //             lineNumbers: true,
+    //       //             foldGutter: true,
+    //       //           },
+    //       //         },
+    //       //       },
+    //       //     },
+    //       //   ],
+    //       // ],
+    //     },
+    //     theme: {
+    //       customCss: "./src/css/custom.css",
+    //     },
+    //   } satisfies Preset.Options,
+    // ],
   ],
 
   themeConfig: {
