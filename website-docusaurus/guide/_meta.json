@@ -1,0 +1,19 @@
+[
+  "getStarted",
+  {
+    "type": "file",
+    "name": "usage",
+    "label": "Usage"
+  },
+  {
+    "type": "dir",
+    "name": "external",
+    "label": "External demos"
+  },
+  {
+    "type": "dir",
+    "name": "inline",
+    "label": "Inline demos"
+  },
+  "customLayout"
+]

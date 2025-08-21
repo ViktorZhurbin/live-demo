@@ -31,6 +31,9 @@
 			"ignoreMissing": [
 				"webpack"
 			]
-		}
+		},
+		"onlyBuiltDependencies": [
+			"@swc/core"
+		]
 	}
 }

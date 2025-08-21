@@ -1,0 +1,26 @@
+---
+title: Get started
+---
+
+## `@live-demo/plugin-rspress`
+
+This plugin turns MDX code blocks and external files into interactive playgrounds with code editor and live preview updates. Try editing code below:
+
+<code src="./external/snippets/basic/Basic" />
+
+## Installation
+
+import { PackageManagerTabs } from "rspress/theme";
+
+<PackageManagerTabs command="install @live-demo/core @live-demo/plugin-rspress -D" />
+
+## Register
+
+```ts title='rspress.config.ts'
+import { defineConfig } from "rspress/config";
+import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+
+export default defineConfig({
+	plugins: [liveDemoPluginRspress()],
+});
+```

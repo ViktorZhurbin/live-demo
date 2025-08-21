@@ -1,0 +1,29 @@
+---
+title: Usage
+sidebar_position: 1
+---
+
+There's two ways to add a live demo in MDX files. We call them **inline** and **external** demos.
+
+## External demo
+For more complex code, you can use "external" demos:
+
+```tsx
+<code src="./snippets/Component.tsx" />
+```
+
+## Inline demo
+For simpler cases, you can use "inline" demos:
+  ````
+  ```tsx live
+  export const App = () => {
+    return <div>Hello World</div>;
+  }
+  ```
+  ````
+
+:::tip[NOTE]
+
+Both inline and external demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
+
+:::
