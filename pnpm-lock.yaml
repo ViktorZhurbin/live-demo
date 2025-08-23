@@ -209,6 +209,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.1.7(@types/react@19.1.10)
+      mdast-util-mdx:
+        specifier: ^3.0.0
+        version: 3.0.0
       tsdown:
         specifier: ^0.14.1
         version: 0.14.1(typescript@5.9.2)(unplugin-lightningcss@0.4.1)

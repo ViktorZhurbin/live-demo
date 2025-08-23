@@ -44,7 +44,8 @@ const config: Config = {
         docs: {
           sidebarPath: "./sidebars.ts",
           remarkPlugins: [
-            require("@live-demo/plugin-docusaurus-test").remarkPlugin,
+            require("@live-demo/plugin-docusaurus-test/remarkPlugin")
+              .remarkPlugin,
           ],
         },
         theme: {
