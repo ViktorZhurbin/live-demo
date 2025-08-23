@@ -1,0 +1,66 @@
+{
+	"name": "@live-demo/plugin-docusaurus-test",
+	"version": "0.1.2",
+	"description": "Docusaurus plugin for interactive live demos.",
+	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ViktorZhurbin/live-demo.git",
+		"directory": "packages/plugin-docusaurus-test"
+	},
+	"homepage": "https://live-demo.pages.dev",
+	"license": "MIT",
+	"main": "./dist/index.mjs",
+	"exports": {
+		".": {
+			"types": "./dist/theme/index.d.ts",
+			"import": "./dist/theme/index.mjs",
+			"default": "./dist/theme/index.mjs"
+		},
+		"./theme": {
+			"types": "./dist/theme/index.d.ts",
+			"import": "./dist/theme/index.mjs",
+			"default": "./dist/theme/index.mjs"
+		}
+	},
+	"files": [
+		"dist",
+		"theme"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsdown --watch"
+	},
+	"dependencies": {
+		"@docusaurus/theme-common": "^3.8.1",
+		"@docusaurus/theme-translations": "^3.8.1",
+		"@live-demo/core": "workspace:*",
+		"@mdx-js/react": "^3.1.0",
+		"glob": "^11.0.0",
+		"react": "^19",
+		"react-dom": "^19",
+		"webpack-virtual-modules": "^0.6.2"
+	},
+	"devDependencies": {
+		"@docusaurus/core": "^3.5.0",
+		"@docusaurus/types": "^3.5.0",
+		"@types/mdast": "^3.0.15",
+		"@types/node": "^24.3.0",
+		"@types/react": "^19",
+		"@types/react-dom": "^19",
+		"tsdown": "^0.14.1",
+		"typescript": "^5.9.2",
+		"unified": "^11.0.5"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"keywords": [
+		"docusaurus",
+		"live-demo",
+		"playground",
+		"live-code",
+		"code-editor"
+	]
+}

@@ -41,14 +41,8 @@ const config: Config = {
     locales: ["en"],
   },
 
-  plugins: [
-    [
-      liveDemoPluginDocusaurus,
-      {
-        //   includeModules: [], // Optional: modules to include in demos
-      },
-    ],
-  ],
+  // themes: ["@live-demo/plugin-docusaurus-test"],
+  plugins: ["@live-demo/plugin-docusaurus-test"],
 
   presets: [
     [
@@ -56,59 +50,12 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
-          remarkPlugins: [
-            [
-              liveDemoRemarkPlugin,
-              {
-                // Optional: customize UI components
-                options: {
-                  controlPanel: { hide: false },
-                  fileTabs: { hideSingleTab: false },
-                  editor: {
-                    basicSetup: {
-                      lineNumbers: true,
-                      foldGutter: true,
-                    },
-                  },
-                },
-              },
-            ],
-          ],
         },
         theme: {
           customCss: "./src/css/custom.css",
         },
       } satisfies Preset.Options,
     ],
-    // [
-    //   "classic",
-    //   {
-    //     docs: {
-    //       sidebarPath: "./sidebars.ts",
-    //       // remarkPlugins: [
-    //       //   [
-    //       //     liveDemoRemarkPlugin,
-    //       //     {
-    //       //       // Optional: customize UI components
-    //       //       options: {
-    //       //         controlPanel: { hide: false },
-    //       //         fileTabs: { hideSingleTab: false },
-    //       //         editor: {
-    //       //           basicSetup: {
-    //       //             lineNumbers: true,
-    //       //             foldGutter: true,
-    //       //           },
-    //       //         },
-    //       //       },
-    //       //     },
-    //       //   ],
-    //       // ],
-    //     },
-    //     theme: {
-    //       customCss: "./src/css/custom.css",
-    //     },
-    //   } satisfies Preset.Options,
-    // ],
   ],
 
   themeConfig: {
