@@ -43,6 +43,9 @@ const config: Config = {
       {
         docs: {
           sidebarPath: "./sidebars.ts",
+          remarkPlugins: [
+            require("@live-demo/plugin-docusaurus-test").remarkPlugin,
+          ],
         },
         theme: {
           customCss: "./src/css/custom.css",

@@ -1,0 +1,24 @@
+import type { Plugin } from "@docusaurus/types";
+
+export function pluginDocusaurusTest(): Plugin {
+  return {
+    name: "@live-demo/plugin-docusaurus-test",
+    getClientModules() {
+      return [require.resolve("./client.mjs")];
+    },
+    configureWebpack() {
+      return {
+        // Add any webpack configuration if needed
+      };
+    },
+    async contentLoaded({ actions }) {
+      // Configure remark plugins for MDX processing
+      const { addRoute } = actions;
+      // This will be handled by the preset configuration
+    },
+    async loadContent() {
+      // Return plugin configuration
+      return {};
+    },
+  };
+}
