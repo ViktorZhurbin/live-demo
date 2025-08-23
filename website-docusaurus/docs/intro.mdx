@@ -6,12 +6,24 @@ sidebar_position: 1
 
 ## Test Custom Plugin
 
-import { Button } from '@live-demo/plugin-docusaurus-test';
+import { CodeBlock } from '@live-demo/plugin-docusaurus-test';
 
-<Button onClick={() => alert('Hello from custom plugin!')}>
-  Primary Button
-</Button>
+```js live
+  const example = "code-like content";
+  function test() {
+    return "works great!";
+  }
+```
 
-<Button variant="secondary" onClick={() => alert('Secondary clicked!')}>
-  Secondary Button
-</Button>
+
+<CodeBlock>
+  This text should be in monospace font
+  with a subtle background and nice styling.
+
+  ```js live
+  const example = "code-like content";
+  function test() {
+    return "works great!";
+  }
+  ```
+</CodeBlock>

@@ -10,3 +10,4 @@ export default function pluginDocusaurusTest(): Plugin {
 }
 
 export { default as Button } from "./components/Button";
+export { default as CodeBlock } from "./components/CodeBlock";
