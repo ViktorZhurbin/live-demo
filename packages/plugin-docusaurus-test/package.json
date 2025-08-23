@@ -36,10 +36,13 @@
 		"@docusaurus/theme-translations": "^3.8.1",
 		"@live-demo/core": "workspace:*",
 		"@mdx-js/react": "^3.1.0",
+		"@oxc-project/types": "^0.82.3",
 		"glob": "^11.0.0",
+		"oxc-parser": "^0.82.3",
 		"react": "^19",
 		"react-dom": "^19",
 		"unist-util-visit": "^5.0.0",
+		"vfile": "^6.0.3",
 		"webpack-virtual-modules": "^0.6.2"
 	},
 	"devDependencies": {
