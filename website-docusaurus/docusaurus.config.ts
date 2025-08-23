@@ -1,9 +1,5 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config } from "@docusaurus/types";
-import {
-  liveDemoPluginDocusaurus,
-  liveDemoRemarkPlugin,
-} from "@live-demo/plugin-docusaurus";
 import { themes as prismThemes } from "prism-react-renderer";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
@@ -41,9 +37,6 @@ const config: Config = {
     locales: ["en"],
   },
 
-  // themes: ["@live-demo/plugin-docusaurus-test"],
-  plugins: ["@live-demo/plugin-docusaurus-test"],
-
   presets: [
     [
       "classic",
@@ -57,6 +50,8 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
+
+  plugins: ["@live-demo/plugin-docusaurus-test"],
 
   themeConfig: {
     // Replace with your project's social card

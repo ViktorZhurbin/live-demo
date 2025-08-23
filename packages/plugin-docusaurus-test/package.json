@@ -13,14 +13,9 @@
 	"main": "./dist/index.mjs",
 	"exports": {
 		".": {
-			"types": "./dist/theme/index.d.ts",
-			"import": "./dist/theme/index.mjs",
-			"default": "./dist/theme/index.mjs"
-		},
-		"./theme": {
-			"types": "./dist/theme/index.d.ts",
-			"import": "./dist/theme/index.mjs",
-			"default": "./dist/theme/index.mjs"
+			"types": "./dist/index.d.mts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
 		}
 	},
 	"files": [
