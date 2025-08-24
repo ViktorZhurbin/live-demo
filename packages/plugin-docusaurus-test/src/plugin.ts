@@ -13,6 +13,7 @@ export function pluginDocusaurusTest(): Plugin {
     },
     async contentLoaded({ actions }) {
       // Configure remark plugins for MDX processing
+      // biome-ignore lint/correctness/noUnusedVariables: explanation
       const { addRoute } = actions;
       // This will be handled by the preset configuration
     },
