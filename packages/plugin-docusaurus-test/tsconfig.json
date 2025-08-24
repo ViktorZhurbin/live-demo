@@ -11,7 +11,13 @@
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "shared/*": ["src/shared/*"],
+      "web/*": ["src/web/*"]
+    }
   },
 
   "include": ["src"],

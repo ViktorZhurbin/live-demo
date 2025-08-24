@@ -160,6 +160,9 @@ importers:
 
   packages/plugin-docusaurus-test:
     dependencies:
+      '@codemirror/lang-javascript':
+        specifier: ^6.2.4
+        version: 6.2.4
       '@docusaurus/theme-common':
         specifier: ^3.8.1
         version: 3.8.1(@docusaurus/plugin-content-docs@3.8.1(@docusaurus/faster@3.8.1(@docusaurus/types@3.8.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(@swc/helpers@0.5.17))(@mdx-js/react@3.1.0(@types/react@19.1.10)(react@19.1.1))(@rspack/core@1.4.11(@swc/helpers@0.5.17))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -169,12 +172,30 @@ importers:
       '@live-demo/core':
         specifier: workspace:*
         version: link:../core
+      '@mantine/hooks':
+        specifier: ^8.2.5
+        version: 8.2.5(react@19.1.1)
       '@mdx-js/react':
         specifier: ^3.1.0
         version: 3.1.0(@types/react@19.1.10)(react@19.1.1)
       '@oxc-project/types':
         specifier: ^0.82.3
         version: 0.82.3
+      '@rollup/browser':
+        specifier: ^4.46.2
+        version: 4.46.2
+      '@tabler/icons-react':
+        specifier: ^3.34.1
+        version: 3.34.1(react@19.1.1)
+      '@uiw/codemirror-theme-vscode':
+        specifier: ^4.25.1
+        version: 4.25.1(@codemirror/language@6.10.8)(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)
+      '@uiw/react-codemirror':
+        specifier: ^4.25.1
+        version: 4.25.1(@babel/runtime@7.26.0)(@codemirror/autocomplete@6.18.4)(@codemirror/language@6.10.8)(@codemirror/lint@6.8.4)(@codemirror/search@6.5.8)(@codemirror/state@6.5.1)(@codemirror/theme-one-dark@6.1.2)(@codemirror/view@6.36.2)(codemirror@6.0.1)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
       glob:
         specifier: ^11.0.0
         version: 11.0.3
@@ -187,6 +208,12 @@ importers:
       react-dom:
         specifier: ^19
         version: 19.1.1(react@19.1.1)
+      react-error-boundary:
+        specifier: ^6.0.0
+        version: 6.0.0(react@19.1.1)
+      react-resizable-panels:
+        specifier: ^3.0.4
+        version: 3.0.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0

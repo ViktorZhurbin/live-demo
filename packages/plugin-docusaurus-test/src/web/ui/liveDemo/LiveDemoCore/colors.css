@@ -1,0 +1,26 @@
+html {
+  /* Colors copied from Sandpack theme
+  https://github.com/codesandbox/sandpack/blob/main/sandpack-react/src/themes/index.ts
+   */
+  --live-demo-colors-surface1: #ffffff;
+  --live-demo-colors-surface2: #efefef;
+  --live-demo-colors-surface3: #f3f3f3;
+  --live-demo-colors-disabled: #c5c5c5;
+  --live-demo-colors-base: #323232;
+  --live-demo-colors-clickable: #808080;
+  --live-demo-colors-hover: #4d4d4d;
+  --live-demo-colors-accent: #3973e0;
+
+  &.dark {
+    --live-demo-colors-surface1: #151515;
+    --live-demo-colors-surface2: #252525;
+    --live-demo-colors-surface3: #2f2f2f;
+    --live-demo-colors-disabled: #4d4d4d;
+    --live-demo-colors-base: #808080;
+    --live-demo-colors-clickable: #999999;
+    --live-demo-colors-hover: #c5c5c5;
+    --live-demo-colors-accent: #e5e5e5;
+  }
+
+  --live-demo-layout-border: 1px solid var(--live-demo-colors-surface2);
+}

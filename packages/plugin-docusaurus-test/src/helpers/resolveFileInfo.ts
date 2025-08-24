@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { getPossiblePaths } from "./pathHelpers";
-import type { PathWithAllowedExt } from "./types";
+import { getPossiblePaths } from "shared/pathHelpers";
+import type { PathWithAllowedExt } from "shared/types";
 
 type ResolveFileInfo = {
   importPath: string;

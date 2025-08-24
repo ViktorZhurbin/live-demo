@@ -1,8 +1,7 @@
-import path from "path";
+import { isRelativeImport } from "shared/pathHelpers";
+import type { PathWithAllowedExt, UniqueImports } from "shared/types";
 import { getFilesAndAst } from "./getFilesAndAst";
-import { isRelativeImport } from "./pathHelpers";
 import { resolveFileInfo } from "./resolveFileInfo";
-import type { PathWithAllowedExt, UniqueImports } from "./types";
 
 export const getFilesAndImports = (params: {
   fileName: PathWithAllowedExt;
@@ -25,8 +24,7 @@ export const getFilesAndImports = (params: {
 
     // Support local imports and multi-file demos
     if (isRelativeImport(importPath)) {
-      const dirname = path.dirname(absolutePath);
-      const fileInfo = resolveFileInfo({ importPath, dirname });
+      const fileInfo = resolveFileInfo({ importPath, absolutePath });
 
       const nested = getFilesAndImports({
         uniqueImports,

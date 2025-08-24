@@ -1,7 +1,7 @@
 import type { Program } from "@oxc-project/types";
 import fs from "fs";
 import { parseSync } from "oxc-parser";
-import type { LiveDemoFiles, PathWithAllowedExt } from "./types";
+import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
 
 type GetFilesAndAst = {
   fileName: string;

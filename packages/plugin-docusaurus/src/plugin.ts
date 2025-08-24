@@ -3,7 +3,6 @@ import path from "node:path";
 import type { LoadContext, Plugin } from "@docusaurus/types";
 import { htmlTags, type LiveDemoPluginOptions } from "@live-demo/core";
 import { glob } from "glob";
-// @ts-expect-error - webpack-virtual-modules doesn't have proper types
 import VirtualModulesPlugin from "webpack-virtual-modules";
 import { sharedDemoData } from "./shared";
 

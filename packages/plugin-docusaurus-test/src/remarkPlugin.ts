@@ -12,10 +12,10 @@ type LiveDemoPluginOptions = {
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import path from "path";
+import { LiveDemoLanguage } from "shared/constants";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import type { VFile } from "vfile";
-import { LiveDemoLanguage } from "./helpers/constants";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 

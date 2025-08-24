@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  overflow: auto;
+  min-height: max-content;
+  border-bottom: var(--live-demo-layout-border);
+}
+
+.tab,
+.tab[data-active="true"],
+.tab:hover:not(:disabled) {
+  border: unset;
+  background-color: transparent;
+
+  &:hover:not([data-active="true"]) {
+    color: var(--sp-color-accent);
+  }
+}
