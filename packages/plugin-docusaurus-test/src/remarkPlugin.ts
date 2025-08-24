@@ -1,3 +1,14 @@
+// Local types to avoid workspace dependency issues
+type LiveDemoPropsFromPlugin = {
+  files: Record<string, string>;
+  entryFileName: string;
+};
+
+type LiveDemoPluginOptions = {
+  includeModules?: string[];
+  ui?: Record<string, unknown>;
+};
+
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import path from "path";
@@ -8,26 +19,28 @@ import { LiveDemoLanguage } from "./helpers/constants";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
-const CODE_BLOCK_NAME = "CodeBlock";
+const LIVE_DEMO = "LiveDemo";
+
+interface RemarkPluginProps {
+  options?: LiveDemoPluginOptions["ui"];
+}
 
 /**
  * Included by default for every demo
  **/
 const defaultModules = ["react"];
 
-export const remarkPlugin: Plugin<[], Root> = () => {
+export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
+  options = {},
+} = {}) => {
   const uniqueImports = new Set(defaultModules);
 
   return (tree, vfile) => {
     if (vfile.extname !== ".mdx" && vfile.extname !== ".md") return;
-    /** 1. Transorm:
+    /** 1. Transform:
      * ```jsx live
      *    const a = 1 + 3;
      * ```
-     * into:
-     * <CodeBlock>
-     *    const a = 1 + 3;
-     * </CodeBlock>
      */
     visit(tree, "code", (node) => {
       if (!node?.lang) return;
@@ -38,7 +51,7 @@ export const remarkPlugin: Plugin<[], Root> = () => {
 
       Object.assign(node, {
         type: "mdxJsxFlowElement",
-        name: CODE_BLOCK_NAME,
+        name: "CodeBlock",
         children: [
           {
             type: "text",
@@ -51,16 +64,10 @@ export const remarkPlugin: Plugin<[], Root> = () => {
     });
 
     /** 2. Transform:
-     * <CodeBlock src="../snippets/Component.tsx" />
-     *
-     * into:
-     *
-     * <CodeBlock>
-     *    const a = 1 + 3;
-     * </CodeBlock>
+     * <LiveDemo src="../snippets/Component.tsx" />
      */
     visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-      if (node.name !== CODE_BLOCK_NAME) return;
+      if (node.name !== LIVE_DEMO) return;
 
       const importPath = getMdxJsxAttribute(node, "src");
 
@@ -83,22 +90,24 @@ export const remarkPlugin: Plugin<[], Root> = () => {
         entryFileName: entryFile.fileName,
       };
 
-      const attributes = getJsxAttributesFromProps(props);
+      const combinedProps = getPropsWithOptions(props, options);
+      const attributes = getJsxAttributesFromProps(combinedProps);
 
       Object.assign(node, {
         type: "mdxJsxFlowElement",
-        name: CODE_BLOCK_NAME,
+        name: LIVE_DEMO,
         attributes,
-        // children: [
-        //   {
-        //     type: "text",
-        //     value: code,
-        //   },
-        // ],
       });
     });
   };
 };
+
+function getPropsWithOptions(
+  props: LiveDemoPropsFromPlugin,
+  options?: LiveDemoPluginOptions["ui"],
+) {
+  return options ? { ...props, options } : props;
+}
 
 function getAbsolutePath(importPath: string, vfile: VFile) {
   // Resolve relative to the current MDX file location

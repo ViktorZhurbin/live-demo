@@ -3,9 +3,6 @@ import type { Plugin } from "@docusaurus/types";
 export function pluginDocusaurusTest(): Plugin {
   return {
     name: "@live-demo/plugin-docusaurus-test",
-    getClientModules() {
-      return [require.resolve("./client.mjs")];
-    },
     configureWebpack() {
       return {
         // Add any webpack configuration if needed
