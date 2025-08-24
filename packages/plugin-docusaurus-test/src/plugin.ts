@@ -1,12 +1,34 @@
 import type { Plugin } from "@docusaurus/types";
+import { getVirtualModulesCode } from "./helpers/getVirtualModulesCode";
+import { uniqueImports } from "./sharedData";
 
 export function pluginDocusaurusTest(): Plugin {
   return {
     name: "@live-demo/plugin-docusaurus-test",
 
-    configureWebpack() {
+    configureWebpack(_config) {
+      const fs = require("fs");
+      const path = require("path");
+
+      const nodeModulesDir = path.join(process.cwd(), "node_modules");
+
+      // Generate the virtual modules file
+      const virtualModulesCode = getVirtualModulesCode(uniqueImports);
+      const virtualModulesPath = path.join(
+        nodeModulesDir,
+        "_live_demo_virtual_modules.js",
+      );
+
+      console.log({ _config, virtualModulesCode, virtualModulesPath });
+
+      fs.writeFileSync(virtualModulesPath, virtualModulesCode);
+
       return {
-        // Add any webpack configuration if needed
+        resolve: {
+          alias: {
+            _live_demo_virtual_modules: virtualModulesPath,
+          },
+        },
       };
     },
 
@@ -18,6 +40,22 @@ export function pluginDocusaurusTest(): Plugin {
     },
 
     async loadContent() {
+      const fs = require("fs");
+      const path = require("path");
+
+      const nodeModulesDir = path.join(process.cwd(), "node_modules");
+
+      // Generate the virtual modules file
+      const virtualModulesCode = getVirtualModulesCode(uniqueImports);
+      const virtualModulesPath = path.join(
+        nodeModulesDir,
+        "_live_demo_virtual_modules.js",
+      );
+
+      console.log({ virtualModulesCode, virtualModulesPath });
+
+      fs.writeFileSync(virtualModulesPath, virtualModulesCode);
+
       // Return plugin configuration
       return {};
     },

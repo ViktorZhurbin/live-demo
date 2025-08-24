@@ -5,10 +5,16 @@ import type { PathWithAllowedExt } from "shared/types";
 
 type ResolveFileInfo = {
   importPath: string;
-  absolutePath: string;
+  dirname?: string;
+  absolutePath?: string;
 };
 
-export function resolveFileInfo({ absolutePath, importPath }: ResolveFileInfo) {
+export function resolveFileInfo(params: ResolveFileInfo) {
+  const { importPath, dirname } = params;
+
+  const absolutePath =
+    params.absolutePath ?? path.resolve(dirname || process.cwd(), importPath);
+
   // same helper should be used in web, check compiler/rollup
   const pathsToCheck = getPossiblePaths(absolutePath);
 

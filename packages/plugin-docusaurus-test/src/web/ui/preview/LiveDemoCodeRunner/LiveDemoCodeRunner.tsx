@@ -42,6 +42,8 @@ export const LiveDemoCodeRunner = ({
 
       if (code === prevCode && !error) return;
 
+      console.log({ code });
+
       const component = getFnFromString(code);
 
       if (typeof component === "function") {

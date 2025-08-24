@@ -12,6 +12,7 @@ export function getFnFromString(fnCode: string) {
    * */
   const exportsStub: Record<string, React.FC> = {};
 
+  console.log({ getImport });
   const [OBJECT_NAME, ASSIGN_TO_PROP] = EXPORTS_OBJ.split(".");
 
   const fnArgNames = [GET_IMPORT_FN, OBJECT_NAME];
@@ -20,6 +21,7 @@ export function getFnFromString(fnCode: string) {
     getImportFn: typeof getImport,
     exportsObj: typeof exportsStub,
   ) => void;
+  console.log({ func: func.toString() });
 
   /**
    * After this call:
@@ -29,6 +31,8 @@ export function getFnFromString(fnCode: string) {
   func(getImport, exportsStub);
 
   const componentFn = exportsStub[ASSIGN_TO_PROP];
+
+  console.log({ componentFn });
 
   return componentFn;
 }

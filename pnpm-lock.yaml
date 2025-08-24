@@ -187,6 +187,9 @@ importers:
       '@rollup/browser':
         specifier: ^4.46.2
         version: 4.46.2
+      '@rollup/plugin-virtual':
+        specifier: ^3.0.2
+        version: 3.0.2
       '@tabler/icons-react':
         specifier: ^3.34.1
         version: 3.34.1(react@19.1.1)
@@ -220,6 +223,9 @@ importers:
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0
+      unplugin-lightningcss:
+        specifier: ^0.4.1
+        version: 0.4.1
       vfile:
         specifier: ^6.0.3
         version: 6.0.3

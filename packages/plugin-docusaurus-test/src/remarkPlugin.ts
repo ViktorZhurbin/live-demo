@@ -18,6 +18,7 @@ import { visit } from "unist-util-visit";
 import type { VFile } from "vfile";
 import { getFilesAndImports } from "./helpers/getFilesAndImports";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
+import { uniqueImports } from "./sharedData";
 
 const LIVE_DEMO = "LiveDemo";
 
@@ -25,16 +26,9 @@ interface RemarkPluginProps {
   options?: LiveDemoPluginOptions["ui"];
 }
 
-/**
- * Included by default for every demo
- **/
-const defaultModules = ["react"];
-
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
   options = {},
 } = {}) => {
-  const uniqueImports = new Set(defaultModules);
-
   return (tree, vfile) => {
     if (vfile.extname !== ".mdx" && vfile.extname !== ".md") return;
     /** 1. Transform:
