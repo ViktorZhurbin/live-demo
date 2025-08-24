@@ -1,3 +1,4 @@
+import virtual from "@rollup/plugin-virtual";
 import { defineConfig, type UserConfig } from "tsdown";
 import lightningCss from "unplugin-lightningcss/rolldown";
 
@@ -17,8 +18,11 @@ export default defineConfig([
     entry: ["./src/web/index.ts"],
     platform: "browser",
     outDir: "dist/web",
-    external: ["@types/react", "_live_demo_virtual_modules"],
+    external: ["@types/react"],
     ...sharedConfig,
-    plugins: [lightningCss()],
+    plugins: [
+      lightningCss(),
+      virtual({ _live_demo_virtual_modules: "exports.module = {}" }),
+    ],
   },
 ]);

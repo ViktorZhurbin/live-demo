@@ -47,7 +47,10 @@ const config: Config = {
           remarkPlugins: [remarkPlugin],
         },
         theme: {
-          customCss: "./src/css/custom.css",
+          customCss: [
+            "./src/css/custom.css",
+            "./node_modules/@live-demo/core/dist/web/index.css",
+          ],
         },
       } satisfies Preset.Options,
     ],

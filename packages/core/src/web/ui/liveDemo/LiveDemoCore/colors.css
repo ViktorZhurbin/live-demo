@@ -11,7 +11,8 @@ html {
   --live-demo-colors-hover: #4d4d4d;
   --live-demo-colors-accent: #3973e0;
 
-  &.dark {
+  &.dark,
+  &[data-theme="dark"] {
     --live-demo-colors-surface1: #151515;
     --live-demo-colors-surface2: #252525;
     --live-demo-colors-surface3: #2f2f2f;
