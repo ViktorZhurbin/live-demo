@@ -33,7 +33,6 @@
 	"dependencies": {
 		"@codemirror/lang-javascript": "^6.2.4",
 		"@mantine/hooks": "^8.2.5",
-		"@oxidation-compiler/napi": "^0.2.0",
 		"@rsbuild/plugin-react": "^1.3.5",
 		"@tabler/icons-react": "^3.34.1",
 		"@uiw/codemirror-theme-vscode": "^4.25.1",
