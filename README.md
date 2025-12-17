@@ -7,14 +7,14 @@
 ### Install
 
 ```sh
-npm install @live-demo/core @live-demo/plugin-rspress -D
+npm install @live-demo/rspress -D
 ```
 
 ### Register
 
 ```ts
 import { defineConfig } from "rspress/config";
-import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+import { liveDemoPluginRspress } from "@live-demo/rspress";
 
 export default defineConfig({
 	plugins: [liveDemoPluginRspress()],
@@ -41,7 +41,7 @@ export const App = () => {
 ````
 
 
-## Docs 
+## Docs
 
 Usage, examples, API: https://live-demo.pages.dev/guide/getStarted
 

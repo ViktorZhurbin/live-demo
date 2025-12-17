@@ -2,7 +2,7 @@
 title: Get started
 ---
 
-## `@live-demo/plugin-rspress`
+## `@live-demo/rspress`
 
 This plugin turns MDX code blocks and external files into interactive playgrounds with code editor and live preview updates. Try editing code below:
 
@@ -12,13 +12,13 @@ This plugin turns MDX code blocks and external files into interactive playground
 
 import { PackageManagerTabs } from "rspress/theme";
 
-<PackageManagerTabs command="install @live-demo/core @live-demo/plugin-rspress -D" />
+<PackageManagerTabs command="install @live-demo/rspress -D" />
 
 ## Register
 
 ```ts title='rspress.config.ts'
 import { defineConfig } from "rspress/config";
-import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+import { liveDemoPluginRspress } from "@live-demo/rspress";
 
 export default defineConfig({
 	plugins: [liveDemoPluginRspress()],

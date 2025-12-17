@@ -1,8 +1,8 @@
-import "@live-demo/core/web/index.css";
+import "@live-demo/rspress/web/index.css";
 import {
   LiveDemoCore,
   type LiveDemoStringifiedProps,
-} from "@live-demo/core/web";
+} from "@live-demo/rspress/web";
 import { useDark } from "@rspress/core/runtime";
 
 const LiveDemo = (props: LiveDemoStringifiedProps) => {

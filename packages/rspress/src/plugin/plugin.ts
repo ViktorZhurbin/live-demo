@@ -1,14 +1,11 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  type DemoDataByPath,
-  getVirtualModulesCode,
-  htmlTags,
-  type LiveDemoPluginOptions,
-  remarkPlugin,
-  visitFilePaths,
-} from "@live-demo/core";
 import type { RspressPlugin } from "@rspress/core";
+import { htmlTags } from "node/htmlTags";
+import { getVirtualModulesCode } from "node/index";
+import { remarkPlugin } from "node/remarkPlugin";
+import { visitFilePaths } from "node/visitFilePaths";
+import type { DemoDataByPath, LiveDemoPluginOptions } from "shared/types";
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +50,7 @@ export function liveDemoPluginRspress(
   const uniqueImports = new Set(defaultModules.concat(extraModules));
 
   return {
-    name: "@live-demo/plugin-rspress",
+    name: "@live-demo/rspress",
 
     config(config) {
       config.markdown = config.markdown || {};

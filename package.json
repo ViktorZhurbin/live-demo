@@ -7,10 +7,9 @@
 	],
 	"scripts": {
 		"prepublish": "pnpm build:lib",
-		"publish": "pnpm --filter '@live-demo/*' publish",
-		"publish:prerelease": "pnpm --filter '@live-demo/*' publish --tag prerelease",
+		"publish": "pnpm --filter '@live-demo/rspress' publish",
 		"build:web": "pnpm build:lib && pnpm --filter website build",
-		"build:lib": "pnpm --filter '@live-demo/*' build",
+		"build:lib": "pnpm --filter '@live-demo/rspress' build",
 		"format": "biome check --write",
 		"prepare": "husky",
 		"test": "pnpm -r run test",

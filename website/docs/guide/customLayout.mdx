@@ -2,13 +2,13 @@
 title: Custom Layout
 ---
 
-You can customize the default layout using components exported from `@live-demo/core/web`.
+You can customize the default layout using components exported from `@live-demo/rspress/web`.
 
 ## 1. Define layout
 
 ```tsx title="src/CustomLiveDemo/LiveDemo.tsx"
 // don't forget CSS!
-import "@live-demo/core/web/index.css";
+import "@live-demo/rspress/web/index.css";
 import {
   LiveDemoControlPanel,
   LiveDemoEditor,
@@ -18,7 +18,7 @@ import {
   LiveDemoResizablePanels,
   type LiveDemoStringifiedProps,
   LiveDemoWrapper,
-} from "@live-demo/core/web";
+} from "@live-demo/rspress/web";
 import { useDark } from "rspress/runtime";
 
 const CustomLiveDemo = (props: LiveDemoStringifiedProps) => {
@@ -64,7 +64,7 @@ export default CustomLiveDemo;
 
 ```ts
 import * as path from "node:path";
-import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+import { liveDemoPluginRspress } from "@live-demo/rspress";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({

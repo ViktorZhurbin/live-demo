@@ -1,5 +1,5 @@
 // don't forget CSS!
-import "@live-demo/core/web/index.css";
+import "@live-demo/rspress/web/index.css";
 import {
   LiveDemoControlPanel,
   LiveDemoEditor,
@@ -9,7 +9,7 @@ import {
   LiveDemoResizablePanels,
   type LiveDemoStringifiedProps,
   LiveDemoWrapper,
-} from "@live-demo/core/web";
+} from "@live-demo/rspress/web";
 import { useDark } from "rspress/runtime";
 
 const CustomLiveDemo = (props: LiveDemoStringifiedProps) => {

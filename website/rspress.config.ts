@@ -1,5 +1,5 @@
 import * as path from "node:path";
-import { liveDemoPluginRspress } from "@live-demo/plugin-rspress";
+import { liveDemoPluginRspress } from "@live-demo/rspress";
 import { defineConfig } from "rspress/config";
 
 export default defineConfig({

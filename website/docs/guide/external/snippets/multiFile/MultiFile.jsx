@@ -1,4 +1,4 @@
-import { Button } from "@live-demo/core/web";
+import { Button } from "@live-demo/rspress/web";
 import { useState } from "react";
 
 // local import

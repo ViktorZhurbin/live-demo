@@ -1,20 +1,20 @@
 {
-	"name": "@live-demo/core",
-	"version": "0.2.0",
-	"description": "Core components for @live-demo plugins.",
+	"name": "@live-demo/rspress",
+	"version": "1.0.0",
+	"description": "Rspress plugin for interactive live demos.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ViktorZhurbin/live-demo.git",
-		"directory": "packages/core"
+		"directory": "packages/rspress"
 	},
 	"homepage": "https://live-demo.pages.dev",
 	"license": "MIT",
 	"exports": {
 		".": {
-			"types": "./dist/node/index.d.ts",
-			"import": "./dist/node/index.mjs",
-			"default": "./dist/node/index.mjs"
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"default": "./dist/index.mjs"
 		},
 		"./web": {
 			"types": "./dist/web/index.d.ts",
@@ -24,7 +24,8 @@
 		"./web/index.css": "./dist/web/index.css"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"static"
 	],
 	"scripts": {
 		"build": "tsdown",
@@ -42,6 +43,8 @@
 		"@uiw/react-codemirror": "^4.25.4",
 		"clsx": "^2.1.1",
 		"oxc-parser": "^0.103.0",
+		"react": "^19",
+		"react-dom": "^19",
 		"react-error-boundary": "^6.0.0",
 		"react-resizable-panels": "^3.0.4"
 	},
@@ -49,12 +52,14 @@
 		"@babel/types": "^7.28.5",
 		"@oxc-project/types": "^0.103.0",
 		"@rollup/browser": "^4.53.5",
+		"@rspress/core": "^1.47.0",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
 		"@types/node": "^24.9.2",
 		"@types/react": "^19",
+		"@types/react-dom": "^19",
 		"react": "^19",
 		"tsdown": "^0.18.1",
 		"typescript": "^5.9.3",
@@ -75,7 +80,9 @@
 		"registry": "https://registry.npmjs.org/"
 	},
 	"keywords": [
-		"react",
+		"rspress",
+		"@rspress/core",
+		"plugin",
 		"live-demo",
 		"playground",
 		"live-code",

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { pluginResolveModules } from "web/ui/preview/LiveDemoCodeRunner/compiler/rollup/pluginResolveModules";
 import type { LiveDemoFiles } from "shared/types";
+import { pluginResolveModules } from "web/ui/preview/LiveDemoCodeRunner/compiler/rollup/pluginResolveModules";
 
 describe("pluginResolveModules", () => {
 	it("should resolve exact file name match", () => {

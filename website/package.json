@@ -1,6 +1,6 @@
 {
 	"name": "website",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"private": true,
 	"license": "MIT",
 	"scripts": {
@@ -10,8 +10,7 @@
 		"bundle-analyze": "BUNDLE_ANALYZE=true pnpm run build"
 	},
 	"dependencies": {
-		"@live-demo/core": "workspace:*",
-		"@live-demo/plugin-rspress": "workspace:*",
+		"@live-demo/rspress": "workspace:*",
 		"@react-three/drei": "^10.7.6",
 		"@react-three/fiber": "^9.4.0",
 		"@react-three/postprocessing": "^3.0.4",
