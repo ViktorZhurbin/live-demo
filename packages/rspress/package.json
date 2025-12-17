@@ -1,6 +1,6 @@
 {
 	"name": "@live-demo/rspress",
-	"version": "2.0.0-rc.2",
+	"version": "2.0.3-rc.2",
 	"description": "Rspress plugin for interactive live demos.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
@@ -67,6 +67,10 @@
 		"vitest": "^4.0.16"
 	},
 	"peerDependencies": {
+		"@codemirror/autocomplete": "^6.20.0",
+		"@codemirror/language": "^6.11.3",
+		"@codemirror/lint": "^6.9.2",
+		"@codemirror/search": "^6.5.11",
 		"@mdx-js/mdx": ">=2.3.0",
 		"mdast-util-mdx": ">=3.0.0",
 		"react": ">=19.0.0",
