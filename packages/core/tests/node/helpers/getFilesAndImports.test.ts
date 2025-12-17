@@ -130,9 +130,7 @@ describe("getFilesAndImports", () => {
     expect(uniqueImports.has("react")).toBe(true);
   });
 
-  // Note: Circular import detection is not implemented
-  // This test documents the expected behavior
-  it.skip("should detect circular imports", () => {
+  it("should detect circular imports", () => {
     const uniqueImports = new Set<string>();
 
     expect(() =>
@@ -144,7 +142,45 @@ describe("getFilesAndImports", () => {
         ) as any,
         uniqueImports,
       }),
-    ).toThrow("circular");
+    ).toThrow("[LiveDemo] Circular import detected");
+  });
+
+  it("should show import chain in circular import error", () => {
+    const uniqueImports = new Set<string>();
+
+    try {
+      getFilesAndImports({
+        fileName: "A.tsx" as any,
+        absolutePath: path.join(
+          FIXTURES_DIR,
+          "invalid/CircularImport/A.tsx",
+        ) as any,
+        uniqueImports,
+      });
+      // Should not reach here
+      expect(true).toBe(false);
+    } catch (error: any) {
+      expect(error.message).toContain("Circular import detected");
+      expect(error.message).toContain("Import chain:");
+      expect(error.message).toContain("A.tsx");
+      expect(error.message).toContain("B.tsx");
+    }
+  });
+
+  it("should detect circular imports starting from B.tsx", () => {
+    const uniqueImports = new Set<string>();
+
+    // Test that detection works regardless of entry point
+    expect(() =>
+      getFilesAndImports({
+        fileName: "B.tsx" as any,
+        absolutePath: path.join(
+          FIXTURES_DIR,
+          "invalid/CircularImport/B.tsx",
+        ) as any,
+        uniqueImports,
+      }),
+    ).toThrow("[LiveDemo] Circular import detected");
   });
 
   it("should throw error for missing local import", () => {

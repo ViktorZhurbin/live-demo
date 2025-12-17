@@ -8,8 +8,25 @@ export const getFilesAndImports = (params: {
   fileName: PathWithAllowedExt;
   absolutePath: PathWithAllowedExt;
   uniqueImports: UniqueImports;
+  visited?: Set<string>;
 }) => {
   const { absolutePath, fileName, uniqueImports } = params;
+
+  // Circular import detection
+  const visited = params.visited || new Set<string>();
+
+  if (visited.has(absolutePath)) {
+    const chain = Array.from(visited)
+      .map((p) => path.basename(p))
+      .join(" → ");
+
+    throw new Error(
+      `[LiveDemo] Circular import detected: ${fileName}\n` +
+        `Import chain: ${chain} → ${fileName}`,
+    );
+  }
+
+  visited.add(absolutePath);
 
   const { files, ast } = getFilesAndAst({
     absolutePath,
@@ -30,6 +47,7 @@ export const getFilesAndImports = (params: {
 
       const nested = getFilesAndImports({
         uniqueImports,
+        visited,
         ...fileInfo,
       });
 
