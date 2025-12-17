@@ -1,12 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 import { getFnFromString } from "web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
 
+const PREDEFINED_LIB_NAME = "predefined-lib";
+
 // Mock the virtual modules import - must be inline due to hoisting
 vi.mock("_live_demo_virtual_modules", () => ({
 	default: (moduleName: string, _getDefault?: boolean) => {
-		// Simple mock that returns mock React for testing
 		if (moduleName === "react") {
 			return { createElement: () => ({}) };
+		}
+		if (moduleName === PREDEFINED_LIB_NAME) {
+			// Badge exists, but Card doesn't (simulating V2 where Card was removed)
+			return {
+				Badge: () => ({ type: "component" }),
+				// Card is intentionally missing
+			};
 		}
 		throw new Error(`Can't resolve ${moduleName}`);
 	},
@@ -183,5 +191,28 @@ describe("getFnFromString", () => {
 		const result = getFnFromString(code);
 
 		expect(result({})).toBe("object");
+	});
+
+	describe("undefined import detection", () => {
+		it("should throw error when importing non-existent named export", () => {
+			const code = `
+        const { Badge, Card } = __get_import('${PREDEFINED_LIB_NAME}', false);
+        if (Card === undefined) {
+          throw new Error("[LiveDemo] Import 'Card' from '${PREDEFINED_LIB_NAME}' is undefined. This export may not exist in this version of the package.");
+        }
+        exports.default = () => ({ type: Card });
+      `;
+
+			expect(() => getFnFromString(code)).toThrow(/Import.*is undefined/i);
+		});
+
+		it("should succeed when all named exports exist", () => {
+			const code = `
+        const { Badge } = __get_import('${PREDEFINED_LIB_NAME}', false);
+        exports.default = () => ({ type: Badge });
+      `;
+
+			expect(() => getFnFromString(code)).not.toThrow();
+		});
 	});
 });

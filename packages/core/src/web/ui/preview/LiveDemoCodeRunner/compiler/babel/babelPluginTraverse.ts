@@ -37,13 +37,14 @@ export const babelPluginTraverse = (): PluginItem => {
             code.push(node);
           }
 
-          // import { a, b, importedName: localName } from 'pkg'
+          // import { a, b, importedName as localName } from 'pkg'
           if (specifier.type === "ImportSpecifier") {
             if (
               "name" in specifier.imported &&
               specifier.imported.name !== specifier.local.name
             ) {
-              // import { importedName: localName } from 'pkg'
+              // import { importedName as localName } from 'pkg'
+              // Stored internally as "importedName: localName" for destructuring
               namedImports.push(
                 `${specifier.imported.name}: ${specifier.local.name}`,
               );
@@ -56,9 +57,24 @@ export const babelPluginTraverse = (): PluginItem => {
 
         if (namedImports.length > 0) {
           const imported = `{ ${namedImports.join(", ")} }`;
-          const node = createGetImportDeclaration({ pkg, imported });
+          const importNode = createGetImportDeclaration({ pkg, imported });
+          code.push(importNode);
 
-          code.push(node);
+          // Add validation for each named import
+          const importNames = namedImports.map((importString) => {
+            // Extract local name from internal format: "importedName: localName" -> "localName"
+            const parts = importString.split(":").map((part) => part.trim());
+
+            return parts.at(-1);
+          });
+
+          for (const importName of importNames) {
+            const validationNode = createImportValidationError({
+              pkg,
+              importName,
+            });
+            code.push(validationNode);
+          }
         }
 
         path.replaceWithMultiple(code);
@@ -106,4 +122,21 @@ function createGetImportDeclaration({
   const importString = `const ${imported} = ${getImport}`;
 
   return getParsedVariableDeclaration(importString);
+}
+
+function createImportValidationError({
+  importName,
+  pkg,
+}: {
+  importName?: string;
+  pkg: string;
+}) {
+  const validationCode = `
+    if (${importName} === undefined) {
+      throw new Error("[LiveDemo] Import '${importName}' from '${pkg}' is undefined. This export may not exist in this version of the package.");
+    }
+  `;
+
+  const parsed = window.Babel?.packages.parser.parse(validationCode);
+  return parsed.program.body[0];
 }
