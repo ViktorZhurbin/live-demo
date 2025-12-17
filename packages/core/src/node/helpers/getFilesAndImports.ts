@@ -36,14 +36,28 @@ export const getFilesAndImports = (params: {
   const allFiles = { ...files };
 
   for (const statement of ast.body) {
-    if (statement.type !== "ImportDeclaration") continue;
+    // Handle both imports and export re-exports
+    let sourcePath: string | undefined;
 
-    const importPath = statement.source.value;
+    if (statement.type === "ImportDeclaration") {
+      sourcePath = statement.source.value;
+    } else if (
+      statement.type === "ExportNamedDeclaration" &&
+      statement.source
+    ) {
+      // Handle: export { Button } from './Button'
+      sourcePath = statement.source.value;
+    } else if (statement.type === "ExportAllDeclaration") {
+      // Handle: export * from './components'
+      sourcePath = statement.source.value;
+    }
+
+    if (!sourcePath) continue;
 
     // Support local imports and multi-file demos
-    if (isRelativeImport(importPath)) {
+    if (isRelativeImport(sourcePath)) {
       const dirname = path.dirname(absolutePath);
-      const fileInfo = resolveFileInfo({ importPath, dirname });
+      const fileInfo = resolveFileInfo({ importPath: sourcePath, dirname });
 
       const nested = getFilesAndImports({
         uniqueImports,
@@ -53,7 +67,7 @@ export const getFilesAndImports = (params: {
 
       Object.assign(allFiles, nested.files);
     } else {
-      uniqueImports.add(importPath);
+      uniqueImports.add(sourcePath);
     }
   }
 

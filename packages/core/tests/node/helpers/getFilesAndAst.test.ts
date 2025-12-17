@@ -13,7 +13,10 @@ describe("getFilesAndAst", () => {
 
     expect(result.files).toHaveProperty("SimpleComponent.tsx");
     expect(result.files["SimpleComponent.tsx"]).toContain(
-      "export default function SimpleComponent",
+      "export function SimpleComponent",
+    );
+    expect(result.files["SimpleComponent.tsx"]).toContain(
+      "export default SimpleComponent",
     );
     expect(result.ast).toBeDefined();
     expect(result.ast.type).toBe("Program");

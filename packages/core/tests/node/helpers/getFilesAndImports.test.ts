@@ -211,4 +211,54 @@ describe("getFilesAndImports", () => {
     expect(Object.keys(result.files).length).toBeGreaterThan(0);
     expect(result.files["App.tsx"]).toBeDefined();
   });
+
+  it("should resolve files from export re-exports", () => {
+    const uniqueImports = new Set<string>();
+
+    const result = getFilesAndImports({
+      fileName: "ReexportIndex.tsx" as any,
+      absolutePath: path.join(FIXTURES_DIR, "valid/ReexportIndex.tsx") as any,
+      uniqueImports,
+    });
+
+    // Should include the index file and all re-exported files
+    expect(result.files).toHaveProperty("ReexportIndex.tsx");
+    expect(result.files).toHaveProperty("Button.tsx");
+    expect(result.files).toHaveProperty("SimpleComponent.tsx");
+    expect(result.files).toHaveProperty("ComponentWithImports.tsx");
+
+    // Should collect external imports from re-exported files
+    expect(uniqueImports.has("react")).toBe(true);
+  });
+
+  it("should handle export * from relative path", () => {
+    const uniqueImports = new Set<string>();
+
+    const result = getFilesAndImports({
+      fileName: "ReexportIndex.tsx" as any,
+      absolutePath: path.join(FIXTURES_DIR, "valid/ReexportIndex.tsx") as any,
+      uniqueImports,
+    });
+
+    // export * from './ComponentWithImports' should resolve the file
+    expect(result.files).toHaveProperty("ComponentWithImports.tsx");
+  });
+
+  it("should handle mixed local exports and re-exports", () => {
+    const uniqueImports = new Set<string>();
+
+    const result = getFilesAndImports({
+      fileName: "ReexportWithLocal.tsx" as any,
+      absolutePath: path.join(FIXTURES_DIR, "valid/ReexportWithLocal.tsx") as any,
+      uniqueImports,
+    });
+
+    // Should include the file itself and re-exported files
+    expect(result.files).toHaveProperty("ReexportWithLocal.tsx");
+    expect(result.files).toHaveProperty("Button.tsx");
+    expect(result.files).toHaveProperty("SimpleComponent.tsx");
+
+    // Should not break when there are local exports too
+    expect(result.files["ReexportWithLocal.tsx"]).toContain("localValue");
+  });
 });
