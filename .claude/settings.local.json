@@ -2,11 +2,7 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(pnpm run build:*)",
-      "Bash(pnpm install:*)",
-      "Bash(pnpm add:*)",
-      "Bash(pnpm run format:*)",
-      "Bash(pnpm test:*)",
+      "mcp__ide__getDiagnostics",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",
@@ -17,7 +13,13 @@
       "Bash(tree:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "mcp__ide__getDiagnostics"
+      "Bash(pnpm run build:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm run format:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(pnpm exec vitest:*)"
     ],
     "deny": [],
     "ask": []

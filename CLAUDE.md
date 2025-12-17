@@ -63,12 +63,13 @@ packages/core/tests/
 └── integration/          # End-to-end tests
 ```
 
-### Current Test Coverage (as of 2025)
-- **55 tests passing** covering critical paths
-- **Shared utilities:** Path resolution, import detection, JSON parsing
-- **Build-time:** File resolution, AST parsing (oxc-parser), import graph traversal, virtual module generation
-- **Runtime:** Babel/Rollup compilation pipeline tests (in progress)
-- **Integration:** End-to-end MDX → runtime execution (planned)
+### Current Test Coverage (as of December 2025)
+- **78 tests passing, 4 skipped** covering all critical paths
+- **8 test files** across shared, node (build-time), and web (runtime) directories
+- **Shared utilities (24 tests):** Path resolution, import detection, JSON parsing
+- **Build-time (31 tests):** File resolution, AST parsing (oxc-parser), import graph traversal, virtual module generation
+- **Runtime (23 tests):** Rollup module resolution, code execution pipeline, Function constructor usage
+- **Integration:** End-to-end tests (future work)
 
 ### Key Test Areas
 1. **Path Resolution** - Ensures Node and browser resolve files identically
@@ -98,14 +99,29 @@ describe("myFunction", () => {
 });
 ```
 
+### Test Coverage Breakdown
+**Shared Utilities (24 tests):**
+- ✅ Path helpers: extension inference, relative imports, getPossiblePaths
+- ✅ Props parsing: JSON stringification/parsing with special characters
+
+**Build-Time / Node (31 tests):**
+- ✅ Virtual module generation: import mapping, module escaping
+- ✅ File resolution: extension inference, nested paths, error handling
+- ✅ AST parsing: oxc-parser integration, TypeScript support
+- ✅ Import graph traversal: recursive resolution, local vs external detection
+
+**Runtime / Web (23 tests):**
+- ✅ Rollup module resolution: in-memory files, relative imports, consistency with node-side
+- ✅ Code execution: Function constructor, closure handling, getImport injection
+
 ### Known Gaps (Future Work)
-- Circular import detection not implemented (test skipped)
-- Error handling for invalid JSON parsing (test skipped)
-- Error handling for oxc-parser failures (test skipped)
-- MDX remark plugin tests (complex, requires mocking)
-- Full runtime compiler test coverage (Babel/Rollup plugins)
-- Integration tests for multi-file demos
-- Component testing with React Testing Library
+- ⏭️ Circular import detection not implemented (test skipped)
+- ⏭️ Error handling for invalid JSON parsing (test skipped)
+- ⏭️ Error handling for oxc-parser failures (test skipped)
+- ⏭️ Babel transformation tests (requires window.Babel mock setup)
+- ⏭️ MDX remark plugin tests (complex, requires unified/remark mocking)
+- ⏭️ Integration tests for full pipeline (MDX → virtual modules → runtime)
+- ⏭️ Component testing with React Testing Library
 
 ## Project Structure
 
