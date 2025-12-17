@@ -32,6 +32,80 @@ This is a **monorepo for an Rspress plugin** that transforms code blocks into li
 - **Biome** - Formatting and linting (no ESLint/Prettier)
 - **CodeMirror** - Code editor with VS Code themes
 - **react-resizable-panels** - Split pane layout
+- **Vitest** - Testing framework with dual environment support
+
+## Testing
+
+### Test Infrastructure
+- **Framework:** Vitest v4 with native ESM support
+- **Environments:** Node (build-time tests) + jsdom (runtime tests)
+- **Location:** `/packages/core/tests/`
+- **Run tests:** `pnpm test` (root) or `pnpm -F @live-demo/core test`
+- **Watch mode:** `pnpm test:watch`
+- **Coverage:** `pnpm test:coverage`
+
+### Test Structure
+```
+packages/core/tests/
+├── fixtures/              # Test fixtures (valid/invalid components, MDX files)
+│   ├── valid/            # Working React components
+│   ├── invalid/          # Broken code for error testing
+│   └── mdx/              # MDX file examples
+├── shared/               # Shared utility tests (pathHelpers, parseProps)
+├── node/helpers/         # Build-time logic tests
+│   ├── resolveFileInfo.test.ts
+│   ├── getFilesAndAst.test.ts
+│   ├── getFilesAndImports.test.ts
+│   └── getVirtualModulesCode.test.ts
+├── web/compiler/         # Runtime compilation tests
+│   ├── babel/            # Babel transformation tests
+│   └── rollup/           # Rollup bundling tests
+└── integration/          # End-to-end tests
+```
+
+### Current Test Coverage (as of 2025)
+- **55 tests passing** covering critical paths
+- **Shared utilities:** Path resolution, import detection, JSON parsing
+- **Build-time:** File resolution, AST parsing (oxc-parser), import graph traversal, virtual module generation
+- **Runtime:** Babel/Rollup compilation pipeline tests (in progress)
+- **Integration:** End-to-end MDX → runtime execution (planned)
+
+### Key Test Areas
+1. **Path Resolution** - Ensures Node and browser resolve files identically
+2. **Import Analysis** - Tests recursive import resolution and external dependency detection
+3. **oxc-parser Integration** - Validates TypeScript/JSX parsing
+4. **Virtual Module Generation** - Tests dependency injection code generation
+5. **Babel Transformations** - Tests import/export rewriting and React auto-import
+6. **Rollup Bundling** - Tests in-browser module bundling
+
+### Writing Tests
+**Pattern for new tests:**
+1. Create test file in appropriate directory (shared/node/web/integration)
+2. Import from path aliases (`node/*`, `web/*`, `shared/*`)
+3. Use test fixtures from `tests/fixtures/` for realistic test data
+4. Test behavior, not implementation details
+5. Add `.skip` for tests requiring features not yet implemented
+
+**Example:**
+```typescript
+import { describe, it, expect } from "vitest";
+import { myFunction } from "shared/myModule";
+
+describe("myFunction", () => {
+  it("should handle valid input", () => {
+    expect(myFunction("input")).toBe("output");
+  });
+});
+```
+
+### Known Gaps (Future Work)
+- Circular import detection not implemented (test skipped)
+- Error handling for invalid JSON parsing (test skipped)
+- Error handling for oxc-parser failures (test skipped)
+- MDX remark plugin tests (complex, requires mocking)
+- Full runtime compiler test coverage (Babel/Rollup plugins)
+- Integration tests for multi-file demos
+- Component testing with React Testing Library
 
 ## Project Structure
 

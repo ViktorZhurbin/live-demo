@@ -21,6 +21,6 @@
     }
   },
 
-  "include": ["src", "static"],
+  "include": ["src", "static", "tests"],
   "exclude": ["node_modules", "dist"]
 }

@@ -12,10 +12,13 @@
 		"build:web": "pnpm build:lib && pnpm --filter website build",
 		"build:lib": "pnpm --filter '@live-demo/*' build",
 		"format": "biome check --write",
-		"prepare": "husky"
+		"prepare": "husky",
+		"test": "pnpm -r run test",
+		"test:ui": "pnpm -r run test:ui",
+		"test:coverage": "pnpm -r run test:coverage"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.2.0",
+		"@biomejs/biome": "2.3.9",
 		"husky": "^9.1.7"
 	},
 	"engines": {

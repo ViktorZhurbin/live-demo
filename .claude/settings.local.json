@@ -2,11 +2,11 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(npm run build:*)",
+      "Bash(pnpm run build:*)",
       "Bash(pnpm install:*)",
       "Bash(pnpm add:*)",
-      "Bash(npm run format:*)",
-      "Bash(npm test:*)",
+      "Bash(pnpm run format:*)",
+      "Bash(pnpm test:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git checkout:*)",

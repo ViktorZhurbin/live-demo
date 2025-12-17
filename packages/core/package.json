@@ -28,7 +28,11 @@
 	],
 	"scripts": {
 		"build": "tsdown",
-		"dev": "tsdown --watch"
+		"dev": "tsdown --watch",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest run --coverage"
 	},
 	"dependencies": {
 		"@codemirror/lang-javascript": "^6.2.4",
@@ -46,15 +50,21 @@
 		"@babel/types": "^7.28.2",
 		"@oxc-project/types": "^0.82.1",
 		"@rollup/browser": "^4.46.2",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.1",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^3.0.15",
 		"@types/node": "^24.9.2",
 		"@types/react": "^19",
+		"@vitest/ui": "^4.0.16",
+		"happy-dom": "^20.0.11",
+		"jsdom": "^27.3.0",
 		"react": "^19",
 		"tsdown": "^0.14.1",
 		"typescript": "^5.9.2",
-		"unplugin-lightningcss": "^0.4.1"
+		"unplugin-lightningcss": "^0.4.1",
+		"vitest": "^4.0.16"
 	},
 	"peerDependencies": {
 		"@mdx-js/mdx": ">=2.3.0",
