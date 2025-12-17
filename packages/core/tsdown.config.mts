@@ -3,6 +3,7 @@ import lightningCss from "unplugin-lightningcss/rolldown";
 
 const sharedConfig: UserConfig = {
   dts: true,
+  hash: false,
 };
 
 export default defineConfig([
