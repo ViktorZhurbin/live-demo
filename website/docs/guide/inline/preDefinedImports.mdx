@@ -2,25 +2,20 @@
 title: Pre-defined imports
 ---
 
-import { Tab, Tabs } from "rspress/theme";
+import { Tab, Tabs } from "@rspress/core/theme";
 
-By default, imports from `"rspress/theme"` and `"react"` are available.
+By default, imports from `"@rspress/core/theme"` and `"react"` are available.
 
 ## Using built-in Rspress components
 
 <Tabs>
   <Tab label="Live">
     ```jsx live
-    import { Badge, Card, SwitchAppearance } from "rspress/theme"
+    import { Badge } from "@rspress/core/theme"
 
     export const App = () => {
       return (
-        <div>
-          <SwitchAppearance />
-          <br />
-          <Badge type="info">Some Badge</Badge>
-          <Card title="Card Title" content="Card Content" />
-        </div>
+        <Badge type="info">Some Badge</Badge>
       )
     }
     ```
@@ -29,16 +24,11 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
     <pre>
       ````
       ```jsx live
-      import { Badge, Card, SwitchAppearance } from "rspress/theme"
+      import { Badge } from "@rspress/core/theme"
 
       export const App = () => {
         return (
-          <div>
-            <SwitchAppearance />
-            <br />
-            <Badge type="info">Some Badge</Badge>
-            <Card title="Card Title" content="Card Content" />
-          </div>
+          <Badge type="info">Some Badge</Badge>
         )
       }
       ```
@@ -53,7 +43,6 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
   <Tab label="Live">
     ```jsx live
     import React from "react"
-    import { Card } from "rspress/theme"
 
     export const App = () => {
       const [count, setCount] = React.useState(0)
@@ -71,12 +60,7 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
       )
 
       return (
-        <div>
-          <Card
-            title={`Count is: ${count}`}
-            content={button}
-          />
-        </div>
+        <div>Count is: {count}</div>
       )
     }
     ```
@@ -87,7 +71,6 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
       ````
       ```jsx live
       import React from "react"
-      import { Card } from "rspress/theme"
 
       export const App = () => {
         const [count, setCount] = React.useState(0)
@@ -105,12 +88,7 @@ By default, imports from `"rspress/theme"` and `"react"` are available.
         )
 
         return (
-          <div>
-            <Card
-              title={`Count is: ${count}`}
-              content={button}
-            />
-          </div>
+          <div>Count is: {count}</div>
         )
       }
       ```

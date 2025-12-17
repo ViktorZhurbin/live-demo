@@ -19,7 +19,7 @@ import {
   type LiveDemoStringifiedProps,
   LiveDemoWrapper,
 } from "@live-demo/rspress/web";
-import { useDark } from "rspress/runtime";
+import { useDark } from "@rspress/core/runtime";
 
 const CustomLiveDemo = (props: LiveDemoStringifiedProps) => {
   // the core library doesn't have Rspress context,
@@ -64,8 +64,12 @@ export default CustomLiveDemo;
 
 ```ts
 import * as path from "node:path";
-import { liveDemoPluginRspress } from "@live-demo/rspress";
+// Rspress v1
 import { defineConfig } from "rspress/config";
+// Rspress v2
+import { defineConfig } from "@rspress/core";
+
+import { liveDemoPluginRspress } from "@live-demo/rspress";
 
 export default defineConfig({
   plugins: [

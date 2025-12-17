@@ -1,6 +1,6 @@
 {
 	"name": "@live-demo/rspress",
-	"version": "1.0.0",
+	"version": "2.0.0-rc.2",
 	"description": "Rspress plugin for interactive live demos.",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
 	"repository": {
@@ -52,7 +52,7 @@
 		"@babel/types": "^7.28.5",
 		"@oxc-project/types": "^0.103.0",
 		"@rollup/browser": "^4.53.5",
-		"@rspress/core": "^1.47.0",
+		"@rspress/core": "2.0.0-rc.2",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
@@ -69,10 +69,10 @@
 	"peerDependencies": {
 		"@mdx-js/mdx": ">=2.3.0",
 		"mdast-util-mdx": ">=3.0.0",
-		"react": ">=17.0.0",
-		"react-dom": ">=17.0.0",
+		"react": ">=19.0.0",
+		"react-dom": ">=19.0.0",
 		"remark-gfm": ">=3.0.0",
-		"unified": ">=10.0.0",
+		"unified": ">=11.0.0",
 		"unist-util-visit": ">=4.0.0"
 	},
 	"publishConfig": {

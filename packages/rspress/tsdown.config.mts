@@ -30,6 +30,7 @@ export default defineConfig([
   {
     entry: ["./src/plugin/index.ts"],
     platform: "node",
+    external: ["_live_demo_virtual_modules"],
     outDir: "dist",
     dts: true,
     hash: false,

@@ -15,7 +15,11 @@ title: Other imports
 `includeModules` option allows you to define modules that will be available in all demos. For example:
 
 ```ts title='rspress.config.ts'
+// Rspress v1
 import { defineConfig } from "rspress/config";
+// Rspress v2
+import { defineConfig } from "@rspress/core";
+
 import { liveDemoPluginRspress } from "@live-demo/rspress";
 
 export default defineConfig({

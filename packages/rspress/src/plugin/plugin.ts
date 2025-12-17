@@ -31,7 +31,7 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 /**
  * Included by default for every demo
  **/
-const defaultModules = ["react", "rspress/theme"];
+const defaultModules = ["react", "@rspress/core/theme"];
 
 export function liveDemoPluginRspress(
   options?: LiveDemoPluginRspressOptions,
@@ -51,16 +51,6 @@ export function liveDemoPluginRspress(
 
   return {
     name: "@live-demo/rspress",
-
-    config(config) {
-      config.markdown = config.markdown || {};
-      // disable Rust compiler to use
-      // markdown.remarkPlugins and markdown.globalComponents
-      // https://rspress.dev/api/config/config-build#markdownglobalcomponents
-      config.markdown.mdxRs = false;
-
-      return config;
-    },
 
     async routeGenerated(routes) {
       const filePaths = routes.map((route) => route.absolutePath);

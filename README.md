@@ -7,13 +7,21 @@
 ### Install
 
 ```sh
-npm install @live-demo/rspress -D
+// Rspress v1
+npm install @live-demo/rspress
+
+// Rspress v2
+npm install @live-demo/rspress@next
 ```
 
 ### Register
 
 ```ts
+// Rspress v1
 import { defineConfig } from "rspress/config";
+// Rspress v2
+import { defineConfig } from "@rspress/core";
+
 import { liveDemoPluginRspress } from "@live-demo/rspress";
 
 export default defineConfig({
