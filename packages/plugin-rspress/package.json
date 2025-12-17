@@ -31,7 +31,7 @@
 		"react-dom": "^19"
 	},
 	"devDependencies": {
-		"@rspress/core": "^1.45.8",
+		"@rspress/core": "^1.47.0",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"tsdown": "^0.14.1",
