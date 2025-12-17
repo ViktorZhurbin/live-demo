@@ -19,7 +19,7 @@
 		"react": "^19",
 		"react-dom": "^19",
 		"rspress": "^1.47.0",
-		"three": "^0.179.1"
+		"three": "^0.182.0"
 	},
 	"devDependencies": {
 		"@types/react": "^19",
