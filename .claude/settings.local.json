@@ -20,7 +20,8 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm exec tsc:*)",
       "Bash(pnpm exec vitest:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(pnpm --filter '@live-demo/rspress' build)"
     ],
     "deny": [],
     "ask": []

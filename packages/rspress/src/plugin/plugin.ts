@@ -1,8 +1,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { RspressPlugin } from "@rspress/core";
+import { getVirtualModulesCode } from "node/helpers/getVirtualModulesCode";
 import { htmlTags } from "node/htmlTags";
-import { getVirtualModulesCode } from "node/index";
 import { remarkPlugin } from "node/remarkPlugin";
 import { visitFilePaths } from "node/visitFilePaths";
 import type { DemoDataByPath, LiveDemoPluginOptions } from "shared/types";

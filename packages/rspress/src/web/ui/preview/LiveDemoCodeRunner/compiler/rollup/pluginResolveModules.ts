@@ -23,7 +23,7 @@ export const pluginResolveModules = (files: LiveDemoFiles): Plugin => {
       if (isRelativeImport(source)) {
         const fileName = stripRelativeImport(source);
 
-        // same helper should be used in node/, check `getFilesAndImports`
+        // same helper should be used in node/, check `buildModuleGraph`
         const pathsToCheck = getPossiblePaths(fileName);
 
         for (const checkedPath of pathsToCheck) {
