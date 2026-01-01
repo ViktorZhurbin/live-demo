@@ -14,7 +14,7 @@
 		"@react-three/drei": "^10.7.6",
 		"@react-three/fiber": "^9.4.0",
 		"@react-three/postprocessing": "^3.0.4",
-		"@rspress/core": "2.0.0-rc.2",
+		"@rspress/core": "2.0.0-rc.4",
 		"clsx": "^2.1.1",
 		"react": "^19",
 		"react-dom": "^19",

@@ -91,8 +91,8 @@ importers:
         specifier: ^4.53.5
         version: 4.53.5
       '@rspress/core':
-        specifier: 2.0.0-rc.2
-        version: 2.0.0-rc.2(@types/react@19.2.7)
+        specifier: 2.0.0-rc.4
+        version: 2.0.0-rc.4(@types/react@19.2.7)
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -142,8 +142,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(@react-three/fiber@9.4.2(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(three@0.182.0))(@types/three@0.182.0)(react@19.2.3)(three@0.182.0)
       '@rspress/core':
-        specifier: 2.0.0-rc.2
-        version: 2.0.0-rc.2(@types/react@19.2.7)
+        specifier: 2.0.0-rc.4
+        version: 2.0.0-rc.4(@types/react@19.2.7)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1021,9 +1021,9 @@ packages:
       webpack-hot-middleware:
         optional: true
 
-  '@rspress/core@2.0.0-rc.2':
-    resolution: {integrity: sha512-gs33kIrkYKHk3y1ytPfoHPpgp2ifXdS67sPEeB/lrCI6ad2wcGuXYcchic0WPzUZO9bKqje4z3jJxqEafBmgBg==}
-    engines: {node: '>=18.0.0'}
+  '@rspress/core@2.0.0-rc.4':
+    resolution: {integrity: sha512-EHJjbc8yA/La6sJN3bjZus24KhSCdh5lEIVtjt7EBEnLteDN+wULzO1sFKj8agH3BXYE0XOuz2W1HbTTGfcGJQ==}
+    engines: {node: '>=20.9.0'}
     hasBin: true
 
   '@rspress/mdx-rs-darwin-arm64@0.6.6':
@@ -1078,12 +1078,12 @@ packages:
     resolution: {integrity: sha512-NpNhTKBIlV3O6ADhoZkgHvBFvXMW2TYlIWmIT1ysJESUBqDpaN9H3Teve5fugjU2pQ2ORBZO6SQGKliMw/8m/Q==}
     engines: {node: '>= 10'}
 
-  '@rspress/runtime@2.0.0-rc.2':
-    resolution: {integrity: sha512-DkHvSEzwBrL9mLv5DGBk3oKFkMgpRtNhV0I2TfutlEerqKiq4WloFt6NXKkyhGsHU78DdtBVUgsZvXQKVQ6PHg==}
-    engines: {node: '>=18.0.0'}
+  '@rspress/runtime@2.0.0-rc.4':
+    resolution: {integrity: sha512-BcNs6zpIXcWfhXGCDS525HDwSgLXO+S+q2Ty6sQPmyYJzOg+V9tHIlulKTOfuBCyEhTZeTAJofP4+rG4EZBUgw==}
+    engines: {node: '>=20.9.0'}
 
-  '@rspress/shared@2.0.0-rc.2':
-    resolution: {integrity: sha512-CnU/ok1/tJHYqB3wf9mk7/YDNzfiQK7LHX1cWyqbWD6cdAdl+S9QVUKRossqGDgD1YdaKTaFsNpsK1c43XmIuw==}
+  '@rspress/shared@2.0.0-rc.4':
+    resolution: {integrity: sha512-46jTwxV8SRLMbe3euCEMWQudmdYE2Tf+EN/5l6EP10i6QICOXMIzUFFWfr0LOTr4aZCSTSJu7Tp6Xxml6JbheA==}
 
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
@@ -3579,15 +3579,15 @@ snapshots:
       html-entities: 2.6.0
       react-refresh: 0.18.0
 
-  '@rspress/core@2.0.0-rc.2(@types/react@19.2.7)':
+  '@rspress/core@2.0.0-rc.4(@types/react@19.2.7)':
     dependencies:
       '@mdx-js/mdx': 3.1.1
       '@mdx-js/react': 3.1.1(@types/react@19.2.7)(react@19.2.3)
       '@rsbuild/core': 1.6.15
       '@rsbuild/plugin-react': 1.4.2(@rsbuild/core@1.6.15)
       '@rspress/mdx-rs': 0.6.6
-      '@rspress/runtime': 2.0.0-rc.2
-      '@rspress/shared': 2.0.0-rc.2
+      '@rspress/runtime': 2.0.0-rc.4
+      '@rspress/shared': 2.0.0-rc.4
       '@shikijs/rehype': 3.20.0
       '@types/unist': 3.0.3
       '@unhead/react': 2.0.19(react@19.2.3)
@@ -3664,15 +3664,15 @@ snapshots:
       '@rspress/mdx-rs-win32-arm64-msvc': 0.6.6
       '@rspress/mdx-rs-win32-x64-msvc': 0.6.6
 
-  '@rspress/runtime@2.0.0-rc.2':
+  '@rspress/runtime@2.0.0-rc.4':
     dependencies:
-      '@rspress/shared': 2.0.0-rc.2
+      '@rspress/shared': 2.0.0-rc.4
       '@unhead/react': 2.0.19(react@19.2.3)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       react-router-dom: 7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
-  '@rspress/shared@2.0.0-rc.2':
+  '@rspress/shared@2.0.0-rc.4':
     dependencies:
       '@rsbuild/core': 1.6.15
       '@shikijs/rehype': 3.20.0
