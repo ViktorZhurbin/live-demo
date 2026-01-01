@@ -1,21 +1,16 @@
 import { Button } from "@live-demo/rspress/web";
 import { useState } from "react";
-
-// local import
-import { Imported } from "./Imported";
+import { Imported } from "./Imported"; // local import (editable)
 
 export const MultiFile = () => {
   const [count, setCount] = useState(0);
-
-  const increment = () => {
-    return setCount(count + 1);
-  };
 
   return (
     <div>
       <Imported count={count} />
       <br />
-      <Button onClick={increment}>Increment</Button>
+      <br />
+      <Button onClick={() => setCount(count + 3)}>Increment</Button>
     </div>
   );
 };

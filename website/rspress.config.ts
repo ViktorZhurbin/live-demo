@@ -51,5 +51,18 @@ export default defineConfig({
           },
         }
       : {},
+
+    tools: {
+      rspack: {
+        module: {
+          rules: [
+            {
+              resourceQuery: /raw/,
+              type: "asset/source",
+            },
+          ],
+        },
+      },
+    },
   },
 });
