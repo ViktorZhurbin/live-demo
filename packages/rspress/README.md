@@ -7,11 +7,11 @@
 ### Install
 
 ```sh
-// Rspress v1
+// Rspress v2
 npm install @live-demo/rspress
 
-// Rspress v2
-npm install @live-demo/rspress@next
+// Rspress v1
+npm install @live-demo/rspress@1
 ```
 
 ### Register
