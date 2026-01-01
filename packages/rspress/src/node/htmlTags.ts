@@ -6,7 +6,7 @@
  * - Rollup: Bundles modules and resolves imports in the browser
  *
  * Why CDN scripts?
- * - Babel and Rollup are large and only needed for the live demo feature
+ * - Babel and Rollup are large and only needed for interactive examples
  * - Loading from CDN keeps the main bundle small
  * - CDN versions are cached across sites
  *

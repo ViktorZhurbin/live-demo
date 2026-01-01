@@ -1,4 +1,4 @@
-# Live Demo plugin for Rspress
+# Live Demo - Interactive Examples for Rspress
 
 ![demo](https://github.com/user-attachments/assets/70744765-a147-41bf-96d8-93f30aded8fb)
 
@@ -33,13 +33,13 @@ export default defineConfig({
 
 Now you can use it in your MDX files in either of the two ways:
 
-1. As an **"external"** demo (snippet in a dedicated file):
+1. As an **"external"** interactive example (snippet in a dedicated file):
 
 ```tsx
 <code src="../snippets/MyDemo.tsx" />
 ```
 
-2. As an **"inline"** demo:
+2. As an **"inline"** interactive example:
 ````tsx
 ```jsx live
 export const App = () => {

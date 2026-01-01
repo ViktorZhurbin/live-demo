@@ -1,11 +1,11 @@
 /**
- * Scans MDX files to find and analyze live demo components
+ * Scans MDX files to find and analyze interactive example components
  *
  * This is Phase 1 of the build process (runs before MDX compilation):
  * 1. Scan all MDX files for <code src="./Demo.tsx" /> elements
- * 2. For each demo, build a complete module graph (all files and dependencies)
+ * 2. For each example, build a complete module graph (all files and dependencies)
  * 3. Collect external imports (react, lodash, etc.) for virtual module generation
- * 4. Store demo data for the remark plugin to use later
+ * 4. Store example data for the remark plugin to use later
  *
  * Why this phase is needed:
  * - We need to analyze demo files before MDX compilation

@@ -2,17 +2,17 @@
 title: Usage
 ---
 
-There's two ways to add a live demo in MDX files. We call them **inline** and **external** demos.
+There's two ways to add an interactive example in MDX files. We call them **inline** and **external** examples.
 
-## External demo
-For more complex code, you can use "external" demos:
+## External example
+For more complex code, you can use "external" examples:
 
 ```tsx
 <code src="./snippets/Component.tsx" />
 ```
 
-## Inline demo
-For simpler cases, you can use "inline" demos:
+## Inline example
+For simpler cases, you can use "inline" examples:
 <pre>
   ````
   ```tsx live
@@ -25,4 +25,4 @@ For simpler cases, you can use "inline" demos:
 
 > [!NOTE]
 >
-> Both inline and external demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
+> Both inline and external examples need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`

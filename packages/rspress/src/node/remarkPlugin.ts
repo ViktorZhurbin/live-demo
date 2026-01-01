@@ -1,13 +1,13 @@
 /**
  * Remark plugin that transforms MDX code blocks and elements into LiveDemo components
  *
- * This plugin runs during MDX compilation and handles two types of live demos:
- * 1. External demos: <code src="./Component.tsx" /> → <LiveDemo files={...} />
- * 2. Inline demos: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
+ * This plugin runs during MDX compilation and handles two types of interactive examples:
+ * 1. External examples: <code src="./Component.tsx" /> → <LiveDemo files={...} />
+ * 2. Inline examples: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
  *
  * Flow:
  * - Rspress build starts
- * - visitFilePaths() scans MDX files and builds demo data (files + dependencies)
+ * - visitFilePaths() scans MDX files and builds example data (files + dependencies)
  * - This plugin transforms AST nodes into LiveDemo components with that data
  * - MDX compiler outputs React components
  */

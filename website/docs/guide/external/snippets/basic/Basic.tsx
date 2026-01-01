@@ -13,6 +13,7 @@ export const Basic = () => {
     <div>
       <Badge type="info">Count is {count}</Badge>
       <br />
+      <br />
       <Button onClick={increment}>Increment</Button>
     </div>
   );

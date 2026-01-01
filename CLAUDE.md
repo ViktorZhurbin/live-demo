@@ -1,8 +1,8 @@
-# Live Demo - Interactive Code Examples for Documentation
+# Live Demo - Interactive Examples for Documentation
 
 ## Overview
 
-Live Demo is an Rspress plugin that transforms code blocks and files into interactive, editable code examples that run in the browser. Think CodeSandbox embedded directly in your documentation.
+This Rspress plugin transforms code blocks and files into interactive, editable examples that run in the browser. Think CodeSandbox embedded directly in your documentation.
 
 **Example Usage:**
 ```mdx
@@ -24,7 +24,7 @@ Both become interactive editors where users can edit code and see results instan
 ### Two-Phase System
 
 **Phase 1: Build Time (Node.js)**
-- Scan MDX files for demo components
+- Scan MDX files for interactive example components
 - Build module graphs (analyze dependencies)
 - Generate virtual module for external imports
 - Inject data into MDX AST
@@ -130,7 +130,7 @@ We need to include ALL files, not just Button.tsx. The module graph tracks this.
 
 **visitFilePaths.ts**
 - Scans MDX files for `<code src="..." />`
-- Builds module graph for each demo
+- Builds module graph for each interactive example
 - Collects external imports
 
 **buildModuleGraph.ts**
@@ -305,7 +305,7 @@ pnpm test --watch
 1. **No CSS modules**: Only supports inline styles or external CSS
 2. **No dynamic imports**: All imports must be static
 3. **No Node.js APIs**: Runs in browser sandbox
-4. **File size**: Large demos (>100KB) may be slow
+4. **File size**: Large interactive examples (>100KB) may be slow
 
 ## Troubleshooting
 
