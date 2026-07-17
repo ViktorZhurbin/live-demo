@@ -42,7 +42,7 @@
 		"@uiw/codemirror-theme-vscode": "^4.25.4",
 		"@uiw/react-codemirror": "^4.25.4",
 		"clsx": "^2.1.1",
-		"oxc-parser": "^0.103.0",
+		"oxc-parser": "^0.140.0",
 		"react": "^19",
 		"react-dom": "^19",
 		"react-error-boundary": "^6.0.0",
@@ -52,7 +52,7 @@
 	"devDependencies": {
 		"@babel/standalone": "7.28.3",
 		"@babel/types": "^7.28.5",
-		"@oxc-project/types": "^0.103.0",
+		"@oxc-project/types": "^0.140.0",
 		"@rollup/browser": "4.46.3",
 		"@rspress/core": "^2.0.18",
 		"@testing-library/jest-dom": "^6.9.1",

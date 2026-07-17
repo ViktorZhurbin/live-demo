@@ -18,11 +18,10 @@ Last updated: 2026-07-17.
    - `react-resizable-panels` 3 → 4
    - `@mantine/hooks` 8 → 9
    - `babel` 7 → 8
-4. Still outdated per `pnpm outdated -r`:
-   `oxc-parser`/`@oxc-project/types` (0.103.0 → 0.140.0). `@types/node` has
-   a new major available (24 → 26) — out of scope for this pass, revisit
-   separately.
-5. **⬜ Not started — Single major version bump + publish** once the above
+4. **✅ Done — `oxc-parser`/`@oxc-project/types` 0.103.0 → 0.140.0.**
+5. `@types/node` has a new major available (24 → 26) — out of scope for
+   this pass, revisit separately.
+6. **⬜ Not started — Single major version bump + publish** once the above
    lands and the website builds/renders correctly (both `<code src="...">`
    and ` ```jsx live ` demo forms, external-file and multi-file cases).
    Package is still at `2.0.6`.
