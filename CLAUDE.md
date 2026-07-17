@@ -95,6 +95,14 @@ packages/rspress/src/
 Path aliases (`node/*`, `shared/*`, `web/*`) map to `src/node`, `src/shared`,
 `src/web` — see `tsconfig.json` / `vitest.config.ts`.
 
+**Build must run before typecheck.** `static/LiveDemo.tsx` imports the
+package's own public API by its published specifier (`@live-demo/rspress/web`),
+which resolves through `package.json`'s `exports` map to `dist/`. If `dist`
+doesn't exist yet, that import fails typecheck with a "Cannot find module"
+error — it doesn't fail quietly. CI (`.github/workflows/ci.yml`) runs
+`build:lib` before `typecheck` for this reason, and `.husky/pre-push` mirrors
+that order. Keep both in sync if either changes.
+
 ## Import resolution
 
 **Build time**: `./Button` is checked against `.tsx`, `.ts`, `.jsx`, `.js`,

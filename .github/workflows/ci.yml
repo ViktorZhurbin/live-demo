@@ -28,11 +28,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Build before typecheck: static/LiveDemo.tsx imports the package's own
+      # public API by its published specifier, which resolves through the
+      # exports map to dist — building first keeps that check honest instead
+      # of aliasing it back to src.
+      - name: Build
+        run: pnpm build:lib
+
       - name: Typecheck
         run: pnpm typecheck
 
       - name: Test
         run: pnpm test
-
-      - name: Build
-        run: pnpm build:lib
