@@ -41,7 +41,7 @@ function LiveDemoProvider(props: LiveDemoProviderProps) {
 	}, []);
 
 	return (
-		<LiveDemoContext.Provider
+		<LiveDemoContext
 			value={{
 				files,
 				setFiles,
@@ -58,7 +58,7 @@ function LiveDemoProvider(props: LiveDemoProviderProps) {
 			}}
 		>
 			{props.children}
-		</LiveDemoContext.Provider>
+		</LiveDemoContext>
 	);
 }
 
