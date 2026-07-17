@@ -34,13 +34,16 @@ Last updated: 2026-07-17.
 
 ## CDN-pinned Babel/Rollup — a separate, easy-to-miss upgrade surface
 
-`htmlTags.ts` pins `@babel/standalone@7.28.3` and `@rollup/browser@4.46.3`
+`htmlTags.ts` pins `@babel/standalone@7.28.3` and `@rollup/browser@4.62.2`
 via CDN `<script>` tags — invisible to `pnpm outdated -r`. Confirmed
 breakage risk: Babel 8 removes the `.allExtensions`/`.isTSX` preset-typescript
 options `babelTransformCode.ts` relies on, so bumping the CDN pin to 8.x
 would silently break every `.tsx` demo at runtime with no build-time check.
 Both devDependencies now pin the exact CDN versions (see `CLAUDE.md`).
-Future phase: reconcile the CDN pins with the dependency-bump work in step
-3/4, and consider making `htmlTags.ts` read from `package.json` so drift
-shows up in `pnpm outdated`.
+
+- **✅ Done (2026-07-17) — `@rollup/browser` 4.46.3 → 4.62.2.**
+
+Future phase: reconcile the Babel CDN pin (still 7.x, step 3 covers the
+`babel` devDependency major) with this work, and consider making
+`htmlTags.ts` read from `package.json` so drift shows up in `pnpm outdated`.
 

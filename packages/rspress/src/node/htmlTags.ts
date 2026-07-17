@@ -26,7 +26,7 @@ export const htmlTags = [
 		tag: "script",
 		head: true,
 		attrs: {
-			src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.46.3/dist/rollup.browser.min.js",
+			src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.62.2/dist/rollup.browser.min.js",
 		},
 	},
 ];
