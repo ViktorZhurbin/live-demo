@@ -4,12 +4,12 @@ import "@testing-library/jest-dom/vitest";
 
 // Mock CSS modules
 vi.mock("*.module.css", () => ({
-  default: new Proxy(
-    {},
-    {
-      get: (_target, prop) => prop,
-    },
-  ),
+	default: new Proxy(
+		{},
+		{
+			get: (_target, prop) => prop,
+		},
+	),
 }));
 
 global.window = global.window || ({} as Window & typeof globalThis);

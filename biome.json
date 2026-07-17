@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": true,
-		"includes": ["**", "!**/package.json", "!!**/dist", "!!**/tests"]
+		"includes": ["**", "!**/package.json", "!**/dist", "!**/tests/fixtures"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -26,5 +26,17 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["**/tests/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	]
 }

@@ -1,9 +1,9 @@
 import B from "./B";
 
 export default function A() {
-  return (
-    <div>
-      <B />
-    </div>
-  );
+	return (
+		<div>
+			<B />
+		</div>
+	);
 }

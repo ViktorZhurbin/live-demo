@@ -13,37 +13,37 @@ import pkg from "../../package.json";
  * bump the matching exact devDependency in the same commit, or this fails.
  */
 const getCdnSrcs = () =>
-  htmlTags
-    .map((tag) => tag.attrs?.src)
-    .filter((src): src is string => typeof src === "string");
+	htmlTags
+		.map((tag) => tag.attrs?.src)
+		.filter((src): src is string => typeof src === "string");
 
 const versionFromCdn = (pkgName: string) => {
-  const src = getCdnSrcs().find((s) => s.includes(`/npm/${pkgName}@`));
-  const match = src?.match(new RegExp(`/npm/${pkgName}@([^/]+)/`));
-  return match?.[1];
+	const src = getCdnSrcs().find((s) => s.includes(`/npm/${pkgName}@`));
+	const match = src?.match(new RegExp(`/npm/${pkgName}@([^/]+)/`));
+	return match?.[1];
 };
 
 describe("htmlTags CDN / devDependency version invariant", () => {
-  it.each([["@babel/standalone"], ["@rollup/browser"]])(
-    "%s CDN version matches its exact devDependency",
-    (pkgName) => {
-      const cdnVersion = versionFromCdn(pkgName);
-      const devDepVersion = (
-        pkg.devDependencies as Record<string, string>
-      )[pkgName];
+	it.each([["@babel/standalone"], ["@rollup/browser"]])(
+		"%s CDN version matches its exact devDependency",
+		(pkgName) => {
+			const cdnVersion = versionFromCdn(pkgName);
+			const devDepVersion = (pkg.devDependencies as Record<string, string>)[
+				pkgName
+			];
 
-      expect(cdnVersion, `no CDN <script> for ${pkgName} in htmlTags`).toBeDefined();
-      expect(
-        devDepVersion,
-        `${pkgName} must be a devDependency`,
-      ).toBeDefined();
+			expect(
+				cdnVersion,
+				`no CDN <script> for ${pkgName} in htmlTags`,
+			).toBeDefined();
+			expect(devDepVersion, `${pkgName} must be a devDependency`).toBeDefined();
 
-      // Must be an exact pin — no "^" / "~" — so the installed version can
-      // never float away from the CDN URL.
-      expect(
-        devDepVersion,
-        `${pkgName} devDependency must be an exact version (no ^/~)`,
-      ).toBe(cdnVersion);
-    },
-  );
+			// Must be an exact pin — no "^" / "~" — so the installed version can
+			// never float away from the CDN URL.
+			expect(
+				devDepVersion,
+				`${pkgName} devDependency must be an exact version (no ^/~)`,
+			).toBe(cdnVersion);
+		},
+	);
 });
