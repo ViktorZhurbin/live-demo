@@ -15,31 +15,17 @@ function App() {
 
 ## Active initiative: major version upgrade
 
-This repo went dormant for ~7 months and is now being brought current. Plan,
-in order:
+This repo went dormant for ~7 months and is now being brought current:
+dev tooling reconsidered, dev + runtime dependencies bumped (several are a
+major version behind, `@rspress/core` most notably — was pinned at a
+long-stale `2.0.0-rc.4`), source updated for any breaking changes, then
+shipped as a single major version bump.
 
-1. Reconsider dev tooling (biome, husky, CI — none currently exists) —
-   doesn't touch the published package.
-2. Bump dev dependencies that *could* affect the published output
-   (build/test toolchain: tsdown, vitest, oxc-parser, `@rspress/core` used
-   for building/testing the plugin itself).
-3. Bump runtime dependencies (react-resizable-panels, @mantine/hooks,
-   @rsbuild/plugin-react, codemirror packages, etc.) — several are behind by
-   a major version.
-4. Update source for any breaking API changes surfaced by the above.
-5. Ship it all as a single major version bump — no incremental minors for
-   this pass.
-
-**The most consequential item:** `@rspress/core` is pinned at `2.0.0-rc.4`
-(both as the plugin's peer/dev dependency and as the website's direct
-dependency), while the stable line has since shipped up to `2.0.18`. The
-`RspressPlugin` API this plugin builds against (`src/plugin/plugin.ts`) may
-have changed between rc.4 and stable — audit this first, before chasing
-smaller dependency bumps.
-
-If you're picking this up in a fresh session: check `git log` and `pnpm
-outdated -r` for current state before assuming the above is still accurate —
-this note will drift as the upgrade progresses.
+**Full sequence, dependency-by-dependency findings (including what's already
+been checked for `@rspress/core` rc.4 → 2.0.18), and open questions are in
+[`UPGRADE.md`](./UPGRADE.md) — read that before starting or resuming this
+work.** Check `git log` and `pnpm outdated -r` too, since that file will
+drift as the upgrade progresses.
 
 ## Architecture
 
