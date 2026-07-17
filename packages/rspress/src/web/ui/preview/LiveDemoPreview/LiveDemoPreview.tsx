@@ -12,10 +12,14 @@ export const LiveDemoPreview = () => {
 		<pre className={styles.error}>{error?.message}</pre>
 	) : null;
 
+	const handleError = (error: unknown) => {
+		setError(error instanceof Error ? error : new Error(String(error)));
+	};
+
 	return (
 		<div className={styles.wrapper}>
 			<ErrorBoundary
-				onError={setError}
+				onError={handleError}
 				resetKeys={[files]}
 				fallback={errorOverlay}
 			>

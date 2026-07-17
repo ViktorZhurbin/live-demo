@@ -8,28 +8,36 @@ Last updated: 2026-07-17.
 
 ## Sequence
 
-1. **Tooling (no publish impact).** Decide on CI (currently none — the only
-   git hook is `pre-commit` → `biome format`, nothing runs tests/typecheck
-   automatically). Fix the husky deprecation warning it prints on every
-   commit. Bump biome 2.3.9 → 2.5.4.
-2. **`@rspress/core` rc.4 → 2.0.18.** Do this before other dependency bumps —
-   see findings below, it's more contained than expected but still needs a
-   real build+render test, not just typecheck.
-3. **Runtime dependency majors** (each needs actual UI testing against the
-   website, not just typecheck):
+1. **✅ Done — Tooling (no publish impact).** CI added (`.github/workflows/ci.yml`:
+   install → typecheck → test → build:lib on push/PR to `main`). Husky
+   deprecation warning fixed (hook files no longer source the `husky.sh`
+   boilerplate). Biome 2.3.9 → 2.5.4 bumped.
+2. **⬜ Not started — `@rspress/core` rc.4 → 2.0.18.** Still pinned at
+   `2.0.0-rc.4` in both `packages/rspress/package.json` and the website.
+   Do this before other dependency bumps — see findings below, it's more
+   contained than expected but still needs a real build+render test, not
+   just typecheck.
+3. **⬜ Not started — Runtime dependency majors** (each needs actual UI
+   testing against the website, not just typecheck):
    - `react-resizable-panels` 3 → 4
    - `@mantine/hooks` 8 → 9
-   - `@rsbuild/plugin-react` 1.4.2 → 2.1.0 (see note below — may be dead
-     weight, confirm before just bumping)
+   - `@rsbuild/plugin-react` 1.4.2 → 2.1.0 (see note below — confirmed still
+     unused anywhere in `src/` or config; may be dead weight, confirm before
+     just bumping)
    - `@babel/types` 7 → 8 (dev-only, used for babel plugin type-checking)
    - `@types/mdast` 3 → 4 (dev-only)
-4. **Everything else** — patch/minor bumps, low risk, batch together:
-   react 19.2.3→19.2.7, `@codemirror/lang-javascript`, `@uiw/react-codemirror`,
-   `@uiw/codemirror-theme-vscode`, `oxc-parser`/`@oxc-project/types`, `tsdown`,
-   `vitest`, `@tabler/icons-react`, `react-error-boundary`, `@types/node`.
-5. **Single major version bump + publish** once the above lands and the
-   website builds/renders correctly (both `<code src="...">` and ` ```jsx
-   live ` demo forms, external-file and multi-file cases).
+4. **🟡 Mostly done — Everything else**, patch/minor bumps, low risk, batch
+   together. Already resolved to current via normal lockfile updates: react
+   19.2.3→19.2.7, `@codemirror/lang-javascript`, `@uiw/react-codemirror`,
+   `@uiw/codemirror-theme-vscode`, `vitest`, `@tabler/icons-react`,
+   `react-error-boundary`. Still outdated per `pnpm outdated -r`:
+   `oxc-parser`/`@oxc-project/types` (0.103.0 → 0.140.0) and `tsdown`
+   (0.18.4 → 0.22.9). `@types/node` has a new major available (24 → 26) —
+   out of scope for this pass, revisit separately.
+5. **⬜ Not started — Single major version bump + publish** once the above
+   lands and the website builds/renders correctly (both `<code src="...">`
+   and ` ```jsx live ` demo forms, external-file and multi-file cases).
+   Package is still at `2.0.6`.
 
 ## `@rspress/core` rc.4 → 2.0.18 findings
 
@@ -93,7 +101,8 @@ shows up in `pnpm outdated`.
 
 ## Open questions for a future session
 
-- Add GitHub Actions CI, or stay manual? (No CI exists today.)
 - Is `@rsbuild/plugin-react` still needed as a direct devDependency?
+  (Confirmed as of this update: not imported anywhere in `src/` or any
+  config file — likely safe to remove instead of bumping.)
 - Worth migrating `addRuntimeModules` → `rsbuild-plugin-virtual-module` in
   this pass, or defer to a later cycle?

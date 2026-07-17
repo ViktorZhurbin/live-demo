@@ -6,6 +6,15 @@
 	"compilerOptions": {
 		"module": "Preserve",
 		"moduleResolution": "Bundler",
-		"noEmit": true
+		"noEmit": true,
+		// static/ imports the package's own public API by its published name, as
+		// a consumer would. Point that at src instead of dist so typecheck (which
+		// CI runs before build) doesn't depend on dist already being built.
+		"paths": {
+			"node/*": ["./src/node/*"],
+			"shared/*": ["./src/shared/*"],
+			"web/*": ["./src/web/*"],
+			"@live-demo/rspress/web": ["./src/web/index.ts"]
+		}
 	}
 }
