@@ -12,11 +12,7 @@ Last updated: 2026-07-17.
    install → typecheck → test → build:lib on push/PR to `main`). Husky
    deprecation warning fixed (hook files no longer source the `husky.sh`
    boilerplate). Biome 2.3.9 → 2.5.4 bumped.
-2. **⬜ Not started — `@rspress/core` rc.4 → 2.0.18.** Still pinned at
-   `2.0.0-rc.4` in both `packages/rspress/package.json` and the website.
-   Do this before other dependency bumps — see findings below, it's more
-   contained than expected but still needs a real build+render test, not
-   just typecheck.
+2. **✅ Done — `@rspress/core` rc.4 → 2.0.18.**
 3. **⬜ Not started — Runtime dependency majors** (each needs actual UI
    testing against the website, not just typecheck):
    - `react-resizable-panels` 3 → 4
@@ -24,58 +20,17 @@ Last updated: 2026-07-17.
    - `@rsbuild/plugin-react` 1.4.2 → 2.1.0 (see note below — confirmed still
      unused anywhere in `src/` or config; may be dead weight, confirm before
      just bumping)
-   - `@babel/types` 7 → 8 (dev-only, used for babel plugin type-checking)
-   - `@types/mdast` 3 → 4 (dev-only)
-4. **🟡 Mostly done — Everything else**, patch/minor bumps, low risk, batch
-   together. Already resolved to current via normal lockfile updates: react
-   19.2.3→19.2.7, `@codemirror/lang-javascript`, `@uiw/react-codemirror`,
-   `@uiw/codemirror-theme-vscode`, `vitest`, `@tabler/icons-react`,
-   `react-error-boundary`. Still outdated per `pnpm outdated -r`:
-   `oxc-parser`/`@oxc-project/types` (0.103.0 → 0.140.0) and `tsdown`
-   (0.18.4 → 0.22.9). `@types/node` has a new major available (24 → 26) —
-   out of scope for this pass, revisit separately.
+   - `babel` 7 → 8
+4. Still outdated per `pnpm outdated -r`:
+   `oxc-parser`/`@oxc-project/types` (0.103.0 → 0.140.0). `@types/node` has
+   a new major available (24 → 26) — out of scope for this pass, revisit
+   separately.
 5. **⬜ Not started — Single major version bump + publish** once the above
    lands and the website builds/renders correctly (both `<code src="...">`
    and ` ```jsx live ` demo forms, external-file and multi-file cases).
    Package is still at `2.0.6`.
 
-## `@rspress/core` rc.4 → 2.0.18 findings
-
-Checked by diffing the actual installed rc.4 type declarations against the
-2.0.18 tarball from npm (not just changelogs), and by checking what this
-plugin's source (`src/plugin/plugin.ts`) actually touches from the package.
-
-**The plugin's real API surface is small** — just the `RspressPlugin` type
-and the `"@rspress/core/theme"` subpath import. Both are unchanged between
-rc.4 and 2.0.18:
-- `RspressPlugin` interface (name, `markdown.remarkPlugins`,
-  `markdown.globalComponents`, `builderConfig`, `addRuntimeModules`,
-  `routeGenerated`) — identical shape in both versions.
-- `RouteMeta` (what `routeGenerated` receives) only gained an additive
-  `pureRoutePath` field; `absolutePath`, the field this plugin reads, is
-  unchanged.
-- `./theme` export path unchanged.
-- Plugin doesn't use the deprecated `builderPlugins` field or the removed
-  `markdown.mdxRs` option, so the documented v1→v2 migration-guide breaking
-  changes don't apply here — this repo was already past that transition at
-  rc.4.
-
-**Real risk is the MDX parser swap, not the plugin API.** rspress's own
-dependency list changed: `@rspress/mdx-rs` (Rust MDX parser) and
-`chokidar`/`tinyglobby`/`tinypool` were dropped; `remark-parse`,
-`remark-cjk-friendly(-gfm-strikethrough)`, `unist-util-remove`,
-`react-render-to-markdown` were added. This means MDX parsing moved off the
-Rust parser onto a remark-based pipeline sometime in the rc.4→2.0.18 window.
-No breaking change for `remarkPlugins` is documented, but since
-`remarkPlugin.ts`/`getMdxJsxAttribute.ts` walk the MDX AST directly, **this
-needs to actually be exercised** — build the website and confirm both
-`<code src="...">` and ` ```jsx live ` demo forms still render, especially
-any edge cases in JSX attribute parsing.
-
 **Other notes:**
-- `engines.node` tightened from `>=20.9.0` to `^20.19.0 || >=22.12.0` — no
-  action needed, this repo already requires Node ≥22 (`.nvmrc`, root
-  `package.json`).
 - `addRuntimeModules` (used in `plugin.ts`) has been `@deprecated` in favor
   of `rsbuild-plugin-virtual-module` since at least rc.4 — still works in
   2.0.18, not urgent, but flag as a followup since a future rspress major

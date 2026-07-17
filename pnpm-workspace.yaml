@@ -5,6 +5,9 @@ allowBuilds:
   '@parcel/watcher': true
   core-js: false
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@rspress/core@2.0.18'
+  - '@rspress/shared@2.0.18'
 peerDependencyRules:
   ignoreMissing:
     - webpack

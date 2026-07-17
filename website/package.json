@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"license": "MIT",
+	"type": "module",
 	"scripts": {
 		"build": "rspress build",
 		"dev": "rspress dev --port 5173",
@@ -14,7 +15,7 @@
 		"@react-three/drei": "^10.7.6",
 		"@react-three/fiber": "^9.4.0",
 		"@react-three/postprocessing": "^3.0.4",
-		"@rspress/core": "2.0.0-rc.4",
+		"@rspress/core": "^2.0.18",
 		"clsx": "^2.1.1",
 		"react": "^19",
 		"react-dom": "^19",
