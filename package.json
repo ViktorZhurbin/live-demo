@@ -1,10 +1,6 @@
 {
 	"name": "live-demo-monorepo",
 	"private": true,
-	"workspaces": [
-		"packages/*",
-		"website"
-	],
 	"scripts": {
 		"prepublish": "pnpm build:lib",
 		"publish": "pnpm --filter '@live-demo/rspress' publish",
@@ -23,16 +19,9 @@
 	"engines": {
 		"node": ">=22"
 	},
-	"packageManager": "pnpm@10.14.0",
+	"packageManager": "pnpm@11.13.1",
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/"
-	},
-	"pnpm": {
-		"peerDependencyRules": {
-			"ignoreMissing": [
-				"webpack"
-			]
-		}
 	}
 }

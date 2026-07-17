@@ -1,3 +1,10 @@
 packages:
   - "packages/rspress"
   - "website"
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: false
+  esbuild: true
+peerDependencyRules:
+  ignoreMissing:
+    - webpack
