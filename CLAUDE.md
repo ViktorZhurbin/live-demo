@@ -63,6 +63,15 @@ stay on Babel 7 even though the runtime is on `@babel/standalone@8` —
 pairing it with a real `@babel/core@8` creates a v7/v8 type split-brain
 requiring `as unknown as` casts. Don't "modernize" them independently.
 
+`@mdx-js/mdx`, `mdast-util-mdx`, `remark-gfm`, `unified`, and
+`unist-util-visit` live in `peerDependencies` only (no `dependencies`/
+`devDependencies` entry) since `tsdown` leaves them external in `dist/` and
+the real runtime copy must be `@rspress/core`'s own. Don't delete or move
+them — pnpm's peer-auto-install is what makes them resolvable for this
+package's own build/typecheck/test, pulling them from `@rspress/core`'s
+tree, so removing the peerDependencies entries breaks the build with an
+opaque `TS2307: Cannot find module` error.
+
 ### Module graph (the core bundler logic)
 
 Inspired by webpack/Rollup. When `Button.tsx` imports `./theme` and `./Icon`,

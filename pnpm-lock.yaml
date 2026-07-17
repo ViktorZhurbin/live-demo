@@ -20,26 +20,14 @@ importers:
 
   packages/rspress:
     dependencies:
-      '@codemirror/autocomplete':
-        specifier: ^6.20.0
-        version: 6.20.3
       '@codemirror/lang-javascript':
         specifier: ^6.2.5
         version: 6.2.5
-      '@codemirror/language':
-        specifier: ^6.11.3
-        version: 6.12.4
-      '@codemirror/lint':
-        specifier: ^6.9.2
-        version: 6.9.7
-      '@codemirror/search':
-        specifier: ^6.5.11
-        version: 6.7.1
       '@mantine/hooks':
         specifier: ^8.3.10
         version: 8.3.18(react@19.2.7)
       '@mdx-js/mdx':
-        specifier: '>=2.3.0'
+        specifier: '>=3.1.1'
         version: 3.1.1
       '@tabler/icons-react':
         specifier: ^3.44.0
@@ -72,16 +60,16 @@ importers:
         specifier: ^3.0.4
         version: 3.0.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       remark-gfm:
-        specifier: '>=3.0.0'
+        specifier: '>=4.0.1'
         version: 4.0.1
       rsbuild-plugin-virtual-module:
         specifier: ^0.4.5
         version: 0.4.5(@rsbuild/core@2.1.6(core-js@3.47.0))
       unified:
-        specifier: '>=11.0.0'
+        specifier: '>=11.0.5'
         version: 11.0.5
       unist-util-visit:
-        specifier: '>=4.0.0'
+        specifier: '>=5.1.0'
         version: 5.1.0
     devDependencies:
       '@babel/standalone':
