@@ -74,6 +74,9 @@ importers:
       remark-gfm:
         specifier: '>=3.0.0'
         version: 4.0.1
+      rsbuild-plugin-virtual-module:
+        specifier: ^0.4.5
+        version: 0.4.5(@rsbuild/core@2.1.6(core-js@3.47.0))
       unified:
         specifier: '>=11.0.0'
         version: 11.0.5
@@ -2265,6 +2268,14 @@ packages:
     resolution: {integrity: sha512-u7tgm5l4Yw1iTqUL4EcYOAt7fFvCgQMLeidrnD4GALlC6aOznCjezYajgxeyKw27u0Q5N7fwgCzjVyPIWzwuBA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
+
+  rsbuild-plugin-virtual-module@0.4.5:
+    resolution: {integrity: sha512-ZS7f5y0DgFgS6pAdGVG8KGtThrwkt4NyjuJRs/pKCffhdPmj3RQI9YOUgRWPLP8dw3+KNfxl2+0v8yPHwls1KA==}
+    peerDependencies:
+      '@rsbuild/core': ^1.0.0 || ^2.0.0
+    peerDependenciesMeta:
+      '@rsbuild/core':
+        optional: true
 
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
@@ -5039,6 +5050,10 @@ snapshots:
       '@rolldown/binding-wasm32-wasi': 1.2.0
       '@rolldown/binding-win32-arm64-msvc': 1.2.0
       '@rolldown/binding-win32-x64-msvc': 1.2.0
+
+  rsbuild-plugin-virtual-module@0.4.5(@rsbuild/core@2.1.6(core-js@3.47.0)):
+    optionalDependencies:
+      '@rsbuild/core': 2.1.6(core-js@3.47.0)
 
   scheduler@0.27.0: {}
 

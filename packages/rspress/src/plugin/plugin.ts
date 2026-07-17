@@ -5,6 +5,7 @@ import { getVirtualModulesCode } from "node/helpers/getVirtualModulesCode";
 import { htmlTags } from "node/htmlTags";
 import { remarkPlugin } from "node/remarkPlugin";
 import { visitFilePaths } from "node/visitFilePaths";
+import { pluginVirtualModule } from "rsbuild-plugin-virtual-module";
 import type { DemoDataByPath, LiveDemoPluginOptions } from "shared/types";
 
 // Get __dirname equivalent for ES modules
@@ -62,16 +63,18 @@ export function liveDemoPluginRspress(
 			});
 		},
 
-		async addRuntimeModules() {
-			return {
-				_live_demo_virtual_modules: getVirtualModulesCode(uniqueImports),
-			};
-		},
-
 		builderConfig: {
 			html: {
 				tags: htmlTags,
 			},
+			plugins: [
+				pluginVirtualModule({
+					virtualModules: {
+						_live_demo_virtual_modules: () =>
+							getVirtualModulesCode(uniqueImports),
+					},
+				}),
+			],
 		},
 
 		markdown: {

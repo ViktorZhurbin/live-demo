@@ -54,8 +54,8 @@ export default getImport`;
  * 2. Stores them in a Map for dynamic lookup
  * 3. Exports a function to retrieve packages by name
  *
- * This is injected into node_modules/_live_demo_virtual_modules at build time
- * using RspackVirtualModulePlugin.
+ * This is injected as a virtual module at build time via
+ * rsbuild-plugin-virtual-module (see `plugin.ts`).
  *
  * @param allImports - Set of all external package names found in user code
  * @returns JavaScript code as a string to be used as a virtual module

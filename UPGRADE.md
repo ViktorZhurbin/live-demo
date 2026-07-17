@@ -28,10 +28,10 @@ Last updated: 2026-07-17.
    Package is still at `2.0.6`.
 
 **Other notes:**
-- `addRuntimeModules` (used in `plugin.ts`) has been `@deprecated` in favor
-  of `rsbuild-plugin-virtual-module` since at least rc.4 — still works in
-  2.0.18, not urgent, but flag as a followup since a future rspress major
-  could remove it.
+- **✅ Done (2026-07-17) — `addRuntimeModules` → `rsbuild-plugin-virtual-module`.**
+  `plugin.ts` now registers `pluginVirtualModule({ virtualModules: {
+  _live_demo_virtual_modules: ... } })` via `builderConfig.plugins` instead
+  of the deprecated `addRuntimeModules` hook.
 
 ## CDN-pinned Babel/Rollup — a separate, easy-to-miss upgrade surface
 
@@ -45,7 +45,3 @@ Future phase: reconcile the CDN pins with the dependency-bump work in step
 3/4, and consider making `htmlTags.ts` read from `package.json` so drift
 shows up in `pnpm outdated`.
 
-## Open questions for a future session
-
-- Worth migrating `addRuntimeModules` → `rsbuild-plugin-virtual-module` in
-  this pass, or defer to a later cycle?

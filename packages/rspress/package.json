@@ -46,7 +46,8 @@
 		"react": "^19",
 		"react-dom": "^19",
 		"react-error-boundary": "^6.0.0",
-		"react-resizable-panels": "^3.0.4"
+		"react-resizable-panels": "^3.0.4",
+		"rsbuild-plugin-virtual-module": "^0.4.5"
 	},
 	"devDependencies": {
 		"@babel/standalone": "7.28.3",

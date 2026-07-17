@@ -22,7 +22,7 @@ long-stale `2.0.0-rc.4`), source updated for any breaking changes, then
 shipped as a single major version bump.
 
 **Full sequence, dependency-by-dependency findings (including what's already
-been checked for `@rspress/core` rc.4 → 2.0.18), and open questions are in
+been done) are in
 [`UPGRADE.md`](./UPGRADE.md) — read that before starting or resuming this
 work.** Check `git log` and `pnpm outdated -r` too, since that file will
 drift as the upgrade progresses.
@@ -100,8 +100,7 @@ package's own public API by its published specifier (`@live-demo/rspress/web`),
 which resolves through `package.json`'s `exports` map to `dist/`. If `dist`
 doesn't exist yet, that import fails typecheck with a "Cannot find module"
 error — it doesn't fail quietly. CI (`.github/workflows/ci.yml`) runs
-`build:lib` before `typecheck` for this reason, and `.husky/pre-push` mirrors
-that order. Keep both in sync if either changes.
+`build:lib` before `typecheck` for this reason, and `pnpm verify` (root `package.json` script) mirrors that order. Keep both in sync if either changes.
 
 ## Import resolution
 

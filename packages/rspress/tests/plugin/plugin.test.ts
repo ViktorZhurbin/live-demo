@@ -1,6 +1,15 @@
 import { htmlTags } from "node/htmlTags";
-import { describe, expect, it } from "vitest";
-import { liveDemoPluginRspress } from "../../src/plugin/plugin";
+import type { PluginVirtualModuleOptions } from "rsbuild-plugin-virtual-module";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("rsbuild-plugin-virtual-module", () => ({
+	pluginVirtualModule: vi.fn((options: PluginVirtualModuleOptions) => ({
+		name: "mock-plugin-virtual-module",
+		__options: options,
+	})),
+}));
+
+const { liveDemoPluginRspress } = await import("../../src/plugin/plugin");
 
 /**
  * Guards the plugin's contract with @rspress/core: the shape of the returned
@@ -41,12 +50,18 @@ describe("liveDemoPluginRspress", () => {
 		);
 	});
 
-	describe("addRuntimeModules", () => {
+	describe("virtual module (registered via rsbuild-plugin-virtual-module)", () => {
+		// biome-ignore lint/suspicious/noExplicitAny: reaching into the mocked plugin's captured options
+		const getVirtualModuleHandler = (plugin: any) => {
+			const [virtualModulePlugin] = plugin.builderConfig?.plugins ?? [];
+			return virtualModulePlugin.__options.virtualModules
+				._live_demo_virtual_modules;
+		};
+
 		it("always includes the default modules (react + rspress theme)", async () => {
 			const plugin = liveDemoPluginRspress();
-			// The hook ignores both args; pass a minimal config + isProd=false.
-			const modules = await plugin.addRuntimeModules?.({} as never, false);
-			const virtualModule = modules?._live_demo_virtual_modules ?? "";
+			const handler = getVirtualModuleHandler(plugin);
+			const virtualModule = await handler();
 
 			expect(virtualModule).toContain("import * as i_0 from 'react';");
 			expect(virtualModule).toContain("'@rspress/core/theme'");
@@ -56,11 +71,10 @@ describe("liveDemoPluginRspress", () => {
 			const plugin = liveDemoPluginRspress({
 				includeModules: ["@mantine/hooks"],
 			});
-			const modules = await plugin.addRuntimeModules?.({} as never, false);
+			const handler = getVirtualModuleHandler(plugin);
+			const virtualModule = await handler();
 
-			expect(modules?._live_demo_virtual_modules ?? "").toContain(
-				"'@mantine/hooks'",
-			);
+			expect(virtualModule).toContain("'@mantine/hooks'");
 		});
 	});
 });
