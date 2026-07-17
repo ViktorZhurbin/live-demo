@@ -16,16 +16,7 @@ function App() {
 ## Active initiative: major version upgrade
 
 This repo went dormant for ~7 months and is now being brought current:
-dev tooling reconsidered, dev + runtime dependencies bumped (several are a
-major version behind, `@rspress/core` most notably — was pinned at a
-long-stale `2.0.0-rc.4`), source updated for any breaking changes, then
-shipped as a single major version bump.
-
-**Full sequence, dependency-by-dependency findings (including what's already
-been done) are in
-[`UPGRADE.md`](./UPGRADE.md) — read that before starting or resuming this
-work.** Check `git log` and `pnpm outdated -r` too, since that file will
-drift as the upgrade progresses.
+dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes, then shipped as a single major version bump.
 
 ## Architecture
 
