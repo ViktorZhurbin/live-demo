@@ -1,7 +1,7 @@
 import type {
-  LiveDemoEditorProps,
-  LiveDemoFileTabsProps,
-  LiveDemoResizablePanelsProps,
+	LiveDemoEditorProps,
+	LiveDemoFileTabsProps,
+	LiveDemoResizablePanelsProps,
 } from "web/ui";
 import type { LiveDemoLanguage } from "./constants";
 
@@ -26,55 +26,55 @@ export type DemoDataByPath = Record<string, LiveDemoPropsFromPlugin>;
 export type UniqueImports = Set<string>;
 
 export type LiveDemoPropsFromPlugin = {
-  files: LiveDemoFiles;
-  entryFileName: string;
-  options?: LiveDemoPluginOptions["ui"];
+	files: LiveDemoFiles;
+	entryFileName: string;
+	options?: LiveDemoPluginOptions["ui"];
 };
 
 export type LiveDemoPluginOptions = {
-  /**
-   * Modules that will be available in demos,
-   * @example
-   * includeModules: ["@mantine/hooks"]
-   * Then you can use `import { ... } from "@mantine/hooks"` in any demo.
-   **/
-  includeModules?: string[];
+	/**
+	 * Modules that will be available in demos,
+	 * @example
+	 * includeModules: ["@mantine/hooks"]
+	 * Then you can use `import { ... } from "@mantine/hooks"` in any demo.
+	 **/
+	includeModules?: string[];
 
-  /**
-   * Props passed from plugin to LiveDemo components.
-   * @example
-   * ui: {
-   *   fileTabs: {
-   *     hideSingleTab: true,
-   *   },
-   *   editor: {
-   *     basicSetup: {
-   *       lineNumbers: false,
-   *       foldGutter: false,
-   *       autocompletion: false,
-   *       tabSize: 2,
-   *     },
-   *   },
-   *   resizablePanels: {
-   *     autoSaveId: "my-auto-save-id",
-   *     defaultPanelSizes: {
-   *       editor: 50,
-   *       preview: 50,
-   *     },
-   *   },
-   * }
-   */
-  ui?: {
-    controlPanel?: {
-      hide?: boolean;
-    };
-    fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab"> & {
-      hide?: boolean;
-    };
-    editor?: LiveDemoEditorProps;
-    resizablePanels?: Pick<
-      LiveDemoResizablePanelsProps,
-      "autoSaveId" | "defaultPanelSizes"
-    >;
-  };
+	/**
+	 * Props passed from plugin to LiveDemo components.
+	 * @example
+	 * ui: {
+	 *   fileTabs: {
+	 *     hideSingleTab: true,
+	 *   },
+	 *   editor: {
+	 *     basicSetup: {
+	 *       lineNumbers: false,
+	 *       foldGutter: false,
+	 *       autocompletion: false,
+	 *       tabSize: 2,
+	 *     },
+	 *   },
+	 *   resizablePanels: {
+	 *     autoSaveId: "my-auto-save-id",
+	 *     defaultPanelSizes: {
+	 *       editor: 50,
+	 *       preview: 50,
+	 *     },
+	 *   },
+	 * }
+	 */
+	ui?: {
+		controlPanel?: {
+			hide?: boolean;
+		};
+		fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab"> & {
+			hide?: boolean;
+		};
+		editor?: LiveDemoEditorProps;
+		resizablePanels?: Pick<
+			LiveDemoResizablePanelsProps,
+			"autoSaveId" | "defaultPanelSizes"
+		>;
+	};
 };

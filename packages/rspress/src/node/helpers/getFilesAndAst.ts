@@ -14,8 +14,8 @@ import { parseSync } from "oxc-parser";
 import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
 
 type GetFilesAndAst = {
-  fileName: string;
-  absolutePath: PathWithAllowedExt;
+	fileName: string;
+	absolutePath: PathWithAllowedExt;
 };
 
 /**
@@ -27,23 +27,23 @@ type GetFilesAndAst = {
  *   - ast: Parsed AST (Abstract Syntax Tree) for dependency extraction
  */
 export const getFilesAndAst = (
-  params: GetFilesAndAst,
+	params: GetFilesAndAst,
 ): { files: LiveDemoFiles; ast: Program } => {
-  const { absolutePath, fileName } = params;
+	const { absolutePath, fileName } = params;
 
-  const files: LiveDemoFiles = {};
+	const files: LiveDemoFiles = {};
 
-  // Read file content
-  const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
+	// Read file content
+	const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
 
-  files[fileName] = code;
+	files[fileName] = code;
 
-  // Parse with OXC (fast Rust-based parser)
-  const parsed = parseSync(fileName, code, {
-    sourceType: "module", // ES modules (import/export syntax)
-  });
+	// Parse with OXC (fast Rust-based parser)
+	const parsed = parseSync(fileName, code, {
+		sourceType: "module", // ES modules (import/export syntax)
+	});
 
-  const ast = parsed.program;
+	const ast = parsed.program;
 
-  return { files, ast };
+	return { files, ast };
 };

@@ -6,5 +6,5 @@ import type { LiveDemoPropsFromPlugin } from "shared/types";
  * tends to break MDX parsing.
  */
 export type LiveDemoStringifiedProps = {
-  [Key in keyof LiveDemoPropsFromPlugin]: string;
+	[Key in keyof LiveDemoPropsFromPlugin]: string;
 };

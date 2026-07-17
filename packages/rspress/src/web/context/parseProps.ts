@@ -6,11 +6,11 @@ import type { LiveDemoStringifiedProps } from "web/types";
  * Without stringification having code strings (props.files) in MDX tends to break things.
  */
 export function parseProps(
-  props: LiveDemoStringifiedProps,
+	props: LiveDemoStringifiedProps,
 ): LiveDemoPropsFromPlugin {
-  return Object.fromEntries(
-    Object.entries(props).map(([key, value]) => {
-      return [key, JSON.parse(value)];
-    }),
-  ) as LiveDemoPropsFromPlugin;
+	return Object.fromEntries(
+		Object.entries(props).map(([key, value]) => {
+			return [key, JSON.parse(value)];
+		}),
+	) as LiveDemoPropsFromPlugin;
 }

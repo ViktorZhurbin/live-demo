@@ -61,20 +61,20 @@ export default getImport`;
  * @returns JavaScript code as a string to be used as a virtual module
  */
 export const getVirtualModulesCode = (allImports: Set<string>) => {
-  const moduleCodeString = Array.from(allImports).reduce<string>(
-    (acc, moduleName, index) => {
-      const name = `'${moduleName}'`;
-      const value = `i_${index}`; // Unique identifier for each import
+	const moduleCodeString = Array.from(allImports).reduce<string>(
+		(acc, moduleName, index) => {
+			const name = `'${moduleName}'`;
+			const value = `i_${index}`; // Unique identifier for each import
 
-      // Generate: import * as i_0 from 'react';
-      const importStatement = `import * as ${value} from ${name};`;
-      // Generate: importsMap.set('react', i_0);
-      const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
+			// Generate: import * as i_0 from 'react';
+			const importStatement = `import * as ${value} from ${name};`;
+			// Generate: importsMap.set('react', i_0);
+			const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
 
-      return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
-    },
-    getImportFnString, // Start with the getImport function template
-  );
+			return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
+		},
+		getImportFnString, // Start with the getImport function template
+	);
 
-  return moduleCodeString;
+	return moduleCodeString;
 };

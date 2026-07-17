@@ -13,20 +13,20 @@
  * Note: These only load on pages that use the LiveDemo component
  */
 export const htmlTags = [
-  // Babel: Transpiles JSX and TypeScript to JavaScript in the browser
-  {
-    tag: "script",
-    head: true,
-    attrs: {
-      src: "https://cdn.jsdelivr.net/npm/@babel/standalone@7.28.3/babel.min.js",
-    },
-  },
-  // Rollup: Bundles and resolves module imports in the browser
-  {
-    tag: "script",
-    head: true,
-    attrs: {
-      src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.46.3/dist/rollup.browser.min.js",
-    },
-  },
+	// Babel: Transpiles JSX and TypeScript to JavaScript in the browser
+	{
+		tag: "script",
+		head: true,
+		attrs: {
+			src: "https://cdn.jsdelivr.net/npm/@babel/standalone@7.28.3/babel.min.js",
+		},
+	},
+	// Rollup: Bundles and resolves module imports in the browser
+	{
+		tag: "script",
+		head: true,
+		attrs: {
+			src: "https://cdn.jsdelivr.net/npm/@rollup/browser@4.46.3/dist/rollup.browser.min.js",
+		},
+	},
 ];

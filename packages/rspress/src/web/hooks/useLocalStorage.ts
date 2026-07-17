@@ -3,15 +3,15 @@ import { LocalStorage } from "web/constants/localStorage";
 import { PanelsView } from "web/constants/settings";
 
 export const useLocalStorageView = () => {
-  return useLocalStorage({
-    defaultValue: PanelsView.Split,
-    key: LocalStorage.PanelsView,
-  });
+	return useLocalStorage({
+		defaultValue: PanelsView.Split,
+		key: LocalStorage.PanelsView,
+	});
 };
 
 export const useLocalStorageWrapCode = () => {
-  return useLocalStorage({
-    defaultValue: false,
-    key: LocalStorage.WrapCode,
-  });
+	return useLocalStorage({
+		defaultValue: false,
+		key: LocalStorage.WrapCode,
+	});
 };

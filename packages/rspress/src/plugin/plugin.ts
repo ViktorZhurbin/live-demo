@@ -14,18 +14,18 @@ const __dirname = path.dirname(__filename);
 const demoDataByPath: DemoDataByPath = {};
 
 interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
-  /**
-   * Path to custom layout file.
-   * It will be injected as a global component:
-   * @see https://rspress.dev/api/config/config-build#markdownglobalcomponents
-   *
-   * The file has to have a default export.
-   * Path needs to end with `LiveDemo.(jsx|tsx)`.
-   *
-   * @example
-   * path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")
-   **/
-  customLayout?: string;
+	/**
+	 * Path to custom layout file.
+	 * It will be injected as a global component:
+	 * @see https://rspress.dev/api/config/config-build#markdownglobalcomponents
+	 *
+	 * The file has to have a default export.
+	 * Path needs to end with `LiveDemo.(jsx|tsx)`.
+	 *
+	 * @example
+	 * path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")
+	 **/
+	customLayout?: string;
 }
 
 /**
@@ -34,54 +34,54 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 const defaultModules = ["react", "@rspress/core/theme"];
 
 export function liveDemoPluginRspress(
-  options?: LiveDemoPluginRspressOptions,
+	options?: LiveDemoPluginRspressOptions,
 ): RspressPlugin {
-  const { customLayout, includeModules } = options ?? {};
+	const { customLayout, includeModules } = options ?? {};
 
-  if (customLayout && !/LiveDemo\.(jsx?|tsx)$/.test(customLayout)) {
-    throw new Error(
-      "[LiveDemo]: `customLayout` path should end with 'LiveDemo.(jsx?|tsx)',\nExample: `path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')`",
-    );
-  }
+	if (customLayout && !/LiveDemo\.(jsx?|tsx)$/.test(customLayout)) {
+		throw new Error(
+			"[LiveDemo]: `customLayout` path should end with 'LiveDemo.(jsx?|tsx)',\nExample: `path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')`",
+		);
+	}
 
-  const getDemoDataByPath = () => demoDataByPath;
+	const getDemoDataByPath = () => demoDataByPath;
 
-  const extraModules = includeModules || [];
-  const uniqueImports = new Set(defaultModules.concat(extraModules));
+	const extraModules = includeModules || [];
+	const uniqueImports = new Set(defaultModules.concat(extraModules));
 
-  return {
-    name: "@live-demo/rspress",
+	return {
+		name: "@live-demo/rspress",
 
-    async routeGenerated(routes) {
-      const filePaths = routes.map((route) => route.absolutePath);
+		async routeGenerated(routes) {
+			const filePaths = routes.map((route) => route.absolutePath);
 
-      visitFilePaths({
-        filePaths: filePaths,
-        uniqueImports,
-        demoDataByPath,
-      });
-    },
+			visitFilePaths({
+				filePaths: filePaths,
+				uniqueImports,
+				demoDataByPath,
+			});
+		},
 
-    async addRuntimeModules() {
-      return {
-        _live_demo_virtual_modules: getVirtualModulesCode(uniqueImports),
-      };
-    },
+		async addRuntimeModules() {
+			return {
+				_live_demo_virtual_modules: getVirtualModulesCode(uniqueImports),
+			};
+		},
 
-    builderConfig: {
-      html: {
-        tags: htmlTags,
-      },
-    },
+		builderConfig: {
+			html: {
+				tags: htmlTags,
+			},
+		},
 
-    markdown: {
-      remarkPlugins: [
-        [remarkPlugin, { getDemoDataByPath, options: options?.ui }],
-      ],
+		markdown: {
+			remarkPlugins: [
+				[remarkPlugin, { getDemoDataByPath, options: options?.ui }],
+			],
 
-      globalComponents: [
-        customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),
-      ],
-    },
-  };
+			globalComponents: [
+				customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),
+			],
+		},
+	};
 }

@@ -11,8 +11,8 @@ import type { Processor } from "unified";
 
 // MDX processor configured with GitHub Flavored Markdown support
 const processor = createProcessor({
-  format: "mdx",
-  remarkPlugins: [remarkGFM],
+	format: "mdx",
+	remarkPlugins: [remarkGFM],
 });
 
 /**
@@ -22,8 +22,8 @@ const processor = createProcessor({
  * @returns MDX AST (tree of nodes representing the document structure)
  */
 export const getMdxAst = (filepath: string): ReturnType<Processor["parse"]> => {
-  const mdxSource = fs.readFileSync(filepath, "utf-8");
-  const mdxAst = processor.parse(mdxSource);
+	const mdxSource = fs.readFileSync(filepath, "utf-8");
+	const mdxAst = processor.parse(mdxSource);
 
-  return mdxAst;
+	return mdxAst;
 };

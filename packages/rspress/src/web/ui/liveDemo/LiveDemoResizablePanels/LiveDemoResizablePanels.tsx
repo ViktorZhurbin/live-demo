@@ -9,71 +9,71 @@ import styles from "./LiveDemoResizablePanels.module.css";
 import type { LiveDemoResizablePanelsProps } from "./types";
 
 export const LiveDemoResizablePanels = (
-  props: LiveDemoResizablePanelsProps,
+	props: LiveDemoResizablePanelsProps,
 ) => {
-  const { options } = useLiveDemoContext();
-  const mergedOptions = Object.assign(options?.resizablePanels ?? {}, props);
+	const { options } = useLiveDemoContext();
+	const mergedOptions = Object.assign(options?.resizablePanels ?? {}, props);
 
-  const {
-    classes,
-    autoSaveId,
-    verticalThreshold = 550,
-    defaultPanelSizes = { editor: 50, preview: 50 },
-  } = mergedOptions;
+	const {
+		classes,
+		autoSaveId,
+		verticalThreshold = 550,
+		defaultPanelSizes = { editor: 50, preview: 50 },
+	} = mergedOptions;
 
-  const [panelsView] = useLocalStorageView();
+	const [panelsView] = useLocalStorageView();
 
-  const wrapperSize = useElementSize();
-  const isVertical = wrapperSize.width < verticalThreshold;
+	const wrapperSize = useElementSize();
+	const isVertical = wrapperSize.width < verticalThreshold;
 
-  const wrapperClass = clsx(styles.wrapper, classes?.wrapper, {
-    [styles.vertical]: isVertical,
-  });
+	const wrapperClass = clsx(styles.wrapper, classes?.wrapper, {
+		[styles.vertical]: isVertical,
+	});
 
-  const editorClasses = clsx(styles.editorPanel, classes?.editorPanel, {
-    [styles.hiddenPanel]: panelsView === PanelsView.Preview,
-  });
+	const editorClasses = clsx(styles.editorPanel, classes?.editorPanel, {
+		[styles.hiddenPanel]: panelsView === PanelsView.Preview,
+	});
 
-  const previewClasses = clsx(classes?.previewPanel, {
-    [styles.hiddenPanel]: panelsView === PanelsView.Editor,
-  });
+	const previewClasses = clsx(classes?.previewPanel, {
+		[styles.hiddenPanel]: panelsView === PanelsView.Editor,
+	});
 
-  return (
-    <div className={wrapperClass} ref={wrapperSize.ref}>
-      <PanelGroup
-        autoSaveId={autoSaveId}
-        style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
-        direction={isVertical ? "vertical" : "horizontal"}
-      >
-        <Panel
-          id="editor"
-          className={editorClasses}
-          defaultSize={defaultPanelSizes.editor}
-          order={isVertical ? 1 : 0}
-          onKeyDown={(e) => {
-            // to avoid interfering with global event listeners
-            e.stopPropagation();
-          }}
-        >
-          {props.editor ?? (
-            <>
-              <LiveDemoFileTabs />
-              <LiveDemoEditor />
-            </>
-          )}
-        </Panel>
+	return (
+		<div className={wrapperClass} ref={wrapperSize.ref}>
+			<PanelGroup
+				autoSaveId={autoSaveId}
+				style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
+				direction={isVertical ? "vertical" : "horizontal"}
+			>
+				<Panel
+					id="editor"
+					className={editorClasses}
+					defaultSize={defaultPanelSizes.editor}
+					order={isVertical ? 1 : 0}
+					onKeyDown={(e) => {
+						// to avoid interfering with global event listeners
+						e.stopPropagation();
+					}}
+				>
+					{props.editor ?? (
+						<>
+							<LiveDemoFileTabs />
+							<LiveDemoEditor />
+						</>
+					)}
+				</Panel>
 
-        <PanelResizeHandle className={styles.resizeHandle} />
+				<PanelResizeHandle className={styles.resizeHandle} />
 
-        <Panel
-          id="preview"
-          className={previewClasses}
-          defaultSize={defaultPanelSizes.preview}
-          order={isVertical ? 0 : 1}
-        >
-          {props.preview ?? <LiveDemoPreview />}
-        </Panel>
-      </PanelGroup>
-    </div>
-  );
+				<Panel
+					id="preview"
+					className={previewClasses}
+					defaultSize={defaultPanelSizes.preview}
+					order={isVertical ? 0 : 1}
+				>
+					{props.preview ?? <LiveDemoPreview />}
+				</Panel>
+			</PanelGroup>
+		</div>
+	);
 };

@@ -7,23 +7,23 @@ import importedCode from "../docs/guide/external/snippets/multiFile/Imported.tsx
 import multiFileCode from "../docs/guide/external/snippets/multiFile/MultiFile.tsx?raw";
 
 export const HomeDemo = () => {
-  const isDark = useDark();
+	const isDark = useDark();
 
-  return (
-    <LiveDemoCore
-      isDark={isDark}
-      pluginProps={{
-        files: JSON.stringify({
-          "MultiFile.tsx": multiFileCode,
-          "Imported.tsx": importedCode,
-        }),
-        entryFileName: JSON.stringify("MultiFile.tsx"),
-        options: JSON.stringify({
-          resizablePanels: {
-            defaultPanelSizes: { editor: 70, preview: 40 },
-          },
-        }),
-      }}
-    />
-  );
+	return (
+		<LiveDemoCore
+			isDark={isDark}
+			pluginProps={{
+				files: JSON.stringify({
+					"MultiFile.tsx": multiFileCode,
+					"Imported.tsx": importedCode,
+				}),
+				entryFileName: JSON.stringify("MultiFile.tsx"),
+				options: JSON.stringify({
+					resizablePanels: {
+						defaultPanelSizes: { editor: 70, preview: 40 },
+					},
+				}),
+			}}
+		/>
+	);
 };

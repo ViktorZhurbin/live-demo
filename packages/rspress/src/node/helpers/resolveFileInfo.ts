@@ -13,8 +13,8 @@ import { getPossiblePaths } from "shared/pathHelpers";
 import type { PathWithAllowedExt } from "shared/types";
 
 type ResolveFileInfo = {
-  importPath: string; // Relative import (e.g., "./Button", "../utils/helper")
-  dirname: string; // Directory to resolve from
+	importPath: string; // Relative import (e.g., "./Button", "../utils/helper")
+	dirname: string; // Directory to resolve from
 };
 
 /**
@@ -28,21 +28,21 @@ type ResolveFileInfo = {
  * @throws Error if file cannot be resolved
  */
 export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
-  const absolutePath = path.join(dirname, importPath);
+	const absolutePath = path.join(dirname, importPath);
 
-  // Get all possible file paths with different extensions
-  // Example: "./Button" → ["./Button.tsx", "./Button.ts", "./Button.jsx", "./Button.js", "./Button/index.tsx", ...]
-  const pathsToCheck = getPossiblePaths(absolutePath);
+	// Get all possible file paths with different extensions
+	// Example: "./Button" → ["./Button.tsx", "./Button.ts", "./Button.jsx", "./Button.js", "./Button/index.tsx", ...]
+	const pathsToCheck = getPossiblePaths(absolutePath);
 
-  for (const absolutePath of pathsToCheck) {
-    if (fs.existsSync(absolutePath)) {
-      const fileName = path.basename(absolutePath) as PathWithAllowedExt;
+	for (const absolutePath of pathsToCheck) {
+		if (fs.existsSync(absolutePath)) {
+			const fileName = path.basename(absolutePath) as PathWithAllowedExt;
 
-      return { absolutePath, fileName };
-    }
-  }
+			return { absolutePath, fileName };
+		}
+	}
 
-  throw new Error(
-    `[LiveDemo]: Couldn't resolve \`${importPath}\`.\nOnly .js(x) and .ts(x) files are supported`,
-  );
+	throw new Error(
+		`[LiveDemo]: Couldn't resolve \`${importPath}\`.\nOnly .js(x) and .ts(x) files are supported`,
+	);
 }

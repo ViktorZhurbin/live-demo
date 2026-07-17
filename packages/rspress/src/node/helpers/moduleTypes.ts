@@ -28,24 +28,24 @@ import type { PathWithAllowedExt } from "shared/types";
  * ```
  */
 export type Module = {
-  /** Unique sequential ID (0, 1, 2, ...) assigned during graph building */
-  id: number;
+	/** Unique sequential ID (0, 1, 2, ...) assigned during graph building */
+	id: number;
 
-  /** File name with extension (e.g., "Button.tsx") */
-  fileName: PathWithAllowedExt;
+	/** File name with extension (e.g., "Button.tsx") */
+	fileName: PathWithAllowedExt;
 
-  /** Absolute path on disk */
-  absolutePath: PathWithAllowedExt;
+	/** Absolute path on disk */
+	absolutePath: PathWithAllowedExt;
 
-  /** Array of import paths found in this module (relative and external) */
-  dependencies: string[];
+	/** Array of import paths found in this module (relative and external) */
+	dependencies: string[];
 
-  /** Raw source code content */
-  content: string;
+	/** Raw source code content */
+	content: string;
 
-  /**
-   * Mapping from relative import path to module ID
-   * Used at runtime to resolve imports: require("./Button") → modules[mapping["./Button"]]
-   */
-  mapping: Record<string, number>;
+	/**
+	 * Mapping from relative import path to module ID
+	 * Used at runtime to resolve imports: require("./Button") → modules[mapping["./Button"]]
+	 */
+	mapping: Record<string, number>;
 };

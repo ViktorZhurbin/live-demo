@@ -1,21 +1,21 @@
 {
-  "compilerOptions": {
-    "declaration": false,
-    "lib": ["DOM", "ES2022"],
-    "target": "ESNext",
-    "jsx": "react-jsx",
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true,
-    "useDefineForClassFields": true,
+	"compilerOptions": {
+		"declaration": false,
+		"lib": ["DOM", "ES2022"],
+		"target": "ESNext",
+		"jsx": "react-jsx",
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"useDefineForClassFields": true,
 
-    "paths": {
-      "node/*": ["./src/node/*"],
-      "shared/*": ["./src/shared/*"],
-      "web/*": ["./src/web/*"]
-    }
-  },
+		"paths": {
+			"node/*": ["./src/node/*"],
+			"shared/*": ["./src/shared/*"],
+			"web/*": ["./src/web/*"]
+		}
+	},
 
-  "include": ["src", "static", "tests"],
-  "exclude": ["node_modules", "dist", "tests/fixtures/invalid"]
+	"include": ["src", "static", "tests"],
+	"exclude": ["node_modules", "dist", "tests/fixtures/invalid"]
 }

@@ -15,17 +15,17 @@ import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { LiveDemoLanguage } from "shared/constants";
 import type {
-  DemoDataByPath,
-  LiveDemoPluginOptions,
-  LiveDemoPropsFromPlugin,
+	DemoDataByPath,
+	LiveDemoPluginOptions,
+	LiveDemoPropsFromPlugin,
 } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 
 interface RemarkPluginProps {
-  options?: LiveDemoPluginOptions["ui"];
-  getDemoDataByPath: () => DemoDataByPath; // Provides analyzed demo files
+	options?: LiveDemoPluginOptions["ui"];
+	getDemoDataByPath: () => DemoDataByPath; // Provides analyzed demo files
 }
 
 /**
@@ -36,66 +36,66 @@ interface RemarkPluginProps {
  * @returns Transformer function that modifies the MDX AST
  */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
-  options,
-  getDemoDataByPath,
+	options,
+	getDemoDataByPath,
 }) => {
-  // Get all analyzed demo data (populated by visitFilePaths during build)
-  const demoDataByPath = getDemoDataByPath();
+	// Get all analyzed demo data (populated by visitFilePaths during build)
+	const demoDataByPath = getDemoDataByPath();
 
-  return (tree, _vfile) => {
-    // Transform 1: External demo files
-    // Converts: <code src="./Button.tsx" />
-    // To: <LiveDemo files={{Button.tsx: "...", utils.ts: "..."}} entryFileName="Button.tsx" />
-    visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-      if (node.name !== "code") return;
+	return (tree, _vfile) => {
+		// Transform 1: External demo files
+		// Converts: <code src="./Button.tsx" />
+		// To: <LiveDemo files={{Button.tsx: "...", utils.ts: "..."}} entryFileName="Button.tsx" />
+		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
+			if (node.name !== "code") return;
 
-      const importPath = getMdxJsxAttribute(node, "src");
+			const importPath = getMdxJsxAttribute(node, "src");
 
-      // Skip if no src attribute or demo data not found
-      if (typeof importPath !== "string" || !demoDataByPath[importPath]) {
-        return;
-      }
+			// Skip if no src attribute or demo data not found
+			if (typeof importPath !== "string" || !demoDataByPath[importPath]) {
+				return;
+			}
 
-      // Get demo data (files + entry point) and merge with UI options
-      const props = getPropsWithOptions(demoDataByPath[importPath], options);
+			// Get demo data (files + entry point) and merge with UI options
+			const props = getPropsWithOptions(demoDataByPath[importPath], options);
 
-      // Transform the AST node from <code> to <LiveDemo>
-      Object.assign(node, {
-        type: "mdxJsxFlowElement",
-        name: "LiveDemo",
-        attributes: getJsxAttributesFromProps(props),
-      });
-    });
+			// Transform the AST node from <code> to <LiveDemo>
+			Object.assign(node, {
+				type: "mdxJsxFlowElement",
+				name: "LiveDemo",
+				attributes: getJsxAttributesFromProps(props),
+			});
+		});
 
-    // Transform 2: Inline code blocks
-    // Converts: ```jsx live\nfunction App() { return <div>Hello</div> }\n```
-    // To: <LiveDemo files={{App.jsx: "function App()..."}} entryFileName="App.jsx" />
-    visit(tree, "code", (node) => {
-      if (!node?.lang) return;
+		// Transform 2: Inline code blocks
+		// Converts: ```jsx live\nfunction App() { return <div>Hello</div> }\n```
+		// To: <LiveDemo files={{App.jsx: "function App()..."}} entryFileName="App.jsx" />
+		visit(tree, "code", (node) => {
+			if (!node?.lang) return;
 
-      const isLive = node.meta?.includes("live");
+			const isLive = node.meta?.includes("live");
 
-      // Only transform code blocks with 'live' meta and supported languages (jsx, tsx, js, ts)
-      if (!(isLive && node.lang in LiveDemoLanguage)) return;
+			// Only transform code blocks with 'live' meta and supported languages (jsx, tsx, js, ts)
+			if (!(isLive && node.lang in LiveDemoLanguage)) return;
 
-      // Create a single-file demo from the code block content
-      const entryFileName = `App.${node.lang}`;
-      const baseProps = {
-        entryFileName,
-        files: { [entryFileName]: node.value },
-      };
+			// Create a single-file demo from the code block content
+			const entryFileName = `App.${node.lang}`;
+			const baseProps = {
+				entryFileName,
+				files: { [entryFileName]: node.value },
+			};
 
-      const props = getPropsWithOptions(baseProps, options);
+			const props = getPropsWithOptions(baseProps, options);
 
-      // Transform the AST node from code block to <LiveDemo>
-      Object.assign(node, {
-        type: "mdxJsxFlowElement",
-        name: "LiveDemo",
-        attributes: getJsxAttributesFromProps(props),
-      });
-      return;
-    });
-  };
+			// Transform the AST node from code block to <LiveDemo>
+			Object.assign(node, {
+				type: "mdxJsxFlowElement",
+				name: "LiveDemo",
+				attributes: getJsxAttributesFromProps(props),
+			});
+			return;
+		});
+	};
 };
 
 /**
@@ -105,10 +105,10 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
  * @returns Props with or without options merged
  */
 function getPropsWithOptions(
-  props: LiveDemoPropsFromPlugin,
-  options?: LiveDemoPluginOptions["ui"],
+	props: LiveDemoPropsFromPlugin,
+	options?: LiveDemoPluginOptions["ui"],
 ) {
-  return options ? { ...props, options } : props;
+	return options ? { ...props, options } : props;
 }
 
 /**
@@ -120,11 +120,11 @@ function getPropsWithOptions(
  * @returns Array of MDX JSX attributes for the AST
  */
 function getJsxAttributesFromProps(
-  props: LiveDemoPropsFromPlugin,
+	props: LiveDemoPropsFromPlugin,
 ): MdxJsxFlowElement["attributes"] {
-  return Object.entries(props).map(([name, value]) => ({
-    name,
-    value: JSON.stringify(value), // Serialize to JSON string
-    type: "mdxJsxAttribute",
-  }));
+	return Object.entries(props).map(([name, value]) => ({
+		name,
+		value: JSON.stringify(value), // Serialize to JSON string
+		type: "mdxJsxAttribute",
+	}));
 }

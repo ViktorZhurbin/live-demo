@@ -26,19 +26,19 @@ import type { Module } from "./moduleTypes";
  * @returns Import path if statement has one, undefined otherwise
  */
 function extractSourcePath(
-  statement: Program["body"][number],
+	statement: Program["body"][number],
 ): string | undefined {
-  if (statement.type === "ImportDeclaration") {
-    // Regular import: import React from 'react'
-    return statement.source.value;
-  } else if (statement.type === "ExportNamedDeclaration" && statement.source) {
-    // Re-export with named exports: export { Button } from './Button'
-    return statement.source.value;
-  } else if (statement.type === "ExportAllDeclaration") {
-    // Re-export all: export * from './components'
-    return statement.source.value;
-  }
-  return undefined;
+	if (statement.type === "ImportDeclaration") {
+		// Regular import: import React from 'react'
+		return statement.source.value;
+	} else if (statement.type === "ExportNamedDeclaration" && statement.source) {
+		// Re-export with named exports: export { Button } from './Button'
+		return statement.source.value;
+	} else if (statement.type === "ExportAllDeclaration") {
+		// Re-export all: export * from './components'
+		return statement.source.value;
+	}
+	return undefined;
 }
 
 /**
@@ -75,29 +75,29 @@ function extractSourcePath(
  * // }
  */
 export function analyzeModule(params: {
-  fileName: PathWithAllowedExt;
-  absolutePath: PathWithAllowedExt;
+	fileName: PathWithAllowedExt;
+	absolutePath: PathWithAllowedExt;
 }): Module {
-  const { absolutePath, fileName } = params;
+	const { absolutePath, fileName } = params;
 
-  // Read file and parse to AST
-  const { files, ast } = getFilesAndAst({ absolutePath, fileName });
+	// Read file and parse to AST
+	const { files, ast } = getFilesAndAst({ absolutePath, fileName });
 
-  // Walk through all top-level statements and extract dependencies
-  const dependencies: string[] = [];
-  for (const statement of ast.body) {
-    const sourcePath = extractSourcePath(statement);
-    if (sourcePath) {
-      dependencies.push(sourcePath);
-    }
-  }
+	// Walk through all top-level statements and extract dependencies
+	const dependencies: string[] = [];
+	for (const statement of ast.body) {
+		const sourcePath = extractSourcePath(statement);
+		if (sourcePath) {
+			dependencies.push(sourcePath);
+		}
+	}
 
-  return {
-    id: -1, // Placeholder - assigned by buildModuleGraph based on BFS order
-    fileName,
-    absolutePath,
-    dependencies, // List of all imports/exports found
-    content: files[fileName], // Raw source code
-    mapping: {}, // Placeholder - populated during graph traversal
-  };
+	return {
+		id: -1, // Placeholder - assigned by buildModuleGraph based on BFS order
+		fileName,
+		absolutePath,
+		dependencies, // List of all imports/exports found
+		content: files[fileName], // Raw source code
+		mapping: {}, // Placeholder - populated during graph traversal
+	};
 }
