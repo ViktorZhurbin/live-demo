@@ -16,7 +16,7 @@ Last updated: 2026-07-17.
 3. **Runtime dependency majors** (each needs actual UI
    testing against the website, not just typecheck):
    - `react-resizable-panels` 3 → 4 — ✅ done (2026-07-18).
-   - `@mantine/hooks` 8 → 9 — ⬜ not started
+   - `@mantine/hooks` 8 → 9 — ✅ done (2026-07-18).
    - `babel` 7 → 8 — ✅ done (2026-07-17), see CDN section below
 4. **✅ Done — `oxc-parser`/`@oxc-project/types` 0.103.0 → 0.140.0.**
 5. **✅ Done — `@types/node` 24.9.2 → 22** - `@types/node`'s major should track the

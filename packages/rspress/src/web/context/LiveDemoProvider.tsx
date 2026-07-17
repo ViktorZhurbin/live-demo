@@ -1,4 +1,4 @@
-import { useFullscreen } from "@mantine/hooks";
+import { useFullscreenElement } from "@mantine/hooks";
 import { createContext, useCallback, useContext, useState } from "react";
 import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "shared/types";
 import type { LiveDemoStringifiedProps } from "web/types";
@@ -14,7 +14,7 @@ type LiveDemoContextValue = {
 	updateFiles: (update: LiveDemoFiles) => void;
 
 	isDark: boolean;
-	fullscreen: ReturnType<typeof useFullscreen>;
+	fullscreen: ReturnType<typeof useFullscreenElement>;
 	options: LiveDemoPropsFromPlugin["options"];
 	entryFileName: LiveDemoPropsFromPlugin["entryFileName"];
 };
@@ -30,7 +30,7 @@ type LiveDemoProviderProps = {
 };
 
 function LiveDemoProvider(props: LiveDemoProviderProps) {
-	const fullscreen = useFullscreen();
+	const fullscreen = useFullscreenElement();
 	const pluginProps = parseProps(props.pluginProps);
 
 	const [files, setFiles] = useState(pluginProps.files);
