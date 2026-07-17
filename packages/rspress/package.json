@@ -43,8 +43,6 @@
 		"@uiw/react-codemirror": "^4.25.11",
 		"clsx": "^2.1.1",
 		"oxc-parser": "^0.140.0",
-		"react": "^19",
-		"react-dom": "^19",
 		"react-error-boundary": "^6.1.2",
 		"react-resizable-panels": "^3.0.4",
 		"rsbuild-plugin-virtual-module": "^0.4.5"

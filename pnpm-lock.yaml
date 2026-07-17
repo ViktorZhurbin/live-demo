@@ -47,11 +47,8 @@ importers:
       oxc-parser:
         specifier: ^0.140.0
         version: 0.140.0
-      react:
-        specifier: ^19
-        version: 19.2.7
       react-dom:
-        specifier: ^19
+        specifier: '>=19.0.0'
         version: 19.2.7(react@19.2.7)
       react-error-boundary:
         specifier: ^6.1.2
@@ -111,6 +108,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.10
         version: 4.1.10(vitest@4.1.10)
+      react:
+        specifier: ^19
+        version: 19.2.7
       tsdown:
         specifier: 0.22.9
         version: 0.22.9(@tsdown/css@0.22.9)(typescript@6.0.3)(unrun@0.2.39)
