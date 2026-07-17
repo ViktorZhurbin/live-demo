@@ -58,8 +58,8 @@ export type LiveDemoPluginOptions = {
 	 *   resizablePanels: {
 	 *     autoSaveId: "my-auto-save-id",
 	 *     defaultPanelSizes: {
-	 *       editor: 50,
-	 *       preview: 50,
+	 *       editor: "50%",
+	 *       preview: "50%",
 	 *     },
 	 *   },
 	 * }

@@ -15,7 +15,7 @@ Last updated: 2026-07-17.
 2. **✅ Done — `@rspress/core` rc.4 → 2.0.18.**
 3. **Runtime dependency majors** (each needs actual UI
    testing against the website, not just typecheck):
-   - `react-resizable-panels` 3 → 4 — ⬜ not started
+   - `react-resizable-panels` 3 → 4 — ✅ done (2026-07-18).
    - `@mantine/hooks` 8 → 9 — ⬜ not started
    - `babel` 7 → 8 — ✅ done (2026-07-17), see CDN section below
 4. **✅ Done — `oxc-parser`/`@oxc-project/types` 0.103.0 → 0.140.0.**

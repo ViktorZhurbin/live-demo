@@ -11,7 +11,7 @@ export default defineConfig({
 			ui: {
 				resizablePanels: {
 					autoSaveId: "live-demo-docs",
-					defaultPanelSizes: { editor: 55, preview: 45 },
+					defaultPanelSizes: { editor: "55%", preview: "45%" },
 				},
 			},
 		}),

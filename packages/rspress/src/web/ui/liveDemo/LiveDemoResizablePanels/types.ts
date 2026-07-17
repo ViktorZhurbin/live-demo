@@ -16,19 +16,20 @@ export type LiveDemoResizablePanelsProps = {
 	 */
 	verticalThreshold?: number;
 	/**
-	 * Default panel sizes in %.
+	 * Default panel sizes.
+	 * Percentage strings (e.g. `"50%"`) or pixel numbers.
 	 */
 	defaultPanelSizes?: {
 		/**
-		 * Default panel size in %.
-		 * @defaultValue `50`
+		 * Default panel size.
+		 * @defaultValue `"50%"`
 		 */
-		editor?: number;
+		editor?: string | number;
 		/**
-		 * Default panel size in %.
-		 * @defaultValue `50`
+		 * Default panel size.
+		 * @defaultValue `"50%"`
 		 */
-		preview?: number;
+		preview?: string | number;
 	};
 	classes?: {
 		wrapper?: string;

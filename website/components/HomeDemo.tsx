@@ -20,7 +20,7 @@ export const HomeDemo = () => {
 				entryFileName: JSON.stringify("MultiFile.tsx"),
 				options: JSON.stringify({
 					resizablePanels: {
-						defaultPanelSizes: { editor: 70, preview: 40 },
+						defaultPanelSizes: { editor: "70%", preview: "40%" },
 					},
 				}),
 			}}

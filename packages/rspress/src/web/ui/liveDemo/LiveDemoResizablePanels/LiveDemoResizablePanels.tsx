@@ -1,6 +1,11 @@
 import { useElementSize } from "@mantine/hooks";
 import clsx from "clsx";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import {
+	Group,
+	Panel,
+	Separator,
+	useDefaultLayout,
+} from "react-resizable-panels";
 import { PanelsView } from "web/constants/settings";
 import { useLiveDemoContext } from "web/context";
 import { useLocalStorageView } from "web/hooks/useLocalStorage";
@@ -18,10 +23,15 @@ export const LiveDemoResizablePanels = (
 		classes,
 		autoSaveId,
 		verticalThreshold = 550,
-		defaultPanelSizes = { editor: 50, preview: 50 },
+		defaultPanelSizes = { editor: "50%", preview: "50%" },
 	} = mergedOptions;
 
 	const [panelsView] = useLocalStorageView();
+
+	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
+		id: autoSaveId ?? "live-demo-resizable-panels",
+		storage: autoSaveId ? localStorage : undefined,
+	});
 
 	const wrapperSize = useElementSize();
 	const isVertical = wrapperSize.width < verticalThreshold;
@@ -38,42 +48,49 @@ export const LiveDemoResizablePanels = (
 		[styles.hiddenPanel]: panelsView === PanelsView.Editor,
 	});
 
+	const editorPanel = (
+		<Panel
+			key="editor"
+			id="editor"
+			className={editorClasses}
+			defaultSize={defaultPanelSizes.editor}
+			onKeyDown={(e) => {
+				// to avoid interfering with global event listeners
+				e.stopPropagation();
+			}}
+		>
+			{props.editor ?? (
+				<>
+					<LiveDemoFileTabs />
+					<LiveDemoEditor />
+				</>
+			)}
+		</Panel>
+	);
+
+	const previewPanel = (
+		<Panel
+			key="preview"
+			id="preview"
+			className={previewClasses}
+			defaultSize={defaultPanelSizes.preview}
+		>
+			{props.preview ?? <LiveDemoPreview />}
+		</Panel>
+	);
+
 	return (
 		<div className={wrapperClass} ref={wrapperSize.ref}>
-			<PanelGroup
-				autoSaveId={autoSaveId}
-				style={{ flexDirection: isVertical ? "column-reverse" : "row" }}
-				direction={isVertical ? "vertical" : "horizontal"}
+			<Group
+				defaultLayout={defaultLayout}
+				onLayoutChanged={onLayoutChanged}
+				style={{ flexDirection: isVertical ? "column" : "row" }}
+				orientation={isVertical ? "vertical" : "horizontal"}
 			>
-				<Panel
-					id="editor"
-					className={editorClasses}
-					defaultSize={defaultPanelSizes.editor}
-					order={isVertical ? 1 : 0}
-					onKeyDown={(e) => {
-						// to avoid interfering with global event listeners
-						e.stopPropagation();
-					}}
-				>
-					{props.editor ?? (
-						<>
-							<LiveDemoFileTabs />
-							<LiveDemoEditor />
-						</>
-					)}
-				</Panel>
-
-				<PanelResizeHandle className={styles.resizeHandle} />
-
-				<Panel
-					id="preview"
-					className={previewClasses}
-					defaultSize={defaultPanelSizes.preview}
-					order={isVertical ? 0 : 1}
-				>
-					{props.preview ?? <LiveDemoPreview />}
-				</Panel>
-			</PanelGroup>
+				{isVertical ? previewPanel : editorPanel}
+				<Separator className={styles.resizeHandle} />
+				{isVertical ? editorPanel : previewPanel}
+			</Group>
 		</div>
 	);
 };

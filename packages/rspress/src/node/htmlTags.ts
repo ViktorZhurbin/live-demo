@@ -1,3 +1,5 @@
+// TODO: consider reading versions from `package.json` so CDN-pin drift shows up in `pnpm outdated`.
+
 /**
  * HTML tags injected into the document head by Rspress plugin
  *

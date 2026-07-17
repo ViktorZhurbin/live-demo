@@ -32,7 +32,7 @@
 		transition: background-color 0.1s ease-out;
 	}
 
-	&[data-panel-group-direction="vertical"] {
+	&[aria-orientation="horizontal"] {
 		width: 100%;
 		height: var(--handle-width);
 
@@ -41,8 +41,8 @@
 		}
 	}
 
-	&[data-resize-handle-state="hover"]::after,
-	&[data-resize-handle-state="drag"]::after {
+	&[data-separator="hover"]::after,
+	&[data-separator="active"]::after {
 		background-color: #007fd4;
 	}
 }
