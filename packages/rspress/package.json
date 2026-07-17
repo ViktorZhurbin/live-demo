@@ -31,8 +31,7 @@
 		"build": "tsdown",
 		"dev": "tsdown --watch",
 		"test": "vitest run",
-		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:watch": "vitest"
 	},
 	"dependencies": {
 		"@codemirror/lang-javascript": "^6.2.4",

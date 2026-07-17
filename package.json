@@ -2,15 +2,12 @@
 	"name": "live-demo-monorepo",
 	"private": true,
 	"scripts": {
-		"prepublish": "pnpm build:lib",
-		"publish": "pnpm --filter '@live-demo/rspress' publish",
-		"build:web": "pnpm build:lib && pnpm --filter website build",
 		"build:lib": "pnpm --filter '@live-demo/rspress' build",
+		"build:web": "pnpm build:lib && pnpm --filter 'website' build",
+		"release": "pnpm build:lib && pnpm --filter '@live-demo/rspress' publish",
+		"test": "pnpm --recursive run test",
 		"format": "biome check --write",
-		"prepare": "husky",
-		"test": "pnpm -r run test",
-		"test:ui": "pnpm -r run test:ui",
-		"test:coverage": "pnpm -r run test:coverage"
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.4",
