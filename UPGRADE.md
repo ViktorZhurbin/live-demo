@@ -17,9 +17,6 @@ Last updated: 2026-07-17.
    testing against the website, not just typecheck):
    - `react-resizable-panels` 3 → 4
    - `@mantine/hooks` 8 → 9
-   - `@rsbuild/plugin-react` 1.4.2 → 2.1.0 (see note below — confirmed still
-     unused anywhere in `src/` or config; may be dead weight, confirm before
-     just bumping)
    - `babel` 7 → 8
 4. Still outdated per `pnpm outdated -r`:
    `oxc-parser`/`@oxc-project/types` (0.103.0 → 0.140.0). `@types/node` has
@@ -35,12 +32,6 @@ Last updated: 2026-07-17.
   of `rsbuild-plugin-virtual-module` since at least rc.4 — still works in
   2.0.18, not urgent, but flag as a followup since a future rspress major
   could remove it.
-- rspress core's own internal `@rsbuild/plugin-react` pin moved `~1.4.2` →
-  `~2.1.0` between rc.4 and 2.0.18, matching what `pnpm outdated` shows for
-  our own devDependency of the same name — **except this repo's
-  `@rsbuild/plugin-react` devDependency isn't actually imported anywhere in
-  `src/` or `tests/`.** Before bumping it, confirm what it's for (leftover
-  scaffold dependency?) — it may be safe to just remove.
 
 ## CDN-pinned Babel/Rollup — a separate, easy-to-miss upgrade surface
 
@@ -56,8 +47,5 @@ shows up in `pnpm outdated`.
 
 ## Open questions for a future session
 
-- Is `@rsbuild/plugin-react` still needed as a direct devDependency?
-  (Confirmed as of this update: not imported anywhere in `src/` or any
-  config file — likely safe to remove instead of bumping.)
 - Worth migrating `addRuntimeModules` → `rsbuild-plugin-virtual-module` in
   this pass, or defer to a later cycle?
