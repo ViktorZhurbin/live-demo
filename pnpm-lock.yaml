@@ -84,6 +84,9 @@ importers:
         specifier: '>=4.0.0'
         version: 5.1.0
     devDependencies:
+      '@babel/standalone':
+        specifier: 7.28.3
+        version: 7.28.3
       '@babel/types':
         specifier: ^7.28.5
         version: 7.29.7
@@ -91,8 +94,8 @@ importers:
         specifier: ^0.103.0
         version: 0.103.0
       '@rollup/browser':
-        specifier: ^4.53.5
-        version: 4.62.2
+        specifier: 4.46.3
+        version: 4.46.3
       '@rspress/core':
         specifier: 2.0.0-rc.4
         version: 2.0.0-rc.4(@types/react@19.2.17)
@@ -188,6 +191,10 @@ packages:
 
   '@babel/runtime@7.29.7':
     resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/standalone@7.28.3':
+    resolution: {integrity: sha512-VHmaaU23OkxShTtkwXlte7/uHDK8v55J9YLMqlucjnYujeB9YgrYCHU6LREqUegTVq+/KlLgjoUu8lbeI3XQPA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/types@7.29.7':
@@ -815,8 +822,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@rollup/browser@4.62.2':
-    resolution: {integrity: sha512-M82p7Avq05+DLkpkQGGZJbtypWCoAUKmCT2m6n2nkc9OXfyykSc8PZhVL3oQjJn5WGnJA5KwwGIdIqXbsWYiaA==}
+  '@rollup/browser@4.46.3':
+    resolution: {integrity: sha512-9M7tIlfp+v3SaDU3XBeqs5fzzIa1DdeK7Aq5hsfR3VEuLQwC7+3TPiBnOxkWNzxptAaaAHJ3oFpZ1l4TP5Nisg==}
 
   '@rsbuild/core@1.6.15':
     resolution: {integrity: sha512-LvoOF53PL6zXgdzEhgnnP51S4FseDFH1bHrobK4EK6zZX/tN8qgf5tdlmN7h4OkMv/Qs1oUfvj0QcLWSstnnvA==}
@@ -1055,6 +1062,9 @@ packages:
 
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
+
+  '@types/estree@1.0.8':
+    resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -2617,6 +2627,8 @@ snapshots:
 
   '@babel/runtime@7.29.7': {}
 
+  '@babel/standalone@7.28.3': {}
+
   '@babel/types@7.29.7':
     dependencies:
       '@babel/helper-string-parser': 7.29.7
@@ -3174,9 +3186,9 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@rollup/browser@4.62.2':
+  '@rollup/browser@4.46.3':
     dependencies:
-      '@types/estree': 1.0.9
+      '@types/estree': 1.0.8
 
   '@rsbuild/core@1.6.15':
     dependencies:
@@ -3480,6 +3492,8 @@ snapshots:
   '@types/estree-jsx@1.0.5':
     dependencies:
       '@types/estree': 1.0.9
+
+  '@types/estree@1.0.8': {}
 
   '@types/estree@1.0.9': {}
 

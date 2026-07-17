@@ -1,3 +1,4 @@
+import Babel from "@babel/standalone";
 import { vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
@@ -11,8 +12,9 @@ vi.mock("*.module.css", () => ({
   ),
 }));
 
-// Mock window.Babel for runtime tests (will be overridden in specific tests)
 global.window = global.window || {};
 
-// Mock window.rollup for runtime tests (will be overridden in specific tests)
-// These are loaded from CDN in production
+// In production, Babel is loaded from CDN as window.Babel (see htmlTags.ts).
+// @babel/standalone gives tests the same shape so code under test doesn't
+// need to know it's running in Node.
+global.window.Babel = Babel;

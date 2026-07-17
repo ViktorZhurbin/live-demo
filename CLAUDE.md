@@ -47,6 +47,16 @@ then Rollup (`@rollup/browser`, also CDN) bundles the modules using a custom
 resolver plugin that maps `require("./Button")` to the right entry via the
 module graph's `mapping`, then the bundle runs in a sandboxed iframe.
 
+The CDN versions pinned in `htmlTags.ts` (`src/node/htmlTags.ts`) are the
+actual runtime versions — they aren't tracked by `package.json`/
+`pnpm outdated -r`. `@babel/standalone` and `@rollup/browser` in
+`devDependencies` must be **exact versions with no `^`/`~`, matching
+`htmlTags.ts` verbatim** — if you bump one, bump the other in the same
+commit. A version mismatch defeats the point (tests would pass against a
+Babel/Rollup build the browser never actually runs), and a newer major can
+silently break the compiler pipeline with no build-time signal (see
+`UPGRADE.md`).
+
 ### Module graph (the core bundler logic)
 
 Inspired by webpack/Rollup. When `Button.tsx` imports `./theme` and `./Icon`,
