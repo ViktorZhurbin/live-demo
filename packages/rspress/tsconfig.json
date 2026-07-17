@@ -2,22 +2,17 @@
   "compilerOptions": {
     "declaration": false,
     "lib": ["DOM", "ES2022"],
-    "module": "ESNext",
     "target": "ESNext",
     "jsx": "react-jsx",
-    "strict": true,
     "skipLibCheck": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "moduleResolution": "bundler",
     "useDefineForClassFields": true,
-    "esModuleInterop": true,
 
-    "baseUrl": ".",
     "paths": {
-      "node/*": ["src/node/*"],
-      "shared/*": ["src/shared/*"],
-      "web/*": ["src/web/*"]
+      "node/*": ["./src/node/*"],
+      "shared/*": ["./src/shared/*"],
+      "web/*": ["./src/web/*"]
     }
   },
 
