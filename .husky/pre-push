@@ -1,1 +1,1 @@
-pnpm build:lib && pnpm typecheck && pnpm test
+pnpm run verify
