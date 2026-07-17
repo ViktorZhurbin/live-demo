@@ -10,7 +10,16 @@ export function parseProps(
 ): LiveDemoPropsFromPlugin {
 	return Object.fromEntries(
 		Object.entries(props).map(([key, value]) => {
-			return [key, JSON.parse(value)];
+			try {
+				return [key, JSON.parse(value)];
+			} catch (cause) {
+				// The plugin JSON.stringifies these props at build time, so a parse
+				// failure means the two sides are out of sync — surface which prop
+				// broke rather than letting a raw SyntaxError bubble up.
+				throw new Error(`Failed to parse LiveDemo prop \`${key}\``, {
+					cause,
+				});
+			}
 		}),
 	) as LiveDemoPropsFromPlugin;
 }

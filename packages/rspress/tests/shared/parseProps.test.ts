@@ -102,15 +102,15 @@ describe("parseProps", () => {
     expect(result.files["App.tsx"]).toBe(codeWithUnicode);
   });
 
-  // Note: Currently parseProps doesn't handle invalid JSON gracefully
-  // This test documents the current behavior and will fail until error handling is added
-  it.skip("should throw error for malformed JSON", () => {
+  it("throws, naming the offending prop, on malformed JSON", () => {
     const stringifiedProps = {
       files: "{invalid json}",
       entryFileName: JSON.stringify("App.tsx"),
       options: JSON.stringify({}),
     };
 
-    expect(() => parseProps(stringifiedProps as any)).toThrow();
+    expect(() => parseProps(stringifiedProps as any)).toThrow(
+      /Failed to parse LiveDemo prop `files`/,
+    );
   });
 });

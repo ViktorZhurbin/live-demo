@@ -98,9 +98,7 @@ describe("getFilesAndAst", () => {
     expect(code).toContain("export default");
   });
 
-  // Note: Currently getFilesAndAst doesn't handle parse errors
-  // This documents expected behavior - should be enhanced with error handling
-  it.skip("should handle invalid syntax gracefully", () => {
+  it("throws on invalid syntax instead of returning a partial AST", () => {
     expect(() =>
       getFilesAndAst({
         fileName: "InvalidSyntax.tsx",
@@ -109,7 +107,7 @@ describe("getFilesAndAst", () => {
           "invalid/InvalidSyntax.tsx",
         ) as any,
       }),
-    ).toThrow();
+    ).toThrow(/Failed to parse `InvalidSyntax\.tsx`/);
   });
 
   it("should create files object with correct key", () => {

@@ -5,6 +5,7 @@
 		"build:lib": "pnpm --filter '@live-demo/rspress' build",
 		"build:web": "pnpm build:lib && pnpm --filter 'website' build",
 		"release": "pnpm build:lib && pnpm --filter '@live-demo/rspress' publish",
+		"typecheck": "pnpm --recursive run typecheck",
 		"test": "pnpm --recursive run test",
 		"format": "biome check --write",
 		"prepare": "husky"

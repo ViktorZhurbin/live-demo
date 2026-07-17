@@ -171,15 +171,13 @@ describe("getFnFromString", () => {
 		expect(result({})).toEqual({ result: 10 });
 	});
 
-	// Note: Error handling for missing default export is not implemented
-	// This documents expected behavior
-	it.skip("should throw error when no default export", () => {
+	it("throws when the bundle produces no default export", () => {
 		const code = `
       const MyComponent = () => 'Test';
       // No exports.default
     `;
 
-		expect(() => getFnFromString(code)).toThrow();
+		expect(() => getFnFromString(code)).toThrow(/no default export/);
 	});
 
 	it("should handle components that use getImport for dependencies", () => {

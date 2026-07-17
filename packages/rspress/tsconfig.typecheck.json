@@ -1,0 +1,11 @@
+{
+	// Type-checking only (`tsc --noEmit`). The base tsconfig deliberately omits
+	// module resolution because tsdown injects it at build time; this file adds
+	// bundler-style resolution so `tsc` can resolve imports on its own.
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"module": "Preserve",
+		"moduleResolution": "Bundler",
+		"noEmit": true
+	}
+}

@@ -43,6 +43,18 @@ export const getFilesAndAst = (
 		sourceType: "module", // ES modules (import/export syntax)
 	});
 
+	// OXC reports syntax errors on `parsed.errors` rather than throwing, so a
+	// broken file would otherwise slip through with a partial/empty AST. Fail
+	// loudly here so buildModuleGraph surfaces it at build time instead of
+	// shipping a demo that silently drops imports.
+	const errors = parsed.errors.filter((error) => error.severity === "Error");
+	if (errors.length > 0) {
+		const [first] = errors;
+		throw new Error(
+			`Failed to parse \`${fileName}\`: ${first.message}\n${first.codeframe ?? ""}`,
+		);
+	}
+
 	const ast = parsed.program;
 
 	return { files, ast };

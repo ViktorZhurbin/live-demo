@@ -31,7 +31,7 @@ export const LiveDemoControlPanel = () => {
 				<ToggleButtonGroup
 					values={getPanelViewsValues(isNarrow)}
 					activeValue={panelsView}
-					setValue={setPanelsView}
+					setValue={(value) => setPanelsView(value)}
 				/>
 			</div>
 
