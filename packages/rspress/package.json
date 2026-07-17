@@ -60,7 +60,7 @@
 		"@types/babel__core": "^7.20.5",
 		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^4.0.4",
-		"@types/node": "^24.9.2",
+		"@types/node": "^22",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitest/coverage-v8": "^4.1.10",

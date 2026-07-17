@@ -19,8 +19,8 @@ Last updated: 2026-07-17.
    - `@mantine/hooks` 8 → 9
    - `babel` 7 → 8
 4. **✅ Done — `oxc-parser`/`@oxc-project/types` 0.103.0 → 0.140.0.**
-5. `@types/node` has a new major available (24 → 26) — out of scope for
-   this pass, revisit separately.
+5. **✅ Done — `@types/node` 24.9.2 → 22** - `@types/node`'s major should track the
+   lowest Node version this plugin claims to support.
 6. **⬜ Not started — Single major version bump + publish** once the above
    lands and the website builds/renders correctly (both `<code src="...">`
    and ` ```jsx live ` demo forms, external-file and multi-file cases).
