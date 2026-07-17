@@ -57,6 +57,12 @@ Babel/Rollup build the browser never actually runs), and a newer major can
 silently break the compiler pipeline with no build-time signal (see
 `UPGRADE.md`).
 
+Type packages (`@types/babel__core`, `@types/babel__standalone`) deliberately
+stay on Babel 7 even though the runtime is on `@babel/standalone@8` —
+`@babel/standalone` ships no types and has no v8 DefinitelyTyped stub, so
+pairing it with a real `@babel/core@8` creates a v7/v8 type split-brain
+requiring `as unknown as` casts. Don't "modernize" them independently.
+
 ### Module graph (the core bundler logic)
 
 Inspired by webpack/Rollup. When `Button.tsx` imports `./theme` and `./Icon`,

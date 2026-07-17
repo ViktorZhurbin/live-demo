@@ -13,11 +13,11 @@ Last updated: 2026-07-17.
    deprecation warning fixed (hook files no longer source the `husky.sh`
    boilerplate). Biome 2.3.9 → 2.5.4 bumped.
 2. **✅ Done — `@rspress/core` rc.4 → 2.0.18.**
-3. **⬜ Not started — Runtime dependency majors** (each needs actual UI
+3. **Runtime dependency majors** (each needs actual UI
    testing against the website, not just typecheck):
-   - `react-resizable-panels` 3 → 4
-   - `@mantine/hooks` 8 → 9
-   - `babel` 7 → 8
+   - `react-resizable-panels` 3 → 4 — ⬜ not started
+   - `@mantine/hooks` 8 → 9 — ⬜ not started
+   - `babel` 7 → 8 — ✅ done (2026-07-17), see CDN section below
 4. **✅ Done — `oxc-parser`/`@oxc-project/types` 0.103.0 → 0.140.0.**
 5. **✅ Done — `@types/node` 24.9.2 → 22** - `@types/node`'s major should track the
    lowest Node version this plugin claims to support.
@@ -34,16 +34,15 @@ Last updated: 2026-07-17.
 
 ## CDN-pinned Babel/Rollup — a separate, easy-to-miss upgrade surface
 
-`htmlTags.ts` pins `@babel/standalone@7.28.3` and `@rollup/browser@4.62.2`
-via CDN `<script>` tags — invisible to `pnpm outdated -r`. Confirmed
-breakage risk: Babel 8 removes the `.allExtensions`/`.isTSX` preset-typescript
-options `babelTransformCode.ts` relies on, so bumping the CDN pin to 8.x
-would silently break every `.tsx` demo at runtime with no build-time check.
-Both devDependencies now pin the exact CDN versions (see `CLAUDE.md`).
+`htmlTags.ts` pins `@babel/standalone@8.0.4` and `@rollup/browser@4.62.2`
+via CDN `<script>` tags — invisible to `pnpm outdated -r`. Both
+devDependencies pin the exact CDN versions (see `CLAUDE.md`).
 
-- **✅ Done (2026-07-17) — `@rollup/browser` 4.46.3 → 4.62.2.**
+- **✅ Done (2026-07-17) — `@rollup/browser` 4.46.3 → 4.62.2.** Still Rollup
+  4.x, no plugin-API impact (see git history for details).
+- **✅ Done (2026-07-17) — `@babel/standalone` 7.28.3 → 8.0.4.** Type
+  packages deliberately stay on Babel 7 — see `CLAUDE.md` for why.
 
-Future phase: reconcile the Babel CDN pin (still 7.x, step 3 covers the
-`babel` devDependency major) with this work, and consider making
-`htmlTags.ts` read from `package.json` so drift shows up in `pnpm outdated`.
+Future phase: consider making `htmlTags.ts` read from `package.json` so
+CDN-pin drift shows up in `pnpm outdated`.
 

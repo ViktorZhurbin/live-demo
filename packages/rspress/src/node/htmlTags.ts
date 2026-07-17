@@ -18,7 +18,7 @@ export const htmlTags = [
 		tag: "script",
 		head: true,
 		attrs: {
-			src: "https://cdn.jsdelivr.net/npm/@babel/standalone@7.28.3/babel.min.js",
+			src: "https://cdn.jsdelivr.net/npm/@babel/standalone@8.0.4/babel.min.js",
 		},
 	},
 	// Rollup: Bundles and resolves module imports in the browser

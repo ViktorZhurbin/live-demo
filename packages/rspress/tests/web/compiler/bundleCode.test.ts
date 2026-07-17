@@ -10,7 +10,11 @@ import { getFnFromString } from "web/ui/preview/LiveDemoCodeRunner/compiler/getF
 vi.mock("_live_demo_virtual_modules", () => ({
 	default: (moduleName: string) => {
 		if (moduleName === "react") {
-			return { useState: () => [null, () => {}] };
+			return {
+				useState: () => [null, () => {}],
+				createElement: (tag: string, _props: unknown, ...children: unknown[]) =>
+					`<${tag}>${children.join("")}</${tag}>`,
+			};
 		}
 		throw new Error(`Can't resolve ${moduleName}`);
 	},
@@ -109,5 +113,16 @@ describe("bundleCode", () => {
 		const fn = getFnFromString(code);
 
 		expect(fn({ value: 21 })).toBe(42);
+	});
+
+	it("transpiles JSX to React.createElement calls resolvable via the virtual module", async () => {
+		const files: LiveDemoFiles = {
+			"App.tsx": `export default function App() { return <div>Hello</div>; }`,
+		};
+
+		const code = await bundleCode({ files, entryFileName: "App.tsx" });
+		const fn = getFnFromString(code);
+
+		expect(fn({})).toBe("<div>Hello</div>");
 	});
 });

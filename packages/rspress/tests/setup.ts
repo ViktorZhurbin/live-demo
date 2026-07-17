@@ -1,6 +1,5 @@
 import Babel from "@babel/standalone";
 import { vi } from "vitest";
-import "@testing-library/jest-dom/vitest";
 
 // Mock CSS modules
 vi.mock("*.module.css", () => ({
