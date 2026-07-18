@@ -11,7 +11,7 @@
 		"release": "pnpm build:lib && pnpm --filter '@live-demo/rspress' publish",
 		"typecheck": "pnpm --recursive run typecheck",
 		"test": "pnpm --recursive run test",
-		"verify": "pnpm build:lib && pnpm typecheck && pnpm test",
+		"verify": "pnpm build:web && pnpm typecheck && pnpm test",
 		"format": "oxfmt",
 		"lint": "oxlint --fix --format=agent",
 		"check": "pnpm run format && pnpm run lint",
