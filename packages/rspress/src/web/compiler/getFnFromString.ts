@@ -15,7 +15,7 @@ import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
  * That's an accepted trade for a docs tool whose demo authors are as trusted
  * as the docs themselves.
  */
-export function getFnFromString(fnCode: string) {
+export function getFnFromString(fnCode: string, entryFileName?: string) {
 	// Babel transforms every export in the bundle to `exports.default`, so
 	// passing this in as the `exports` argument is how the function's default
 	// export ends up assigned to `exportsStub.default` below.
@@ -40,7 +40,7 @@ export function getFnFromString(fnCode: string) {
 	// Guard only against missing (null/undefined): memo/forwardRef components
 	// are objects, not functions, but are still valid default exports.
 	if (componentFn == null) {
-		throw new LiveDemoError("NO_DEFAULT_EXPORT", {});
+		throw new LiveDemoError("NO_DEFAULT_EXPORT", { entryFileName });
 	}
 
 	return componentFn;

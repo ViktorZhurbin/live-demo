@@ -81,6 +81,19 @@ describe("formatSplicedMessage", () => {
 
 		expect(formatSplicedMessage(content)).toBe("Can't resolve lodash.");
 	});
+
+	// getVirtualModulesCode.ts splices this one unescaped inside a real
+	// template literal in generated code. A backtick or a `${...}` in the
+	// wording would close or hijack that literal, turning the virtual module
+	// into a syntax error that breaks every demo on every page at once.
+	it("keeps spliced messages free of template-literal syntax", () => {
+		const spliced = formatSplicedMessage(
+			errorMessages.EXTERNAL_IMPORT_NOT_FOUND({ importName: "lodash" }),
+		);
+
+		expect(spliced).not.toContain("`");
+		expect(spliced).not.toContain("${");
+	});
 });
 
 describe("toPayload", () => {

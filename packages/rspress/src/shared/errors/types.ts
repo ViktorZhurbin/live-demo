@@ -7,7 +7,7 @@ export type ErrorTokens = {
 	IMPORT_NOT_RESOLVED: { importPath: string };
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
 	INVALID_CUSTOM_LAYOUT: { customLayout: string };
-	/** entryFileName is known at the CodeRunner call site but not inside getFnFromString itself. */
+	/** Optional: getFnFromString is callable without an entry file name (tests, direct use). */
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };
 	PROVIDER_MISSING: undefined;

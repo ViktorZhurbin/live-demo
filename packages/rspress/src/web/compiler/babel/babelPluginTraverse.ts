@@ -68,10 +68,11 @@ export const babelPluginTraverse = (): PluginItem => {
 					code.push(importNode);
 
 					const importNames = namedImports.map((importString) => {
-						// Extract local name from internal format: "importedName: localName" -> "localName"
-						const parts = importString.split(":").map((part) => part.trim());
+						// Extract local name from internal format: "importedName: localName" -> "localName".
+						// A plain name has no colon, so it falls back to itself.
+						const [, localName = importString] = importString.split(":");
 
-						return parts.at(-1);
+						return localName.trim();
 					});
 
 					for (const importName of importNames) {
@@ -121,13 +122,13 @@ function createImportValidationError({
 	importName,
 	pkg,
 }: {
-	importName?: string;
+	importName: string;
 	pkg: string;
 }) {
 	// Generated code can't import LiveDemoError, so splice the formatted
 	// text (message + hint) in as a plain string instead.
 	const message = formatSplicedMessage(
-		errorMessages.UNDEFINED_NAMED_IMPORT({ importName: importName ?? "", pkg }),
+		errorMessages.UNDEFINED_NAMED_IMPORT({ importName, pkg }),
 	);
 
 	const validationCode = `

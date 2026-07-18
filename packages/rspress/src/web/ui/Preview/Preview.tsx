@@ -49,11 +49,12 @@ export const Preview = () => {
 
 	return (
 		<div className={styles.wrapper}>
-			<ErrorBoundary
-				onError={handleError}
-				resetKeys={[files]}
-				fallback={errorOverlay}
-			>
+			{/*
+			 * `fallback` is null, not `errorOverlay`: `onError` sets the same
+			 * `error` state the sibling overlay below already renders from, so
+			 * passing it here too paints two stacked copies of it.
+			 */}
+			<ErrorBoundary onError={handleError} resetKeys={[files]} fallback={null}>
 				<CodeRunner
 					files={files}
 					entryFileName={entryFileName}

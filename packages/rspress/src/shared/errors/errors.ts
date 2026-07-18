@@ -24,21 +24,30 @@ function formatMessage(content: LiveDemoErrorContent): string {
 
 /** Joins message + hint for throw sites that can't use LiveDemoError (see messages.ts header). */
 export function formatSplicedMessage({
-	message,
+	message = "",
 	hint,
 }: LiveDemoErrorContent): string {
-	return hint ? `${message} ${hint}` : (message ?? "");
+	return hint ? `${message} ${hint}`.trim() : message;
 }
 
-export class LiveDemoError extends Error {
+/**
+ * Trailing constructor args, correlated to the code: a token-less code may
+ * omit them entirely, every other code must pass its own token shape. Written
+ * as a tuple so `code` and `tokens` stay tied to the same `K` — typing tokens
+ * as a standalone parameter widens it to the union of every code's tokens,
+ * which lets both a wrong shape and a missing one through.
+ */
+type ErrorArgs<K extends ErrorCode> = ErrorTokens[K] extends undefined
+	? [tokens?: undefined, options?: { cause?: unknown }]
+	: [tokens: ErrorTokens[K], options?: { cause?: unknown }];
+
+export class LiveDemoError<K extends ErrorCode = ErrorCode> extends Error {
 	payload: LiveDemoErrorPayload;
 
-	constructor(
-		code: ErrorCode,
-		tokens?: ErrorTokens[typeof code],
-		options?: { cause?: unknown },
-	) {
-		const content = errorMessages[code](tokens as never);
+	constructor(code: K, ...args: ErrorArgs<K>) {
+		const [tokens, options] = args as [ErrorTokens[K], { cause?: unknown }?];
+
+		const content = errorMessages[code](tokens);
 
 		super(formatMessage(content), options);
 

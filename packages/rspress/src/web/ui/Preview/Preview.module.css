@@ -27,6 +27,16 @@
 	overflow: auto;
 	font-size: 12px;
 	white-space: pre-wrap;
+	/* This was a <pre> before and leaned on the UA's monospace default. Error
+	   text is column-aligned (codeframes, stacks), so set it explicitly. */
+	font-family: var(
+		--rp-font-family-mono,
+		ui-monospace,
+		SFMono-Regular,
+		Menlo,
+		Consolas,
+		monospace
+	);
 }
 
 .errorTitle {

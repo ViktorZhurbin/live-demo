@@ -1,6 +1,5 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { createElement, type ReactElement, useEffect, useState } from "react";
-import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles } from "~shared/types";
 import { bundleCode } from "~web/compiler/bundleCode";
 import { getFnFromString } from "~web/compiler/getFnFromString";
@@ -43,16 +42,18 @@ export const CodeRunner = ({
 
 			if (code === prevCode && !error) return;
 
-			const component = getFnFromString(code);
+			// Throws NO_DEFAULT_EXPORT itself if the bundle exported nothing, so
+			// there's no shape to re-check here — and checking for a function
+			// would reject the memo()/forwardRef() objects it deliberately allows.
+			const component = getFnFromString(code, entryFileName);
 
-			if (typeof component === "function") {
-				setError(undefined);
-				setPrevCode(code);
-				setDynamicComponent(createElement(component));
-			} else {
-				throw new LiveDemoError("NO_DEFAULT_EXPORT", { entryFileName });
-			}
+			setError(undefined);
+			setPrevCode(code);
+			setDynamicComponent(createElement(component));
 		} catch (e) {
+			// The overlay only shows the message; keep the stack reachable for
+			// whoever is actually debugging the demo.
+			console.error(e);
 			setError(e as Error);
 		}
 	};

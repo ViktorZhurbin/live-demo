@@ -180,6 +180,29 @@ describe("getFnFromString", () => {
 		expect(() => getFnFromString(code)).toThrow(/no default export/);
 	});
 
+	it("names the entry file in the error when one is given", () => {
+		const code = `const MyComponent = () => 'Test';`;
+
+		expect(() => getFnFromString(code, "App.tsx")).toThrow(
+			/`App\.tsx` has no default export/,
+		);
+	});
+
+	// memo()/forwardRef() components are objects, not functions. The guard here
+	// is `== null` for exactly that reason, and callers must not narrow it back
+	// to `typeof === "function"` — that rejects a valid demo as "no default
+	// export".
+	it("returns an object default export as-is", () => {
+		const code = `
+      exports.default = { $$typeof: Symbol.for('react.memo'), type: () => 'Memo' };
+    `;
+
+		const result = getFnFromString(code, "App.tsx");
+
+		expect(typeof result).toBe("object");
+		expect(result).toMatchObject({ $$typeof: Symbol.for("react.memo") });
+	});
+
 	it("should handle components that use getImport for dependencies", () => {
 		const code = `
       const deps = __get_import('react', false);
