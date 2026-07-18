@@ -148,6 +148,6 @@ Test fixtures live in `packages/rspress/tests/fixtures/{valid,invalid}`.
   break the cycle or use lazy loading.
 - **"Can't resolve external package"** — confirm it's a real dependency and
   check the browser console for virtual-module generation issues.
-- Debugging the module graph itself: add `console.log(queue.map(m =>
-  m.fileName))` in `buildModuleGraph.ts`, or check `buildModuleGraph.test.ts`
-  for a similar existing case.
+- Debugging the module graph itself: add
+  `console.log(queue.map(m => m.fileName))` in `buildModuleGraph.ts`, or
+  check `buildModuleGraph.test.ts` for a similar existing case.

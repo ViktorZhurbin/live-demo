@@ -10,7 +10,7 @@
 		"includes": ["**", "!**/package.json", "!**/dist", "!**/tests/fixtures"]
 	},
 	"formatter": {
-		"enabled": true,
+		"enabled": false,
 		"indentStyle": "tab"
 	},
 	"linter": {

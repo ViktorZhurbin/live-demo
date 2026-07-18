@@ -40,6 +40,7 @@ Now you can use it in your MDX files in either of the two ways:
 ```
 
 2. As an **"inline"** interactive example:
+
 ````tsx
 ```jsx live
 export const App = () => {
@@ -48,19 +49,21 @@ export const App = () => {
 ```
 ````
 
-
 ## Docs
 
 Usage, examples, API: https://live-demo.pages.dev/guide/getStarted
 
 ## Motivation
+
 This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground), which adds some important features.
 
 ### Features:
+
 - Multi-file support
 - Typescript support
 
 ### Plus, some niceties:
+
 - toggle code wrap
 - resizable panels
 - switch between split view/editor/preview
