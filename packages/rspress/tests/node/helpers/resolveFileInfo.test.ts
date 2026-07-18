@@ -70,7 +70,7 @@ describe("resolveFileInfo", () => {
 				dirname: path.join(FIXTURES_DIR, "valid"),
 				importPath: "./file.py",
 			}),
-		).toThrow();
+		).toThrow("Couldn't resolve");
 	});
 
 	it("resolves a directory import to its index file", () => {

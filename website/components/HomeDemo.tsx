@@ -3,9 +3,9 @@ import { LiveDemoCore } from "@live-demo/rspress/web";
 import { useDark } from "@rspress/core/runtime";
 
 // @ts-expect-error: resourceQuery is set up in rspack configuration
-import importedCode from "../docs/guide/external/snippets/multiFile/Imported.tsx?raw";
+import importedCode from "../docs/guide/external/snippets/multiFile/Imported.tsx?raw"; // oxlint-disable-line import/default -- ?raw suffix returns a string, no default export to resolve
 // @ts-expect-error
-import multiFileCode from "../docs/guide/external/snippets/multiFile/MultiFile.tsx?raw";
+import multiFileCode from "../docs/guide/external/snippets/multiFile/MultiFile.tsx?raw"; // oxlint-disable-line import/default -- ?raw suffix returns a string, no default export to resolve
 
 export const HomeDemo = () => {
 	const isDark = useDark();

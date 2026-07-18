@@ -3,10 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import { htmlTags } from "~node/htmlTags";
 
 vi.mock("rsbuild-plugin-virtual-module", () => ({
-	pluginVirtualModule: vi.fn((options: PluginVirtualModuleOptions) => ({
-		name: "mock-plugin-virtual-module",
-		__options: options,
-	})),
+	pluginVirtualModule: vi.fn<(options: PluginVirtualModuleOptions) => unknown>(
+		(options) => ({
+			name: "mock-plugin-virtual-module",
+			__options: options,
+		}),
+	),
 }));
 
 const { liveDemoPluginRspress } = await import("../../src/plugin/plugin");
