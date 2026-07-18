@@ -1,14 +1,14 @@
 // don't forget CSS!
 import "@live-demo/rspress/web/index.css";
 import {
-	LiveDemoControlPanel,
-	LiveDemoEditor,
-	LiveDemoFileTabs,
-	LiveDemoPreview,
+	ControlPanel as LiveDemoControlPanel,
+	Editor as LiveDemoEditor,
+	FileTabs as LiveDemoFileTabs,
 	LiveDemoProvider,
-	LiveDemoResizablePanels,
 	type LiveDemoStringifiedProps,
-	LiveDemoWrapper,
+	Preview as LiveDemoPreview,
+	ResizablePanels as LiveDemoResizablePanels,
+	Wrapper as LiveDemoWrapper,
 } from "@live-demo/rspress/web";
 import { useDark } from "@rspress/core/runtime";
 

@@ -59,7 +59,7 @@ isolation model below.
 
 ### Isolation model: there isn't one
 
-Demo code is **not** sandboxed. `LiveDemoCodeRunner` evaluates the bundle via
+Demo code is **not** sandboxed. `CodeRunner` evaluates the bundle via
 `new Function(...)` and renders the result with `createElement` directly in
 the host React tree, wrapped only in a `react-error-boundary`. There is no
 iframe, no Worker, no origin separation anywhere in `src/`.
@@ -128,12 +128,17 @@ src/
 │   └── helpers/       # collectDemoFiles, analyzeModule, readAndParseFile, resolveFileInfo, getVirtualModulesCode, ...
 ├── shared/           # types, path helpers, constants used by both sides
 └── web/              # runtime: editor + in-page preview
-    └── ui/
-        ├── liveDemo/        # top-level LiveDemo component + layout
-        ├── editor/          # CodeMirror editor, file tabs
-        ├── preview/          # LiveDemoCodeRunner — Babel/Rollup compiler pipeline lives here
-        └── controlPanel/    # wrap/fullscreen/view-mode toggles
+    ├── compiler/      # Babel/Rollup pipeline that bundles and evaluates a demo in the browser
+    ├── components/    # generic building blocks (Button, ToggleButtonGroup)
+    └── ui/            # one directory per component — Core (top-level layout),
+                        # Editor, FileTabs, Preview, CodeRunner, ControlPanel,
+                        # ResizablePanels, Wrapper
 ```
+
+Component exports are unprefixed (`Core`, `Editor`, `CodeRunner`, …) — the
+package name already namespaces them; consumers import and alias as needed
+(see `static/LiveDemo.tsx` for the default layout, or
+`website/src/CustomLiveDemo/LiveDemo.tsx` for a custom one).
 
 Path aliases (`~node/*`, `~shared/*`, `~web/*`) map to `src/node`, `src/shared`,
 `src/web` — see `tsconfig.json` / `vitest.config.ts`.

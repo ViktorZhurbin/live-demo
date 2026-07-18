@@ -65,6 +65,37 @@ An extensionless import (`./Button`) now resolves in the order `.tsx`, `.ts`,
 `.jsx`, `.js`, then `Button/index.*`. It was `.ts`, `.tsx`, `.js`, `.jsx`.
 Only affects demos where both `Button.ts` and `Button.tsx` exist side by side.
 
+#### `web` component exports dropped the `LiveDemo` prefix
+
+The package name already namespaces these; consumers can alias on import.
+`LiveDemoProvider`/`useLiveDemoContext` and `LiveDemoStringifiedProps` are
+unchanged.
+
+| Old export                     | New export             |
+| ------------------------------ | ---------------------- |
+| `LiveDemoCore`                 | `Core`                 |
+| `LiveDemoEditor`               | `Editor`               |
+| `LiveDemoEditorProps`          | `EditorProps`          |
+| `LiveDemoFileTabs`             | `FileTabs`             |
+| `LiveDemoFileTabsProps`        | `FileTabsProps`        |
+| `LiveDemoControlPanel`         | `ControlPanel`         |
+| `LiveDemoPreview`              | `Preview`              |
+| `LiveDemoCodeRunner`           | `CodeRunner`           |
+| `LiveDemoCodeRunnerProps`      | `CodeRunnerProps`      |
+| `LiveDemoResizablePanels`      | `ResizablePanels`      |
+| `LiveDemoResizablePanelsProps` | `ResizablePanelsProps` |
+| `LiveDemoWrapper`              | `Wrapper`              |
+
+```tsx
+// Before
+import { LiveDemoCore } from "@live-demo/rspress/web";
+
+// After
+import { Core as LiveDemoCore } from "@live-demo/rspress/web";
+// or adopt the shorter name directly:
+import { Core } from "@live-demo/rspress/web";
+```
+
 ### Newly allowed
 
 - **Circular imports** no longer fail the build. They're legal in ES modules

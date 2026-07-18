@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LiveDemoFiles } from "~shared/types";
-import { pluginResolveModules } from "~web/ui/preview/LiveDemoCodeRunner/compiler/rollup/pluginResolveModules";
+import { pluginResolveModules } from "~web/compiler/rollup/pluginResolveModules";
 
 type ResolveId = (source: string, importer?: string) => string | null;
 type Load = (filePath: string) => string | undefined;

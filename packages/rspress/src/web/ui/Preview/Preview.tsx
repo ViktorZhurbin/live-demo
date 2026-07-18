@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+import { CodeRunner } from "~web/ui/CodeRunner/CodeRunner";
 
-import { LiveDemoCodeRunner } from "../LiveDemoCodeRunner/LiveDemoCodeRunner";
+import styles from "./Preview.module.css";
 
-import styles from "./LiveDemoPreview.module.css";
-
-export const LiveDemoPreview = () => {
+export const Preview = () => {
 	const { files, entryFileName } = useLiveDemoContext();
 	const [error, setError] = useState<Error | undefined>();
 
@@ -25,7 +24,7 @@ export const LiveDemoPreview = () => {
 				resetKeys={[files]}
 				fallback={errorOverlay}
 			>
-				<LiveDemoCodeRunner
+				<CodeRunner
 					files={files}
 					entryFileName={entryFileName}
 					error={error}

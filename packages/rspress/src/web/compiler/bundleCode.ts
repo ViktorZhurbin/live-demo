@@ -1,11 +1,11 @@
 import { isRelativeImport } from "~shared/pathHelpers";
+import type { CodeRunnerProps } from "~web/ui/CodeRunner/CodeRunner";
 
-import type { LiveDemoCodeRunnerProps } from "../LiveDemoCodeRunner";
 import { pluginBabelTransform } from "./rollup/pluginBabelTransform";
 import { pluginBabelTransformImportsExports } from "./rollup/pluginBabelTransformImportsExports";
 import { pluginResolveModules } from "./rollup/pluginResolveModules";
 
-type BundleCode = Pick<LiveDemoCodeRunnerProps, "files" | "entryFileName">;
+type BundleCode = Pick<CodeRunnerProps, "files" | "entryFileName">;
 
 export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
 	const bundle = await window.rollup.rollup({

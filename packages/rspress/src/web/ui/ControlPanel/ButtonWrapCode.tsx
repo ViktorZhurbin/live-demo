@@ -1,7 +1,6 @@
 import { IconTextWrap, IconTextWrapDisabled } from "@tabler/icons-react";
+import { Button } from "~web/components/Button/Button";
 import { useLocalStorageWrapCode } from "~web/hooks/useLocalStorage";
-
-import { Button } from "../../components/Button/Button";
 
 export const ButtonWrapCode = () => {
 	const [wrapped, setWrapped] = useLocalStorageWrapCode();

@@ -1,14 +1,14 @@
 import clsx from "clsx";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
-import styles from "./LiveDemoWrapper.module.css";
+import styles from "./Wrapper.module.css";
 
-type LiveDemoWrapperProps = {
+type WrapperProps = {
 	className?: string;
 	children: React.ReactNode;
 };
 
-export const LiveDemoWrapper = (props: LiveDemoWrapperProps) => {
+export const Wrapper = (props: WrapperProps) => {
 	const { fullscreen } = useLiveDemoContext();
 
 	return (

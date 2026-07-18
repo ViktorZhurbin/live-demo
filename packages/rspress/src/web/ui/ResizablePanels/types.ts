@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 
-export type LiveDemoResizablePanelsProps = {
+export type ResizablePanelsProps = {
 	editor?: ReactElement;
 	preview?: ReactElement;
 	/**

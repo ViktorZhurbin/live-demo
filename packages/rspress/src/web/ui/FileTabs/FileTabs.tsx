@@ -1,9 +1,9 @@
+import { Button } from "~web/components/Button/Button";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
-import { Button } from "~web/ui/components/Button/Button";
 
-import styles from "./LiveDemoFileTabs.module.css";
+import styles from "./FileTabs.module.css";
 
-export type LiveDemoFileTabsProps = {
+export type FileTabsProps = {
 	/**
 	 * Hide single file tab
 	 * @defaultValue `false`
@@ -11,7 +11,7 @@ export type LiveDemoFileTabsProps = {
 	hideSingleTab?: boolean;
 };
 
-export const LiveDemoFileTabs = (props: LiveDemoFileTabsProps) => {
+export const FileTabs = (props: FileTabsProps) => {
 	const { files, activeFile, setActiveFile, options } = useLiveDemoContext();
 	const mergedOptions = Object.assign(options?.fileTabs ?? {}, props);
 

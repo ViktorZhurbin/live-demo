@@ -9,13 +9,13 @@ import {
 import { PanelsView } from "~web/constants/settings";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 import { useLocalStorageView } from "~web/hooks/useLocalStorage";
-import { LiveDemoEditor } from "~web/ui/editor/LiveDemoEditor/LiveDemoEditor";
-import { LiveDemoFileTabs } from "~web/ui/editor/LiveDemoFileTabs/LiveDemoFileTabs";
-import { LiveDemoPreview } from "~web/ui/preview/LiveDemoPreview/LiveDemoPreview";
+import { Editor } from "~web/ui/Editor/Editor";
+import { FileTabs } from "~web/ui/FileTabs/FileTabs";
+import { Preview } from "~web/ui/Preview/Preview";
 
-import type { LiveDemoResizablePanelsProps } from "./types";
+import type { ResizablePanelsProps } from "./types";
 
-import styles from "./LiveDemoResizablePanels.module.css";
+import styles from "./ResizablePanels.module.css";
 
 // `useDefaultLayout`'s `storage` param defaults to the `localStorage` global
 // whenever we pass `undefined` (JS default-parameter semantics), so an
@@ -27,9 +27,7 @@ const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
 	setItem: () => {},
 };
 
-export const LiveDemoResizablePanels = (
-	props: LiveDemoResizablePanelsProps,
-) => {
+export const ResizablePanels = (props: ResizablePanelsProps) => {
 	const { options } = useLiveDemoContext();
 	const mergedOptions = Object.assign(options?.resizablePanels ?? {}, props);
 
@@ -84,8 +82,8 @@ export const LiveDemoResizablePanels = (
 		>
 			{props.editor ?? (
 				<>
-					<LiveDemoFileTabs />
-					<LiveDemoEditor />
+					<FileTabs />
+					<Editor />
 				</>
 			)}
 		</Panel>
@@ -98,7 +96,7 @@ export const LiveDemoResizablePanels = (
 			className={previewClasses}
 			defaultSize={defaultPanelSizes.preview}
 		>
-			{props.preview ?? <LiveDemoPreview />}
+			{props.preview ?? <Preview />}
 		</Panel>
 	);
 

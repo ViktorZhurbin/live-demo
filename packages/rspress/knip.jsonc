@@ -11,8 +11,8 @@
 		"~web/*": ["./src/web/*"],
 	},
 	"ignore": [
-		"src/web/ui/preview/LiveDemoCodeRunner/compiler/babel/types.ts",
-		"src/web/ui/preview/LiveDemoCodeRunner/compiler/rollup/types.ts",
+		"src/web/compiler/babel/types.ts",
+		"src/web/compiler/rollup/types.ts",
 	],
 	"ignoreBinaries": ["tsc"],
 	"ignoreUnresolved": ["_live_demo_virtual_modules"],

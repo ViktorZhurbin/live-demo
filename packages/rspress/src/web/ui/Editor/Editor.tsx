@@ -8,7 +8,7 @@ import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 import { useActiveCode } from "~web/hooks/useActiveCode";
 import { useLocalStorageWrapCode } from "~web/hooks/useLocalStorage";
 
-import "./LiveDemoEditor.css";
+import "./Editor.css";
 
 /**
  * Props passed to ReactCodeMirror.
@@ -25,9 +25,9 @@ import "./LiveDemoEditor.css";
  * }
  * ```
  */
-export interface LiveDemoEditorProps extends ReactCodeMirrorProps {}
+export interface EditorProps extends ReactCodeMirrorProps {}
 
-export const LiveDemoEditor = (props: LiveDemoEditorProps) => {
+export const Editor = (props: EditorProps) => {
 	const { options, isDark } = useLiveDemoContext();
 	const mergedOptions = Object.assign(options?.editor ?? {}, props);
 

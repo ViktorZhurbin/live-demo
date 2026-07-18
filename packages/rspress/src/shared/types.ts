@@ -1,6 +1,6 @@
-import type { LiveDemoEditorProps } from "~web/ui/editor/LiveDemoEditor/LiveDemoEditor";
-import type { LiveDemoFileTabsProps } from "~web/ui/editor/LiveDemoFileTabs/LiveDemoFileTabs";
-import type { LiveDemoResizablePanelsProps } from "~web/ui/liveDemo/LiveDemoResizablePanels/types";
+import type { EditorProps } from "~web/ui/Editor/Editor";
+import type { FileTabsProps } from "~web/ui/FileTabs/FileTabs";
+import type { ResizablePanelsProps } from "~web/ui/ResizablePanels/types";
 
 import type { LiveDemoLanguage } from "./constants";
 
@@ -70,12 +70,12 @@ export type LiveDemoPluginOptions = {
 		controlPanel?: {
 			hide?: boolean;
 		};
-		fileTabs?: Pick<LiveDemoFileTabsProps, "hideSingleTab"> & {
+		fileTabs?: Pick<FileTabsProps, "hideSingleTab"> & {
 			hide?: boolean;
 		};
-		editor?: LiveDemoEditorProps;
+		editor?: EditorProps;
 		resizablePanels?: Pick<
-			LiveDemoResizablePanelsProps,
+			ResizablePanelsProps,
 			"autoSaveId" | "defaultPanelSizes"
 		>;
 	};

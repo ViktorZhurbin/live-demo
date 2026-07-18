@@ -1,17 +1,17 @@
 import { useElementSize } from "@mantine/hooks";
+import { ToggleButtonGroup } from "~web/components/ToggleButtonGroup/ToggleButtonGroup";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 import { useLocalStorageView } from "~web/hooks/useLocalStorage";
 
-import { ToggleButtonGroup } from "../../components/ToggleButtonGroup/ToggleButtonGroup";
 import { ButtonFullscreen } from "./ButtonFullscreen";
 import { ButtonWrapCode } from "./ButtonWrapCode";
 import { getPanelViewsValues } from "./labels";
 
-import styles from "./LiveDemoControlPanel.module.css";
+import styles from "./ControlPanel.module.css";
 
 const NARROW_THRESHOLD = 340;
 
-export const LiveDemoControlPanel = () => {
+export const ControlPanel = () => {
 	const { options } = useLiveDemoContext();
 	const wrapperEl = useElementSize();
 
