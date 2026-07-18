@@ -1,6 +1,10 @@
 {
 	"name": "live-demo-monorepo",
 	"private": true,
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
 	"scripts": {
 		"build:lib": "pnpm --filter '@live-demo/rspress' build",
 		"build:web": "pnpm build:lib && pnpm --filter 'website' build",
@@ -22,9 +26,5 @@
 	"engines": {
 		"node": ">=22"
 	},
-	"packageManager": "pnpm@11.13.1",
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	}
+	"packageManager": "pnpm@11.13.1"
 }

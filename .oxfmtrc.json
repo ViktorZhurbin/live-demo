@@ -2,7 +2,7 @@
 	"$schema": "./node_modules/oxfmt/configuration_schema.json",
 	"useTabs": true,
 	"printWidth": 80,
+	"sortImports": true,
 	"embeddedLanguageFormatting": "off",
-	"ignorePatterns": ["**/package.json", "**/tests/fixtures"],
-	"sortImports": true
+	"ignorePatterns": ["**/tests/fixtures"]
 }

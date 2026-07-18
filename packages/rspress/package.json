@@ -2,14 +2,27 @@
 	"name": "@live-demo/rspress",
 	"version": "2.0.6",
 	"description": "Rspress plugin for interactive code examples.",
+	"keywords": [
+		"@rspress/core",
+		"code-editor",
+		"live-code",
+		"live-demo",
+		"playground",
+		"plugin",
+		"rspress"
+	],
+	"homepage": "https://live-demo.pages.dev",
 	"bugs": "https://github.com/ViktorZhurbin/live-demo/issues",
+	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/ViktorZhurbin/live-demo.git",
 		"directory": "packages/rspress"
 	},
-	"homepage": "https://live-demo.pages.dev",
-	"license": "MIT",
+	"files": [
+		"dist",
+		"static"
+	],
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -23,10 +36,10 @@
 		},
 		"./web/index.css": "./dist/web/index.css"
 	},
-	"files": [
-		"dist",
-		"static"
-	],
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
 	"scripts": {
 		"build": "tsdown",
 		"dev": "tsdown --watch",
@@ -74,18 +87,5 @@
 		"remark-gfm": ">=4.0.1",
 		"unified": ">=11.0.5",
 		"unist-util-visit": ">=5.1.0"
-	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/"
-	},
-	"keywords": [
-		"rspress",
-		"@rspress/core",
-		"plugin",
-		"live-demo",
-		"playground",
-		"live-code",
-		"code-editor"
-	]
+	}
 }
