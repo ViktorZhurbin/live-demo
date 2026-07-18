@@ -194,6 +194,36 @@ right extension and the wrong syntax.
 - No Node.js APIs — demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
 
+## Deliberately not handled
+
+This section exists to stop defensive-code creep during the dependency-bump
+work: read it before adding a guard for one of these cases.
+
+- **Cross-platform** — `files` keys are posix-style on both sides of the
+  build→runtime seam (`shared/pathHelpers.ts`, `collectDemoFiles.ts`'s
+  `path.sep` normalization). No Windows path handling.
+- **Graceful recovery on file reads** — `resolveFileInfo` confirms a path
+  exists before `readAndParseFile` reads it; if the read still fails
+  (permissions, a file removed between the check and the read),
+  `readAndParseFile` lets `fs.readFileSync`'s raw error propagate rather than
+  wrapping it. A missing import is the common case and is already
+  structured — it fails earlier, in `resolveFileInfo`, as `IMPORT_NOT_RESOLVED`.
+- **Runtime validation of plugin options** — `plugin.ts` only checks the
+  `customLayout` filename pattern. Everything else in
+  `LiveDemoPluginOptions` is TypeScript's contract, not re-checked at runtime.
+- **Sandboxing demo code** — see "Isolation model" above; there isn't one,
+  by design.
+- **Blanking the preview on a demo error** — check `Preview.tsx`/
+  `Preview.module.css` before assuming otherwise: the last successfully
+  rendered demo stays visible, dimmed, under the error overlay (`CodeRunner`
+  only swaps `dynamicComponent` on a successful bundle), rather than the
+  preview going blank or resetting.
+
+**The exception**: structured errors (`shared/errors/`) and the in-preview
+error display cost lines on purpose — they're the day-to-day DX this plugin
+is worth using for. Propose removing one of these rather than trimming it
+unprompted.
+
 ## Troubleshooting
 
 Every error the plugin itself throws (build- or runtime-side) is a
