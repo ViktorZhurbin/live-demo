@@ -57,13 +57,18 @@ describe("liveDemoPluginRspress", () => {
 				._live_demo_virtual_modules;
 		};
 
-		it("always includes the default modules (react + rspress theme)", async () => {
+		it("always includes the default modules (react + jsx-runtime + rspress theme)", async () => {
 			const plugin = liveDemoPluginRspress();
 			const handler = getVirtualModuleHandler(plugin);
 			const virtualModule = await handler();
 
 			expect(virtualModule).toContain("import * as i_0 from 'react';");
 			expect(virtualModule).toContain("'@rspress/core/theme'");
+
+			// Babel's automatic JSX runtime emits this import on the author's
+			// behalf, so it can never be discovered by scanning demo source.
+			// Without it every JSX demo fails with "Can't resolve".
+			expect(virtualModule).toContain("'react/jsx-runtime'");
 		});
 
 		it("adds user-provided includeModules to the virtual module", async () => {

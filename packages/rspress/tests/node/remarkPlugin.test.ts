@@ -189,6 +189,27 @@ describe("remarkPlugin", () => {
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 
+		it("ignores a live block whose language is an inherited Object property", () => {
+			// `node.lang in LiveDemoLanguage` accepts "constructor" via the
+			// prototype chain, which would emit a demo with an entry file named
+			// `App.constructor` that only fails later, in the browser.
+			const tree: Root = {
+				type: "root",
+				children: [
+					{
+						type: "code",
+						lang: "constructor",
+						meta: "live",
+						value: "const x = 1;",
+					} as never,
+				],
+			};
+
+			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+
+			expect(findLiveDemoNodes(tree)).toHaveLength(0);
+		});
+
 		it("ignores code blocks with no language at all", () => {
 			const tree: Root = {
 				type: "root",

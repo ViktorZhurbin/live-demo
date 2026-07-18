@@ -2,6 +2,20 @@ import getImport from "_live_demo_virtual_modules";
 
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
 
+/**
+ * Evaluate a bundled demo and return its default-exported component.
+ *
+ * **This is not a sandbox.** `new Function` runs the demo in the host origin
+ * with full access to the page's DOM, globals, storage and React instance,
+ * and the component is rendered straight into the host React tree. The
+ * `react-error-boundary` around it catches render errors; it is not a
+ * security boundary.
+ *
+ * That's an accepted trade for a docs tool whose demo authors are as trusted
+ * as the docs themselves. If demos ever come from untrusted sources, or need
+ * style isolation, this is the seam an iframe/Worker would replace — see
+ * CLAUDE.md's isolation-model section before changing it.
+ */
 export function getFnFromString(fnCode: string) {
 	/**
 	 * Export is transformed by babel to always be `exports.default`.
@@ -44,18 +58,3 @@ export function getFnFromString(fnCode: string) {
 
 	return componentFn;
 }
-
-// type ExportObject = "module" | "exports";
-// type ExportProperty = "exports" | "default";
-
-// function resolveExportType(code: string): [ExportObject, ExportProperty] {
-// 	if (code.includes("module.exports")) {
-// 		return ["module", "exports"];
-// 	}
-
-// 	if (code.includes("exports.default") || code.includes('exports["default"]')) {
-// 		return ["exports", "default"];
-// 	}
-
-// 	throw new Error("Missing default export in the file");
-// }

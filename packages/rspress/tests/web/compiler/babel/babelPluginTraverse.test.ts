@@ -89,18 +89,32 @@ describe("babelPluginTraverse", () => {
 		});
 	});
 
-	describe("auto React import", () => {
-		it("injects a React import when none is present in the source", () => {
+	describe("no implicit React binding", () => {
+		// The classic JSX runtime needed a `React` identifier in scope, so one
+		// used to be injected into every demo. The automatic runtime doesn't,
+		// and an invisible binding made demos non-portable — code that ran here
+		// broke when pasted into a reader's own app.
+		it("does not inject a React import into code that has none", () => {
 			const output = transform(`const x = 1;`);
 
-			expect(output).toMatch(/const React = __get_import\('react', true\)/);
+			expect(output).not.toContain("__get_import('react'");
+			expect(output).not.toContain("React");
 		});
 
-		it("does not duplicate the React import when already present", () => {
+		it("leaves an explicit React import as the only React binding", () => {
 			const output = transform(`import React from 'react';`);
 
 			const matches = output.match(/__get_import\('react', true\)/g) ?? [];
 			expect(matches).toHaveLength(1);
+		});
+
+		it("rewrites the automatic runtime's jsx-runtime import like any other", () => {
+			// Babel emits this itself for JSX; the demo author never writes it
+			const output = transform(
+				`import { jsx as _jsx } from "react/jsx-runtime";`,
+			);
+
+			expect(output).toMatch(/__get_import\('react\/jsx-runtime', false\)/);
 		});
 	});
 

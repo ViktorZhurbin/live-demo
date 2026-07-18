@@ -3,14 +3,23 @@ import type { VariableDeclaration } from "@babel/types";
 
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "../constants";
 
+/**
+ * Rewrite every import into a `__get_import` call resolved by the virtual
+ * module, and normalise exports to `exports.default`.
+ *
+ * This runs over the *bundled* output, so the only imports left are external
+ * packages — including `react/jsx-runtime`, which Babel's automatic JSX
+ * runtime emits on the demo author's behalf.
+ *
+ * Note there is deliberately no auto-injected `React` binding. Under the
+ * classic JSX runtime one was unshifted into every demo, because JSX compiled
+ * to `React.createElement` and needed the identifier in scope. The automatic
+ * runtime removes that need, and injecting an invisible binding made demos
+ * non-portable: code that ran here would break the moment a reader pasted it
+ * into their own app without importing React.
+ */
 export const babelPluginTraverse = (): PluginItem => {
-	let hasReactImported = false;
-
 	return {
-		pre() {
-			hasReactImported = false;
-		},
-
 		visitor: {
 			ImportDeclaration(path) {
 				const pkg = path.node.source.value;
@@ -19,9 +28,6 @@ export const babelPluginTraverse = (): PluginItem => {
 				const namedImports: string[] = [];
 
 				for (const specifier of path.node.specifiers) {
-					if (specifier.local.name === "React") {
-						hasReactImported = true;
-					}
 					// import X from 'foo' || import * as X from 'foo'
 					if (
 						specifier.type === "ImportDefaultSpecifier" ||
@@ -86,19 +92,6 @@ export const babelPluginTraverse = (): PluginItem => {
 					`${EXPORTS_OBJ} = ${path.node.local.name}`,
 				);
 			},
-		},
-
-		post(file) {
-			// Auto import React
-			if (!hasReactImported) {
-				const node = createGetImportDeclaration({
-					pkg: "react",
-					imported: "React",
-					isDefault: true,
-				});
-
-				file.ast.program.body.unshift(node);
-			}
 		},
 	};
 };

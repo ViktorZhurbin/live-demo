@@ -13,7 +13,7 @@
 		"test": "pnpm --recursive run test",
 		"verify": "pnpm build:lib && pnpm typecheck && pnpm test",
 		"format": "oxfmt",
-		"lint": "oxlint --fix",
+		"lint": "oxlint --fix --format=agent",
 		"check": "pnpm run format && pnpm run lint",
 		"prepare": "husky"
 	},

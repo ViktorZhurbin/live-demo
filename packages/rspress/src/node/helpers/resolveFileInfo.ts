@@ -4,8 +4,12 @@
  * JavaScript/TypeScript allows imports without extensions:
  * - import Button from './Button' → could be Button.tsx, Button.ts, Button.jsx, Button.js
  *
- * This function tries all possible extensions to find the actual file.
- * Same logic is used in both build-time (Node) and runtime (browser Rollup).
+ * This is the **build-time** half of import resolution: it walks the
+ * candidates from `getPossiblePaths` (`shared/pathHelpers.ts`) against the
+ * real filesystem. The runtime half, `pluginResolveModules.ts`, walks the
+ * same candidates against the in-memory `files` record. Both must agree —
+ * change one, change the other, and see
+ * `tests/integration/buildToRuntime.test.ts`, the only test spanning the seam.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -31,8 +35,6 @@ type ResolveFileInfo = {
 export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
 	const absolutePath = path.join(dirname, importPath);
 
-	// Get all possible file paths with different extensions
-	// Example: "./Button" → ["./Button.tsx", "./Button.ts", "./Button.jsx", "./Button.js", "./Button/index.tsx", ...]
 	const pathsToCheck = getPossiblePaths(absolutePath);
 
 	for (const absolutePath of pathsToCheck) {

@@ -13,7 +13,7 @@
  */
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import { LiveDemoLanguage } from "shared/constants";
+import { isAllowedExt } from "shared/pathHelpers";
 import type {
 	DemoDataByPath,
 	LiveDemoPluginOptions,
@@ -76,8 +76,8 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const isLive = node.meta?.includes("live");
 
-			// Only transform code blocks with 'live' meta and supported languages (jsx, tsx, js, ts)
-			if (!(isLive && node.lang in LiveDemoLanguage)) return;
+			// Only transform code blocks with 'live' meta and supported languages (tsx, ts, jsx, js)
+			if (!(isLive && isAllowedExt(node.lang))) return;
 
 			// Create a single-file demo from the code block content
 			const entryFileName = `App.${node.lang}`;

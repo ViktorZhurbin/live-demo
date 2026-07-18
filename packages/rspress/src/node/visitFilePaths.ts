@@ -3,17 +3,17 @@
  *
  * This is Phase 1 of the build process (runs before MDX compilation):
  * 1. Scan all MDX files for <code src="./Demo.tsx" /> elements
- * 2. For each example, build a complete module graph (all files and dependencies)
+ * 2. For each example, collect the entry file and everything it imports
  * 3. Collect external imports (react, lodash, etc.) for virtual module generation
  * 4. Store example data for the remark plugin to use later
  *
  * Why this phase is needed:
  * - We need to analyze demo files before MDX compilation
- * - Module graph building is done at build time (Node.js) not runtime (browser)
+ * - Reading files off disk happens at build time (Node.js), not runtime (browser)
  * - External imports are collected once and bundled into a virtual module
  *
  * Flow:
- * visitFilePaths → buildModuleGraph → analyzeModule → getFilesAndAst → OXC parser
+ * visitFilePaths → collectDemoFiles → analyzeModule → readAndParseFile → OXC parser
  */
 import path from "node:path";
 
@@ -21,10 +21,9 @@ import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { DemoDataByPath, UniqueImports } from "shared/types";
 import { visit } from "unist-util-visit";
 
-import { buildModuleGraph } from "./helpers/buildModuleGraph";
+import { collectDemoFiles } from "./helpers/collectDemoFiles";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import type { Module } from "./helpers/moduleTypes";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 /**
@@ -67,22 +66,14 @@ export const visitFilePaths = ({
 					dirname: path.dirname(filePath),
 				});
 
-				// Build complete module graph: analyze all files and dependencies
-				// Returns: {modules: [{id, fileName, content, dependencies, mapping}], externalImports: Set}
-				const { modules, externalImports } = buildModuleGraph(entryFile);
+				// Collect the entry file plus everything it transitively imports,
+				// keyed by path relative to the entry's directory
+				const { files, externalImports } = collectDemoFiles(entryFile);
 
 				// Collect all external package imports (react, lodash, etc.)
 				// These will be bundled into a virtual module later
 				for (const externalImport of externalImports) {
 					uniqueImports.add(externalImport);
-				}
-
-				// Convert module array to files object for LiveDemo component
-				// Format: {fileName: content, ...}
-				const files: Record<Module["fileName"], Module["content"]> = {};
-
-				for (const moduleItem of modules) {
-					files[moduleItem.fileName] = moduleItem.content;
 				}
 
 				// Store demo data for this import path

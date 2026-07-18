@@ -13,142 +13,20 @@ function App() {
 ```
 ````
 
+## Monorepo layout
+
+- `packages/rspress/` — the published plugin (`@live-demo/rspress`). Has its own
+  `packages/rspress/CLAUDE.md`. Read it before working inside that package.
+- `website/` — the docs site that consumes the plugin. `pnpm build:web` runs
+  `build:lib` first so `website` always builds against a fresh `dist/`.
+
+## Maintaining this file
+
+Update this file when your changes affect what's documented here. Keep a
+fact here only if it's true across the whole monorepo, or if an agent needs
+it to decide which package to open — before that, it belongs in a docblock
+next to the code, or in the relevant package's own CLAUDE.md.
+
 ## Active initiative: major version upgrade
 
-This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes.
-
-I want to review my approach, choices and architecture - now after a year or two since I initially implemented and published this package. My goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
-
-## Architecture
-
-Two phases:
-
-**Build time (Node.js, `src/node/` + `src/plugin/`)** — `src/plugin/plugin.ts`
-is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
-`routeGenerated` it scans MDX files (`visitFilePaths.ts`) and for each
-`<code src="..."/>` or ` ```lang live ` block builds a module graph
-(`buildModuleGraph.ts`) capturing the file and all of its local imports.
-External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`,
-`addRuntimeModules` hook). `remarkPlugin.ts` then rewrites the MDX AST so
-`<code src="..."/>` / ` ```lang live ` becomes `<LiveDemo files={...} />`.
-
-**Runtime (browser, `src/web/`)** — user edits code in a Monaco-based editor.
-On change: Babel (`@babel/standalone`, loaded from CDN) transpiles JSX/TS,
-then Rollup (`@rollup/browser`, also CDN) bundles the modules using a custom
-resolver plugin that maps `require("./Button")` to the right entry via the
-module graph's `mapping`, then the bundle runs in a sandboxed iframe.
-
-The CDN versions pinned in `htmlTags.ts` (`src/node/htmlTags.ts`) are the
-actual runtime versions — they aren't tracked by `package.json`/
-`pnpm outdated -r`. `@babel/standalone` and `@rollup/browser` in
-`devDependencies` must be **exact versions with no `^`/`~`, matching
-`htmlTags.ts` verbatim** — if you bump one, bump the other in the same
-commit. A version mismatch defeats the point (tests would pass against a
-Babel/Rollup build the browser never actually runs), and a newer major can
-silently break the compiler pipeline with no build-time signal (see
-`UPGRADE.md`).
-
-Type packages (`@types/babel__core`, `@types/babel__standalone`) deliberately
-stay on Babel 7 even though the runtime is on `@babel/standalone@8` —
-`@babel/standalone` ships no types and has no v8 DefinitelyTyped stub, so
-pairing it with a real `@babel/core@8` creates a v7/v8 type split-brain
-requiring `as unknown as` casts. Don't "modernize" them independently.
-
-`@mdx-js/mdx`, `mdast-util-mdx`, `remark-gfm`, `unified`, and
-`unist-util-visit` live in `peerDependencies` only (no `dependencies`/
-`devDependencies` entry) since `tsdown` leaves them external in `dist/` and
-the real runtime copy must be `@rspress/core`'s own. Don't delete or move
-them — pnpm's peer-auto-install is what makes them resolvable for this
-package's own build/typecheck/test, pulling them from `@rspress/core`'s
-tree, so removing the peerDependencies entries breaks the build with an
-opaque `TS2307: Cannot find module` error.
-
-### Module graph (the core bundler logic)
-
-Inspired by webpack/Rollup. When `Button.tsx` imports `./theme` and `./Icon`,
-all three files need to ship together, not just the entry. `buildModuleGraph.ts`
-BFS-traverses from the entry file, using `analyzeModule.ts` (OXC parser) to
-extract each file's imports/exports. Modules are cached by path (each file
-parsed once) and get sequential IDs; a `Set` gives O(1) circular-import
-detection instead of `array.includes()`.
-
-```typescript
-{
-  modules: [
-    { id: 0, fileName: "Button.tsx", dependencies: ["./theme"], mapping: { "./theme": 1 } },
-    { id: 1, fileName: "theme.ts", dependencies: [], mapping: {} },
-  ],
-  externalImports: Set(["react"]),
-}
-```
-
-## Key files
-
-```
-packages/rspress/src/
-├── plugin/           # RspressPlugin entry point (plugin.ts, index.ts)
-├── node/             # build-time: MDX scanning, module graph, remark transform
-│   └── helpers/       # analyzeModule, buildModuleGraph, resolveFileInfo, getVirtualModulesCode, ...
-├── shared/           # types, path helpers, constants used by both sides
-└── web/              # runtime: editor + sandboxed preview
-    └── ui/
-        ├── liveDemo/        # top-level LiveDemo component + layout
-        ├── editor/          # Monaco editor, file tabs
-        ├── preview/          # LiveDemoCodeRunner — Babel/Rollup compiler pipeline lives here
-        └── controlPanel/    # wrap/fullscreen/view-mode toggles
-```
-
-Path aliases (`node/*`, `shared/*`, `web/*`) map to `src/node`, `src/shared`,
-`src/web` — see `tsconfig.json` / `vitest.config.ts`.
-
-**Build must run before typecheck.** `static/LiveDemo.tsx` imports the
-package's own public API by its published specifier (`@live-demo/rspress/web`),
-which resolves through `package.json`'s `exports` map to `dist/`. If `dist`
-doesn't exist yet, that import fails typecheck with a "Cannot find module"
-error — it doesn't fail quietly. CI (`.github/workflows/ci.yml`) runs
-`build:lib` before `typecheck` for this reason, and `pnpm verify` (root `package.json` script) mirrors that order. Keep both in sync if either changes.
-
-## Import resolution
-
-**Build time**: `./Button` is checked against `.tsx`, `.ts`, `.jsx`, `.js`,
-and `./Button/index.*` variants (`resolveFileInfo.ts`) — only these
-extensions are supported.
-
-**Runtime**: the custom Rollup plugin resolves `require("./Button")` using
-the module graph's `mapping` to find the right bundled module by ID.
-
-**Virtual module pattern**: user code can `import` external packages
-(react, etc.) that aren't actually installed in the sandbox. Build time
-generates one virtual module re-exporting everything referenced across all
-demos on the page; at runtime `require('_live_demo_virtual_modules')`
-returns a lookup function for it.
-
-## Testing
-
-```bash
-pnpm test                  # all packages
-pnpm test buildModuleGraph.test.ts
-pnpm test --watch
-```
-
-Test fixtures live in `packages/rspress/tests/fixtures/{valid,invalid}`.
-
-## Limitations (of the in-browser sandbox, not the plugin's own source)
-
-- No CSS modules in live demos — inline styles or external CSS only
-- No dynamic imports — all imports must be static
-- No Node.js APIs — runs in a browser sandbox
-- Only `.js(x)`/`.ts(x)` files are resolvable as imports
-
-## Troubleshooting
-
-- **"Couldn't resolve import"** — check extension/path against the resolution
-  rules above.
-- **"Circular import detected"** — read the dependency chain in the error;
-  break the cycle or use lazy loading.
-- **"Can't resolve external package"** — confirm it's a real dependency and
-  check the browser console for virtual-module generation issues.
-- Debugging the module graph itself: add
-  `console.log(queue.map(m => m.fileName))` in `buildModuleGraph.ts`, or
-  check `buildModuleGraph.test.ts` for a similar existing case.
+This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.

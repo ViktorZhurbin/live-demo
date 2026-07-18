@@ -32,8 +32,13 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 
 /**
  * Included by default for every demo
+ *
+ * `react/jsx-runtime` is what Babel's automatic JSX runtime emits an import
+ * for (see `babelTransformCode.ts`). Demo authors never write that import
+ * themselves, so it can't be discovered by scanning their code the way other
+ * externals are — it has to be here, or every JSX demo fails to resolve it.
  **/
-const defaultModules = ["react", "@rspress/core/theme"];
+const defaultModules = ["react", "react/jsx-runtime", "@rspress/core/theme"];
 
 export function liveDemoPluginRspress(
 	options?: LiveDemoPluginRspressOptions,

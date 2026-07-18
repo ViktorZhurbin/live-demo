@@ -1,44 +1,56 @@
 import type { Plugin } from "@rollup/browser";
 import {
+	getDirName,
 	getPossiblePaths,
 	isRelativeImport,
-	stripRelativeImport,
+	resolveRelativePath,
 } from "shared/pathHelpers";
 import type { LiveDemoFiles } from "shared/types";
 
 /**
  * Resolve and load in-memory files to be bundled
  *
+ * `files` is keyed by each file's path relative to the entry file's
+ * directory (see `collectDemoFiles`), so a relative import has to be
+ * resolved against the *importing* file's directory — resolving it against
+ * the root would make `components/Button.tsx`'s `./styles` import look for
+ * `styles.ts` at the top level instead of `components/styles.ts`.
+ *
  * Based off of @link https://rollupjs.org/faqs/#how-do-i-run-rollup-itself-in-a-browser
  * */
 export const pluginResolveModules = (files: LiveDemoFiles): Plugin => {
 	return {
 		name: "resolve-modules",
-		resolveId(source) {
+		resolveId(source, importer) {
 			if (Object.hasOwn(files, source)) {
 				return source;
 			}
 
-			// resolve file name from the relative import
-			if (isRelativeImport(source)) {
-				const fileName = stripRelativeImport(source);
+			if (!isRelativeImport(source)) {
+				return null;
+			}
 
-				// same helper should be used in node/, check `buildModuleGraph`
-				const pathsToCheck = getPossiblePaths(fileName);
+			// The entry has no importer, so relative imports in it resolve
+			// against the root of `files`.
+			const fromDir = importer ? getDirName(importer) : "";
+			const filePath = resolveRelativePath(fromDir, source);
 
-				for (const checkedPath of pathsToCheck) {
-					if (Object.hasOwn(files, checkedPath)) {
-						return checkedPath;
-					}
+			// `getPossiblePaths` is the single definition of the resolution
+			// rules; `resolveFileInfo.ts` probes the same candidates against
+			// the filesystem at build time. Only the substrate differs — never
+			// re-implement the candidate list here.
+			for (const checkedPath of getPossiblePaths(filePath)) {
+				if (Object.hasOwn(files, checkedPath)) {
+					return checkedPath;
 				}
 			}
 
 			return null;
 		},
-		load(fileName) {
-			// use fileName resolved in resolveId to load its code for bundling
-			if (Object.hasOwn(files, fileName)) {
-				return files[fileName];
+		load(filePath) {
+			// use the path resolved in resolveId to load its code for bundling
+			if (Object.hasOwn(files, filePath)) {
+				return files[filePath];
 			}
 		},
 	};

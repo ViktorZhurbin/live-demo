@@ -7,8 +7,8 @@ import pkg from "../../package.json";
  * Babel and Rollup run in the browser from CDN <script> tags, pinned by URL in
  * htmlTags.ts. Those CDN versions — not package.json — are what actually runs
  * at runtime. The devDependencies exist only so the test suite exercises the
- * *same* build the browser loads; if the two drift, tests pass against a
- * Babel/Rollup the browser never runs (see CLAUDE.md / UPGRADE.md).
+ * _same_ build the browser loads; if the two drift, tests pass against a
+ * Babel/Rollup the browser never runs.
  *
  * This test mechanically enforces that invariant: bump a CDN URL and you must
  * bump the matching exact devDependency in the same commit, or this fails.

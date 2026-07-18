@@ -26,9 +26,5 @@ export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
 		generatedCode: "es2015",
 	});
 
-	const bundledCode = output[0].code;
-
-	// console.log(bundledCode);
-
-	return bundledCode;
+	return output[0].code;
 };

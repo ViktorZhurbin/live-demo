@@ -73,14 +73,50 @@ describe("resolveFileInfo", () => {
 		).toThrow();
 	});
 
-	it("should prefer tsx over other extensions when multiple exist", () => {
-		// If a file exists with .tsx extension, it should be found first
+	it("resolves a directory import to its index file", () => {
 		const result = resolveFileInfo({
-			dirname: path.join(FIXTURES_DIR, "valid"),
-			importPath: "./SimpleComponent",
+			dirname: path.join(FIXTURES_DIR, "valid/IndexDir"),
+			importPath: "./Widget",
 		});
 
-		// Based on getPossiblePaths order, it checks ts, tsx, js, jsx
-		expect(result.fileName).toMatch(/\.tsx$/);
+		expect(result.fileName).toBe("index.tsx");
+		expect(result.absolutePath).toContain("IndexDir/Widget/index.tsx");
+	});
+
+	it("resolves through a directory whose name contains a dot", () => {
+		// The dot in `dotted.dir` must not be read as the file's extension
+		const result = resolveFileInfo({
+			dirname: path.join(FIXTURES_DIR, "valid"),
+			importPath: "./dotted.dir/Nested",
+		});
+
+		expect(result.fileName).toBe("Nested.tsx");
+		expect(result.absolutePath).toContain("dotted.dir/Nested.tsx");
+	});
+
+	it("resolves from a directory whose own path contains a dot", () => {
+		const result = resolveFileInfo({
+			dirname: path.join(FIXTURES_DIR, "valid/dotted.dir"),
+			importPath: "../SimpleComponent",
+		});
+
+		expect(result.fileName).toBe("SimpleComponent.tsx");
+	});
+
+	it("resolves tsx before ts when both exist on disk", () => {
+		// An extensionless import is genuinely ambiguous, so the precedence
+		// (tsx, ts, jsx, js) is what decides it — pinned here against real
+		// competing files rather than assumed.
+		const dirname = path.join(FIXTURES_DIR, "valid/Precedence");
+		const result = resolveFileInfo({ dirname, importPath: "./Ambiguous" });
+
+		expect(result.fileName).toBe("Ambiguous.tsx");
+	});
+
+	it("resolves a file over a directory index of the same name", () => {
+		const dirname = path.join(FIXTURES_DIR, "valid/Precedence");
+		const result = resolveFileInfo({ dirname, importPath: "./Shadowed" });
+
+		expect(result.absolutePath).toContain("Precedence/Shadowed.tsx");
 	});
 });
