@@ -32,7 +32,9 @@ const IMPORTS_MAP = "importsMap";
 // importName is only known once the demo calls getImport() in the browser,
 // so the token here is the literal source text `${importName}`, not a
 // resolved value — spliced below inside real backticks so it becomes a
-// genuine template literal in the generated code.
+// genuine template literal in the generated code. This only stays valid
+// generated JS because EXTERNAL_IMPORT_NOT_FOUND's message (messages.ts)
+// is guaranteed free of backticks and other `${...}` sequences.
 const importNotFoundMessage = formatSplicedMessage(
 	errorMessages.EXTERNAL_IMPORT_NOT_FOUND({ importName: "${importName}" }),
 );

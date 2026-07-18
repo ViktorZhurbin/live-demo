@@ -1,7 +1,4 @@
 {
-	// Rollup/Babel are loaded via CDN <script> tags at runtime (see htmlTags.ts);
-	// these files exist only for the ambient `Window.Babel`/`Window.rollup`
-	// global augmentation and are never imported.
 	"$schema": "https://unpkg.com/knip@5/schema.json",
 	"entry": ["static/LiveDemo.tsx"],
 	"project": ["src/**/*.ts", "src/**/*.tsx", "static/**/*.tsx"],
@@ -10,6 +7,9 @@
 		"~shared/*": ["./src/shared/*"],
 		"~web/*": ["./src/web/*"],
 	},
+	// Rollup/Babel are loaded via CDN <script> tags at runtime (see htmlTags.ts);
+	// these files exist only for the ambient `Window.Babel`/`Window.rollup`
+	// global augmentation and are never imported.
 	"ignore": [
 		"src/web/compiler/babel/types.ts",
 		"src/web/compiler/rollup/types.ts",

@@ -55,6 +55,11 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "This export may not exist in this version of the package.",
 	}),
 
+	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
+	// template literal in generated code — `${importName}` there is meant to
+	// stay live interpolation (importName isn't known until getImport() is
+	// called at demo-runtime). Never add a backtick or another `${...}` to
+	// this message: either would corrupt that generated template literal.
 	EXTERNAL_IMPORT_NOT_FOUND: ({ importName }) => ({
 		title: "Can't resolve import",
 		message: `Can't resolve ${importName}.`,
