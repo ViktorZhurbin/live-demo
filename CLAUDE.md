@@ -15,8 +15,9 @@ function App() {
 
 ## Active initiative: major version upgrade
 
-This repo went dormant for ~7 months and is now being brought current:
-dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes, then shipped as a single major version bump.
+This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes.
+
+I want to review my approach, choices and architecture - now after a year or two since I initially implemented and published this package. My goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
 
 ## Architecture
 

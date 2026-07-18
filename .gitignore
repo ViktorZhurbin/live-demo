@@ -3,6 +3,7 @@
 *.local.*
 *.log*
 .pnpm-store/
+.tmp/
 
 # Dist
 node_modules
