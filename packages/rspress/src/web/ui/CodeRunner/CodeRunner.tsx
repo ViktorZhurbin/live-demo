@@ -18,7 +18,9 @@ export type CodeRunnerProps = {
 /**
  * Bundles and evaluates the demo's `files` whenever they change, debounced so
  * every keystroke doesn't trigger a fresh Babel+Rollup pass. Bundle/eval
- * errors are caught here and handed to `setError` for `Preview`'s overlay.
+ * errors are caught here and handed to `setError` for `Preview`'s overlay —
+ * `dynamicComponent` is left untouched on error, so the last successful
+ * render stays mounted (dimmed) under the overlay instead of blanking.
  * Errors thrown during the demo component's own render are not caught here —
  * they propagate up to `Preview`'s `ErrorBoundary` instead.
  */

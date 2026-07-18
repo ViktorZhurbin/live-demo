@@ -16,6 +16,9 @@
 		"format": "oxfmt",
 		"lint": "oxlint --fix --format=agent",
 		"check": "pnpm run format && pnpm run lint",
+		"check:all": "pnpm run check && pnpm run verify",
+		"loc": "pnpx cloc packages/rspress/src/ --not-match-f '.test'",
+		"loc:files": "pnpm run loc --by-file",
 		"prepare": "husky"
 	},
 	"devDependencies": {

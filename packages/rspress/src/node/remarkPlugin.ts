@@ -1,15 +1,8 @@
 /**
- * Remark plugin that transforms MDX code blocks and elements into LiveDemo components
- *
- * This plugin runs during MDX compilation and handles two types of interactive examples:
+ * Remark plugin that rewrites MDX code blocks/elements into LiveDemo components,
+ * using demo data `visitFilePaths` already collected during the earlier scan phase:
  * 1. External examples: <code src="./Component.tsx" /> → <LiveDemo files={...} />
  * 2. Inline examples: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
- *
- * Flow:
- * - Rspress build starts
- * - visitFilePaths() scans MDX files and builds example data (files + dependencies)
- * - This plugin transforms AST nodes into LiveDemo components with that data
- * - MDX compiler outputs React components
  */
 import path from "node:path";
 
@@ -32,13 +25,6 @@ interface RemarkPluginProps {
 	getDemoDataByPath: () => DemoDataByPath; // Provides analyzed demo files
 }
 
-/**
- * Remark plugin that injects LiveDemo components into MDX
- *
- * @param options - UI configuration (theme, display mode, etc.)
- * @param getDemoDataByPath - Function that returns the analyzed demo data
- * @returns Transformer function that modifies the MDX AST
- */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
 	getDemoDataByPath,
@@ -102,12 +88,6 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	};
 };
 
-/**
- * Merge UI options with demo props if options are provided
- * @param props - Demo data (files, entryFileName)
- * @param options - Optional UI configuration
- * @returns Props with or without options merged
- */
 function getPropsWithOptions(
 	props: LiveDemoPropsFromPlugin,
 	options?: LiveDemoPluginOptions["ui"],
@@ -116,12 +96,8 @@ function getPropsWithOptions(
 }
 
 /**
- * Convert props object to MDX JSX attributes format
- * Example: {files: {...}, entryFileName: "App.tsx"}
+ * {files: {...}, entryFileName: "App.tsx"}
  * → [{name: "files", value: "{...}", type: "mdxJsxAttribute"}, ...]
- *
- * @param props - LiveDemo component props
- * @returns Array of MDX JSX attributes for the AST
  */
 function getJsxAttributesFromProps(
 	props: LiveDemoPropsFromPlugin,

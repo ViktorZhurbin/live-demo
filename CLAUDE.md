@@ -38,8 +38,9 @@ next to the code, or in the relevant package's own CLAUDE.md.
 From the root:
 
 ```sh
-pnpm run check
+pnpm run check # lint+format
 pnpm run verify
+pnpm check:all # both of the above
 ```
 
 ## Active initiative: major version upgrade

@@ -10,7 +10,6 @@ import { visitFilePaths } from "~node/visitFilePaths";
 import { LiveDemoError } from "~shared/errors";
 import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
 
-// Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

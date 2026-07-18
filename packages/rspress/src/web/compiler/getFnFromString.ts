@@ -13,9 +13,7 @@ import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
  * security boundary.
  *
  * That's an accepted trade for a docs tool whose demo authors are as trusted
- * as the docs themselves. If demos ever come from untrusted sources, or need
- * style isolation, this is the seam an iframe/Worker would replace — see
- * CLAUDE.md's isolation-model section before changing it.
+ * as the docs themselves.
  */
 export function getFnFromString(fnCode: string) {
 	// Babel transforms every export in the bundle to `exports.default`, so

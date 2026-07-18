@@ -8,8 +8,7 @@ import styles from "./Preview.module.css";
 
 /**
  * UNEXPECTED means `toPayload` didn't recognize a LiveDemoError — the demo's
- * own runtime error, not ours. Shown raw: it's the demo author's error, not
- * a case for our title/hint wording (see CLAUDE.md's isolation-model section).
+ * own runtime error, not ours. Shown raw.
  */
 const ErrorContent = ({ error }: { error: Error }) => {
 	const payload = toPayload(error);

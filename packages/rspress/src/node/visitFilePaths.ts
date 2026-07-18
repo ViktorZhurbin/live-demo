@@ -1,16 +1,8 @@
 /**
- * Scans MDX files to find and analyze interactive example components
- *
- * This is Phase 1 of the build process, run before MDX compilation:
- * 1. Scan all MDX files for <code src="./Demo.tsx" /> elements
- * 2. For each one, collect the entry file and everything it imports —
- *    reading files off disk only happens here, at build time
- * 3. Collect external imports (react, lodash, etc.) once across all demos, to
- *    bundle into a single virtual module later
- * 4. Store demo data for the remark plugin, which runs after this phase
- *
- * Flow:
- * visitFilePaths → collectDemoFiles → analyzeModule → readAndParseFile → OXC parser
+ * Scans MDX files for `<code src="./Demo.tsx" />` elements and, for each one,
+ * collects its files and external imports. Runs before MDX compilation, once
+ * per build — reading files off disk only happens here. `remarkPlugin` reads
+ * the results back out by path in a later phase.
  */
 import path from "node:path";
 

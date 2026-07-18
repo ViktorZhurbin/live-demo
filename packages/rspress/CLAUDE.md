@@ -24,11 +24,8 @@ fits in the monorepo.
 Update this file when your changes affect what's documented here.
 
 Keep a fact here only if an agent needs it **before** opening the relevant
-file. If they'd see it on arrival, it belongs in a docblock next to the code —
-reference the file instead of restating it. Passes the test: cross-file
-contracts, `package.json` gotchas (JSON can't hold comments), build ordering,
-where things live, decisions someone would otherwise undo. Fails it: how a
-function behaves, resolution rules, a module's internal design.
+file. Otherwise, it belongs in a docblock next to the code —
+reference the file instead of restating it.
 
 Also update `CHANGELOG.md` when a change is user-facing — breaking, newly
 allowed, or otherwise affects consumers of the published package.
@@ -44,8 +41,7 @@ is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
 `<code src="..."/>` or ` ```lang live ` block collects the entry file and
 everything it transitively imports (`collectDemoFiles.ts`).
 External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts` then rewrites the
-MDX AST so `<code src="..."/>` / ` ```lang live ` becomes
+from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts` then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes
 `<LiveDemo files={...} />`.
 
 **Runtime (browser, `src/web/`)** — user edits code in a CodeMirror-based
@@ -54,30 +50,7 @@ editor, bundled with the package. On change: Babel
 (`@rollup/browser`, also CDN) bundles the modules using a custom resolver
 plugin that resolves `./Button` against the importing file's
 directory to a key in the `files` record. The bundle is then evaluated with
-`new Function` and rendered into the host page's React tree — see the
-isolation model below.
-
-### Isolation model: there isn't one
-
-Demo code is **not** sandboxed. `CodeRunner` evaluates the bundle via
-`new Function(...)` and renders the result with `createElement` directly in
-the host React tree, wrapped only in a `react-error-boundary`. There is no
-iframe, no Worker, no origin separation anywhere in `src/`.
-
-What that means, and what it costs:
-
-- Demos share the page's **React instance** (deliberate — it's how hooks work
-  at all), plus its **globals and styles**, which leak both ways.
-- Demo code runs in the **host origin**, with access to the page's DOM,
-  `localStorage`, and cookies.
-- The error boundary catches render errors. It is not a security boundary.
-
-This is a reasonable trade for a docs tool where demo authors are as trusted
-as the docs themselves — which is the assumption baked in today. It stops
-being reasonable for untrusted demo sources, or if demos need style
-isolation. Moving to an iframe would be a breaking architectural change, so
-it's a major-version decision. Until then: this section is the honest
-description, don't call it a sandbox.
+`new Function` and rendered into the host page's React tree.
 
 ### Dependency gotchas
 
@@ -86,9 +59,7 @@ about a file is documented in the file itself.
 
 `@babel/standalone` and `@rollup/browser` are **exact-pinned** in
 `devDependencies` to match the CDN URLs in `src/node/htmlTags.ts`, which are
-the actual runtime versions. Bump one, bump the other in the same commit.
-Full rationale is in that file's header; `tests/node/htmlTags.test.ts`
-enforces it.
+the actual runtime versions.
 
 Type packages (`@types/babel__core`, `@types/babel__standalone`) deliberately
 stay on Babel 7 even though the runtime is on `@babel/standalone@8` —
@@ -97,13 +68,9 @@ pairing it with a real `@babel/core@8` creates a v7/v8 type split-brain
 requiring `as unknown as` casts. Don't "modernize" them independently.
 
 `@mdx-js/mdx`, `mdast-util-mdx`, `remark-gfm`, `unified`, and
-`unist-util-visit` live in `peerDependencies` only (no `dependencies`/
-`devDependencies` entry) since `tsdown` leaves them external in `dist/` and
-the real runtime copy must be `@rspress/core`'s own. Don't delete or move
-them — pnpm's peer-auto-install is what makes them resolvable for this
-package's own build/typecheck/test, pulling them from `@rspress/core`'s
-tree, so removing the peerDependencies entries breaks the build with an
-opaque `TS2307: Cannot find module` error.
+`unist-util-visit` live in `peerDependencies` only. `tsdown` leaves
+them external in `dist/` and the real runtime copy must be
+`@rspress/core`'s own. Don't delete or move them.
 
 ### The build→runtime seam
 
@@ -115,34 +82,9 @@ relative to the entry file's directory**, posix-style. The build step
 `tests/integration/buildToRuntime.test.ts`, the only test that spans the seam.
 Every unit test on either half can pass while a demo renders nothing.
 
-Note that build time deliberately does _not_ bundle: it only collects
-reachable files and external package names. Rollup owns bundling, in the
-browser. See `collectDemoFiles.ts` for why that boundary is where it is.
+Note that build time deliberately does _not_ bundle: see `collectDemoFiles.ts` for why.
 
-## Key files
-
-```
-src/
-├── plugin/           # RspressPlugin entry point (plugin.ts, index.ts)
-├── node/             # build-time: MDX scanning, file collection, remark transform
-│   └── helpers/       # collectDemoFiles, analyzeModule, readAndParseFile, resolveFileInfo, getVirtualModulesCode, ...
-├── shared/           # types, path helpers, constants used by both sides
-│   └── errors/        # LiveDemoError, ErrorCode messages — see Troubleshooting
-└── web/              # runtime: editor + in-page preview
-    ├── compiler/      # Babel/Rollup pipeline that bundles and evaluates a demo in the browser
-    ├── components/    # generic building blocks (Button, ToggleButtonGroup)
-    └── ui/            # one directory per component — Core (top-level layout),
-                        # Editor, FileTabs, Preview, CodeRunner, ControlPanel,
-                        # ResizablePanels, Wrapper
-```
-
-Component exports are unprefixed (`Core`, `Editor`, `CodeRunner`, …) — the
-package name already namespaces them; consumers import and alias as needed
-(see `static/LiveDemo.tsx` for the default layout, or
-`website/src/CustomLiveDemo/LiveDemo.tsx` for a custom one).
-
-Path aliases (`~node/*`, `~shared/*`, `~web/*`) map to `src/node`, `src/shared`,
-`src/web` — see `tsconfig.json` / `vitest.config.ts`.
+### Build & Verify Gotchas
 
 **Build must run before typecheck.** `static/LiveDemo.tsx` imports the
 package's own public API by its published specifier (`@live-demo/rspress/web`),
@@ -151,14 +93,18 @@ doesn't exist yet, that import fails typecheck with a "Cannot find module"
 error — it doesn't fail quietly. CI (`.github/workflows/ci.yml`) runs
 `build:lib` before `typecheck` for this reason, and `pnpm verify` (root `package.json` script) mirrors that order. Keep both in sync if either changes.
 
-**Virtual module pattern**: user code can `import` external packages
-(react, etc.) that aren't installed anywhere the demo can reach. Build time
-generates one virtual module re-exporting everything referenced across all
-demos on the page; at runtime `require('_live_demo_virtual_modules')`
-returns a lookup function for it. See `getVirtualModulesCode.ts`.
+## Key files
 
-Import resolution (which extensions, in what order, index files) is defined
-by `getPossiblePaths` and the `LiveDemoLanguage` enum — documented at both.
+```
+src/
+├── plugin/           # RspressPlugin entry point
+├── node/             # build-time: MDX scanning, file collection, remark transform
+├── shared/           # types, path helpers, constants used by both sides
+│   └── errors/       # LiveDemoError, ErrorCode messages — see Troubleshooting
+└── web/              # runtime: editor + in-page preview
+    ├── components/   # generic building blocks (Button, ToggleButtonGroup)
+    └── ui/           # plugin UI
+```
 
 ## Conventions
 
@@ -170,18 +116,10 @@ by `getPossiblePaths` and the `LiveDemoLanguage` enum — documented at both.
 - **Inline comments**: answer "why?" or "why not the obvious way?" — delete
   anything that just restates what the code already says.
 - **JSDoc prose**: only when the name and TypeScript's own types don't already
-  convey intent. This is TypeScript, not JSDoc-typed JS — don't add
-  `@param`/`@returns` blocks that repeat a type signature.
-
-When unsure whether a comment carries a constraint worth keeping, keep it.
+  convey intent. This is TypeScript — don't add `@param`/`@returns` blocks
+  that repeat a type signature.
 
 ## Testing
-
-```bash
-pnpm test                  # all packages
-pnpm test collectDemoFiles.test.ts
-pnpm test --watch
-```
 
 Fixtures live in `tests/fixtures/` — **read its README before adding one.**
 Two bugs have shipped past a fully green suite because a fixture had the
@@ -196,61 +134,34 @@ right extension and the wrong syntax.
 
 ## Deliberately not handled
 
-This section exists to stop defensive-code creep during the dependency-bump
-work: read it before adding a guard for one of these cases.
+This section exists to stop defensive-code creep.
 
-- **Cross-platform** — `files` keys are posix-style on both sides of the
-  build→runtime seam (`shared/pathHelpers.ts`, `collectDemoFiles.ts`'s
-  `path.sep` normalization). No Windows path handling.
-- **Graceful recovery on file reads** — `resolveFileInfo` confirms a path
-  exists before `readAndParseFile` reads it; if the read still fails
-  (permissions, a file removed between the check and the read),
-  `readAndParseFile` lets `fs.readFileSync`'s raw error propagate rather than
-  wrapping it. A missing import is the common case and is already
-  structured — it fails earlier, in `resolveFileInfo`, as `IMPORT_NOT_RESOLVED`.
+- **Isolation model** - Demo code is **not** sandboxed.
+  `CodeRunner` evaluates the bundle via`new Function(...)` and renders the
+  result with `createElement` directly in the host React tree, wrapped only
+  in a `react-error-boundary`. This is a docs tool and demo code authors are
+  as trusted as the docs themselves.
+- **Cross-platform** — no Windows path handling; see the posix-style `files`
+  keys in "The build→runtime seam" above.
+- **Graceful recovery on file reads** — a read that fails after the existence
+  check (permissions, a removed file) propagates raw.
 - **Runtime validation of plugin options** — `plugin.ts` only checks the
   `customLayout` filename pattern. Everything else in
-  `LiveDemoPluginOptions` is TypeScript's contract, not re-checked at runtime.
-- **Sandboxing demo code** — see "Isolation model" above; there isn't one,
-  by design.
-- **Blanking the preview on a demo error** — check `Preview.tsx`/
-  `Preview.module.css` before assuming otherwise: the last successfully
-  rendered demo stays visible, dimmed, under the error overlay (`CodeRunner`
-  only swaps `dynamicComponent` on a successful bundle), rather than the
-  preview going blank or resetting.
-
-**The exception**: structured errors (`shared/errors/`) and the in-preview
-error display cost lines on purpose — they're the day-to-day DX this plugin
-is worth using for. Propose removing one of these rather than trimming it
-unprompted.
+  `LiveDemoPluginOptions` is TypeScript's contract.
 
 ## Troubleshooting
 
 Every error the plugin itself throws (build- or runtime-side) is a
-`LiveDemoError` — `src/shared/errors/`, ported from castro's
-`utils/errors.js` split. `errors.ts` holds the class and `toPayload()`
-normalizer; `messages.ts` holds every `ErrorCode`'s wording, one factory per
-code. `.message` is the fully formatted text; `.payload` is the structured
-`{ code, title, message?, hint?, notes? }` the in-preview overlay
-(`Preview.tsx`) renders instead. Two codes —
-`UNDEFINED_NAMED_IMPORT`/`EXTERNAL_IMPORT_NOT_FOUND` — back `throw` strings
-generated into a demo's own bundle (`babelPluginTraverse.ts`,
-`getVirtualModulesCode.ts`); that code can't import the class at
-demo-runtime, so `formatSplicedMessage()` joins their message + hint into a
-plain string spliced in at generation time.
+`LiveDemoError` (`src/shared/errors/`) — see the `errors.ts`/`messages.ts`
+docblocks for the class/message-table split and the two codes that splice a
+plain string into a demo's own bundle instead of importing the class.
 
 - **`IMPORT_NOT_RESOLVED`** ("Couldn't resolve import") — check the path
   against `getPossiblePaths`.
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import") — confirm it's a
   real dependency, and that it reached the virtual module
   (`getVirtualModulesCode.ts`).
-- **`PARSE_FAILED`** — a demo file has a syntax error; the codeframe is
-  attached as a payload note.
-- **`NO_DEFAULT_EXPORT`** — the entry file's bundle didn't yield a default
-  export.
 - **`PROP_PARSE_FAILED`** — the plugin's `JSON.stringify`d props and the
   runtime's `JSON.parse` are out of sync; check `parseProps.ts`.
-- **`INVALID_CUSTOM_LAYOUT`** — the `customLayout` plugin option's path
-  doesn't end in `LiveDemo.(jsx?|tsx)`.
 - **A demo picks up the wrong files** — log `Object.keys(files)` at the end of
   `collectDemoFiles.ts`; that's the exact record the browser receives.

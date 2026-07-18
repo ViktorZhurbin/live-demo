@@ -36,12 +36,6 @@ import { resolveFileInfo } from "./resolveFileInfo";
  * bundles them correctly, so refusing them here would block demos that work.
  * The walk itself is cycle-safe — `visited` means a file is enqueued at most
  * once however many other files import it.
- *
- * @param params - the demo's entry file
- * @returns Object containing:
- *   - files: `filePath → source` for the entry and everything it reaches
- *   - externalImports: external package names referenced anywhere in the demo
- * @throws Error if a relative import can't be resolved to a real file
  */
 export function collectDemoFiles(params: {
 	absolutePath: PathWithAllowedExt;

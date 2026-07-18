@@ -19,20 +19,10 @@ import { getPossiblePaths } from "~shared/pathHelpers";
 import type { PathWithAllowedExt } from "~shared/types";
 
 type ResolveFileInfo = {
-	importPath: string; // Relative import (e.g., "./Button", "../utils/helper")
-	dirname: string; // Directory to resolve from
+	importPath: string;
+	dirname: string;
 };
 
-/**
- * Resolve a relative import path to an absolute file path
- *
- * Tries common extensions: .tsx, .ts, .jsx, .js (and index files)
- *
- * @param dirname - Directory to resolve from (usually MDX file's directory)
- * @param importPath - Relative import path (e.g., "./Button", "../utils")
- * @returns Object with absolutePath and fileName
- * @throws Error if file cannot be resolved
- */
 export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
 	const absolutePath = path.join(dirname, importPath);
 

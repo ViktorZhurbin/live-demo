@@ -32,6 +32,9 @@ export const readAndParseFile = (
 ): { code: string; ast: Program } => {
 	const { absolutePath, filePath } = params;
 
+	// resolveFileInfo already confirmed this path exists; if the read still
+	// fails (permissions, a file removed in between), let fs's raw error
+	// propagate rather than wrapping it.
 	const code = fs.readFileSync(absolutePath, { encoding: "utf8" });
 
 	const parsed = parseSync(filePath, code, {

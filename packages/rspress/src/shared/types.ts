@@ -16,15 +16,7 @@ export type LiveDemoFiles = Record<string, string>;
  */
 export type DemoDataByPath = Record<string, LiveDemoPropsFromPlugin>;
 
-/**
- * Modules that will be available in demos.
- * @defaultValue `["react"]`
- *
- * These are collected from external demos at build time.
- *
- * You can also use `includeModules` option of the plugin,
- * to make some modules available in inline demos.
- **/
+/** External package names collected across all demos on a page, for `getVirtualModulesCode`. */
 export type UniqueImports = Set<string>;
 
 export type LiveDemoPropsFromPlugin = {
@@ -42,30 +34,7 @@ export type LiveDemoPluginOptions = {
 	 **/
 	includeModules?: string[];
 
-	/**
-	 * Props passed from plugin to LiveDemo components.
-	 * @example
-	 * ui: {
-	 *   fileTabs: {
-	 *     hideSingleTab: true,
-	 *   },
-	 *   editor: {
-	 *     basicSetup: {
-	 *       lineNumbers: false,
-	 *       foldGutter: false,
-	 *       autocompletion: false,
-	 *       tabSize: 2,
-	 *     },
-	 *   },
-	 *   resizablePanels: {
-	 *     autoSaveId: "my-auto-save-id",
-	 *     defaultPanelSizes: {
-	 *       editor: "50%",
-	 *       preview: "50%",
-	 *     },
-	 *   },
-	 * }
-	 */
+	/** Props passed from plugin to LiveDemo components. */
 	ui?: {
 		controlPanel?: {
 			hide?: boolean;

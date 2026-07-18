@@ -61,9 +61,6 @@ export default getImport`;
  * Generate code for a virtual module that re-exports all external packages.
  * Injected as a virtual module at build time via rsbuild-plugin-virtual-module
  * (see `plugin.ts`).
- *
- * @param allImports - Set of all external package names found in user code
- * @returns JavaScript code as a string to be used as a virtual module
  */
 export const getVirtualModulesCode = (allImports: Set<string>) => {
 	const moduleCodeString = Array.from(allImports).reduce<string>(
