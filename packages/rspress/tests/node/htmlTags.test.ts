@@ -1,5 +1,6 @@
 import { htmlTags } from "node/htmlTags";
 import { describe, expect, it } from "vitest";
+
 import pkg from "../../package.json";
 
 /**

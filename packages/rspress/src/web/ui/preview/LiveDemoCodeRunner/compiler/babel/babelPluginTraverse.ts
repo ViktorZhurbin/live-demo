@@ -1,5 +1,6 @@
 import type { Node, PluginItem } from "@babel/core";
 import type { VariableDeclaration } from "@babel/types";
+
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "../constants";
 
 export const babelPluginTraverse = (): PluginItem => {

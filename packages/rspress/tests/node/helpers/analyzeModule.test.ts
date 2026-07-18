@@ -1,4 +1,5 @@
 import path from "node:path";
+
 import { analyzeModule } from "node/helpers/analyzeModule";
 import { describe, expect, it } from "vitest";
 

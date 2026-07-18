@@ -3,6 +3,7 @@ import type {
 	LiveDemoFileTabsProps,
 	LiveDemoResizablePanelsProps,
 } from "web/ui";
+
 import type { LiveDemoLanguage } from "./constants";
 
 export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;

@@ -6,6 +6,7 @@ import type {
 	ObjectProperty,
 	VariableDeclaration,
 } from "@babel/types";
+
 import { GET_IMPORT_FN } from "../../constants";
 
 export function createVariableDeclaration(

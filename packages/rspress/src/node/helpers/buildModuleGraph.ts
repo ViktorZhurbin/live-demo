@@ -28,8 +28,10 @@
  * }
  */
 import path from "node:path";
+
 import { isRelativeImport } from "shared/pathHelpers";
 import type { PathWithAllowedExt } from "shared/types";
+
 import { analyzeModule } from "./analyzeModule";
 import type { Module } from "./moduleTypes";
 import { resolveFileInfo } from "./resolveFileInfo";

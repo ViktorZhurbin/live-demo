@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+
 import type { RspressPlugin } from "@rspress/core";
 import { getVirtualModulesCode } from "node/helpers/getVirtualModulesCode";
 import { htmlTags } from "node/htmlTags";

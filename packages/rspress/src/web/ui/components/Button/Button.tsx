@@ -1,4 +1,5 @@
 import clsx from "clsx";
+
 import styles from "./Button.module.css";
 
 export type ButtonProps = React.DetailedHTMLProps<

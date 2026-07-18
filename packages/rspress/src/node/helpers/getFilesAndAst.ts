@@ -9,6 +9,7 @@
  * - To build the module graph without executing the code
  */
 import fs from "node:fs";
+
 import type { Program } from "@oxc-project/types";
 import { parseSync } from "oxc-parser";
 import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";

@@ -16,9 +16,11 @@
  * visitFilePaths → buildModuleGraph → analyzeModule → getFilesAndAst → OXC parser
  */
 import path from "node:path";
+
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { DemoDataByPath, UniqueImports } from "shared/types";
 import { visit } from "unist-util-visit";
+
 import { buildModuleGraph } from "./helpers/buildModuleGraph";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";

@@ -21,6 +21,7 @@ import type {
 } from "shared/types";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
+
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 
 interface RemarkPluginProps {

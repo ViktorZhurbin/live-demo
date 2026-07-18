@@ -5,6 +5,7 @@
  * before the MDX compilation phase.
  */
 import fs from "node:fs";
+
 import { createProcessor } from "@mdx-js/mdx";
 import remarkGFM from "remark-gfm";
 import type { Processor } from "unified";

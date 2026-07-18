@@ -11,6 +11,7 @@
  */
 import type { Program } from "@oxc-project/types";
 import type { PathWithAllowedExt } from "shared/types";
+
 import { getFilesAndAst } from "./getFilesAndAst";
 import type { Module } from "./moduleTypes";
 

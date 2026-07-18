@@ -1,5 +1,6 @@
 import { IconMaximize, IconMinimize } from "@tabler/icons-react";
 import { useLiveDemoContext } from "web/context";
+
 import { Button } from "../../components";
 
 export const ButtonFullscreen = () => {

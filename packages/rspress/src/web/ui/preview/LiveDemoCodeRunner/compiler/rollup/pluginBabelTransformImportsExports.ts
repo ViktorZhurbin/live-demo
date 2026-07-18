@@ -1,4 +1,5 @@
 import type { Plugin } from "@rollup/browser";
+
 import { babelPluginTraverse } from "../babel/babelPluginTraverse";
 
 /**

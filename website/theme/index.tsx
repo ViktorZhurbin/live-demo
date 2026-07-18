@@ -2,6 +2,7 @@ import {
 	HomeLayout as BasicHomeLayout,
 	PackageManagerTabs,
 } from "@rspress/core/theme-original";
+
 import { HomeDemo } from "../components/HomeDemo";
 
 function HomeLayout() {

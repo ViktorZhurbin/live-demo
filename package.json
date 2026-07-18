@@ -10,12 +10,10 @@
 		"verify": "pnpm build:lib && pnpm typecheck && pnpm test",
 		"format": "oxfmt",
 		"lint": "oxlint --fix",
-		"organize-imports": "biome check --write",
-		"check": "pnpm run format && pnpm run lint && pnpm run organize-imports",
+		"check": "pnpm run format && pnpm run lint",
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.4",
 		"husky": "^9.1.7",
 		"oxfmt": "^0.59.0",
 		"oxlint": "^1.74.0",

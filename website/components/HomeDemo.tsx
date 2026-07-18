@@ -1,6 +1,7 @@
 import "@live-demo/rspress/web/index.css";
 import { LiveDemoCore } from "@live-demo/rspress/web";
 import { useDark } from "@rspress/core/runtime";
+
 // @ts-expect-error: resourceQuery is set up in rspack configuration
 import importedCode from "../docs/guide/external/snippets/multiFile/Imported.tsx?raw";
 // @ts-expect-error

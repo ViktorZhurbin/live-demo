@@ -1,4 +1,5 @@
 import { Button } from "../Button/Button";
+
 import styles from "./ToggleButtonGroup.module.css";
 
 type ToggleButtonGroupProps<T> = {

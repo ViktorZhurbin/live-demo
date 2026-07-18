@@ -10,8 +10,10 @@ import { PanelsView } from "web/constants/settings";
 import { useLiveDemoContext } from "web/context";
 import { useLocalStorageView } from "web/hooks/useLocalStorage";
 import { LiveDemoEditor, LiveDemoFileTabs, LiveDemoPreview } from "web/ui";
-import styles from "./LiveDemoResizablePanels.module.css";
+
 import type { LiveDemoResizablePanelsProps } from "./types";
+
+import styles from "./LiveDemoResizablePanels.module.css";
 
 export const LiveDemoResizablePanels = (
 	props: LiveDemoResizablePanelsProps,

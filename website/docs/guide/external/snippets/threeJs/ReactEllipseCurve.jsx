@@ -1,6 +1,7 @@
 import { Float, Stars } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
+
 import { Atom } from "./Atom";
 
 export default function App() {
