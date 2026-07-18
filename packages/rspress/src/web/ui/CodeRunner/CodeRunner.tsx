@@ -5,6 +5,13 @@ import type { LiveDemoFiles } from "~shared/types";
 import { bundleCode } from "~web/compiler/bundleCode";
 import { getFnFromString } from "~web/compiler/getFnFromString";
 
+/**
+ * Bundles and evaluates the demo's `files` whenever they change, debounced so
+ * every keystroke doesn't trigger a fresh Babel+Rollup pass. Bundle/eval
+ * errors are caught here and handed to `setError` for `Preview`'s overlay.
+ * Errors thrown during the demo component's own render are not caught here —
+ * they propagate up to `Preview`'s `ErrorBoundary` instead.
+ */
 const DEBOUNCE_TIME = 800;
 
 export type CodeRunnerProps = {

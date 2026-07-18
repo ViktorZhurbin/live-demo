@@ -160,6 +160,21 @@ returns a lookup function for it. See `getVirtualModulesCode.ts`.
 Import resolution (which extensions, in what order, index files) is defined
 by `getPossiblePaths` and the `LiveDemoLanguage` enum — documented at both.
 
+## Conventions
+
+### Comments
+
+- **Module docblocks**: 3-8 lines on the file's architectural role — what
+  problem it solves and how it fits with neighboring files, not a restatement
+  of its exports.
+- **Inline comments**: answer "why?" or "why not the obvious way?" — delete
+  anything that just restates what the code already says.
+- **JSDoc prose**: only when the name and TypeScript's own types don't already
+  convey intent. This is TypeScript, not JSDoc-typed JS — don't add
+  `@param`/`@returns` blocks that repeat a type signature.
+
+When unsure whether a comment carries a constraint worth keeping, keep it.
+
 ## Testing
 
 ```bash

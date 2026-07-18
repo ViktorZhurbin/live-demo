@@ -10,6 +10,12 @@ interface CoreProps {
 	pluginProps: LiveDemoStringifiedProps;
 }
 
+/**
+ * Top-level layout for one demo instance: wraps the widget tree in
+ * `LiveDemoProvider` (the shared files/activeFile state) and renders the
+ * control panel above the resizable editor/preview split. This is what
+ * `static/LiveDemo.tsx` renders per `<LiveDemo />` in an MDX file.
+ */
 export const Core = (props: CoreProps) => {
 	return (
 		<LiveDemoProvider {...props}>

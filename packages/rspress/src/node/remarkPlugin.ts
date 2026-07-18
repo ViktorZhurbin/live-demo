@@ -43,7 +43,6 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
 	getDemoDataByPath,
 }) => {
-	// Get all analyzed demo data (populated by visitFilePaths during build)
 	const demoDataByPath = getDemoDataByPath();
 
 	return (tree, vfile) => {
@@ -66,10 +65,8 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			if (!demoData) return;
 
-			// Get demo data (files + entry point) and merge with UI options
 			const props = getPropsWithOptions(demoData, options);
 
-			// Transform the AST node from <code> to <LiveDemo>
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "LiveDemo",
@@ -85,10 +82,8 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const isLive = node.meta?.includes("live");
 
-			// Only transform code blocks with 'live' meta and supported languages (tsx, ts, jsx, js)
 			if (!(isLive && isAllowedExt(node.lang))) return;
 
-			// Create a single-file demo from the code block content
 			const entryFileName = `App.${node.lang}`;
 			const baseProps = {
 				entryFileName,
@@ -97,7 +92,6 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const props = getPropsWithOptions(baseProps, options);
 
-			// Transform the AST node from code block to <LiveDemo>
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
 				name: "LiveDemo",
@@ -134,7 +128,7 @@ function getJsxAttributesFromProps(
 ): MdxJsxFlowElement["attributes"] {
 	return Object.entries(props).map(([name, value]) => ({
 		name,
-		value: JSON.stringify(value), // Serialize to JSON string
+		value: JSON.stringify(value),
 		type: "mdxJsxAttribute",
 	}));
 }

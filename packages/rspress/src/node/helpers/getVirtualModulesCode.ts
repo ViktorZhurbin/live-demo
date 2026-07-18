@@ -37,8 +37,6 @@ const importNotFoundMessage = formatSplicedMessage(
 	errorMessages.EXTERNAL_IMPORT_NOT_FOUND({ importName: "${importName}" }),
 );
 
-// Template function that will be included in the virtual module
-// This function allows dynamic resolution of imports by name
 const getImportFnString = `const ${IMPORTS_MAP} = new Map()
 
 function getImport(importName, getDefault) {
@@ -58,15 +56,9 @@ function getImport(importName, getDefault) {
 export default getImport`;
 
 /**
- * Generate code for a virtual module that re-exports all external packages
- *
- * The generated module:
- * 1. Imports all external packages (react, lodash, etc.)
- * 2. Stores them in a Map for dynamic lookup
- * 3. Exports a function to retrieve packages by name
- *
- * This is injected as a virtual module at build time via
- * rsbuild-plugin-virtual-module (see `plugin.ts`).
+ * Generate code for a virtual module that re-exports all external packages.
+ * Injected as a virtual module at build time via rsbuild-plugin-virtual-module
+ * (see `plugin.ts`).
  *
  * @param allImports - Set of all external package names found in user code
  * @returns JavaScript code as a string to be used as a virtual module
@@ -75,16 +67,14 @@ export const getVirtualModulesCode = (allImports: Set<string>) => {
 	const moduleCodeString = Array.from(allImports).reduce<string>(
 		(acc, moduleName, index) => {
 			const name = `'${moduleName}'`;
-			const value = `i_${index}`; // Unique identifier for each import
+			const value = `i_${index}`;
 
-			// Generate: import * as i_0 from 'react';
 			const importStatement = `import * as ${value} from ${name};`;
-			// Generate: importsMap.set('react', i_0);
 			const addToImportsMap = `${IMPORTS_MAP}.set(${name}, ${value});`;
 
 			return `${acc}\n\n${importStatement}\n${addToImportsMap}`;
 		},
-		getImportFnString, // Start with the getImport function template
+		getImportFnString,
 	);
 
 	return moduleCodeString;

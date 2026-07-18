@@ -28,7 +28,6 @@
  * if it fails, fix the versions, not the test.
  */
 export const htmlTags = [
-	// Babel: Transpiles JSX and TypeScript to JavaScript in the browser
 	{
 		tag: "script",
 		head: true,
@@ -36,7 +35,6 @@ export const htmlTags = [
 			src: "https://cdn.jsdelivr.net/npm/@babel/standalone@8.0.4/babel.min.js",
 		},
 	},
-	// Rollup: Bundles and resolves module imports in the browser
 	{
 		tag: "script",
 		head: true,

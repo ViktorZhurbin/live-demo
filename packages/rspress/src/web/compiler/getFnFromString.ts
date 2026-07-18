@@ -18,14 +18,9 @@ import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
  * CLAUDE.md's isolation-model section before changing it.
  */
 export function getFnFromString(fnCode: string) {
-	/**
-	 * Export is transformed by babel to always be `exports.default`.
-	 *
-	 * We will plug in `exportsStub` object into the function
-	 * as the second argument named 'exports'.
-	 * Then we will call the function, and get the exported componentFn
-	 * assigned to its `exportsStub.default` property.
-	 * */
+	// Babel transforms every export in the bundle to `exports.default`, so
+	// passing this in as the `exports` argument is how the function's default
+	// export ends up assigned to `exportsStub.default` below.
 	const exportsStub: Record<string, React.FC> = {};
 
 	const [OBJECT_NAME, ASSIGN_TO_PROP] = EXPORTS_OBJ.split(".");
@@ -37,11 +32,6 @@ export function getFnFromString(fnCode: string) {
 		exportsObj: typeof exportsStub,
 	) => void;
 
-	/**
-	 * After this call:
-	 * - `getImport` would resolve external module imports
-	 * - `exportsStub` would be `{ default: componentFn }`
-	 * */
 	func(getImport, exportsStub);
 
 	const componentFn = exportsStub[ASSIGN_TO_PROP];

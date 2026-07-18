@@ -52,13 +52,11 @@ export const babelPluginTraverse = (): PluginItem => {
 							"name" in specifier.imported &&
 							specifier.imported.name !== specifier.local.name
 						) {
-							// import { importedName as localName } from 'pkg'
 							// Stored internally as "importedName: localName" for destructuring
 							namedImports.push(
 								`${specifier.imported.name}: ${specifier.local.name}`,
 							);
 						} else {
-							// import { localName } from 'pkg'
 							namedImports.push(specifier.local.name);
 						}
 					}
@@ -69,7 +67,6 @@ export const babelPluginTraverse = (): PluginItem => {
 					const importNode = createGetImportDeclaration({ pkg, imported });
 					code.push(importNode);
 
-					// Add validation for each named import
 					const importNames = namedImports.map((importString) => {
 						// Extract local name from internal format: "importedName: localName" -> "localName"
 						const parts = importString.split(":").map((part) => part.trim());
