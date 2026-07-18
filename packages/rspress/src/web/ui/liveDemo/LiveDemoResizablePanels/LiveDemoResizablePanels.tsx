@@ -1,4 +1,4 @@
-import { useElementSize } from "@mantine/hooks";
+import { useElementSize, useMounted } from "@mantine/hooks";
 import clsx from "clsx";
 import {
 	Group,
@@ -17,6 +17,16 @@ import type { LiveDemoResizablePanelsProps } from "./types";
 
 import styles from "./LiveDemoResizablePanels.module.css";
 
+// `useDefaultLayout`'s `storage` param defaults to the `localStorage` global
+// whenever we pass `undefined` (JS default-parameter semantics), so an
+// explicit no-op is required to opt out -- both to avoid a `ReferenceError`
+// during SSR (no `localStorage` global in Node) and to actually skip
+// persistence when no `autoSaveId` is given.
+const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
+	getItem: () => null,
+	setItem: () => {},
+};
+
 export const LiveDemoResizablePanels = (
 	props: LiveDemoResizablePanelsProps,
 ) => {
@@ -32,9 +42,18 @@ export const LiveDemoResizablePanels = (
 
 	const [panelsView] = useLocalStorageView();
 
+	// `useDefaultLayout` reads storage via `useSyncExternalStore`, so
+	// switching storage based on a raw `typeof localStorage` check would make
+	// the client's very first (hydration) render disagree with what the
+	// server actually rendered -- the exact mismatch the library's docs warn
+	// against. `useMounted` starts `false` on both server and the client's
+	// first render, only flipping `true` in a later, client-only render, so
+	// server and hydration agree (`noopStorage`) and the swap to real
+	// `localStorage` happens safely afterward.
+	const mounted = useMounted();
 	const { defaultLayout, onLayoutChanged } = useDefaultLayout({
 		id: autoSaveId ?? "live-demo-resizable-panels",
-		storage: autoSaveId ? localStorage : undefined,
+		storage: autoSaveId && mounted ? localStorage : noopStorage,
 	});
 
 	const wrapperSize = useElementSize();
