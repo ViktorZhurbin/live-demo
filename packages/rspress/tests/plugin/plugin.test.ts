@@ -1,6 +1,6 @@
-import { htmlTags } from "node/htmlTags";
 import type { PluginVirtualModuleOptions } from "rsbuild-plugin-virtual-module";
 import { describe, expect, it, vi } from "vitest";
+import { htmlTags } from "~node/htmlTags";
 
 vi.mock("rsbuild-plugin-virtual-module", () => ({
 	pluginVirtualModule: vi.fn((options: PluginVirtualModuleOptions) => ({

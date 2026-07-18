@@ -4,9 +4,9 @@ import ReactCodeMirror, {
 	EditorView,
 	type ReactCodeMirrorProps,
 } from "@uiw/react-codemirror";
-import { useLiveDemoContext } from "web/context";
-import { useActiveCode } from "web/hooks/useActiveCode";
-import { useLocalStorageWrapCode } from "web/hooks/useLocalStorage";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+import { useActiveCode } from "~web/hooks/useActiveCode";
+import { useLocalStorageWrapCode } from "~web/hooks/useLocalStorage";
 
 import "./LiveDemoEditor.css";
 

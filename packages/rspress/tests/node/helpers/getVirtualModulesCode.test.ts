@@ -1,5 +1,5 @@
-import { getVirtualModulesCode } from "node/helpers/getVirtualModulesCode";
 import { describe, expect, it } from "vitest";
+import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
 
 describe("getVirtualModulesCode", () => {
 	it("should generate virtual module code with single import", () => {

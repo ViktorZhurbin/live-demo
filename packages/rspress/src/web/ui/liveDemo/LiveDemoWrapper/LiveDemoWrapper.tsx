@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useLiveDemoContext } from "web/context";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
 import styles from "./LiveDemoWrapper.module.css";
 

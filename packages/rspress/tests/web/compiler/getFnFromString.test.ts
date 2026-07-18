@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { getFnFromString } from "web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
+import { getFnFromString } from "~web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
 
 const PREDEFINED_LIB_NAME = "predefined-lib";
 

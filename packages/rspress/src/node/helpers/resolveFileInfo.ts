@@ -14,8 +14,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { getPossiblePaths } from "shared/pathHelpers";
-import type { PathWithAllowedExt } from "shared/types";
+import { getPossiblePaths } from "~shared/pathHelpers";
+import type { PathWithAllowedExt } from "~shared/types";
 
 type ResolveFileInfo = {
 	importPath: string; // Relative import (e.g., "./Button", "../utils/helper")

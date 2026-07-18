@@ -1,5 +1,5 @@
-import { htmlTags } from "node/htmlTags";
 import { describe, expect, it } from "vitest";
+import { htmlTags } from "~node/htmlTags";
 
 import pkg from "../../package.json";
 

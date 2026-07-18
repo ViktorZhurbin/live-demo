@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useLiveDemoContext } from "web/context";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
 export const useActiveCode = () => {
 	const { files, activeFile, updateFiles } = useLiveDemoContext();

@@ -1,4 +1,4 @@
-import type { LiveDemoPropsFromPlugin } from "shared/types";
+import type { LiveDemoPropsFromPlugin } from "~shared/types";
 
 /**
  * Props passed from plugin to LiveDemo components are JSON.stringified.

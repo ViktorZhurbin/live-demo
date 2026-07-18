@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseProps } from "web/context/parseProps";
-import type { LiveDemoStringifiedProps } from "web/types";
+import { parseProps } from "~web/context/parseProps";
+import type { LiveDemoStringifiedProps } from "~web/types";
 
 describe("parseProps", () => {
 	it("should parse stringified props correctly", () => {

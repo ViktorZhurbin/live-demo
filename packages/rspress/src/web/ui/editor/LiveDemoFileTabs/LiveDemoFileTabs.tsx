@@ -1,5 +1,5 @@
-import { useLiveDemoContext } from "web/context";
-import { Button } from "web/ui/components";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+import { Button } from "~web/ui/components/Button/Button";
 
 import styles from "./LiveDemoFileTabs.module.css";
 

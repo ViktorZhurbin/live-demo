@@ -18,8 +18,8 @@
 import path from "node:path";
 
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import type { DemoDataByPath, UniqueImports } from "shared/types";
 import { visit } from "unist-util-visit";
+import type { DemoDataByPath, UniqueImports } from "~shared/types";
 
 import { collectDemoFiles } from "./helpers/collectDemoFiles";
 import { getMdxAst } from "./helpers/getMdxAst";

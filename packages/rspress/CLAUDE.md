@@ -119,7 +119,7 @@ src/
         └── controlPanel/    # wrap/fullscreen/view-mode toggles
 ```
 
-Path aliases (`node/*`, `shared/*`, `web/*`) map to `src/node`, `src/shared`,
+Path aliases (`~node/*`, `~shared/*`, `~web/*`) map to `src/node`, `src/shared`,
 `src/web` — see `tsconfig.json` / `vitest.config.ts`.
 
 **Build must run before typecheck.** `static/LiveDemo.tsx` imports the

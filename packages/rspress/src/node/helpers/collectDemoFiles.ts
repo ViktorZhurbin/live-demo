@@ -23,8 +23,8 @@
  */
 import path from "node:path";
 
-import { isRelativeImport } from "shared/pathHelpers";
-import type { LiveDemoFiles, PathWithAllowedExt } from "shared/types";
+import { isRelativeImport } from "~shared/pathHelpers";
+import type { LiveDemoFiles, PathWithAllowedExt } from "~shared/types";
 
 import { analyzeModule } from "./analyzeModule";
 import { resolveFileInfo } from "./resolveFileInfo";

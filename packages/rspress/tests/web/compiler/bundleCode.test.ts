@@ -2,10 +2,10 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import * as rollupBrowser from "@rollup/browser";
-import type { LiveDemoFiles } from "shared/types";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { bundleCode } from "web/ui/preview/LiveDemoCodeRunner/compiler/bundleCode";
-import { getFnFromString } from "web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
+import type { LiveDemoFiles } from "~shared/types";
+import { bundleCode } from "~web/ui/preview/LiveDemoCodeRunner/compiler/bundleCode";
+import { getFnFromString } from "~web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
 
 // Mock the virtual modules import - must be inline due to hoisting.
 // `react/jsx-runtime` is included because Babel's automatic JSX runtime emits

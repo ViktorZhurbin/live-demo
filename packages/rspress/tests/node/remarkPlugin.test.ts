@@ -2,11 +2,11 @@ import path from "node:path";
 
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import { getMdxAst } from "node/helpers/getMdxAst";
-import { remarkPlugin } from "node/remarkPlugin";
-import type { DemoDataByPath } from "shared/types";
 import { visit } from "unist-util-visit";
 import { describe, expect, it } from "vitest";
+import { getMdxAst } from "~node/helpers/getMdxAst";
+import { remarkPlugin } from "~node/remarkPlugin";
+import type { DemoDataByPath } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);

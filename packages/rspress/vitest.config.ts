@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -25,10 +23,6 @@ export default defineConfig({
 		},
 	},
 	resolve: {
-		alias: {
-			node: path.resolve(__dirname, "./src/node"),
-			shared: path.resolve(__dirname, "./src/shared"),
-			web: path.resolve(__dirname, "./src/web"),
-		},
+		tsconfigPaths: true,
 	},
 });

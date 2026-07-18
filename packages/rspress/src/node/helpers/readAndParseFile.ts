@@ -12,7 +12,7 @@ import fs from "node:fs";
 
 import type { Program } from "@oxc-project/types";
 import { parseSync } from "oxc-parser";
-import type { PathWithAllowedExt } from "shared/types";
+import type { PathWithAllowedExt } from "~shared/types";
 
 type ReadAndParseFile = {
 	/** Path relative to the entry file's directory — used in error messages */

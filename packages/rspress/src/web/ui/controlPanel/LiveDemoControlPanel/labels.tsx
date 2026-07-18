@@ -1,5 +1,5 @@
 import { IconBrandVscode, IconCode, IconEye } from "@tabler/icons-react";
-import { PanelsView } from "web/constants/settings";
+import { PanelsView } from "~web/constants/settings";
 
 export const getPanelViewsValues = (showIcons?: boolean) => [
 	{

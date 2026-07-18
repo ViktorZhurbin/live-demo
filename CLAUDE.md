@@ -27,6 +27,15 @@ fact here only if it's true across the whole monorepo, or if an agent needs
 it to decide which package to open — before that, it belongs in a docblock
 next to the code, or in the relevant package's own CLAUDE.md.
 
+## Change Verification
+
+From the root:
+
+```sh
+pnpm run check
+pnpm run verify
+```
+
 ## Active initiative: major version upgrade
 
 This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.

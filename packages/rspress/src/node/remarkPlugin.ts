@@ -13,14 +13,14 @@
  */
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
-import { isAllowedExt } from "shared/pathHelpers";
+import type { Plugin } from "unified";
+import { visit } from "unist-util-visit";
+import { isAllowedExt } from "~shared/pathHelpers";
 import type {
 	DemoDataByPath,
 	LiveDemoPluginOptions,
 	LiveDemoPropsFromPlugin,
-} from "shared/types";
-import type { Plugin } from "unified";
-import { visit } from "unist-util-visit";
+} from "~shared/types";
 
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 

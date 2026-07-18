@@ -1,11 +1,11 @@
+import { describe, expect, it } from "vitest";
 import {
 	getDirName,
 	getFileExt,
 	getPossiblePaths,
 	isRelativeImport,
 	resolveRelativePath,
-} from "shared/pathHelpers";
-import { describe, expect, it } from "vitest";
+} from "~shared/pathHelpers";
 
 describe("pathHelpers", () => {
 	describe("isRelativeImport", () => {

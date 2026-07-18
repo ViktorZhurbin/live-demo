@@ -1,8 +1,8 @@
 import path from "node:path";
 
-import { readAndParseFile } from "node/helpers/readAndParseFile";
-import type { PathWithAllowedExt } from "shared/types";
 import { describe, expect, it } from "vitest";
+import { readAndParseFile } from "~node/helpers/readAndParseFile";
+import type { PathWithAllowedExt } from "~shared/types";
 
 /**
  * This module does three things of its own: reads the file, parses it as an ES

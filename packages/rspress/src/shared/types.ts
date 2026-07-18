@@ -1,8 +1,6 @@
-import type {
-	LiveDemoEditorProps,
-	LiveDemoFileTabsProps,
-	LiveDemoResizablePanelsProps,
-} from "web/ui";
+import type { LiveDemoEditorProps } from "~web/ui/editor/LiveDemoEditor/LiveDemoEditor";
+import type { LiveDemoFileTabsProps } from "~web/ui/editor/LiveDemoFileTabs/LiveDemoFileTabs";
+import type { LiveDemoResizablePanelsProps } from "~web/ui/liveDemo/LiveDemoResizablePanels/types";
 
 import type { LiveDemoLanguage } from "./constants";
 

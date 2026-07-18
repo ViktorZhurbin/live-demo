@@ -6,10 +6,12 @@ import {
 	Separator,
 	useDefaultLayout,
 } from "react-resizable-panels";
-import { PanelsView } from "web/constants/settings";
-import { useLiveDemoContext } from "web/context";
-import { useLocalStorageView } from "web/hooks/useLocalStorage";
-import { LiveDemoEditor, LiveDemoFileTabs, LiveDemoPreview } from "web/ui";
+import { PanelsView } from "~web/constants/settings";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+import { useLocalStorageView } from "~web/hooks/useLocalStorage";
+import { LiveDemoEditor } from "~web/ui/editor/LiveDemoEditor/LiveDemoEditor";
+import { LiveDemoFileTabs } from "~web/ui/editor/LiveDemoFileTabs/LiveDemoFileTabs";
+import { LiveDemoPreview } from "~web/ui/preview/LiveDemoPreview/LiveDemoPreview";
 
 import type { LiveDemoResizablePanelsProps } from "./types";
 

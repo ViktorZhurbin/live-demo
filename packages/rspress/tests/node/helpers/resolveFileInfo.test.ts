@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import { resolveFileInfo } from "node/helpers/resolveFileInfo";
 import { describe, expect, it } from "vitest";
+import { resolveFileInfo } from "~node/helpers/resolveFileInfo";
 
 const FIXTURES_DIR = path.join(__dirname, "../../fixtures");
 

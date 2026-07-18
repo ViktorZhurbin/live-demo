@@ -6,7 +6,7 @@
  * job, and bundling them is Rollup's at runtime.
  */
 import type { Program } from "@oxc-project/types";
-import type { PathWithAllowedExt } from "shared/types";
+import type { PathWithAllowedExt } from "~shared/types";
 
 import { readAndParseFile } from "./readAndParseFile";
 

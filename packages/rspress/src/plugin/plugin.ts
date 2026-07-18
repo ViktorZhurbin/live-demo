@@ -2,12 +2,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { RspressPlugin } from "@rspress/core";
-import { getVirtualModulesCode } from "node/helpers/getVirtualModulesCode";
-import { htmlTags } from "node/htmlTags";
-import { remarkPlugin } from "node/remarkPlugin";
-import { visitFilePaths } from "node/visitFilePaths";
 import { pluginVirtualModule } from "rsbuild-plugin-virtual-module";
-import type { DemoDataByPath, LiveDemoPluginOptions } from "shared/types";
+import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
+import { htmlTags } from "~node/htmlTags";
+import { remarkPlugin } from "~node/remarkPlugin";
+import { visitFilePaths } from "~node/visitFilePaths";
+import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);

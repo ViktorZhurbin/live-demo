@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { useLiveDemoContext } from "web/context";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
 import { LiveDemoCodeRunner } from "../LiveDemoCodeRunner/LiveDemoCodeRunner";
 

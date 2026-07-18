@@ -4,8 +4,8 @@ import {
 	getPossiblePaths,
 	isRelativeImport,
 	resolveRelativePath,
-} from "shared/pathHelpers";
-import type { LiveDemoFiles } from "shared/types";
+} from "~shared/pathHelpers";
+import type { LiveDemoFiles } from "~shared/types";
 
 /**
  * Resolve and load in-memory files to be bundled

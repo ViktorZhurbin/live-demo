@@ -10,9 +10,9 @@
 		"useDefineForClassFields": true,
 
 		"paths": {
-			"node/*": ["./src/node/*"],
-			"shared/*": ["./src/shared/*"],
-			"web/*": ["./src/web/*"]
+			"~node/*": ["./src/node/*"],
+			"~shared/*": ["./src/shared/*"],
+			"~web/*": ["./src/web/*"]
 		}
 	},
 

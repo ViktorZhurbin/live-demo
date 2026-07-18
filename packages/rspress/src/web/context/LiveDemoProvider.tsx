@@ -1,7 +1,7 @@
 import { useFullscreenElement } from "@mantine/hooks";
 import { createContext, useCallback, useContext, useState } from "react";
-import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "shared/types";
-import type { LiveDemoStringifiedProps } from "web/types";
+import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "~shared/types";
+import type { LiveDemoStringifiedProps } from "~web/types";
 
 import { parseProps } from "./parseProps";
 

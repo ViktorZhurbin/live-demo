@@ -1,6 +1,6 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { createElement, type ReactElement, useEffect, useState } from "react";
-import type { LiveDemoFiles } from "shared/types";
+import type { LiveDemoFiles } from "~shared/types";
 
 import { bundleCode } from "./compiler/bundleCode";
 import { getFnFromString } from "./compiler/getFnFromString";

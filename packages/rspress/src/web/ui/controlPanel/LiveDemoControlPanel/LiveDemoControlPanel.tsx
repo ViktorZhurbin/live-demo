@@ -1,6 +1,6 @@
 import { useElementSize } from "@mantine/hooks";
-import { useLiveDemoContext } from "web/context";
-import { useLocalStorageView } from "web/hooks/useLocalStorage";
+import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+import { useLocalStorageView } from "~web/hooks/useLocalStorage";
 
 import { ToggleButtonGroup } from "../../components/ToggleButtonGroup/ToggleButtonGroup";
 import { ButtonFullscreen } from "./ButtonFullscreen";

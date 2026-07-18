@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { collectDemoFiles } from "node/helpers/collectDemoFiles";
-import type { PathWithAllowedExt } from "shared/types";
 import { describe, expect, it, vi } from "vitest";
+import { collectDemoFiles } from "~node/helpers/collectDemoFiles";
+import type { PathWithAllowedExt } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../../fixtures");
 

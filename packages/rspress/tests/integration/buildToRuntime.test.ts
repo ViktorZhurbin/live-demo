@@ -3,11 +3,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import * as rollupBrowser from "@rollup/browser";
-import { visitFilePaths } from "node/visitFilePaths";
-import type { DemoDataByPath, UniqueImports } from "shared/types";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { bundleCode } from "web/ui/preview/LiveDemoCodeRunner/compiler/bundleCode";
-import { getFnFromString } from "web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
+import { visitFilePaths } from "~node/visitFilePaths";
+import type { DemoDataByPath, UniqueImports } from "~shared/types";
+import { bundleCode } from "~web/ui/preview/LiveDemoCodeRunner/compiler/bundleCode";
+import { getFnFromString } from "~web/ui/preview/LiveDemoCodeRunner/compiler/getFnFromString";
 
 /**
  * The build step (node/) and the browser bundler (web/) never meet in the

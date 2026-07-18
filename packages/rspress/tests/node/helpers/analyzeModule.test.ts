@@ -1,8 +1,8 @@
 import path from "node:path";
 
-import { analyzeModule } from "node/helpers/analyzeModule";
-import type { PathWithAllowedExt } from "shared/types";
 import { describe, expect, it } from "vitest";
+import { analyzeModule } from "~node/helpers/analyzeModule";
+import type { PathWithAllowedExt } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../../fixtures");
 

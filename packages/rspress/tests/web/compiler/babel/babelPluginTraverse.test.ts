@@ -1,6 +1,6 @@
 import Babel from "@babel/standalone";
 import { describe, expect, it } from "vitest";
-import { babelPluginTraverse } from "web/ui/preview/LiveDemoCodeRunner/compiler/babel/babelPluginTraverse";
+import { babelPluginTraverse } from "~web/ui/preview/LiveDemoCodeRunner/compiler/babel/babelPluginTraverse";
 
 /**
  * Runs the plugin through real Babel (not a mock) so we assert on the
