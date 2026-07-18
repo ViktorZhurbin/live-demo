@@ -4,6 +4,21 @@ Implementation of the Live Demo rspress plugin. See the [root
 CLAUDE.md](../../CLAUDE.md) for what the plugin does and how this package
 fits in the monorepo.
 
+## Library references
+
+- `@mantine/hooks`: https://mantine.dev/llms.txt
+- `@uiw/react-codemirror`: https://github.com/uiwjs/react-codemirror/blob/master/core/README.md
+- `@codemirror/lang-javascript`: https://codemirror.net/docs/ref/
+- `react-resizable-panels`: https://github.com/bvaughn/react-resizable-panels/blob/main/README.md
+- `react-error-boundary`: https://github.com/bvaughn/react-error-boundary/blob/main/README.md
+- Rollup:
+  - Config: https://github.com/rollup/rollup/blob/master/docs/configuration-options/index.md
+  - JS API: https://github.com/rollup/rollup/blob/master/docs/javascript-api/index.md
+  - `@rollup/browser`: https://github.com/rollup/rollup/blob/master/docs/browser/index.md
+- `@babel/standalone`: https://github.com/babel/website/tree/main/docs
+- `tsdown`: https://github.com/rolldown/tsdown/blob/main/skills/tsdown/SKILL.md
+- `vitest`: https://github.com/vitest-dev/vitest/tree/main/docs/guide
+
 ## Maintaining this file
 
 Update this file when your changes affect what's documented here.

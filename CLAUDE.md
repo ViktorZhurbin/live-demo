@@ -27,6 +27,12 @@ fact here only if it's true across the whole monorepo, or if an agent needs
 it to decide which package to open — before that, it belongs in a docblock
 next to the code, or in the relevant package's own CLAUDE.md.
 
+## Library references
+
+- `rspress/core`: https://rspress.rs/llms.txt
+- `oxfmt`: https://github.com/oxc-project/website/tree/main/src/docs/guide/usage/formatter
+- `oxlint`: https://github.com/oxc-project/website/tree/main/src/docs/guide/usage/linter
+
 ## Change Verification
 
 From the root:
