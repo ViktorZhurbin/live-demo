@@ -51,7 +51,6 @@ describe("liveDemoPluginRspress", () => {
 	});
 
 	describe("virtual module (registered via rsbuild-plugin-virtual-module)", () => {
-		// biome-ignore lint/suspicious/noExplicitAny: reaching into the mocked plugin's captured options
 		const getVirtualModuleHandler = (plugin: any) => {
 			const [virtualModulePlugin] = plugin.builderConfig?.plugins ?? [];
 			return virtualModulePlugin.__options.virtualModules

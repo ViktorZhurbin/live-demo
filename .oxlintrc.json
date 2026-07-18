@@ -1,0 +1,19 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["eslint", "typescript", "unicorn", "oxc", "react", "jsx-a11y"],
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {
+		"typescript/no-explicit-any": "error"
+	},
+	"ignorePatterns": ["**/tests/fixtures"],
+	"overrides": [
+		{
+			"files": ["**/tests/**"],
+			"rules": {
+				"typescript/no-explicit-any": "off"
+			}
+		}
+	]
+}
