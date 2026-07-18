@@ -1,0 +1,4 @@
+- [ ] Compare to original plugin
+- [ ] Review architecture, file organization
+- [ ] Review if keepForNow/ can be removed
+- [ ] Delegate styles to rspress theme as much as possible: use its variables, components, etc.
