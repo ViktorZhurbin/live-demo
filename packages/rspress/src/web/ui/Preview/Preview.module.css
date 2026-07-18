@@ -26,4 +26,23 @@
 	padding: 10px;
 	overflow: auto;
 	font-size: 12px;
+	white-space: pre-wrap;
+}
+
+.errorTitle {
+	display: block;
+	font-size: 13px;
+	margin-bottom: 4px;
+}
+
+.errorNote {
+	margin: 4px 0;
+	font-size: inherit;
+	font-family: inherit;
+	white-space: pre-wrap;
+}
+
+.errorHint {
+	margin-top: 8px;
+	opacity: 0.85;
 }

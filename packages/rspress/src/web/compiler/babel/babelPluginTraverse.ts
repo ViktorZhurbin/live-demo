@@ -1,5 +1,7 @@
 import type { Node, PluginItem } from "@babel/core";
 import type { VariableDeclaration } from "@babel/types";
+import { formatSplicedMessage } from "~shared/errors";
+import { errorMessages } from "~shared/errors/messages";
 
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "../constants";
 
@@ -125,9 +127,15 @@ function createImportValidationError({
 	importName?: string;
 	pkg: string;
 }) {
+	// Generated code can't import LiveDemoError, so splice the formatted
+	// text (message + hint) in as a plain string instead.
+	const message = formatSplicedMessage(
+		errorMessages.UNDEFINED_NAMED_IMPORT({ importName: importName ?? "", pkg }),
+	);
+
 	const validationCode = `
     if (${importName} === undefined) {
-      throw new Error("[LiveDemo] Import '${importName}' from '${pkg}' is undefined. This export may not exist in this version of the package.");
+      throw new Error(${JSON.stringify(message)});
     }
   `;
 

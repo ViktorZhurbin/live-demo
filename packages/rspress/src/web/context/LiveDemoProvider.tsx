@@ -1,5 +1,6 @@
 import { useFullscreenElement } from "@mantine/hooks";
 import { createContext, useCallback, useContext, useState } from "react";
+import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "~shared/types";
 import type { LiveDemoStringifiedProps } from "~web/types";
 
@@ -67,9 +68,7 @@ const useLiveDemoContext = () => {
 	const context = useContext(LiveDemoContext);
 
 	if (context === undefined) {
-		throw new Error(
-			"useLiveDemoContext must be used within a LiveDemoProvider",
-		);
+		throw new LiveDemoError("PROVIDER_MISSING");
 	}
 
 	return context;

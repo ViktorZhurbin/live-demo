@@ -1,4 +1,5 @@
 import { LiveDemoLanguage } from "./constants";
+import { LiveDemoError } from "./errors";
 import type { PathWithAllowedExt } from "./types";
 
 /** starting with ./ or ../  */
@@ -105,7 +106,5 @@ export const getPossiblePaths = (filePath: string): PathWithAllowedExt[] => {
 		return [filePath] as PathWithAllowedExt[];
 	}
 
-	throw new Error(
-		`Couldn't resolve \`${filePath}\`.\nOnly .js(x) and .ts(x) files are supported`,
-	);
+	throw new LiveDemoError("IMPORT_NOT_RESOLVED", { importPath: filePath });
 };

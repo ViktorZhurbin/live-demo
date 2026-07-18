@@ -7,6 +7,7 @@ import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
 import { htmlTags } from "~node/htmlTags";
 import { remarkPlugin } from "~node/remarkPlugin";
 import { visitFilePaths } from "~node/visitFilePaths";
+import { LiveDemoError } from "~shared/errors";
 import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
 
 // Get __dirname equivalent for ES modules
@@ -46,9 +47,7 @@ export function liveDemoPluginRspress(
 	const { customLayout, includeModules } = options ?? {};
 
 	if (customLayout && !/LiveDemo\.(jsx?|tsx)$/.test(customLayout)) {
-		throw new Error(
-			"[LiveDemo]: `customLayout` path should end with 'LiveDemo.(jsx?|tsx)',\nExample: `path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')`",
-		);
+		throw new LiveDemoError("INVALID_CUSTOM_LAYOUT", { customLayout });
 	}
 
 	const getDemoDataByPath = () => demoDataByPath;

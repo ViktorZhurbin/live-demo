@@ -53,7 +53,7 @@ describe("resolveFileInfo", () => {
 				dirname: path.join(FIXTURES_DIR, "valid"),
 				importPath: "./DoesNotExist",
 			}),
-		).toThrow("[LiveDemo]: Couldn't resolve `./DoesNotExist`");
+		).toThrow("Couldn't resolve `./DoesNotExist`");
 
 		expect(() =>
 			resolveFileInfo({

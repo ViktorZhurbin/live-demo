@@ -9,6 +9,23 @@ starts with the 3.0 major; earlier history is in git log.
 
 ### Breaking
 
+#### Errors are now structured, with a stable message format
+
+Both build-time (Node) and runtime (browser) errors thrown by the plugin
+itself now go through `LiveDemoError`, a typed error carrying a `code` and a
+`.payload` (`{ code, title, message?, hint?, notes? }`). `.message` is the
+fully formatted, multi-line text — prefixed `[live-demo]` — since at build
+time rspress owns the terminal and there's no separate renderer to hand a
+payload to.
+
+Breaking for anything that pattern-matched on the exact previous wording of
+a thrown error (e.g. `"[LiveDemo]: Couldn't resolve..."` is now
+`"[live-demo] Import couldn't be resolved\nCouldn't resolve..."`). The
+in-preview error overlay also now renders the structured payload — title,
+message, hint — instead of dumping `error.message` verbatim; this only
+applies to the plugin's own errors, not runtime errors thrown by demo code
+itself, which render unchanged.
+
 #### Demos no longer get an implicit `React` binding
 
 Previously every demo had `const React = __get_import('react', true)` injected

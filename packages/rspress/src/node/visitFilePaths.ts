@@ -46,45 +46,40 @@ export const visitFilePaths = ({
 		// Only process MDX files (skip .md, .ts, etc.)
 		if (!filePath.endsWith(".mdx")) continue;
 
-		try {
-			// Parse MDX to AST for analysis
-			const mdxAst = getMdxAst(filePath);
+		// Parse MDX to AST for analysis
+		const mdxAst = getMdxAst(filePath);
 
-			// Find all <code src="..." /> elements in the MDX file
-			visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-				if (node.name !== "code") return;
+		// Find all <code src="..." /> elements in the MDX file
+		visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
+			if (node.name !== "code") return;
 
-				// Extract the src attribute (import path to demo file)
-				const importPath = getMdxJsxAttribute(node, "src");
+			// Extract the src attribute (import path to demo file)
+			const importPath = getMdxJsxAttribute(node, "src");
 
-				if (typeof importPath !== "string") return;
+			if (typeof importPath !== "string") return;
 
-				// Resolve relative path to absolute path with file extension
-				// Example: "./Button" → "/absolute/path/to/Button.tsx"
-				const entryFile = resolveFileInfo({
-					importPath,
-					dirname: path.dirname(filePath),
-				});
-
-				// Collect the entry file plus everything it transitively imports,
-				// keyed by path relative to the entry's directory
-				const { files, externalImports } = collectDemoFiles(entryFile);
-
-				// Collect all external package imports (react, lodash, etc.)
-				// These will be bundled into a virtual module later
-				for (const externalImport of externalImports) {
-					uniqueImports.add(externalImport);
-				}
-
-				// This will be used by the remark plugin during MDX compilation
-				demoDataByPath[entryFile.absolutePath] = {
-					files,
-					entryFileName: entryFile.fileName,
-				};
+			// Resolve relative path to absolute path with file extension
+			// Example: "./Button" → "/absolute/path/to/Button.tsx"
+			const entryFile = resolveFileInfo({
+				importPath,
+				dirname: path.dirname(filePath),
 			});
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
+
+			// Collect the entry file plus everything it transitively imports,
+			// keyed by path relative to the entry's directory
+			const { files, externalImports } = collectDemoFiles(entryFile);
+
+			// Collect all external package imports (react, lodash, etc.)
+			// These will be bundled into a virtual module later
+			for (const externalImport of externalImports) {
+				uniqueImports.add(externalImport);
+			}
+
+			// This will be used by the remark plugin during MDX compilation
+			demoDataByPath[entryFile.absolutePath] = {
+				files,
+				entryFileName: entryFile.fileName,
+			};
+		});
 	}
 };

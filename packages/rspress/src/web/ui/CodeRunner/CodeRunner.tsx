@@ -1,5 +1,6 @@
 import { useDebouncedCallback } from "@mantine/hooks";
 import { createElement, type ReactElement, useEffect, useState } from "react";
+import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles } from "~shared/types";
 import { bundleCode } from "~web/compiler/bundleCode";
 import { getFnFromString } from "~web/compiler/getFnFromString";
@@ -40,12 +41,9 @@ export const CodeRunner = ({
 				setPrevCode(code);
 				setDynamicComponent(createElement(component));
 			} else {
-				throw new Error(
-					`Couldn't determine a function export in ${entryFileName}.\n\nThe code needs to export a function.`,
-				);
+				throw new LiveDemoError("NO_DEFAULT_EXPORT", { entryFileName });
 			}
 		} catch (e) {
-			console.error(e);
 			setError(e as Error);
 		}
 	};

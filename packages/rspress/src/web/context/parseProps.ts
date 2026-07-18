@@ -1,3 +1,4 @@
+import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoPropsFromPlugin } from "~shared/types";
 import type { LiveDemoStringifiedProps } from "~web/types";
 
@@ -16,9 +17,7 @@ export function parseProps(
 				// The plugin JSON.stringifies these props at build time, so a parse
 				// failure means the two sides are out of sync — surface which prop
 				// broke rather than letting a raw SyntaxError bubble up.
-				throw new Error(`Failed to parse LiveDemo prop \`${key}\``, {
-					cause,
-				});
+				throw new LiveDemoError("PROP_PARSE_FAILED", { key }, { cause });
 			}
 		}),
 	) as LiveDemoPropsFromPlugin;

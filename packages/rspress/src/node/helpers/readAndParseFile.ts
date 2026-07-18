@@ -12,6 +12,7 @@ import fs from "node:fs";
 
 import type { Program } from "@oxc-project/types";
 import { parseSync } from "oxc-parser";
+import { LiveDemoError } from "~shared/errors";
 import type { PathWithAllowedExt } from "~shared/types";
 
 type ReadAndParseFile = {
@@ -44,9 +45,11 @@ export const readAndParseFile = (
 	const errors = parsed.errors.filter((error) => error.severity === "Error");
 	if (errors.length > 0) {
 		const [first] = errors;
-		throw new Error(
-			`Failed to parse \`${filePath}\`: ${first.message}\n${first.codeframe ?? ""}`,
-		);
+		throw new LiveDemoError("PARSE_FAILED", {
+			filePath,
+			errorMessage: first.message,
+			codeframe: first.codeframe ?? undefined,
+		});
 	}
 
 	return { code, ast: parsed.program };

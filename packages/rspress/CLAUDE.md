@@ -127,6 +127,7 @@ src/
 ├── node/             # build-time: MDX scanning, file collection, remark transform
 │   └── helpers/       # collectDemoFiles, analyzeModule, readAndParseFile, resolveFileInfo, getVirtualModulesCode, ...
 ├── shared/           # types, path helpers, constants used by both sides
+│   └── errors/        # LiveDemoError, ErrorCode messages — see Troubleshooting
 └── web/              # runtime: editor + in-page preview
     ├── compiler/      # Babel/Rollup pipeline that bundles and evaluates a demo in the browser
     ├── components/    # generic building blocks (Button, ToggleButtonGroup)
@@ -180,8 +181,31 @@ right extension and the wrong syntax.
 
 ## Troubleshooting
 
-- **"Couldn't resolve import"** — check the path against `getPossiblePaths`.
-- **"Can't resolve external package"** — confirm it's a real dependency, and
-  that it reached the virtual module (`getVirtualModulesCode.ts`).
+Every error the plugin itself throws (build- or runtime-side) is a
+`LiveDemoError` — `src/shared/errors/`, ported from castro's
+`utils/errors.js` split. `errors.ts` holds the class and `toPayload()`
+normalizer; `messages.ts` holds every `ErrorCode`'s wording, one factory per
+code. `.message` is the fully formatted text; `.payload` is the structured
+`{ code, title, message?, hint?, notes? }` the in-preview overlay
+(`Preview.tsx`) renders instead. Two codes —
+`UNDEFINED_NAMED_IMPORT`/`EXTERNAL_IMPORT_NOT_FOUND` — back `throw` strings
+generated into a demo's own bundle (`babelPluginTraverse.ts`,
+`getVirtualModulesCode.ts`); that code can't import the class at
+demo-runtime, so `formatSplicedMessage()` joins their message + hint into a
+plain string spliced in at generation time.
+
+- **`IMPORT_NOT_RESOLVED`** ("Couldn't resolve import") — check the path
+  against `getPossiblePaths`.
+- **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import") — confirm it's a
+  real dependency, and that it reached the virtual module
+  (`getVirtualModulesCode.ts`).
+- **`PARSE_FAILED`** — a demo file has a syntax error; the codeframe is
+  attached as a payload note.
+- **`NO_DEFAULT_EXPORT`** — the entry file's bundle didn't yield a default
+  export.
+- **`PROP_PARSE_FAILED`** — the plugin's `JSON.stringify`d props and the
+  runtime's `JSON.parse` are out of sync; check `parseProps.ts`.
+- **`INVALID_CUSTOM_LAYOUT`** — the `customLayout` plugin option's path
+  doesn't end in `LiveDemo.(jsx?|tsx)`.
 - **A demo picks up the wrong files** — log `Object.keys(files)` at the end of
   `collectDemoFiles.ts`; that's the exact record the browser receives.

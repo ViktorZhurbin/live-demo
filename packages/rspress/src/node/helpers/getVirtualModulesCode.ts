@@ -24,7 +24,18 @@
  * const React = getImport('react')
  */
 
+import { formatSplicedMessage } from "~shared/errors";
+import { errorMessages } from "~shared/errors/messages";
+
 const IMPORTS_MAP = "importsMap";
+
+// importName is only known once the demo calls getImport() in the browser,
+// so the token here is the literal source text `${importName}`, not a
+// resolved value — spliced below inside real backticks so it becomes a
+// genuine template literal in the generated code.
+const importNotFoundMessage = formatSplicedMessage(
+	errorMessages.EXTERNAL_IMPORT_NOT_FOUND({ importName: "${importName}" }),
+);
 
 // Template function that will be included in the virtual module
 // This function allows dynamic resolution of imports by name
@@ -34,7 +45,7 @@ function getImport(importName, getDefault) {
   const result = ${IMPORTS_MAP}.get(importName)
 
   if (!result) {
-    throw new Error(\`Can't resolve \${importName}.\`)
+    throw new Error(\`${importNotFoundMessage}\`)
   }
 
 	if (getDefault && typeof result === "object") {

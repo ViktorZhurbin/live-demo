@@ -72,7 +72,9 @@ describe("babelPluginTraverse", () => {
 
 			expect(output).toContain("if (effect === undefined)");
 			expect(output).not.toContain("if (useEffect === undefined)");
-			expect(output).toContain("Import 'effect' from 'react' is undefined");
+			expect(output).toContain(
+				"Import 'effect' from 'react' is undefined. This export may not exist in this version of the package.",
+			);
 		});
 
 		it("injects one validation check per named import", () => {

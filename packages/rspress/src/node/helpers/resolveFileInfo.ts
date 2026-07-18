@@ -14,6 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { LiveDemoError } from "~shared/errors";
 import { getPossiblePaths } from "~shared/pathHelpers";
 import type { PathWithAllowedExt } from "~shared/types";
 
@@ -45,7 +46,5 @@ export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
 		}
 	}
 
-	throw new Error(
-		`[LiveDemo]: Couldn't resolve \`${importPath}\`.\nOnly .js(x) and .ts(x) files are supported`,
-	);
+	throw new LiveDemoError("IMPORT_NOT_RESOLVED", { importPath });
 }

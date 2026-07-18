@@ -1,4 +1,5 @@
 import getImport from "_live_demo_virtual_modules";
+import { LiveDemoError } from "~shared/errors";
 
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "./constants";
 
@@ -51,9 +52,7 @@ export function getFnFromString(fnCode: string) {
 	// Guard only against missing (null/undefined): memo/forwardRef components
 	// are objects, not functions, but are still valid default exports.
 	if (componentFn == null) {
-		throw new Error(
-			"Live demo has no default export: the entry file must `export default` a component.",
-		);
+		throw new LiveDemoError("NO_DEFAULT_EXPORT", {});
 	}
 
 	return componentFn;

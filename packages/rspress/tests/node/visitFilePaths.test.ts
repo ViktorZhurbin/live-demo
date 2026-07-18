@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { visitFilePaths } from "~node/visitFilePaths";
 import type { DemoDataByPath, UniqueImports } from "~shared/types";
 
@@ -131,11 +131,7 @@ describe("visitFilePaths", () => {
 		expect(uniqueImports.size).toBe(0);
 	});
 
-	it("logs and rethrows when a demo file's own imports can't be resolved", () => {
-		const consoleErrorSpy = vi
-			.spyOn(console, "error")
-			.mockImplementation(() => {});
-
+	it("throws when a demo file's own imports can't be resolved", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByPath: DemoDataByPath = {};
 
@@ -146,9 +142,5 @@ describe("visitFilePaths", () => {
 				demoDataByPath,
 			}),
 		).toThrow("Couldn't resolve `./DoesNotExist`");
-
-		expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-
-		consoleErrorSpy.mockRestore();
 	});
 });
