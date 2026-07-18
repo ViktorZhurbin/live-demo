@@ -11,6 +11,8 @@
  * - This plugin transforms AST nodes into LiveDemo components with that data
  * - MDX compiler outputs React components
  */
+import path from "node:path";
+
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
@@ -23,6 +25,7 @@ import type {
 } from "~shared/types";
 
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
+import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 interface RemarkPluginProps {
 	options?: LiveDemoPluginOptions["ui"];
@@ -33,7 +36,7 @@ interface RemarkPluginProps {
  * Remark plugin that injects LiveDemo components into MDX
  *
  * @param options - UI configuration (theme, display mode, etc.)
- * @param getDemoDataByPath - Function that returns demo file data by import path
+ * @param getDemoDataByPath - Function that returns the analyzed demo data
  * @returns Transformer function that modifies the MDX AST
  */
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
@@ -43,7 +46,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	// Get all analyzed demo data (populated by visitFilePaths during build)
 	const demoDataByPath = getDemoDataByPath();
 
-	return (tree, _vfile) => {
+	return (tree, vfile) => {
 		// Transform 1: External demo files
 		// Converts: <code src="./Button.tsx" />
 		// To: <LiveDemo files={{Button.tsx: "...", utils.ts: "..."}} entryFileName="Button.tsx" />
@@ -52,13 +55,19 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const importPath = getMdxJsxAttribute(node, "src");
 
-			// Skip if no src attribute or demo data not found
-			if (typeof importPath !== "string" || !demoDataByPath[importPath]) {
-				return;
-			}
+			if (typeof importPath !== "string") return;
+
+			const { absolutePath } = resolveFileInfo({
+				importPath,
+				dirname: path.dirname(vfile.path),
+			});
+
+			const demoData = demoDataByPath[absolutePath];
+
+			if (!demoData) return;
 
 			// Get demo data (files + entry point) and merge with UI options
-			const props = getPropsWithOptions(demoDataByPath[importPath], options);
+			const props = getPropsWithOptions(demoData, options);
 
 			// Transform the AST node from <code> to <LiveDemo>
 			Object.assign(node, {

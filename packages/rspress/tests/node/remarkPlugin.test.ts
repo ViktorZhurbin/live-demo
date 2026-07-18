@@ -10,20 +10,30 @@ import type { DemoDataByPath } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
+const validPath = (name: string) => path.join(FIXTURES_DIR, "valid", name);
 
 // getMdxAst's return type is the generic mdast `Node`; in practice parsing
 // MDX always yields a `Root`.
 const parseFixture = (name: string) => getMdxAst(mdxPath(name)) as Root;
 
-const runPlugin = (tree: Root, props: Parameters<typeof remarkPlugin>[0]) => {
+/**
+ * `vfilePath` stands in for the MDX file's own path, which the plugin uses
+ * to resolve `<code src>`. Tests exercising `<code src>` must pass the same
+ * fixture path used by `parseFixture` so resolution lands on the same file.
+ */
+const runPlugin = (
+	tree: Root,
+	props: Parameters<typeof remarkPlugin>[0],
+	vfilePath: string = mdxPath("externalDemo.mdx"),
+) => {
 	// remarkPlugin is typed as a unified `Plugin`, which expects to be
 	// invoked with a bound `this: Processor`; tests call it as a plain
 	// function, so the `this` type is cast away here.
 	const attacher = remarkPlugin as unknown as (
 		pluginProps: typeof props,
-	) => (tree: Root) => void;
+	) => (tree: Root, vfile: { path: string }) => void;
 	const transformer = attacher(props);
-	transformer(tree);
+	transformer(tree, { path: vfilePath });
 };
 
 const findLiveDemoNodes = (tree: Root): MdxJsxFlowElement[] => {
@@ -50,7 +60,7 @@ describe("remarkPlugin", () => {
 		it("transforms <code src> into <LiveDemo> using matching demo data", () => {
 			const tree = parseFixture("externalDemo.mdx");
 			const demoDataByPath: DemoDataByPath = {
-				"../valid/SimpleComponent.tsx": {
+				[validPath("SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: {
 						"SimpleComponent.tsx":
@@ -86,7 +96,7 @@ describe("remarkPlugin", () => {
 		it("merges UI options into the LiveDemo props when provided", () => {
 			const tree = parseFixture("externalDemo.mdx");
 			const demoDataByPath: DemoDataByPath = {
-				"../valid/SimpleComponent.tsx": {
+				[validPath("SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "..." },
 				},
@@ -102,7 +112,7 @@ describe("remarkPlugin", () => {
 		it("omits the options attribute entirely when none are provided", () => {
 			const tree = parseFixture("externalDemo.mdx");
 			const demoDataByPath: DemoDataByPath = {
-				"../valid/SimpleComponent.tsx": {
+				[validPath("SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "..." },
 				},
@@ -120,17 +130,21 @@ describe("remarkPlugin", () => {
 		it("transforms multiple <code src> demos in the same file independently", () => {
 			const tree = parseFixture("multiFileDemo.mdx");
 			const demoDataByPath: DemoDataByPath = {
-				"../valid/MultiFile/App.tsx": {
+				[validPath("MultiFile/App.tsx")]: {
 					entryFileName: "App.tsx",
 					files: { "App.tsx": "...", "Button.tsx": "..." },
 				},
-				"../valid/ComponentWithImports.tsx": {
+				[validPath("ComponentWithImports.tsx")]: {
 					entryFileName: "ComponentWithImports.tsx",
 					files: { "ComponentWithImports.tsx": "..." },
 				},
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => demoDataByPath });
+			runPlugin(
+				tree,
+				{ getDemoDataByPath: () => demoDataByPath },
+				mdxPath("multiFileDemo.mdx"),
+			);
 
 			const nodes = findLiveDemoNodes(tree);
 			expect(nodes).toHaveLength(2);
@@ -138,6 +152,39 @@ describe("remarkPlugin", () => {
 				"App.tsx",
 				"ComponentWithImports.tsx",
 			]);
+		});
+
+		it("resolves an identical <code src> string against each page's own directory, not a colliding key", () => {
+			const treeA = parseFixture("collidingSrc/a/page.mdx");
+			const treeB = parseFixture("collidingSrc/b/page.mdx");
+
+			const demoDataByPath: DemoDataByPath = {
+				[mdxPath("collidingSrc/a/SimpleComponent.tsx")]: {
+					entryFileName: "SimpleComponent.tsx",
+					files: { "SimpleComponent.tsx": "A" },
+				},
+				[mdxPath("collidingSrc/b/SimpleComponent.tsx")]: {
+					entryFileName: "SimpleComponent.tsx",
+					files: { "SimpleComponent.tsx": "B" },
+				},
+			};
+
+			runPlugin(
+				treeA,
+				{ getDemoDataByPath: () => demoDataByPath },
+				mdxPath("collidingSrc/a/page.mdx"),
+			);
+			runPlugin(
+				treeB,
+				{ getDemoDataByPath: () => demoDataByPath },
+				mdxPath("collidingSrc/b/page.mdx"),
+			);
+
+			const [nodeA] = findLiveDemoNodes(treeA);
+			const [nodeB] = findLiveDemoNodes(treeB);
+
+			expect(getAttr(nodeA, "files")).toEqual({ "SimpleComponent.tsx": "A" });
+			expect(getAttr(nodeB, "files")).toEqual({ "SimpleComponent.tsx": "B" });
 		});
 	});
 

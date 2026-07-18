@@ -11,6 +11,9 @@ export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
  */
 export type LiveDemoFiles = Record<string, string>;
 
+/**
+ * Keyed by the entry file's resolved absolute path.
+ */
 export type DemoDataByPath = Record<string, LiveDemoPropsFromPlugin>;
 
 /**

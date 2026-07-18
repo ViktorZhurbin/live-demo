@@ -31,7 +31,7 @@ import { resolveFileInfo } from "./helpers/resolveFileInfo";
  *
  * @param filePaths - Array of all MDX file paths to scan
  * @param uniqueImports - Set to collect all external package imports (mutated)
- * @param demoDataByPath - Object to store demo data by import path (mutated)
+ * @param demoDataByPath - Object to store demo data (mutated)
  */
 export const visitFilePaths = ({
 	filePaths,
@@ -76,9 +76,8 @@ export const visitFilePaths = ({
 					uniqueImports.add(externalImport);
 				}
 
-				// Store demo data for this import path
 				// This will be used by the remark plugin during MDX compilation
-				demoDataByPath[importPath] = {
+				demoDataByPath[entryFile.absolutePath] = {
 					files,
 					entryFileName: entryFile.fileName,
 				};

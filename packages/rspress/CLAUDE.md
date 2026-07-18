@@ -44,14 +44,15 @@ is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
 `<code src="..."/>` or ` ```lang live ` block collects the entry file and
 everything it transitively imports (`collectDemoFiles.ts`).
 External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`,
-`addRuntimeModules` hook). `remarkPlugin.ts` then rewrites the MDX AST so
-`<code src="..."/>` / ` ```lang live ` becomes `<LiveDemo files={...} />`.
+from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts` then rewrites the
+MDX AST so `<code src="..."/>` / ` ```lang live ` becomes
+`<LiveDemo files={...} />`.
 
-**Runtime (browser, `src/web/`)** — user edits code in a Monaco-based editor.
-On change: Babel (`@babel/standalone`, loaded from CDN) transpiles JSX/TS,
-then Rollup (`@rollup/browser`, also CDN) bundles the modules using a custom
-resolver plugin that resolves `./Button` against the importing file's
+**Runtime (browser, `src/web/`)** — user edits code in a CodeMirror-based
+editor, bundled with the package. On change: Babel
+(`@babel/standalone`, loaded from CDN) transpiles JSX/TS, then Rollup
+(`@rollup/browser`, also CDN) bundles the modules using a custom resolver
+plugin that resolves `./Button` against the importing file's
 directory to a key in the `files` record. The bundle is then evaluated with
 `new Function` and rendered into the host page's React tree — see the
 isolation model below.
@@ -129,7 +130,7 @@ src/
 └── web/              # runtime: editor + in-page preview
     └── ui/
         ├── liveDemo/        # top-level LiveDemo component + layout
-        ├── editor/          # Monaco editor, file tabs
+        ├── editor/          # CodeMirror editor, file tabs
         ├── preview/          # LiveDemoCodeRunner — Babel/Rollup compiler pipeline lives here
         └── controlPanel/    # wrap/fullscreen/view-mode toggles
 ```

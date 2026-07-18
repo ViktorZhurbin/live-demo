@@ -41,3 +41,4 @@ exist because a flat single-file fixture missed something real:
 | `valid/Precedence/` | competing extensions on disk, so precedence is real |
 | `valid/Circular/` | mutually recursive imports — legal, must still run |
 | `valid/CircularEntry/` | the *entry file itself* inside the cycle, so the walk revisits its own starting point |
+| `mdx/collidingSrc/{a,b}/` | two pages writing the identical `<code src="./SimpleComponent.tsx">` string, resolving to different files — `demoDataByPath` must key by resolved path, not the raw string |

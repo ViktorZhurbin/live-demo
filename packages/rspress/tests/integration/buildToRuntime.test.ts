@@ -68,7 +68,7 @@ beforeAll(() => {
 	};
 });
 
-const buildDemo = (mdxFixture: string, importPath: string) => {
+const buildDemo = (mdxFixture: string, demoPathUnderValid: string) => {
 	const uniqueImports: UniqueImports = new Set();
 	const demoDataByPath: DemoDataByPath = {};
 
@@ -78,18 +78,16 @@ const buildDemo = (mdxFixture: string, importPath: string) => {
 		demoDataByPath,
 	});
 
-	const demo = demoDataByPath[importPath];
-	expect(demo, `no demo data for ${importPath}`).toBeDefined();
+	const absolutePath = path.join(FIXTURES_DIR, "valid", demoPathUnderValid);
+	const demo = demoDataByPath[absolutePath];
+	expect(demo, `no demo data for ${absolutePath}`).toBeDefined();
 
 	return { demo, uniqueImports };
 };
 
 describe("build-time output feeds the runtime bundler", () => {
 	it("runs a flat single-file demo end to end", async () => {
-		const { demo } = buildDemo(
-			"externalDemo.mdx",
-			"../valid/SimpleComponent.tsx",
-		);
+		const { demo } = buildDemo("externalDemo.mdx", "SimpleComponent.tsx");
 
 		const code = await bundleCode(demo);
 		const component = getFnFromString(code);
@@ -98,10 +96,7 @@ describe("build-time output feeds the runtime bundler", () => {
 	});
 
 	it("runs a demo with files in subfolders sharing a base name", async () => {
-		const { demo } = buildDemo(
-			"nestedDemo.mdx",
-			"../valid/SharedNames/App.tsx",
-		);
+		const { demo } = buildDemo("nestedDemo.mdx", "SharedNames/App.tsx");
 
 		// The build step must hand over distinct keys...
 		expect(Object.keys(demo.files).sort()).toEqual([
@@ -119,10 +114,7 @@ describe("build-time output feeds the runtime bundler", () => {
 	});
 
 	it("every file key the build emits is reachable by the runtime resolver", async () => {
-		const { demo } = buildDemo(
-			"nestedDemo.mdx",
-			"../valid/SharedNames/App.tsx",
-		);
+		const { demo } = buildDemo("nestedDemo.mdx", "SharedNames/App.tsx");
 
 		const code = await bundleCode(demo);
 
@@ -139,7 +131,7 @@ describe("build-time output feeds the runtime bundler", () => {
 		// they're legal in ES modules and Rollup bundles them correctly — this
 		// executes one to prove the rejection was blocking working demos, and
 		// guards against reintroducing it.
-		const { demo } = buildDemo("circularDemo.mdx", "../valid/Circular/App.tsx");
+		const { demo } = buildDemo("circularDemo.mdx", "Circular/App.tsx");
 
 		expect(Object.keys(demo.files).sort()).toEqual([
 			"App.tsx",
