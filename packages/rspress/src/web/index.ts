@@ -1,4 +1,4 @@
-export { Button } from "./components/Button/Button";
+export { Button } from "./ui/Button/Button";
 export { LiveDemoProvider } from "./context/LiveDemoProvider";
 export type { LiveDemoStringifiedProps } from "./types";
 export { ControlPanel } from "./ui/ControlPanel/ControlPanel";

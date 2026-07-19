@@ -1,6 +1,7 @@
 import type { FileTabsOptions } from "~shared/types";
-import { Button } from "~web/components/Button/Button";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
+
+import { Button } from "../Button/Button";
 
 import styles from "./FileTabs.module.css";
 

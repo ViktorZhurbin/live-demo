@@ -1,11 +1,11 @@
 import { useElementSize } from "@mantine/hooks";
-import { ToggleButtonGroup } from "~web/components/ToggleButtonGroup/ToggleButtonGroup";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 import { useLocalStorageView } from "~web/hooks/useLocalStorage";
 
 import { ButtonFullscreen } from "./ButtonFullscreen";
 import { ButtonWrapCode } from "./ButtonWrapCode";
 import { getPanelViewsValues } from "./labels";
+import { ToggleButtonGroup } from "./ToggleButtonGroup";
 
 import styles from "./ControlPanel.module.css";
 

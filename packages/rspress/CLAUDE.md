@@ -102,7 +102,6 @@ src/
 ├── shared/           # types, path helpers, constants used by both sides
 │   └── errors/       # LiveDemoError, ErrorCode messages — see Troubleshooting
 └── web/              # runtime: editor + in-page preview
-    ├── components/   # generic building blocks (Button, ToggleButtonGroup)
     └── ui/           # plugin UI
 ```
 
