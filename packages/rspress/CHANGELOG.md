@@ -138,6 +138,12 @@ internal error state, not usable standalone), `useActiveCode`,
   got the TypeScript preset, so any annotation in a `.ts` file was a syntax
   error in the browser.
 - **Paths containing a dot** (`~/my.app/demos/`) resolve correctly.
+- **`import type` / `export type ... from` are no longer collected as
+  dependencies.** Previously a type-only external import (e.g. from a
+  types-only package) was bundled like a real one, and could fail the build
+  if rsbuild couldn't resolve it as a JS module. Mixed imports
+  (`import { type A, B }`) are unaffected — a value member keeps the
+  specifier collected.
 
 ### Newly warned
 

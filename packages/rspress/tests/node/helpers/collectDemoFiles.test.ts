@@ -43,6 +43,22 @@ describe("collectDemoFiles", () => {
 			expect(externalImports.has("react")).toBe(true);
 		});
 
+		it("excludes a type-only import's file, even though it exists on disk", () => {
+			// `./SimpleComponentTypes` is a real file (tsc needs it to
+			// typecheck the fixture) but is only ever imported with
+			// `import type`, so it must never show up in `files` — proving
+			// the specifier is dropped before resolution, not merely absent.
+			const { files, externalImports } = collect(
+				"valid/WithTypeOnlyImports.tsx",
+			);
+
+			expect(Object.keys(files).sort()).toEqual([
+				"SimpleComponent.tsx",
+				"WithTypeOnlyImports.tsx",
+			]);
+			expect(externalImports.has("react")).toBe(true);
+		});
+
 		it("follows re-exports (`export { x } from`, `export * from`)", () => {
 			expect(filePathsOf("valid/ReexportIndex.tsx")).toEqual([
 				"Button.tsx",

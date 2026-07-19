@@ -38,4 +38,20 @@ describe("analyzeModule", () => {
 		// export * from './ComponentWithImports'
 		expect(dependencies).toContain("./ComponentWithImports");
 	});
+
+	it("skips type-only imports, keeping value imports from the same specifier", () => {
+		const { dependencies } = analyze("valid/WithTypeOnlyImports.tsx");
+
+		// `import type { ReactNode } from "react"` is dropped, but the
+		// mixed `import { useState, type FC } from "react"` keeps "react"
+		// because its importKind is "value".
+		expect(dependencies).toContain("react");
+		expect(dependencies).toContain("./SimpleComponent");
+		// The fixture references `./SimpleComponentTypes` in all three
+		// type-only forms — `import type`, `export type { } from`, and
+		// `export type * from` — so the specifier only stays dropped if every
+		// branch in `extractSourcePath` skips its kind, even though the file
+		// itself exists on disk.
+		expect(dependencies).not.toContain("./SimpleComponentTypes");
+	});
 });
