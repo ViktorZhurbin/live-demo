@@ -13,8 +13,6 @@ import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const demoDataByPath: DemoDataByPath = {};
-
 interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 	/**
 	 * Path to custom layout file.
@@ -49,7 +47,7 @@ export function liveDemoPluginRspress(
 		throw new LiveDemoError("INVALID_CUSTOM_LAYOUT", { customLayout });
 	}
 
-	const getDemoDataByPath = () => demoDataByPath;
+	const demoDataByPath: DemoDataByPath = {};
 
 	const extraModules = includeModules || [];
 	const uniqueImports = new Set(defaultModules.concat(extraModules));
@@ -82,9 +80,7 @@ export function liveDemoPluginRspress(
 		},
 
 		markdown: {
-			remarkPlugins: [
-				[remarkPlugin, { getDemoDataByPath, options: options?.ui }],
-			],
+			remarkPlugins: [[remarkPlugin, { demoDataByPath, options: options?.ui }]],
 
 			globalComponents: [
 				customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),

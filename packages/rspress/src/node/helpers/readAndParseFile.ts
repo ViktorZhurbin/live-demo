@@ -1,12 +1,7 @@
 /**
- * Read a source file and parse it into an AST
- *
- * Uses OXC (Oxidation Compiler) - a fast JavaScript/TypeScript parser written in Rust.
- * OXC is significantly faster than Babel for parsing large files.
- *
- * Why we parse to AST:
- * - To extract import/export statements for dependency analysis
- * - To find every file a demo needs without executing the code
+ * Reads a source file and parses it to an AST with OXC — a Rust-based
+ * JS/TS parser, faster than Babel for this — so `analyzeModule` can extract
+ * import/export statements without executing the code.
  */
 import fs from "node:fs";
 
@@ -16,22 +11,19 @@ import { LiveDemoError } from "~shared/errors";
 import type { PathWithAllowedExt } from "~shared/types";
 
 type ReadAndParseFile = {
-	/** Path relative to the entry file's directory — used in error messages */
+	/**
+	 * Path relative to the entry file's directory — the key this file gets in
+	 * the `files` record (see `collectDemoFiles`). Only read for error
+	 * messages here; nothing in this module resolves it against disk.
+	 */
 	filePath: string;
 	absolutePath: PathWithAllowedExt;
 };
 
-/**
- * Read a source file and parse it to AST
- *
- * @param params - File information (relative path key and absolute path)
- * @returns the file's source `code` and its parsed `ast`
- */
-export const readAndParseFile = (
-	params: ReadAndParseFile,
-): { code: string; ast: Program } => {
-	const { absolutePath, filePath } = params;
-
+export const readAndParseFile = ({
+	absolutePath,
+	filePath,
+}: ReadAndParseFile): { code: string; ast: Program } => {
 	// resolveFileInfo already confirmed this path exists; if the read still
 	// fails (permissions, a file removed in between), let fs's raw error
 	// propagate rather than wrapping it.

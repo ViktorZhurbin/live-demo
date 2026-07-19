@@ -1,6 +1,4 @@
-import type { EditorProps } from "~web/ui/Editor/Editor";
-import type { FileTabsProps } from "~web/ui/FileTabs/FileTabs";
-import type { ResizablePanelsProps } from "~web/ui/ResizablePanels/types";
+import type { ReactCodeMirrorProps } from "@uiw/react-codemirror";
 
 import type { LiveDemoLanguage } from "./constants";
 
@@ -25,6 +23,28 @@ export type LiveDemoPropsFromPlugin = {
 	options?: LiveDemoPluginOptions["ui"];
 };
 
+/** Panel-size options shared with `ResizablePanelsProps`; see that type for the rest of its props. */
+export type ResizablePanelsOptions = {
+	/** Used for auto saving the panel sizes in local storage */
+	autoSaveId?: string;
+	/** Default panel sizes. Percentage strings (e.g. `"50%"`) or pixel numbers. */
+	defaultPanelSizes?: {
+		/** @defaultValue `"50%"` */
+		editor?: string | number;
+		/** @defaultValue `"50%"` */
+		preview?: string | number;
+	};
+};
+
+/** Mirrors `FileTabsProps`; see that type for how it's consumed. */
+export type FileTabsOptions = {
+	/**
+	 * Hide single file tab
+	 * @defaultValue `false`
+	 */
+	hideSingleTab?: boolean;
+};
+
 export type LiveDemoPluginOptions = {
 	/**
 	 * Modules that will be available in demos,
@@ -39,13 +59,10 @@ export type LiveDemoPluginOptions = {
 		controlPanel?: {
 			hide?: boolean;
 		};
-		fileTabs?: Pick<FileTabsProps, "hideSingleTab"> & {
+		fileTabs?: FileTabsOptions & {
 			hide?: boolean;
 		};
-		editor?: EditorProps;
-		resizablePanels?: Pick<
-			ResizablePanelsProps,
-			"autoSaveId" | "defaultPanelSizes"
-		>;
+		editor?: ReactCodeMirrorProps;
+		resizablePanels?: ResizablePanelsOptions;
 	};
 };

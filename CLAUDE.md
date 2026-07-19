@@ -7,9 +7,9 @@ examples (CodeSandbox-style) that run in the browser.
 <code src="./examples/Button.tsx" />
 
 ```jsx live
-function App() {
+export const App = () => {
   return <div>Hello World!</div>;
-}
+};
 ```
 ````
 
@@ -35,9 +35,8 @@ next to the code, or in the relevant package's own CLAUDE.md.
 
 ## Change Verification
 
-From the root:
-
 ```sh
+# From the repo root:
 pnpm run check # lint+format
 pnpm run verify
 pnpm check:all # both of the above

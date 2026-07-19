@@ -1,5 +1,11 @@
 import { useFullscreenElement } from "@mantine/hooks";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from "react";
 import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "~shared/types";
 import type { LiveDemoStringifiedProps } from "~web/types";
@@ -31,9 +37,24 @@ type LiveDemoProviderProps = {
 	pluginProps: LiveDemoStringifiedProps;
 };
 
-function LiveDemoProvider(props: LiveDemoProviderProps) {
+function LiveDemoProvider({
+	isDark,
+	children,
+	pluginProps: rawPluginProps,
+}: LiveDemoProviderProps) {
 	const fullscreen = useFullscreenElement();
-	const pluginProps = parseProps(props.pluginProps);
+
+	// Memoized because this JSON.parses every file's full source: unmemoized it
+	// re-parsed the whole demo on every keystroke (each `setFiles` re-renders
+	// this provider), and only `options`/`entryFileName` are read after mount —
+	// `files` is used once, as the initial state below.
+	//
+	// It also gives `options` a stable identity, which consumers now rely on:
+	// they merge it into their own props, and must not mutate it.
+	const pluginProps = useMemo(
+		() => parseProps(rawPluginProps),
+		[rawPluginProps],
+	);
 
 	const [files, setFiles] = useState(pluginProps.files);
 	const [activeFile, setActiveFile] = useState(pluginProps.entryFileName);
@@ -53,13 +74,13 @@ function LiveDemoProvider(props: LiveDemoProviderProps) {
 				setActiveFile,
 
 				fullscreen,
-				isDark: props.isDark,
+				isDark,
 
 				options: pluginProps.options,
 				entryFileName: pluginProps.entryFileName,
 			}}
 		>
-			{props.children}
+			{children}
 		</LiveDemoContext>
 	);
 }

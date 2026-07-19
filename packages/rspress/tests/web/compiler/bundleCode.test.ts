@@ -154,6 +154,81 @@ describe("bundleCode", () => {
 		expect(getFnFromString(code)({})).toBe("<span>No import needed</span>");
 	});
 
+	describe("entry export forms", () => {
+		// Every published doc teaches the *named* export form (see
+		// babelPluginTraverse's ExportSpecifier visitor for the mechanism). Until
+		// these cases existed, that syntax had zero coverage at the bundle level
+		// — every other fixture here used `export default`.
+		it("accepts a named arrow-function export as the demo component", async () => {
+			const files: LiveDemoFiles = {
+				"App.jsx": `export const App = () => <div>Hello World</div>;`,
+			};
+
+			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+
+			expect(getFnFromString(code)({})).toBe("<div>Hello World</div>");
+		});
+
+		it("accepts a named function-declaration export", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": `export function App() { return "NAMED_FN"; }`,
+			};
+
+			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+
+			expect(getFnFromString(code)({})).toBe("NAMED_FN");
+		});
+
+		it("accepts a named export alongside an external import", async () => {
+			// The shape of guide/inline/preDefinedImports.mdx: a named export whose
+			// body depends on an import rewritten to __get_import.
+			const files: LiveDemoFiles = {
+				"App.jsx": `
+          import { useState } from "react";
+          export const App = () => {
+            const [value] = useState();
+            return <div>{String(value)}</div>;
+          };
+        `,
+			};
+
+			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+
+			expect(code).toContain("__get_import('react', false)");
+			expect(getFnFromString(code)({})).toBe("<div>null</div>");
+		});
+
+		it("uses the last export when the entry exports several", async () => {
+			// Intended behavior, not an accident: every export assigns to the same
+			// `exports.default`, so the last one is the demo component. Documented
+			// on the ExportSpecifier visitor in babelPluginTraverse.ts.
+			const files: LiveDemoFiles = {
+				"App.jsx": `
+          export const App = () => "FIRST";
+          export const Other = () => "SECOND";
+        `,
+			};
+
+			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+
+			expect(getFnFromString(code)({})).toBe("SECOND");
+		});
+
+		it("accepts a named export that pulls in a local file", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": `
+          import { label } from "./label";
+          export const App = () => label;
+        `,
+				"label.ts": `export const label = "FROM_LOCAL";`,
+			};
+
+			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+
+			expect(getFnFromString(code)({})).toBe("FROM_LOCAL");
+		});
+	});
+
 	describe("TypeScript in every supported extension", () => {
 		// Type annotations have to be stripped per file extension, and a
 		// fixture that merely *ends* in .ts proves nothing unless it actually

@@ -23,7 +23,12 @@ export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
 			pluginBabelTransformImportsExports(),
 		],
 		external: (source) => {
-			const isResolvable = isRelativeImport(source) || files[source];
+			// `Object.hasOwn`, not a truthy index: `files["constructor"]` is
+			// truthy via the prototype chain. Extensions aren't checked here —
+			// `pluginResolveModules`'s `resolveId` does the real
+			// `getPossiblePaths` walk.
+			const isResolvable =
+				isRelativeImport(source) || Object.hasOwn(files, source);
 
 			return !isResolvable;
 		},

@@ -25,11 +25,14 @@ import "./Editor.css";
  * }
  * ```
  */
-export interface EditorProps extends ReactCodeMirrorProps {}
+interface EditorProps extends ReactCodeMirrorProps {}
 
 export const Editor = (props: EditorProps) => {
 	const { options, isDark } = useLiveDemoContext();
-	const mergedOptions = Object.assign(options?.editor ?? {}, props);
+	// Spread, not Object.assign: `options` is memoized in LiveDemoProvider, so
+	// assigning into it would write this instance's props into the shared
+	// plugin-level options every other demo reads.
+	const mergedOptions = { ...options?.editor, ...props };
 
 	const theme = isDark ? vscodeDark : vscodeLight;
 	const { code, updateCode } = useActiveCode();

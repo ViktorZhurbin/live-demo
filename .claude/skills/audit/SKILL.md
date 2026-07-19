@@ -19,6 +19,10 @@ which package/directory before starting — don't guess at scope.
 find <target> -type f \( -name '*.ts' -o -name '*.tsx' \) | xargs wc -l | sort -rn
 ```
 
+CSS modules, fixtures, and other non-`.ts(x)` files a flow touches can carry
+real bugs too — an undefined CSS custom property is as dead as an
+unreachable branch. Widen the glob to whatever the flow actually reads.
+
 File count × average length picks the granularity — decide from the numbers,
 never default to "go file by file":
 
@@ -84,6 +88,15 @@ claims can't be trusted.
 expensive to reconstruct later — and it's what makes the doc usable for
 release planning.
 
+**CHANGELOG isn't just for "big" fixes.** A new build-time warning on a
+previously-silent path is as consumer-visible as a renamed export — log
+every fix that changes observable behavior, per the package's own
+convention.
+
+**One rationale, one home.** When a fix needs a comment explaining _why_,
+write it once, at the site a future reader will actually hit first — don't
+restate it elsewhere.
+
 ## The output doc
 
 One file (e.g. `<package>/AUDIT.md`), amended in place as items resolve. It
@@ -97,3 +110,19 @@ must be readable **cold**, by someone with no context:
 
 Say plainly what shipped **unverified**. If a layer has no automated
 coverage, name it once, loudly, and note who verifies it instead.
+
+## Retiring findings as they resolve
+
+The findings doc is temporary. As each finding resolves:
+
+1. **Give durable content a home before compressing the entry.**
+   Deferred work, a confirmed-intentional oddity goes in the package's `CLAUDE.md`.
+   A behavior change goes in `CHANGELOG.md`. A rationale the code needs goes
+   in a comment at the relevant line. Nothing to home? The finding likely
+   wasn't durable enough to need one.
+2. **Then compress the entry** to a one-line pointer ("see `X.ts`'s
+   comment", "see CHANGELOG"). Early on, the doc's job is proving findings
+   are real; near the end it's tracking what's still open — don't leave
+   resolved items at full length once they're no longer doing that job.
+3. **Before deleting the file**, re-scan every "Decisions — do not
+   re-litigate" row and every DONE item for content with no home yet.

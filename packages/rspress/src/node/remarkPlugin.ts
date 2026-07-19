@@ -22,15 +22,13 @@ import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 interface RemarkPluginProps {
 	options?: LiveDemoPluginOptions["ui"];
-	getDemoDataByPath: () => DemoDataByPath; // Provides analyzed demo files
+	demoDataByPath: DemoDataByPath; // Analyzed demo files
 }
 
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
-	getDemoDataByPath,
+	demoDataByPath,
 }) => {
-	const demoDataByPath = getDemoDataByPath();
-
 	return (tree, vfile) => {
 		// Transform 1: External demo files
 		// Converts: <code src="./Button.tsx" />
@@ -49,7 +47,23 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			const demoData = demoDataByPath[absolutePath];
 
-			if (!demoData) return;
+			// Resolves fine here, but the earlier scan phase (`visitFilePaths`)
+			// never recorded it: `routeGenerated` runs once per dev server
+			// process, so adding a new <code src> to an already-routed page
+			// triggers this recompile without rescanning. The node is left
+			// alone, which renders as an empty <code> element — indistinguishable
+			// from a broken demo, hence the warning.
+			//
+			// `console.warn`, not `vfile.message`: rspress's MDX pipeline
+			// collects vfile messages but never prints them, so that route is
+			// silent in practice.
+			if (!demoData) {
+				console.warn(
+					`[live-demo] No demo data for <code src="${importPath}"> in ${vfile.path}.\n` +
+						"It will render as an empty <code> element. Restart the dev server to pick it up.",
+				);
+				return;
+			}
 
 			const props = getPropsWithOptions(demoData, options);
 
@@ -61,8 +75,16 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 		});
 
 		// Transform 2: Inline code blocks
-		// Converts: ```jsx live\nfunction App() { return <div>Hello</div> }\n```
-		// To: <LiveDemo files={{App.jsx: "function App()..."}} entryFileName="App.jsx" />
+		// Converts: ```jsx live\nexport const App = () => <div>Hello</div>\n```
+		// To: <LiveDemo files={{App.jsx: "export const App..."}} entryFileName="App.jsx" />
+		//
+		// Unlike Transform 1, the block's source is never parsed, so its external
+		// imports never reach `uniqueImports` and aren't added to the virtual
+		// module. That asymmetry is intended: inline demos rely on the plugin's
+		// `defaultModules`, on `includeModules`, or on an external demo elsewhere
+		// on the site having pulled the same package in (`uniqueImports` is one
+		// set for the whole build). Documented at
+		// `website/docs/guide/inline/otherImports.mdx`.
 		visit(tree, "code", (node) => {
 			if (!node?.lang) return;
 

@@ -125,12 +125,19 @@ Fixtures live in `tests/fixtures/` — **read its README before adding one.**
 Two bugs have shipped past a fully green suite because a fixture had the
 right extension and the wrong syntax.
 
+`web/` has no test coverage — `vitest.config.ts` runs in a `node` environment,
+not `jsdom`, so component/DOM tests aren't set up. User verifies UI changes
+manually on a dev server instead; batch UI-touching work so one pass covers it.
+
 ## Limitations (of demo code, not the plugin's own source)
 
 - No CSS modules in live demos — inline styles or external CSS only
 - No dynamic imports — all imports must be static
 - No Node.js APIs — demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
+- Inline (` ```lang live `) demos don't auto-resolve external imports; only
+  `<code src>` demos do. Intended — see `remarkPlugin.ts` and
+  `website/docs/guide/inline/otherImports.mdx`. Don't "fix" it.
 
 ## Deliberately not handled
 

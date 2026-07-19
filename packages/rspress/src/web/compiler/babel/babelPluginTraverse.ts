@@ -87,6 +87,11 @@ export const babelPluginTraverse = (): PluginItem => {
 				path.replaceWithMultiple(code);
 			},
 
+			// Any export becomes the demo component (Rollup emits `export { App }`;
+			// this rewrites it to `exports.default`), which is why docs can use
+			// `export const App` instead of `export default`. With several
+			// exports, each assigns to the same property, so the last one wins —
+			// intended, pinned by "uses the last export..." in bundleCode.test.ts.
 			ExportSpecifier(path) {
 				path.parentPath.replaceWithSourceString(
 					`${EXPORTS_OBJ} = ${path.node.local.name}`,

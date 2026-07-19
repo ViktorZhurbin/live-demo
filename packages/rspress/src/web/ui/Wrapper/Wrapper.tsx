@@ -8,12 +8,12 @@ type WrapperProps = {
 	children: React.ReactNode;
 };
 
-export const Wrapper = (props: WrapperProps) => {
+export const Wrapper = ({ className, children }: WrapperProps) => {
 	const { fullscreen } = useLiveDemoContext();
 
 	return (
-		<div ref={fullscreen.ref} className={clsx(styles.wrapper, props.className)}>
-			{props.children}
+		<div ref={fullscreen.ref} className={clsx(styles.wrapper, className)}>
+			{children}
 		</div>
 	);
 };

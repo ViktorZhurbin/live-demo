@@ -7,13 +7,11 @@
 	border-bottom: var(--live-demo-layout-border);
 }
 
-.tab,
-.tab[data-active="true"],
-.tab:hover:not(:disabled) {
+.tab {
 	border: unset;
 	background-color: transparent;
 
 	&:hover:not([data-active="true"]) {
-		color: var(--sp-color-accent);
+		color: var(--live-demo-colors-accent);
 	}
 }

@@ -3,7 +3,7 @@ import path from "node:path";
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getMdxAst } from "~node/helpers/getMdxAst";
 import { remarkPlugin } from "~node/remarkPlugin";
 import type { DemoDataByPath } from "~shared/types";
@@ -33,7 +33,17 @@ const runPlugin = (
 		pluginProps: typeof props,
 	) => (tree: Root, vfile: { path: string }) => void;
 	const transformer = attacher(props);
-	transformer(tree, { path: vfilePath });
+
+	// The plugin warns via `console.warn` — rspress never prints vfile
+	// messages. Spying is the only way to observe it.
+	const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+	try {
+		transformer(tree, { path: vfilePath });
+		return { warnings: warn.mock.calls.map(([first]) => String(first)) };
+	} finally {
+		warn.mockRestore();
+	}
 };
 
 const findLiveDemoNodes = (tree: Root): MdxJsxFlowElement[] => {
@@ -69,7 +79,7 @@ describe("remarkPlugin", () => {
 				},
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => demoDataByPath });
+			runPlugin(tree, { demoDataByPath });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
@@ -79,12 +89,14 @@ describe("remarkPlugin", () => {
 			});
 		});
 
-		it("leaves <code src> untouched when no demo data matches the path", () => {
+		it("leaves <code src> untouched but warns when no demo data matches the path", () => {
 			const tree = parseFixture("externalDemo.mdx");
 
-			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+			const { warnings } = runPlugin(tree, { demoDataByPath: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
+			expect(warnings).toHaveLength(1);
+			expect(warnings[0]).toContain("No demo data for");
 
 			let codeNodeStillPresent = false;
 			visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
@@ -103,7 +115,7 @@ describe("remarkPlugin", () => {
 			};
 			const options = { controlPanel: { hide: true } };
 
-			runPlugin(tree, { options, getDemoDataByPath: () => demoDataByPath });
+			runPlugin(tree, { options, demoDataByPath });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(getAttr(node, "options")).toEqual(options);
@@ -118,7 +130,7 @@ describe("remarkPlugin", () => {
 				},
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => demoDataByPath });
+			runPlugin(tree, { demoDataByPath });
 
 			const [node] = findLiveDemoNodes(tree);
 			const hasOptionsAttr = node.attributes.some(
@@ -140,11 +152,7 @@ describe("remarkPlugin", () => {
 				},
 			};
 
-			runPlugin(
-				tree,
-				{ getDemoDataByPath: () => demoDataByPath },
-				mdxPath("multiFileDemo.mdx"),
-			);
+			runPlugin(tree, { demoDataByPath }, mdxPath("multiFileDemo.mdx"));
 
 			const nodes = findLiveDemoNodes(tree);
 			expect(nodes).toHaveLength(2);
@@ -169,16 +177,8 @@ describe("remarkPlugin", () => {
 				},
 			};
 
-			runPlugin(
-				treeA,
-				{ getDemoDataByPath: () => demoDataByPath },
-				mdxPath("collidingSrc/a/page.mdx"),
-			);
-			runPlugin(
-				treeB,
-				{ getDemoDataByPath: () => demoDataByPath },
-				mdxPath("collidingSrc/b/page.mdx"),
-			);
+			runPlugin(treeA, { demoDataByPath }, mdxPath("collidingSrc/a/page.mdx"));
+			runPlugin(treeB, { demoDataByPath }, mdxPath("collidingSrc/b/page.mdx"));
 
 			const [nodeA] = findLiveDemoNodes(treeA);
 			const [nodeB] = findLiveDemoNodes(treeB);
@@ -192,7 +192,7 @@ describe("remarkPlugin", () => {
 		it("transforms an inline live code block into <LiveDemo>", () => {
 			const tree = parseFixture("inlineDemo.mdx");
 
-			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+			runPlugin(tree, { demoDataByPath: {} });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
@@ -213,7 +213,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+			runPlugin(tree, { demoDataByPath: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -231,7 +231,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+			runPlugin(tree, { demoDataByPath: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -252,7 +252,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { getDemoDataByPath: () => ({}) });
+			runPlugin(tree, { demoDataByPath: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -270,9 +270,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			expect(() =>
-				runPlugin(tree, { getDemoDataByPath: () => ({}) }),
-			).not.toThrow();
+			expect(() => runPlugin(tree, { demoDataByPath: {} })).not.toThrow();
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 	});

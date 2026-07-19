@@ -113,6 +113,21 @@ import { Core as LiveDemoCore } from "@live-demo/rspress/web";
 import { Core } from "@live-demo/rspress/web";
 ```
 
+#### `web` entry point narrowed to the documented custom-layout surface
+
+`@live-demo/rspress/web` previously re-exported every `web/` module's entire
+surface via `export *`. It now exports exactly what `customLayout.mdx`
+documents, plus `Button`, which website's own external demos import for
+consistent demo-authoring: `Core`, `ControlPanel`, `Editor`, `FileTabs`,
+`LiveDemoProvider`, `LiveDemoStringifiedProps`, `Preview`,
+`ResizablePanels`, `Wrapper`, `Button`.
+
+Removed — none were documented or used outside the package:
+`CodeRunner`/`CodeRunnerProps` (only meaningful wired to `Preview`'s
+internal error state, not usable standalone), `useActiveCode`,
+`useLiveDemoContext`, `ButtonProps`, `EditorProps`, `FileTabsProps`,
+`ResizablePanelsProps`.
+
 ### Newly allowed
 
 - **Circular imports** no longer fail the build. They're legal in ES modules
@@ -123,3 +138,13 @@ import { Core } from "@live-demo/rspress/web";
   got the TypeScript preset, so any annotation in a `.ts` file was a syntax
   error in the browser.
 - **Paths containing a dot** (`~/my.app/demos/`) resolve correctly.
+
+### Newly warned
+
+- **A `<code src>` that resolves on disk but has no demo data collected for
+  it** (e.g. added to an already-routed page during a dev session, after the
+  scan phase that populates demo data last ran) now logs a console warning
+  naming the file, and suggests restarting the dev server. It still renders
+  as an empty `<code>` element rather than a live demo — previously that
+  happened silently, and the empty element is hard to tell from a broken
+  demo.

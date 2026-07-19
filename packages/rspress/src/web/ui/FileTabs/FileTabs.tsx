@@ -1,19 +1,15 @@
+import type { FileTabsOptions } from "~shared/types";
 import { Button } from "~web/components/Button/Button";
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
 import styles from "./FileTabs.module.css";
 
-export type FileTabsProps = {
-	/**
-	 * Hide single file tab
-	 * @defaultValue `false`
-	 */
-	hideSingleTab?: boolean;
-};
+type FileTabsProps = FileTabsOptions;
 
 export const FileTabs = (props: FileTabsProps) => {
 	const { files, activeFile, setActiveFile, options } = useLiveDemoContext();
-	const mergedOptions = Object.assign(options?.fileTabs ?? {}, props);
+	// Spread, not Object.assign — see the note in Editor.tsx.
+	const mergedOptions = { ...options?.fileTabs, ...props };
 
 	const { hideSingleTab } = mergedOptions;
 	const fileNames = Object.keys(files);

@@ -34,7 +34,7 @@ export const errorMessages: LiveDemoErrorMessages = {
 		message: entryFileName
 			? `\`${entryFileName}\` has no default export.`
 			: "The demo has no default export.",
-		hint: "The entry file must `export default` a component.",
+		hint: "The entry file must export a component — both `export default` and a single named export (`export const App = ...`) work.",
 	}),
 
 	PROP_PARSE_FAILED: ({ key }) => ({

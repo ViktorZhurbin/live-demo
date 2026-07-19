@@ -16,11 +16,9 @@ import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 /**
- * Scan all MDX files and build demo data for each live code example
- *
- * @param filePaths - Array of all MDX file paths to scan
- * @param uniqueImports - Set to collect all external package imports (mutated)
- * @param demoDataByPath - Object to store demo data (mutated)
+ * Scans `<code src>` demos only — inline ` ```lang live ` blocks are handled
+ * entirely by `remarkPlugin` and never reach this function. `uniqueImports`
+ * and `demoDataByPath` are both mutated in place.
  */
 export const visitFilePaths = ({
 	filePaths,

@@ -1,27 +1,19 @@
 /**
- * Generate virtual module code for external package imports
+ * Builds the source for `_live_demo_virtual_modules`, injected via
+ * `rsbuild-plugin-virtual-module` (see `plugin.ts`) so the browser-side
+ * Rollup bundler can resolve external imports (react, lodash, etc.) that
+ * demo code references but never bundles itself.
  *
- * Problem: User code might import external packages (react, lodash, etc.)
- * Solution: Create a virtual module that re-exports all needed packages
- *
- * This virtual module is injected into node_modules at build time and
- * allows the browser-based Rollup bundler to resolve external imports.
- *
- * Generated code example:
+ * Generated shape:
  * ```js
  * const importsMap = new Map()
  * import * as i_0 from 'react';
  * importsMap.set('react', i_0);
- * import * as i_1 from 'lodash';
- * importsMap.set('lodash', i_1);
  *
  * function getImport(importName, getDefault) { ... }
  * export default getImport
  * ```
- *
- * Usage in browser:
- * import getImport from '_live_demo_virtual_modules'
- * const React = getImport('react')
+ * Consumed in the browser as `import getImport from '_live_demo_virtual_modules'`.
  */
 
 import { formatSplicedMessage } from "~shared/errors";
@@ -57,11 +49,6 @@ function getImport(importName, getDefault) {
 
 export default getImport`;
 
-/**
- * Generate code for a virtual module that re-exports all external packages.
- * Injected as a virtual module at build time via rsbuild-plugin-virtual-module
- * (see `plugin.ts`).
- */
 export const getVirtualModulesCode = (allImports: Set<string>) => {
 	const moduleCodeString = Array.from(allImports).reduce<string>(
 		(acc, moduleName, index) => {
