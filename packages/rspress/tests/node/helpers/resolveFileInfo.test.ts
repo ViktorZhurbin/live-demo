@@ -55,22 +55,45 @@ describe("resolveFileInfo", () => {
 			}),
 		).toThrow("Couldn't resolve `./DoesNotExist`");
 
+		// Not a typo about the extension — the not-found hint shouldn't imply one.
 		expect(() =>
 			resolveFileInfo({
 				dirname: path.join(FIXTURES_DIR, "valid"),
 				importPath: "./DoesNotExist",
 			}),
-		).toThrow("Only .js(x) and .ts(x) files are supported");
+		).not.toThrow("Only .js(x) and .ts(x) files are supported");
+	});
+
+	it("names the importer and MDX page in a not-found error", () => {
+		expect(() =>
+			resolveFileInfo({
+				dirname: path.join(FIXTURES_DIR, "valid"),
+				importPath: "./DoesNotExist",
+				importer: "/abs/Demo.tsx",
+				mdxPath: "/abs/guide.mdx",
+			}),
+		).toThrow(
+			/Couldn't resolve `\.\/DoesNotExist` from `\/abs\/Demo\.tsx`.*guide\.mdx/s,
+		);
 	});
 
 	it("should throw error for file with unsupported extension", () => {
 		// This would throw an error from getPossiblePaths before fs.existsSync
+		// Pins the *specifier* in the message — the pre-split code leaked the
+		// joined absolute path here.
 		expect(() =>
 			resolveFileInfo({
 				dirname: path.join(FIXTURES_DIR, "valid"),
 				importPath: "./file.py",
 			}),
-		).toThrow("Couldn't resolve");
+		).toThrow("`./file.py` isn't a supported file type");
+
+		expect(() =>
+			resolveFileInfo({
+				dirname: path.join(FIXTURES_DIR, "valid"),
+				importPath: "./file.py",
+			}),
+		).toThrow("Only .js(x) and .ts(x) files are supported");
 	});
 
 	it("resolves a directory import to its index file", () => {

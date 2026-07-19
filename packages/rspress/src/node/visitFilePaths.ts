@@ -44,9 +44,13 @@ export const visitFilePaths = ({
 			const entryFile = resolveFileInfo({
 				importPath,
 				dirname: path.dirname(filePath),
+				importer: filePath,
 			});
 
-			const { files, externalImports } = collectDemoFiles(entryFile);
+			const { files, externalImports } = collectDemoFiles({
+				...entryFile,
+				mdxPath: filePath,
+			});
 
 			for (const externalImport of externalImports) {
 				uniqueImports.add(externalImport);

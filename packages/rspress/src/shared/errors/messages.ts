@@ -10,9 +10,23 @@
 import type { LiveDemoErrorMessages } from "./types";
 
 export const errorMessages: LiveDemoErrorMessages = {
-	IMPORT_NOT_RESOLVED: ({ importPath }) => ({
+	IMPORT_NOT_RESOLVED: ({ importPath, importer, mdxPath }) => ({
 		title: "Import couldn't be resolved",
-		message: `Couldn't resolve \`${importPath}\`.`,
+		message: `Couldn't resolve \`${importPath}\`${importer ? ` from \`${importer}\`` : ""}.`,
+		notes:
+			mdxPath && mdxPath !== importer
+				? [`Referenced from ${mdxPath}.`]
+				: undefined,
+		hint: "Check that the file exists and the path is correct.",
+	}),
+
+	IMPORT_EXTENSION_NOT_SUPPORTED: ({ importPath, importer, mdxPath }) => ({
+		title: "Unsupported file extension",
+		message: `\`${importPath}\`${importer ? ` from \`${importer}\`` : ""} isn't a supported file type.`,
+		notes:
+			mdxPath && mdxPath !== importer
+				? [`Referenced from ${mdxPath}.`]
+				: undefined,
 		hint: "Only .js(x) and .ts(x) files are supported.",
 	}),
 

@@ -43,6 +43,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 			const { absolutePath } = resolveFileInfo({
 				importPath,
 				dirname: path.dirname(vfile.path),
+				importer: vfile.path,
 			});
 
 			const demoData = demoDataByPath[absolutePath];

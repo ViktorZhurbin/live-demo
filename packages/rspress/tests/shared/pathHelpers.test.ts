@@ -170,7 +170,7 @@ describe("pathHelpers", () => {
 
 		it("should throw error for unsupported extensions", () => {
 			expect(() => getPossiblePaths("Button.py")).toThrow(
-				"Couldn't resolve `Button.py`",
+				"`Button.py` isn't a supported file type",
 			);
 			expect(() => getPossiblePaths("Button.py")).toThrow(
 				"Only .js(x) and .ts(x) files are supported",
@@ -181,10 +181,10 @@ describe("pathHelpers", () => {
 			// `fileExt in LiveDemoLanguage` would accept "constructor" here and
 			// treat `Button.constructor` as a resolvable source file.
 			expect(() => getPossiblePaths("Button.constructor")).toThrow(
-				"Couldn't resolve",
+				"isn't a supported file type",
 			);
 			expect(() => getPossiblePaths("Button.toString")).toThrow(
-				"Couldn't resolve",
+				"isn't a supported file type",
 			);
 		});
 

@@ -39,6 +39,8 @@ import { resolveFileInfo } from "./resolveFileInfo";
  */
 export function collectDemoFiles(params: {
 	absolutePath: PathWithAllowedExt;
+	/** The MDX page this demo was reached from, for error context on a failed nested import. */
+	mdxPath?: string;
 }): {
 	files: LiveDemoFiles;
 	externalImports: Set<string>;
@@ -77,7 +79,12 @@ export function collectDemoFiles(params: {
 
 			// Relative import: a local file that has to ship with the demo.
 			// Example: "./Button" → "/absolute/path/to/Button.tsx"
-			const child = resolveFileInfo({ importPath: dep, dirname });
+			const child = resolveFileInfo({
+				importPath: dep,
+				dirname,
+				importer: absolutePath,
+				mdxPath: params.mdxPath,
+			});
 
 			if (!visited.has(child.absolutePath)) {
 				visited.add(child.absolutePath);

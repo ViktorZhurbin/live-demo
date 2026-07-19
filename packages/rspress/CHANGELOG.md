@@ -26,6 +26,23 @@ message, hint — instead of dumping `error.message` verbatim; this only
 applies to the plugin's own errors, not runtime errors thrown by demo code
 itself, which render unchanged.
 
+#### `IMPORT_NOT_RESOLVED` split from unsupported-extension errors, and both now name the importer
+
+Previously a genuinely-missing file and an import with an unsupported
+extension (e.g. `import "./styles.css"`) both threw `IMPORT_NOT_RESOLVED`
+with the same "Only .js(x) and .ts(x) files are supported" hint — misleading
+for the missing-file case, since the typo'd path could exist under a
+different extension. The unsupported-extension case now throws
+`IMPORT_EXTENSION_NOT_SUPPORTED` instead, and the not-found hint no longer
+mentions extensions.
+
+Both codes' messages now name the file whose import (or `<code src>`)
+couldn't be resolved and, when a demo's _own_ import fails rather than the
+`<code src>` reference itself, the MDX page that started the scan — so a
+single broken import on a site with many demos no longer requires a manual
+hunt to find the source. Breaking for the same reason as the entry above:
+anything pattern-matching on the exact previous message.
+
 #### Demos no longer get an implicit `React` binding
 
 Previously every demo had `const React = __get_import('react', true)` injected

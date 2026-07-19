@@ -3,8 +3,26 @@
  * this file holds shape (codes, tokens, payload), messages.ts holds wording.
  */
 
+/**
+ * Shared by both import-resolution codes: `importer` is the file whose
+ * import statement (or `<code src>`) named `importPath`; `mdxPath` is the
+ * MDX page that started the scan, when it differs from `importer` (a demo
+ * file's own nested import, not the `<code src>` reference itself).
+ */
+type ImportResolutionTokens = {
+	importPath: string;
+	importer?: string;
+	mdxPath?: string;
+};
+
 export type ErrorTokens = {
-	IMPORT_NOT_RESOLVED: { importPath: string };
+	/** The path genuinely doesn't exist under any supported extension. */
+	IMPORT_NOT_RESOLVED: ImportResolutionTokens;
+	/**
+	 * The specifier's extension isn't one `getPossiblePaths` allows — thrown
+	 * before any existence check, so the file may or may not be on disk.
+	 */
+	IMPORT_EXTENSION_NOT_SUPPORTED: ImportResolutionTokens;
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
 	INVALID_CUSTOM_LAYOUT: { customLayout: string };
 	/** Optional: getFnFromString is callable without an entry file name (tests, direct use). */

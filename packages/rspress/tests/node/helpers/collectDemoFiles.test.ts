@@ -165,6 +165,21 @@ describe("collectDemoFiles", () => {
 			);
 		});
 
+		it("names the importing file and the MDX page in a nested resolution error", () => {
+			// Unlike the entry-level case above, the failing import here lives in
+			// a file the entry imports, not the entry itself — the error should
+			// still say which file it's in and which MDX page started the scan.
+			expect(() =>
+				collectDemoFiles({
+					absolutePath: path.join(
+						FIXTURES_DIR,
+						"invalid/MissingNestedImport/App.tsx",
+					) as PathWithAllowedExt,
+					mdxPath: "/site/guide.mdx",
+				}),
+			).toThrow(/from `.*MissingNestedImport\/Button\.tsx`.*guide\.mdx/s);
+		});
+
 		it("throws, naming the file, when a demo file has a syntax error", () => {
 			expect(() => collect("invalid/InvalidSyntax.tsx")).toThrow(
 				/Failed to parse `InvalidSyntax\.tsx`/,

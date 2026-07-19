@@ -131,16 +131,20 @@ describe("visitFilePaths", () => {
 		expect(uniqueImports.size).toBe(0);
 	});
 
-	it("throws when a demo file's own imports can't be resolved", () => {
+	it("throws when a demo file's own imports can't be resolved, naming the importer and the MDX page", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByPath: DemoDataByPath = {};
 
+		// The failing import lives in MissingImport.tsx, not the MDX page —
+		// the error must name both, or a site with many demos is a hunt.
 		expect(() =>
 			visitFilePaths({
 				filePaths: [mdxPath("brokenImport.mdx")],
 				uniqueImports,
 				demoDataByPath,
 			}),
-		).toThrow("Couldn't resolve `./DoesNotExist`");
+		).toThrow(
+			/Couldn't resolve `\.\/DoesNotExist` from `.*MissingImport\.tsx`\.[\s\S]*brokenImport\.mdx/,
+		);
 	});
 });

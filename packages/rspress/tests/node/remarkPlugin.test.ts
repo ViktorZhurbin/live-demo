@@ -105,6 +105,19 @@ describe("remarkPlugin", () => {
 			expect(codeNodeStillPresent).toBe(true);
 		});
 
+		it("throws, naming the MDX page, when the <code src> itself can't be resolved", () => {
+			// Unlike the no-demo-data case above (src resolves, scan missed it),
+			// here the src path doesn't exist at all — that's a build error, and
+			// the MDX page is the importer.
+			const tree = parseFixture("missingSrc.mdx");
+
+			expect(() =>
+				runPlugin(tree, { demoDataByPath: {} }, mdxPath("missingSrc.mdx")),
+			).toThrow(
+				/Couldn't resolve `\.\/DoesNotExist\.tsx` from `.*missingSrc\.mdx`/,
+			);
+		});
+
 		it("merges UI options into the LiveDemo props when provided", () => {
 			const tree = parseFixture("externalDemo.mdx");
 			const demoDataByPath: DemoDataByPath = {

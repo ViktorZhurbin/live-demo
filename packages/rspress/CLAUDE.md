@@ -162,8 +162,13 @@ Every error the plugin itself throws (build- or runtime-side) is a
 docblocks for the class/message-table split and the two codes that splice a
 plain string into a demo's own bundle instead of importing the class.
 
-- **`IMPORT_NOT_RESOLVED`** ("Couldn't resolve import") — check the path
-  against `getPossiblePaths`.
+- **`IMPORT_NOT_RESOLVED`** ("Couldn't resolve import") — the path doesn't
+  exist under any supported extension; check it against `getPossiblePaths`.
+  The message names the importer and, if different, the MDX page that
+  started the scan.
+- **`IMPORT_EXTENSION_NOT_SUPPORTED`** ("isn't a supported file type") — the
+  import's extension isn't `.js(x)`/`.ts(x)` (e.g. a `.css` import), thrown
+  before any existence check; same importer/MDX-page context as above.
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import") — confirm it's a
   real dependency, and that it reached the virtual module
   (`getVirtualModulesCode.ts`).

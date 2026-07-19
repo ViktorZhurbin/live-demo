@@ -21,20 +21,53 @@ import type { PathWithAllowedExt } from "~shared/types";
 type ResolveFileInfo = {
 	importPath: string;
 	dirname: string;
+	/** The file whose import statement (or `<code src>`) names `importPath`. */
+	importer?: string;
+	/** The MDX page that started the scan, if different from `importer`. */
+	mdxPath?: string;
 };
 
-export function resolveFileInfo({ dirname, importPath }: ResolveFileInfo) {
+export function resolveFileInfo({
+	dirname,
+	importPath,
+	importer,
+	mdxPath,
+}: ResolveFileInfo) {
 	const absolutePath = path.join(dirname, importPath);
 
-	const pathsToCheck = getPossiblePaths(absolutePath);
+	let pathsToCheck: PathWithAllowedExt[];
 
-	for (const absolutePath of pathsToCheck) {
-		if (fs.existsSync(absolutePath)) {
-			const fileName = path.basename(absolutePath) as PathWithAllowedExt;
+	try {
+		pathsToCheck = getPossiblePaths(absolutePath);
+	} catch (err) {
+		// `getPossiblePaths` only knows the path, not who imported it — add
+		// that context here, the one place both are in scope. Match on the
+		// code, not just the class: anything else it may one day throw isn't
+		// necessarily an extension problem and must propagate unrelabeled.
+		if (
+			err instanceof LiveDemoError &&
+			err.payload.code === "IMPORT_EXTENSION_NOT_SUPPORTED"
+		) {
+			throw new LiveDemoError("IMPORT_EXTENSION_NOT_SUPPORTED", {
+				importPath,
+				importer,
+				mdxPath,
+			});
+		}
+		throw err;
+	}
 
-			return { absolutePath, fileName };
+	for (const candidate of pathsToCheck) {
+		if (fs.existsSync(candidate)) {
+			const fileName = path.basename(candidate) as PathWithAllowedExt;
+
+			return { absolutePath: candidate, fileName };
 		}
 	}
 
-	throw new LiveDemoError("IMPORT_NOT_RESOLVED", { importPath });
+	throw new LiveDemoError("IMPORT_NOT_RESOLVED", {
+		importPath,
+		importer,
+		mdxPath,
+	});
 }

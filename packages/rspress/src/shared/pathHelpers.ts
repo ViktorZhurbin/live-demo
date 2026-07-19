@@ -106,5 +106,7 @@ export const getPossiblePaths = (filePath: string): PathWithAllowedExt[] => {
 		return [filePath] as PathWithAllowedExt[];
 	}
 
-	throw new LiveDemoError("IMPORT_NOT_RESOLVED", { importPath: filePath });
+	throw new LiveDemoError("IMPORT_EXTENSION_NOT_SUPPORTED", {
+		importPath: filePath,
+	});
 };
