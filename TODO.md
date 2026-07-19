@@ -1,4 +1,4 @@
-- [ ] Compare to original plugin
+- [ ] Would switching from the magic `<code src>` to explicit `<LiveDemo src>` reduce code complexity? Pros and Cons (one being UX)
 - [ ] Review architecture, file organization
 - [ ] Review exposed API surface
 - [ ] Delegate styles to rspress theme as much as possible: use its variables, components, etc.
