@@ -20,7 +20,7 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 	 * @see https://rspress.dev/api/config/config-build#markdownglobalcomponents
 	 *
 	 * The file has to have a default export.
-	 * Path needs to end with `LiveDemo.(jsx|tsx)`.
+	 * Path needs to end with `LiveDemo.(jsx?|tsx)`.
 	 *
 	 * @example
 	 * path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")

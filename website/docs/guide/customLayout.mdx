@@ -4,6 +4,10 @@ title: Custom Layout
 
 You can customize the default layout using components exported from `@live-demo/rspress/web`.
 
+The default layout stacks a control panel above a resizable editor/preview
+split, with file tabs above the editor. The example below rearranges both:
+file tabs move below the editor, and the control panel moves to the bottom.
+
 ## 1. Define layout
 
 ```tsx title="src/CustomLiveDemo/LiveDemo.tsx"
@@ -60,7 +64,7 @@ export default CustomLiveDemo;
 
 > [!NOTE]
 >
-> `customLayout` path needs to end with `LiveDemo.(jsx|tsx)`
+> `customLayout` path needs to end with `LiveDemo.(jsx?|tsx)`
 
 ```ts
 import * as path from "node:path";

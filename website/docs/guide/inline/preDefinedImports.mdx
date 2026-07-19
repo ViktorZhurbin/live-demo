@@ -4,7 +4,7 @@ title: Pre-defined imports
 
 import { Tab, Tabs } from "@rspress/core/theme";
 
-By default, imports from `"@rspress/core/theme"` and `"react"` are available.
+By default, imports from `"@rspress/core/theme"` and `"react"` are available. For anything else, see [Other imports](./otherImports.mdx).
 
 ## Using built-in Rspress components
 
@@ -53,16 +53,11 @@ By default, imports from `"@rspress/core/theme"` and `"react"` are available.
         setCount(prev => prev + 1)
       }
 
-      const button = (
-        <button
-          onClick={increment}
-        >
-          Increment
-        </button>
-      )
-
       return (
-        <div>Count is: {count}</div>
+        <div>
+          Count is: {count}
+          <button onClick={increment}>Increment</button>
+        </div>
       )
     }
     ```
@@ -82,16 +77,11 @@ By default, imports from `"@rspress/core/theme"` and `"react"` are available.
           setCount(prev => prev + 1)
         }
 
-        const button = (
-          <button
-            onClick={increment}
-          >
-            Increment
-          </button>
-        )
-
         return (
-          <div>Count is: {count}</div>
+          <div>
+            Count is: {count}
+            <button onClick={increment}>Increment</button>
+          </div>
         )
       }
       ```

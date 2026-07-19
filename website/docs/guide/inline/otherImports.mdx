@@ -2,11 +2,11 @@
 title: Other imports
 ---
 
-External modules are not automatically resolved in inline demos (as they are in ["external" demos](../external/basic.mdx#imports)). Ie, if you have `import { DateTime } from "luxon"` in the code block, it won't work out of the box.
+External modules beyond the [pre-defined imports](./preDefinedImports.mdx) are not automatically resolved in inline demos (as they are in ["external" demos](../external/basic.mdx#imports)). I.e., if you have `import { DateTime } from "luxon"` in the code block, it won't work out of the box.
 
 > [!NOTE]
 >
-> If any of your "external" demos has an import from this library (ie, `import { ... } from "luxon"`), it will be available in your "inline" demos as well.
+> If any of your "external" demos has an import from this library (i.e., `import { ... } from "luxon"`), it will be available in your "inline" demos as well.
 
 As an alternative, you can use `includeModules` option of the plugin.
 
