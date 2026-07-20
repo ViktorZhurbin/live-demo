@@ -65,7 +65,9 @@ describe("liveDemoPluginRspress", () => {
 			const handler = getVirtualModuleHandler(plugin);
 			const virtualModule = await handler();
 
-			expect(virtualModule).toContain("import * as i_0 from 'react';");
+			expect(virtualModule).toContain(
+				"importsMap.set('react', () => import('react'));",
+			);
 			expect(virtualModule).toContain("'@rspress/core/theme'");
 
 			// Babel's automatic JSX runtime emits this import on the author's

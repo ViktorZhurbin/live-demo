@@ -41,7 +41,10 @@ is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
 `<code src="..."/>` or ` ```lang live ` block collects the entry file and
 everything it transitively imports (`collectDemoFiles.ts`).
 External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts`
+from one generated virtual module (`getVirtualModulesCode.ts`) — as lazy
+`() => import(...)` thunks, since that one module is shared by the whole site
+and static imports made every demo page pay for every other page's externals.
+`bundleCode.ts` awaits just its own demo's before evaluating. `remarkPlugin.ts`
 then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes a
 `<LiveDemo files={...} />` element, and — on pages that have at least one demo —
 prepends an `import` of the layout so only those pages pull in the runtime graph

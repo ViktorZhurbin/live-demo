@@ -192,6 +192,25 @@ internal error state, not usable standalone), `useActiveCode`,
 `useLiveDemoContext`, `ButtonProps`, `EditorProps`, `FileTabsProps`,
 `ResizablePanelsProps`.
 
+### Fixed
+
+#### A demo only downloads the externals it actually imports
+
+The generated virtual module registers each external as a
+`() => import("pkg")` thunk instead of a static `import * as`, and
+`bundleCode` awaits only the ones the demo being compiled imports (Rollup
+already reports them as the bundle's external imports).
+
+Previously the module held a static import for the union of externals across
+every demo on the site, so the consuming bundler put all of them in the same
+chunk as the demo runtime. Any page with any demo downloaded all of them: on
+this repo's own docs site, a `useState` counter pulled in the three.js and
+`@react-three/*` packages belonging to a demo on an unrelated page.
+
+This is invisible to demo authors — `includeModules` and demo source are
+unchanged — but sites with a heavy external in one demo should see that
+weight disappear from their other demo pages.
+
 ### Newly allowed
 
 - **Circular imports** no longer fail the build. They're legal in ES modules

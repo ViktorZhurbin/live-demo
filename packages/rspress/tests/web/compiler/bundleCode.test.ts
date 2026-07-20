@@ -17,7 +17,17 @@ const renderToString = (tag: unknown, props: { children?: unknown }) => {
 	return `<${String(tag)}>${inner}</${String(tag)}>`;
 };
 
+// The mock resolves synchronously, so there is nothing to preload; the real
+// module awaits its thunks here (see getVirtualModulesCode.ts). Spied so the
+// tests below can assert *which* externals bundleCode asks it to resolve.
+const { loadImportsMock } = vi.hoisted(() => ({
+	loadImportsMock: vi.fn<(importNames: readonly string[]) => Promise<void>>(
+		async () => {},
+	),
+}));
+
 vi.mock("_live_demo_virtual_modules", () => ({
+	loadImports: loadImportsMock,
 	default: (moduleName: string) => {
 		if (moduleName === "react") {
 			return { useState: () => [null, () => {}] };
@@ -58,6 +68,73 @@ beforeAll(() => {
 });
 
 describe("bundleCode", () => {
+	/**
+	 * The virtual module is one module for the whole site, so it can only stay
+	 * off unrelated pages if each external is a lazily-imported chunk. That
+	 * makes `bundleCode` responsible for resolving this demo's externals before
+	 * `getFnFromString` evaluates the code — `getImport` is called synchronously
+	 * during module init and cannot await. If `chunk.imports` ever stops being
+	 * the list of externals, every demo breaks with "Can't resolve".
+	 */
+	describe("preloading externals", () => {
+		it("asks loadImports for exactly the externals the demo imports", async () => {
+			loadImportsMock.mockClear();
+
+			const files: LiveDemoFiles = {
+				"App.tsx": [
+					`import { useState } from "react";`,
+					`export default function App() {`,
+					`  const [n] = useState(0);`,
+					`  return <div>{n}</div>;`,
+					`}`,
+				].join("\n"),
+			};
+
+			await bundleCode({ files, entryFileName: "App.tsx" });
+
+			expect(loadImportsMock).toHaveBeenCalledTimes(1);
+
+			const [importNames] = loadImportsMock.mock.calls[0];
+
+			// `react` is written by the author; `react/jsx-runtime` is emitted by
+			// Babel's automatic runtime and must be preloaded just the same.
+			expect([...importNames].sort()).toEqual(["react", "react/jsx-runtime"]);
+		});
+
+		it("does not treat a demo's own local files as externals", async () => {
+			loadImportsMock.mockClear();
+
+			const files: LiveDemoFiles = {
+				"App.tsx": `import { Button } from "./Button"; export default () => Button();`,
+				"Button.tsx": `export const Button = () => "click";`,
+			};
+
+			await bundleCode({ files, entryFileName: "App.tsx" });
+
+			const [importNames] = loadImportsMock.mock.calls[0];
+
+			expect(importNames).not.toContain("./Button");
+			expect(importNames).not.toContain("Button.tsx");
+		});
+
+		it("resolves externals before returning, so evaluation can be synchronous", async () => {
+			const order: string[] = [];
+			loadImportsMock.mockClear();
+			loadImportsMock.mockImplementationOnce(async () => {
+				order.push("loadImports");
+			});
+
+			const files: LiveDemoFiles = {
+				"App.tsx": `import { useState } from "react"; export default () => useState;`,
+			};
+
+			await bundleCode({ files, entryFileName: "App.tsx" });
+			order.push("bundleCode returned");
+
+			expect(order).toEqual(["loadImports", "bundleCode returned"]);
+		});
+	});
+
 	it("bundles a single file with no dependencies", async () => {
 		const files: LiveDemoFiles = {
 			"App.tsx": `export default function App() { return 'Hello'; }`,

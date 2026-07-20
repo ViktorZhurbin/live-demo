@@ -1,3 +1,4 @@
+import { loadImports } from "_live_demo_virtual_modules";
 import { isRelativeImport } from "~shared/pathHelpers";
 import type { CodeRunnerProps } from "~web/ui/CodeRunner/CodeRunner";
 
@@ -43,5 +44,13 @@ export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
 		generatedCode: "es2015",
 	});
 
-	return output[0].code;
+	const [chunk] = output;
+
+	// `chunk.imports` is exactly the externals the predicate above kept out of
+	// the bundle — i.e. what this demo will ask `getImport` for. They have to be
+	// resolved before `getFnFromString` evaluates the code, because `getImport`
+	// is called synchronously during the bundle's module init.
+	await loadImports(chunk.imports);
+
+	return chunk.code;
 };

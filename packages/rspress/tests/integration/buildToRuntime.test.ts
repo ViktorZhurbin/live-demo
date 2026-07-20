@@ -28,6 +28,7 @@ const renderToString = (tag: unknown, props: { children?: unknown }) => {
 };
 
 vi.mock("_live_demo_virtual_modules", () => ({
+	loadImports: async () => {},
 	default: (moduleName: string) => {
 		// Mirrors the plugin's `defaultModules`, which is what a real page's
 		// virtual module is seeded with
