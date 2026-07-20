@@ -12,7 +12,7 @@ import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
+type LiveDemoPluginRspressOptions = LiveDemoPluginOptions & {
 	/**
 	 * Path to custom layout file.
 	 * `remarkPlugin` imports it into each page that has at least one demo, so
@@ -25,7 +25,7 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 	 * path.join(__dirname, "src/CustomLiveDemo/LiveDemo.tsx")
 	 **/
 	customLayout?: string;
-}
+};
 
 /**
  * Included by default for every demo
@@ -37,9 +37,9 @@ interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
  **/
 const defaultModules = ["react", "react/jsx-runtime", "@rspress/core/theme"];
 
-export function liveDemoPluginRspress(
+export const liveDemoPluginRspress = (
 	options?: LiveDemoPluginRspressOptions,
-): RspressPlugin {
+): RspressPlugin => {
 	const { customLayout, includeModules } = options ?? {};
 
 	if (customLayout && !/LiveDemo\.(jsx?|tsx)$/.test(customLayout)) {
@@ -86,4 +86,4 @@ export function liveDemoPluginRspress(
 			],
 		},
 	};
-}
+};

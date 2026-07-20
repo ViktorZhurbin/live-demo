@@ -21,11 +21,11 @@ import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
-interface RemarkPluginProps {
+type RemarkPluginProps = {
 	options?: LiveDemoPluginOptions["ui"];
 	demoDataByPath: DemoDataByPath; // Analyzed demo files
 	layoutPath: string; // Layout component to import into pages that use a demo
-}
+};
 
 // Mangled so the per-page `import` this plugin injects can't collide with a
 // binding the page's own author already has in scope. Both transforms emit

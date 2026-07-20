@@ -11,10 +11,10 @@ import type { MdxjsEsm } from "mdast-util-mdx";
  * enough — both are set. `localName` is the JSX element name the transforms
  * emit; it's mangled to avoid colliding with the page's own bindings.
  */
-export function createLayoutImportNode(
+export const createLayoutImportNode = (
 	layoutPath: string,
 	localName: string,
-): MdxjsEsm {
+): MdxjsEsm => {
 	return {
 		type: "mdxjsEsm",
 		value: `import ${localName} from ${JSON.stringify(layoutPath)}`,
@@ -42,4 +42,4 @@ export function createLayoutImportNode(
 			},
 		},
 	};
-}
+};

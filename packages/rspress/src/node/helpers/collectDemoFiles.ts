@@ -29,6 +29,12 @@ import type { LiveDemoFiles, PathWithAllowedExt } from "~shared/types";
 import { analyzeModule } from "./analyzeModule";
 import { resolveFileInfo } from "./resolveFileInfo";
 
+type CollectDemoFiles = {
+	absolutePath: PathWithAllowedExt;
+	/** The MDX page this demo was reached from, for error context on a failed nested import. */
+	mdxPath?: string;
+};
+
 /**
  * Walk a demo's imports and collect its files and external packages
  *
@@ -37,25 +43,24 @@ import { resolveFileInfo } from "./resolveFileInfo";
  * The walk itself is cycle-safe — `visited` means a file is enqueued at most
  * once however many other files import it.
  */
-export function collectDemoFiles(params: {
-	absolutePath: PathWithAllowedExt;
-	/** The MDX page this demo was reached from, for error context on a failed nested import. */
-	mdxPath?: string;
-}): {
+export const collectDemoFiles = ({
+	absolutePath: entryPath,
+	mdxPath,
+}: CollectDemoFiles): {
 	files: LiveDemoFiles;
 	externalImports: Set<string>;
-} {
+} => {
 	const files: LiveDemoFiles = {};
 	const externalImports = new Set<string>();
 
-	const visited = new Set<string>([params.absolutePath]);
-	const queue: PathWithAllowedExt[] = [params.absolutePath];
+	const visited = new Set<string>([entryPath]);
+	const queue: PathWithAllowedExt[] = [entryPath];
 
 	// Each file is keyed by its path relative to the entry file's directory,
 	// posix-style. Keying by base name alone would let `buttons/styles.ts` and
 	// `cards/styles.ts` overwrite each other; the runtime resolver
 	// (`pluginResolveModules`) resolves imports against these same keys.
-	const entryDir = path.dirname(params.absolutePath);
+	const entryDir = path.dirname(entryPath);
 	const toFilePath = (absolutePath: string) =>
 		path.relative(entryDir, absolutePath).split(path.sep).join("/");
 
@@ -83,7 +88,7 @@ export function collectDemoFiles(params: {
 				importPath: dep,
 				dirname,
 				importer: absolutePath,
-				mdxPath: params.mdxPath,
+				mdxPath,
 			});
 
 			if (!visited.has(child.absolutePath)) {
@@ -94,4 +99,4 @@ export function collectDemoFiles(params: {
 	}
 
 	return { files, externalImports };
-}
+};

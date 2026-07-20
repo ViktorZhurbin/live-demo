@@ -27,12 +27,12 @@ type ResolveFileInfo = {
 	mdxPath?: string;
 };
 
-export function resolveFileInfo({
+export const resolveFileInfo = ({
 	dirname,
 	importPath,
 	importer,
 	mdxPath,
-}: ResolveFileInfo) {
+}: ResolveFileInfo) => {
 	const absolutePath = path.join(dirname, importPath);
 
 	let pathsToCheck: PathWithAllowedExt[];
@@ -70,4 +70,4 @@ export function resolveFileInfo({
 		importer,
 		mdxPath,
 	});
-}
+};

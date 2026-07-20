@@ -34,15 +34,20 @@ function extractSourcePath(
 	return undefined;
 }
 
+type AnalyzeModule = {
+	filePath: PathWithAllowedExt;
+	absolutePath: PathWithAllowedExt;
+};
+
 /**
  * Read a file and list every path it imports or re-exports, both relative
  * (`./Button`) and external (`react`).
  */
-export function analyzeModule(params: {
-	filePath: PathWithAllowedExt;
-	absolutePath: PathWithAllowedExt;
-}): { content: string; dependencies: string[] } {
-	const { code, ast } = readAndParseFile(params);
+export const analyzeModule = ({
+	filePath,
+	absolutePath,
+}: AnalyzeModule): { content: string; dependencies: string[] } => {
+	const { code, ast } = readAndParseFile({ filePath, absolutePath });
 
 	const dependencies: string[] = [];
 	for (const statement of ast.body) {
@@ -53,4 +58,4 @@ export function analyzeModule(params: {
 	}
 
 	return { content: code, dependencies };
-}
+};
