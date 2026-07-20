@@ -14,7 +14,15 @@
 			"components/*": ["./src/components/*"]
 		}
 	},
-	"include": ["docs", "src", "components", "theme", "rspress.config.ts"],
+	"include": [
+		"docs",
+		"src",
+		"components",
+		"theme",
+		"rspress.config.ts",
+		"playwright.config.ts",
+		"e2e"
+	],
 	"mdx": {
 		"checkMdx": true
 	}

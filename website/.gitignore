@@ -8,6 +8,10 @@ node_modules
 dist/
 doc_build/
 
+# Playwright
+test-results/
+playwright-report/
+
 # IDE
 .vscode/*
 !.vscode/extensions.json

@@ -43,3 +43,23 @@ jobs:
 
       - name: Knip
         run: pnpm knip
+
+      - name: Build website
+        run: pnpm --filter website build
+
+      # Playwright's own CI docs advise against caching browser binaries:
+      # restoring the cache costs about as much as re-downloading, and the
+      # OS-level deps `--with-deps` also installs aren't cacheable anyway.
+      - name: Install Playwright browsers
+        run: pnpm --filter website exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        run: pnpm --filter website test:e2e
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-traces
+          path: website/test-results/
+          retention-days: 30

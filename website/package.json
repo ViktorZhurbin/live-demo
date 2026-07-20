@@ -7,8 +7,9 @@
 	"scripts": {
 		"build": "rspress build",
 		"dev": "rspress dev --port 5173",
-		"preview": "rspress preview",
-		"typecheck": "tsc -p tsconfig.json"
+		"preview": "rspress preview --port 4173",
+		"typecheck": "tsc -p tsconfig.json",
+		"test:e2e": "playwright test"
 	},
 	"dependencies": {
 		"@live-demo/rspress": "workspace:*",
@@ -22,6 +23,7 @@
 		"three": "^0.182.0"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.61.1",
 		"@types/react": "^19",
 		"@types/react-dom": "^19"
 	}
