@@ -37,21 +37,12 @@ filesystem (build) and in-memory (runtime) resolvers, with an integration
 test spanning the seam. The two-phase design (scan in `routeGenerated`,
 rewrite in remark) is forced by a real constraint: the virtual module must
 know every external import before rsbuild starts. Its cost is the staleness
-class below (F4, F7).
+class below (F7).
 
 ## Findings
 
 Severity: HIGH / MED / LOW. Tag: **breaking** (consumer-visible contract) vs
 **internal** (fix is consumer-visible only as improvement → CHANGELOG).
-
-### F4 · LOW · decision needed — `.md` pages are half-supported
-
-`visitFilePaths.ts:33` scans only `.endsWith(".mdx")` (upstream: `/\.mdx?$/`),
-but `remarkPlugin` runs on `.md` too. A `<code src>` in a `.md` page hits the
-"restart the dev server" warning — and restarting won't help, making the
-message actively wrong there. Inline ` ```jsx live ` in `.md` is untested
-territory. Decide: support `.md` (scan both) or declare `.mdx`-only in docs
-and make the warning say so.
 
 ### F5 · LOW · internal — `meta?.includes("live")` is substring matching
 
@@ -128,6 +119,3 @@ doc_build/static/js/*.js)`; `grep '<script' doc_build/404.html`.
   `pnpm install`; right after a `git stash` of `package.json` it can fail
   fetching pnpm's own tarball offline. `pnpm install --lockfile-only` (with
   network) clears it.
-
-**Unverified claims in this doc:** F4's inline-`.md` behavior was reasoned,
-not executed.

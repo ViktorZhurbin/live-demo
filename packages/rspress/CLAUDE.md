@@ -172,6 +172,7 @@ This section exists to stop defensive-code creep.
 - **Runtime validation of plugin options** — `plugin.ts` only checks the
   `customLayout` filename pattern. Everything else in
   `LiveDemoPluginOptions` is TypeScript's contract.
+- **`.md` files** — `<code src>` injects JSX, so it only works in `.mdx` files.
 
 ## Troubleshooting
 
