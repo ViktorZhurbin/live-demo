@@ -173,6 +173,10 @@ This section exists to stop defensive-code creep.
   `customLayout` filename pattern. Everything else in
   `LiveDemoPluginOptions` is TypeScript's contract.
 - **`.md` files** — `<code src>` injects JSX, so it only works in `.mdx` files.
+- **Dev-mode staleness on demo-file edit** — the MDX→demo scan (`routeGenerated`)
+  runs once per dev-server process. Editing an existing demo's source file
+  afterward isn't picked up. Restarting the dev server is the only fix — documented in
+  `website/docs/guide/usage.mdx`.
 
 ## Troubleshooting
 
