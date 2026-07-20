@@ -89,7 +89,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 		// set for the whole build). Documented at
 		// `website/docs/guide/inline/otherImports.mdx`.
 		visit(tree, "code", (node) => {
-			if (!node?.lang) return;
+			if (!node.lang) return;
 
 			const isLive = node.meta?.split(/\s+/).includes("live");
 

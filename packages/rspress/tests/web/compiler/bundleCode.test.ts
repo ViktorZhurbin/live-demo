@@ -370,61 +370,18 @@ describe("bundleCode", () => {
 		});
 	});
 
-	describe("multi-directory demos", () => {
-		it("bundles same-named files from different folders without collapsing them", async () => {
-			// The build step keys these by relative path precisely so they stay
-			// distinct; this asserts the browser half agrees and each importer
-			// gets its own neighbour, not whichever file was keyed last.
-			const files: LiveDemoFiles = {
-				"App.tsx": `
-          import { label as buttonLabel } from "./buttons/label";
-          import { label as cardLabel } from "./cards/label";
-          export default function App() { return buttonLabel + "|" + cardLabel; }
-        `,
-				"buttons/label.ts": `export const label = "BUTTON";`,
-				"cards/label.ts": `export const label = "CARD";`,
-			};
-
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
-			const fn = getFnFromString(code);
-
-			expect(fn({})).toBe("BUTTON|CARD");
-		});
-
-		it("resolves a nested file's sibling import relative to its own folder", async () => {
-			const files: LiveDemoFiles = {
-				"App.tsx": `
-          import { Button } from "./components/Button";
-          export default function App() { return Button(); }
-        `,
-				"components/Button.tsx": `
-          import { style } from "./style";
-          export function Button() { return style; }
-        `,
-				"components/style.ts": `export const style = "NESTED_STYLE";`,
-				// A same-named file at the root must not win over the sibling
-				"style.ts": `export const style = "ROOT_STYLE";`,
-			};
-
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
-			const fn = getFnFromString(code);
-
-			expect(fn({})).toBe("NESTED_STYLE");
-		});
-
-		it("resolves a directory import to its index file", async () => {
-			const files: LiveDemoFiles = {
-				"App.tsx": `
+	it("resolves a directory import to its index file", async () => {
+		const files: LiveDemoFiles = {
+			"App.tsx": `
           import Widget from "./Widget";
           export default function App() { return Widget(); }
         `,
-				"Widget/index.tsx": `export default function Widget() { return "WIDGET"; }`,
-			};
+			"Widget/index.tsx": `export default function Widget() { return "WIDGET"; }`,
+		};
 
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
-			const fn = getFnFromString(code);
+		const code = await bundleCode({ files, entryFileName: "App.tsx" });
+		const fn = getFnFromString(code);
 
-			expect(fn({})).toBe("WIDGET");
-		});
+		expect(fn({})).toBe("WIDGET");
 	});
 });

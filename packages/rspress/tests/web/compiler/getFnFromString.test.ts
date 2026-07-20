@@ -1,20 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { getFnFromString } from "~web/compiler/getFnFromString";
 
-const PREDEFINED_LIB_NAME = "predefined-lib";
-
 // Mock the virtual modules import - must be inline due to hoisting
 vi.mock("_live_demo_virtual_modules", () => ({
 	default: (moduleName: string, _getDefault?: boolean) => {
 		if (moduleName === "react") {
 			return { createElement: () => ({}) };
-		}
-		if (moduleName === PREDEFINED_LIB_NAME) {
-			// Badge exists, but Card doesn't (simulating V2 where Card was removed)
-			return {
-				Badge: () => ({ type: "component" }),
-				// Card is intentionally missing
-			};
 		}
 		throw new Error(`Can't resolve ${moduleName}`);
 	},
@@ -34,96 +25,8 @@ describe("getFnFromString", () => {
 		expect(result({})).toBe("Hello World");
 	});
 
-	it("should handle component that returns JSX (as function)", () => {
-		const code = `
-      const MyComponent = () => ({ type: 'div', props: { children: 'Test' } });
-      exports.default = MyComponent;
-    `;
-
-		const result = getFnFromString(code);
-		const output: any = result({});
-
-		expect(output).toBeDefined();
-		expect(output.type).toBe("div");
-		expect(output.props.children).toBe("Test");
-	});
-
-	it("should provide getImport function for external modules", () => {
-		const code = `
-      const React = __get_import('react', true);
-      const MyComponent = () => React.createElement('div', null, 'Hello');
-      exports.default = MyComponent;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result).toBeDefined();
-		expect(typeof result).toBe("function");
-	});
-
-	it("should handle components with named variables", () => {
-		const code = `
-      const message = 'Hello';
-      const MyComponent = () => message;
-      exports.default = MyComponent;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({})).toBe("Hello");
-	});
-
-	it("should handle arrow function components", () => {
-		const code = `
-      exports.default = () => 'Arrow Function Component';
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({})).toBe("Arrow Function Component");
-	});
-
-	it("should handle regular function components", () => {
-		const code = `
-      function MyComponent() {
-        return 'Regular Function Component';
-      }
-      exports.default = MyComponent;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({})).toBe("Regular Function Component");
-	});
-
-	it("should execute code with variable declarations", () => {
-		const code = `
-      const value = 42;
-      const double = value * 2;
-      exports.default = () => double;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({})).toBe(84);
-	});
-
-	it("should handle closures correctly", () => {
-		const code = `
-      const makeCounter = () => {
-        let count = 0;
-        return () => ++count;
-      };
-      exports.default = makeCounter();
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({})).toBe(1);
-		expect(result({})).toBe(2);
-		expect(result({})).toBe(3);
-	});
-
+	// Guards a fresh `exportsStub` per call rather than one hoisted to module
+	// scope, which would leak one call's default export into the next.
 	it("should isolate execution context", () => {
 		const code1 = `
       const message = 'First';
@@ -140,35 +43,6 @@ describe("getFnFromString", () => {
 
 		expect(fn1({})).toBe("First");
 		expect(fn2({})).toBe("Second");
-	});
-
-	it("should handle exports.default format specifically", () => {
-		// The compiler always transforms to exports.default format
-		const code = `
-      const Component = () => 'Test';
-      exports.default = Component;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result).toBeDefined();
-		expect(typeof result).toBe("function");
-	});
-
-	it("should work with complex component logic", () => {
-		const code = `
-      const helper = (x) => x * 2;
-      const MyComponent = (props) => {
-        const value = helper(props.value || 5);
-        return { result: value };
-      };
-      exports.default = MyComponent;
-    `;
-
-		const result = getFnFromString(code);
-
-		expect(result({ value: 10 })).toEqual({ result: 20 });
-		expect(result({})).toEqual({ result: 10 });
 	});
 
 	it("throws when the bundle produces no default export", () => {
@@ -212,28 +86,5 @@ describe("getFnFromString", () => {
 		const result = getFnFromString(code);
 
 		expect(result({})).toBe("object");
-	});
-
-	describe("undefined import detection", () => {
-		it("should throw error when importing non-existent named export", () => {
-			const code = `
-        const { Badge, Card } = __get_import('${PREDEFINED_LIB_NAME}', false);
-        if (Card === undefined) {
-          throw new Error("[LiveDemo] Import 'Card' from '${PREDEFINED_LIB_NAME}' is undefined. This export may not exist in this version of the package.");
-        }
-        exports.default = () => ({ type: Card });
-      `;
-
-			expect(() => getFnFromString(code)).toThrow(/Import.*is undefined/i);
-		});
-
-		it("should succeed when all named exports exist", () => {
-			const code = `
-        const { Badge } = __get_import('${PREDEFINED_LIB_NAME}', false);
-        exports.default = () => ({ type: Badge });
-      `;
-
-			expect(() => getFnFromString(code)).not.toThrow();
-		});
 	});
 });

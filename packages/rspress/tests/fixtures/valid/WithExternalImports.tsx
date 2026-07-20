@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
 
 export default function WithExternalImports() {
-	const [data, setData] = useState<string | null>(null);
+	const [active, setActive] = useState(false);
 
 	useEffect(() => {
-		setData("loaded");
+		setActive(true);
 	}, []);
 
-	return <div>{data}</div>;
+	return <div className={clsx("box", { active })}>External imports</div>;
 }

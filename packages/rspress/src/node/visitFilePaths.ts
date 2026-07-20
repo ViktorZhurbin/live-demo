@@ -30,10 +30,10 @@ export const visitFilePaths = ({
 	uniqueImports: UniqueImports;
 	demoDataByRef: DemoDataByRef;
 }) => {
-	for (const filePath of filePaths) {
-		if (!filePath.endsWith(".mdx")) continue;
+	for (const mdxRoutePath of filePaths) {
+		if (!mdxRoutePath.endsWith(".mdx")) continue;
 
-		const mdxAst = getMdxAst(filePath);
+		const mdxAst = getMdxAst(mdxRoutePath);
 
 		visit(mdxAst, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
 			if (node.name !== "code") return;
@@ -44,13 +44,13 @@ export const visitFilePaths = ({
 
 			const entryFile = resolveFileInfo({
 				importPath,
-				dirname: path.dirname(filePath),
-				importer: filePath,
+				dirname: path.dirname(mdxRoutePath),
+				importer: mdxRoutePath,
 			});
 
 			const { files, externalImports } = collectDemoFiles({
 				...entryFile,
-				mdxPath: filePath,
+				mdxPath: mdxRoutePath,
 			});
 
 			for (const externalImport of externalImports) {
@@ -60,7 +60,7 @@ export const visitFilePaths = ({
 			// Keyed by the raw `<code src>` reference so the remark plugin, which
 			// runs later on a separate parse, can look it up without resolving
 			// against disk a second time. See `demoRefKey`.
-			const refKey = demoRefKey(filePath, importPath);
+			const refKey = demoRefKey(mdxRoutePath, importPath);
 			demoDataByRef[refKey] = {
 				files,
 				entryFileName: entryFile.fileName,
