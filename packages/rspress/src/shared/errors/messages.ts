@@ -39,7 +39,7 @@ export const errorMessages: LiveDemoErrorMessages = {
 
 	INVALID_CUSTOM_LAYOUT: ({ customLayout }) => ({
 		title: "Invalid customLayout path",
-		message: `\`customLayout\` must end with \`LiveDemo.(jsx?|tsx)\` — got \`${customLayout}\`.`,
+		message: `\`customLayout\` must end with \`LiveDemo.(jsx?|tsx)\`; got \`${customLayout}\`.`,
 		hint: "Example: path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')",
 	}),
 
@@ -48,13 +48,13 @@ export const errorMessages: LiveDemoErrorMessages = {
 		message: entryFileName
 			? `\`${entryFileName}\` has no default export.`
 			: "The demo has no default export.",
-		hint: "The entry file must export a component — both `export default` and a single named export (`export const App = ...`) work.",
+		hint: "The entry file must export a component: `export default` or a single named export (`export const App = ...`).",
 	}),
 
 	PROP_PARSE_FAILED: ({ key }) => ({
 		title: "Prop parse failed",
 		message: `Failed to parse LiveDemo prop \`${key}\`.`,
-		hint: "The plugin JSON.stringifies props at build time — a parse failure means the two sides are out of sync.",
+		hint: "The plugin JSON.stringifies props at build time. A parse failure means the two sides are out of sync.",
 	}),
 
 	PROVIDER_MISSING: () => ({
@@ -70,8 +70,8 @@ export const errorMessages: LiveDemoErrorMessages = {
 	}),
 
 	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
-	// template literal in generated code — `${importName}` there is meant to
-	// stay live interpolation (importName isn't known until getImport() is
+	// template literal in generated code. `${importName}` there is meant to
+	// stay as live interpolation (importName isn't known until getImport() is
 	// called at demo-runtime). Never add a backtick or another `${...}` to
 	// this message: either would corrupt that generated template literal.
 	EXTERNAL_IMPORT_NOT_FOUND: ({ importName }) => ({

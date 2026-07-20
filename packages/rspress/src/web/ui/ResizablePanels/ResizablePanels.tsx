@@ -44,15 +44,14 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 	const [panelsView] = useLocalStorageView();
 	const isSplitView = panelsView === PanelsView.Split;
 
-	// Hiding a panel collapses it to zero size; it stays mounted. That's
-	// deliberate and load-bearing: unmounting would discard whatever state the
-	// demo component holds and force a fresh (debounced) bundle every time the
-	// view toggles.
+	// Hiding a panel collapses it to zero size; it stays mounted. This is
+	// intentional: unmounting would discard whatever state the demo component
+	// holds and force a fresh (debounced) bundle every time the view toggles.
 	//
 	// It can't be done in CSS, which is what used to be attempted here: `Panel`
 	// applies `className`/`style` to a *nested* div precisely so styles can't
 	// interfere with its flex layout, so `display: none` hid a panel's contents
-	// while its outer box kept its share of the row — the toggle looked dead.
+	// while its outer box kept its share of the row. The toggle looked dead.
 	// Driving the library's own collapse API is the supported way to get both
 	// properties at once.
 	const editorPanelRef = usePanelRef();

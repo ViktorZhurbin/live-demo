@@ -1,12 +1,12 @@
 # Test fixtures
 
-`valid/` — demos that should build and run. `invalid/` — demos that should
-fail the build (an unresolvable import, a syntax error). `mdx/` — MDX files
+`valid/` contains demos that should build and run. `invalid/` contains demos that should
+fail the build (an unresolvable import, a syntax error). `mdx/` contains MDX files
 that drive `visitFilePaths` and `remarkPlugin`.
 
 A fixture belongs in `invalid/` only if the expected outcome is a thrown
-error. Anything merely unusual — a cycle, a diamond, a dot in a directory
-name — is a `valid/` fixture, because the point of it is that it *works*.
+error. Anything merely unusual (a cycle, a diamond, a dot in a directory
+name) is a `valid/` fixture, because the point of it is that it *works*.
 
 ## Write the syntax the extension implies
 
@@ -34,12 +34,12 @@ exist because a flat single-file fixture missed something real:
 
 | Fixture | Shape it pins |
 |---|---|
-| `valid/Diamond/` | shared dependency reached twice — must not read as circular |
-| `valid/SharedNames/` | same base name in different folders — must not collide |
-| `valid/IndexDir/` | `./Widget` resolving to `Widget/index.tsx` |
-| `valid/dotted.dir/` | a dot in a parent directory — not the file's extension |
-| `valid/Precedence/` | competing extensions on disk, so precedence is real |
-| `valid/Circular/` | mutually recursive imports — legal, must still run |
+| `valid/Diamond/` | shared dependency reached twice (must not read as circular) |
+| `valid/SharedNames/` | same base name in different folders (must not collide) |
+| `valid/IndexDir/` | `./Widget` resolves to `Widget/index.tsx` |
+| `valid/dotted.dir/` | dot in a parent directory (not the file's extension) |
+| `valid/Precedence/` | competing extensions on disk; precedence is real |
+| `valid/Circular/` | mutually recursive imports (legal, must still run) |
 | `valid/CircularEntry/` | the *entry file itself* inside the cycle, so the walk revisits its own starting point |
-| `mdx/collidingSrc/{a,b}/` | two pages writing the identical `<code src="./SimpleComponent.tsx">` string, resolving to different files — demo data is keyed by the page path *plus* the src (`demoRefKey`), so keying by the raw string alone would collide these |
-| `valid/Climbing/` + `valid/shared/` | an entry file importing `../` above its own directory — the key keeps the `../` prefix (see `pathHelpers.ts`'s `resolveRelativePath`) |
+| `mdx/collidingSrc/{a,b}/` | two pages with identical `<code src="./SimpleComponent.tsx">` strings resolving to different files. Demo data is keyed by page path plus src (`demoRefKey`), so keying by raw string alone would collide these. |
+| `valid/Climbing/` + `valid/shared/` | entry file importing `../` above its own directory. The key keeps the `../` prefix (see `pathHelpers.ts`'s `resolveRelativePath`). |

@@ -12,9 +12,9 @@ import type { DemoDataByRef } from "~shared/types";
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
 
-// Demos are keyed by the raw `<code src>` reference — the MDX page plus the
+// Demos are keyed by the raw `<code src>` reference: the MDX page plus the
 // verbatim src string (see `demoRefKey`). Tests seed `demoDataByRef` with the
-// same key the plugin will look up, i.e. the `vfilePath` they run under.
+// same key the plugin will look up (i.e., the `vfilePath` they run under).
 const refKey = (mdxName: string, src: string) =>
 	demoRefKey(mdxPath(mdxName), src);
 
@@ -29,8 +29,8 @@ const parseFixture = (name: string) => getMdxAst(mdxPath(name)) as Root;
 
 /**
  * `vfilePath` stands in for the MDX file's own path. The plugin keys demo data
- * by it (plus each `<code src>` string), so tests exercising `<code src>` must
- * pass the same fixture path used by `parseFixture` — and seed `demoDataByRef`
+ * by it (plus each `<code src>` string). Tests exercising `<code src>` must
+ * pass the same fixture path used by `parseFixture` and seed `demoDataByRef`
  * under `refKey(thatFixture, src)`.
  */
 const runPlugin = (
@@ -48,8 +48,8 @@ const runPlugin = (
 	) => (tree: Root, vfile: { path: string }) => void;
 	const transformer = attacher(fullProps);
 
-	// The plugin warns via `console.warn` — rspress never prints vfile
-	// messages. Spying is the only way to observe it.
+	// The plugin warns via `console.warn` (rspress never prints vfile
+	// messages). Spying is the only way to observe it.
 	const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
 	try {
@@ -127,12 +127,12 @@ describe("remarkPlugin", () => {
 			expect(codeNodeStillPresent).toBe(true);
 		});
 
-		it("warns rather than throws for a <code src> to a missing file — resolution now lives only in the scan phase", () => {
+		it("warns rather than throws for a <code src> to a missing file (resolution now lives only in the scan phase)", () => {
 			// remarkPlugin no longer resolves src against disk. A genuinely
-			// missing file is caught earlier by `visitFilePaths` (see its test);
-			// here, with nothing recorded for this reference, the node is left as
-			// an empty <code> and a warning fires — the same path as any other
-			// unmatched reference.
+			// missing file is caught earlier by `visitFilePaths` (see its test).
+			// Here, with nothing recorded for this reference, the node is left as
+			// an empty <code> and a warning fires (the same path as any other
+			// unmatched reference).
 			const tree = parseFixture("missingSrc.mdx");
 
 			const { warnings } = runPlugin(

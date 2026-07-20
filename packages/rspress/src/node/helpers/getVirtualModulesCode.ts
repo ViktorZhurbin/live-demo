@@ -23,9 +23,9 @@
  * code-split, and `bundleCode` awaits only the ones its demo actually
  * imports before evaluating it.
  *
- * `getImport` stays synchronous — the evaluated bundle calls it during module
- * init and can't await — so resolution is split in two: `loadImports` awaits
- * the thunks into `resolvedMap` up front, `getImport` only reads that map.
+ * `getImport` stays synchronous: the evaluated bundle calls it during module
+ * init and can't await. Resolution is split in two: `loadImports` awaits
+ * the thunks into `resolvedMap` up front; `getImport` only reads that map.
  */
 
 import { formatSplicedMessage } from "~shared/errors";
@@ -34,10 +34,10 @@ import { errorMessages } from "~shared/errors/messages";
 const IMPORTS_MAP = "importsMap";
 const RESOLVED_MAP = "resolvedMap";
 
-// importName is only known once the demo calls getImport() in the browser,
-// so the token here is the literal source text `${importName}`, not a
-// resolved value — spliced below inside real backticks so it becomes a
-// genuine template literal in the generated code. This only stays valid
+// importName is only known once the demo calls getImport() in the browser.
+// The token here is the literal source text `${importName}`, not a
+// resolved value. It's spliced below inside real backticks so it becomes a
+// genuine template literal in the generated code. This only stays valid in
 // generated JS because EXTERNAL_IMPORT_NOT_FOUND's message (messages.ts)
 // is guaranteed free of backticks and other `${...}` sequences.
 const importNotFoundMessage = formatSplicedMessage(
@@ -84,7 +84,7 @@ export const getVirtualModulesCode = (allImports: Set<string>) => {
 		(acc, moduleName) => {
 			const name = `'${moduleName}'`;
 
-			// A literal specifier, not a variable — the consuming bundler has to
+			// A literal specifier, not a variable. The consuming bundler has to
 			// see it statically to emit a chunk for it.
 			const addToImportsMap = `${IMPORTS_MAP}.set(${name}, () => import(${name}));`;
 

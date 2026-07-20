@@ -1,4 +1,4 @@
-# Live Demo — Interactive Examples for Documentation
+# Live Demo: Interactive Examples for Documentation
 
 Rspress plugin that turns code blocks/files in MDX into interactive, editable
 examples (CodeSandbox-style) that run in the browser.
@@ -15,16 +15,16 @@ export const App = () => {
 
 ## Monorepo layout
 
-- `packages/rspress/` — the published plugin (`@live-demo/rspress`). Has its own
+- `packages/rspress/`: the published plugin (`@live-demo/rspress`). Has its own
   `packages/rspress/CLAUDE.md`. Read it before working inside that package.
-- `website/` — the docs site that consumes the plugin. `pnpm build:web` runs
+- `website/`: the docs site that consumes the plugin. `pnpm build:web` runs
   `build:lib` first so `website` always builds against a fresh `dist/`.
 
 ## Maintaining this file
 
 Update this file when your changes affect what's documented here. Keep a
 fact here only if it's true across the whole monorepo, or if an agent needs
-it to decide which package to open — before that, it belongs in a docblock
+it to decide which package to open. Otherwise it belongs in a docblock
 next to the code, or in the relevant package's own CLAUDE.md.
 
 ## Library references

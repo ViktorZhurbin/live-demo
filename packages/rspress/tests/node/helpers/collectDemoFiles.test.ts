@@ -46,7 +46,7 @@ describe("collectDemoFiles", () => {
 		it("excludes a type-only import's file, even though it exists on disk", () => {
 			// `./SimpleComponentTypes` is a real file (tsc needs it to
 			// typecheck the fixture) but is only ever imported with
-			// `import type`, so it must never show up in `files` — proving
+			// `import type`. It must never show up in `files`, proving
 			// the specifier is dropped before resolution, not merely absent.
 			const { files, externalImports } = collect(
 				"valid/WithTypeOnlyImports.tsx",
@@ -95,8 +95,8 @@ describe("collectDemoFiles", () => {
 
 		it("reads the entry once even when the cycle points back at it", () => {
 			// The entry is seeded into `visited` before the walk starts. Drop
-			// that and the result is still correct — B's import of A just
-			// re-enqueues it — so only the read count catches the regression.
+			// that and the result is still correct. B's import of A just
+			// re-enqueues it, so only the read count catches the regression.
 			const readFileSync = vi.spyOn(fs, "readFileSync");
 
 			try {
@@ -151,7 +151,7 @@ describe("collectDemoFiles", () => {
 
 		it("resolves through a directory whose name contains a dot", () => {
 			// A dot in a parent directory must not be mistaken for the file's
-			// own extension — otherwise any project living under a path like
+			// own extension. Otherwise any project living under a path like
 			// `~/my.app/` fails to resolve at all.
 			expect(filePathsOf("valid/DottedDir.tsx")).toEqual([
 				"DottedDir.tsx",
@@ -167,7 +167,7 @@ describe("collectDemoFiles", () => {
 
 		it("names the importing file and the MDX page in a nested resolution error", () => {
 			// Unlike the entry-level case above, the failing import here lives in
-			// a file the entry imports, not the entry itself — the error should
+			// a file the entry imports, not the entry itself. The error should
 			// still say which file it's in and which MDX page started the scan.
 			expect(() =>
 				collectDemoFiles({

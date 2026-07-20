@@ -2,7 +2,7 @@
 
 Notable changes to `@live-demo/rspress`, kept in the style of
 [Keep a Changelog](https://keepachangelog.com/). This project uses semantic
-versioning — entries under **Breaking** bump the major version. This file
+versioning: entries under **Breaking** bump the major version. This file
 starts with the 3.0 major; earlier history is in git log.
 
 ## [Unreleased]
@@ -26,9 +26,9 @@ none:
   layout per-page (only into pages that contain a demo) rather than
   registering it via `markdown.globalComponents`. The default layout
   (`static/LiveDemo.tsx`) also loads `Core` behind `React.lazy`/`Suspense`
-  instead of a static import — without that, the consuming bundler's own
-  module concatenation can still pull the demo graph — CodeMirror, the
-  virtual-modules bundle with every collected external — into a chunk shared
+  instead of a static import. Without that, the consuming bundler's own
+  module concatenation can still pull the demo graph (CodeMirror, the
+  virtual-modules bundle with every collected external) into a chunk shared
   by every page.
 
 #### New: `@live-demo/rspress/web/lazy`
@@ -46,7 +46,7 @@ It owns the async boundary and both of its failure modes: a loading skeleton
 while the runtime chunk arrives, and an inline "couldn't load" message if it
 never does. A static import of anything from `@live-demo/rspress/web` pulls
 the whole demo runtime into the importer's chunk, so `customLayout` authors
-who reached for `Core` directly should switch to this — it's a separate build
+who reached for `Core` directly should switch to this. It's a separate build
 entry precisely so it can be imported statically without that cost.
 
 Breaking for anything that relied on `window.Babel` / `window.rollup` or on a
@@ -61,15 +61,15 @@ chunk load can need a page reload to recover.
 Both build-time (Node) and runtime (browser) errors thrown by the plugin
 itself now go through `LiveDemoError`, a typed error carrying a `code` and a
 `.payload` (`{ code, title, message?, hint?, notes? }`). `.message` is the
-fully formatted, multi-line text — prefixed `[live-demo]` — since at build
+fully formatted, multi-line text (prefixed `[live-demo]`). At build
 time rspress owns the terminal and there's no separate renderer to hand a
 payload to.
 
 Breaking for anything that pattern-matched on the exact previous wording of
 a thrown error (e.g. `"[LiveDemo]: Couldn't resolve..."` is now
 `"[live-demo] Import couldn't be resolved\nCouldn't resolve..."`). The
-in-preview error overlay also now renders the structured payload — title,
-message, hint — instead of dumping `error.message` verbatim; this only
+in-preview error overlay also now renders the structured payload (title,
+message, hint) instead of dumping `error.message` verbatim. This only
 applies to the plugin's own errors, not runtime errors thrown by demo code
 itself, which render unchanged.
 
@@ -77,15 +77,15 @@ itself, which render unchanged.
 
 Previously a genuinely-missing file and an import with an unsupported
 extension (e.g. `import "./styles.css"`) both threw `IMPORT_NOT_RESOLVED`
-with the same "Only .js(x) and .ts(x) files are supported" hint — misleading
-for the missing-file case, since the typo'd path could exist under a
+with the same "Only .js(x) and .ts(x) files are supported" hint. This was
+misleading for the missing-file case, since the typo'd path could exist under a
 different extension. The unsupported-extension case now throws
 `IMPORT_EXTENSION_NOT_SUPPORTED` instead, and the not-found hint no longer
 mentions extensions.
 
 Both codes' messages now name the file whose import (or `<code src>`)
 couldn't be resolved and, when a demo's _own_ import fails rather than the
-`<code src>` reference itself, the MDX page that started the scan — so a
+`<code src>` reference itself, the MDX page that started the scan. This means a
 single broken import on a site with many demos no longer requires a manual
 hunt to find the source. Breaking for the same reason as the entry above:
 anything pattern-matching on the exact previous message.
@@ -109,8 +109,8 @@ export const App = () => {
 };
 ```
 
-Fix by importing what you use — which is what the demo needed to be
-copy-pasteable anyway:
+Fix by importing what you use (which is what the demo needed to be
+copy-pasteable anyway):
 
 ```jsx live
 import { useState } from "react";
@@ -122,7 +122,7 @@ export const App = () => {
 ```
 
 `import React from "react"` also still works. Type-only uses (`React.FC`,
-`React.ReactNode`) were never affected — they're erased before execution. JSX
+`React.ReactNode`) were never affected (they're erased before execution). JSX
 itself needs no import in either style; that part got _more_ permissive.
 
 #### `files` keys are demo-relative paths, not base names
@@ -186,7 +186,7 @@ consistent demo-authoring: `Core`, `ControlPanel`, `Editor`, `FileTabs`,
 `LiveDemoProvider`, `LiveDemoStringifiedProps`, `Preview`,
 `ResizablePanels`, `Wrapper`, `Button`.
 
-Removed — none were documented or used outside the package:
+Removed (none were documented or used outside the package):
 `CodeRunner`/`CodeRunnerProps` (only meaningful wired to `Preview`'s
 internal error state, not usable standalone), `useActiveCode`,
 `useLiveDemoContext`, `ButtonProps`, `EditorProps`, `FileTabsProps`,
@@ -197,8 +197,8 @@ internal error state, not usable standalone), `useActiveCode`,
 #### Inline ` ```lang live ` matching no longer triggers on substrings
 
 The remark transform checked `node.meta?.includes("live")`, so any meta
-string merely containing "live" — ` ```jsx live-off `, `alive`, `livestream`
-— was treated as a live demo. It now splits the meta string on whitespace
+string merely containing "live" (e.g., ` ```jsx live-off `, `alive`, `livestream`)
+was treated as a live demo. It now splits the meta string on whitespace
 and matches "live" as a whole token.
 
 #### A demo only downloads the externals it actually imports
@@ -214,8 +214,8 @@ chunk as the demo runtime. Any page with any demo downloaded all of them: on
 this repo's own docs site, a `useState` counter pulled in the three.js and
 `@react-three/*` packages belonging to a demo on an unrelated page.
 
-This is invisible to demo authors — `includeModules` and demo source are
-unchanged — but sites with a heavy external in one demo should see that
+This is invisible to demo authors (`includeModules` and demo source are
+unchanged), but sites with a heavy external in one demo should see that
 weight disappear from their other demo pages.
 
 Externals are no longer discovered only after bundling, which would have put
@@ -226,8 +226,8 @@ compiler. The first compile also no longer waits out the edit debounce.
 
 #### The preview pane shows a loading skeleton
 
-It previously stayed blank from mount until the first compile finished —
-through the compiler download, the bundle and the demo's externals. It now
+It previously stayed blank from mount until the first compile finished
+(through the compiler download, the bundle, and the demo's externals). It now
 shows a skeleton, and it's the same `PreviewSkeleton` component `web/lazy`
 already rendered while the runtime chunk loaded, so that area doesn't change
 appearance when `Core` mounts partway through the wait. Later edits are
@@ -252,7 +252,7 @@ this one for the second.
   dependencies.** Previously a type-only external import (e.g. from a
   types-only package) was bundled like a real one, and could fail the build
   if rsbuild couldn't resolve it as a JS module. Mixed imports
-  (`import { type A, B }`) are unaffected — a value member keeps the
+  (`import { type A, B }`) are unaffected: a value member keeps the
   specifier collected.
 
 ### Newly warned
@@ -261,6 +261,6 @@ this one for the second.
   it** (e.g. added to an already-routed page during a dev session, after the
   scan phase that populates demo data last ran) now logs a console warning
   naming the file, and suggests restarting the dev server. It still renders
-  as an empty `<code>` element rather than a live demo — previously that
+  as an empty `<code>` element rather than a live demo. Previously that
   happened silently, and the empty element is hard to tell from a broken
   demo.

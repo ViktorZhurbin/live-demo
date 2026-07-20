@@ -13,7 +13,7 @@ import { getFnFromString } from "~web/compiler/getFnFromString";
  * The build step (node/) and the browser bundler (web/) never meet in the
  * unit tests: one produces the `files` record, the other consumes it, and
  * each is tested against its own hand-written fixtures. That seam is exactly
- * where a key-format change goes wrong — a build step keying files one way
+ * where a key-format change goes wrong. A build step keying files one way
  * and a resolver expecting another passes both halves' tests and still
  * renders nothing.
  *
@@ -117,7 +117,7 @@ describe("build-time output feeds the runtime bundler", () => {
 
 		const code = await bundleCode(demo);
 
-		// Nothing may survive as an unresolved bare import — that would mean
+		// Nothing may survive as an unresolved bare import. That would mean
 		// Rollup treated a local file as an external package.
 		expect(code).not.toMatch(/require\(["']\.\//);
 		for (const filePath of Object.keys(demo.files)) {
@@ -128,7 +128,7 @@ describe("build-time output feeds the runtime bundler", () => {
 	it("runs a demo whose entry file imports above its own directory", async () => {
 		// `../` imports are supported by design (`pathHelpers.ts`'s
 		// `resolveRelativePath`), but until now nothing ran one through the
-		// full build → runtime seam — only unit-tested in isolation on the
+		// full build → runtime seam. It was only unit-tested in isolation on the
 		// shared helper both halves use.
 		const { demo } = buildDemo("climbingDemo.mdx", "Climbing/App.tsx");
 
@@ -145,7 +145,7 @@ describe("build-time output feeds the runtime bundler", () => {
 
 	it("runs a demo whose files import each other circularly", async () => {
 		// The build step used to reject cycles outright. It doesn't, because
-		// they're legal in ES modules and Rollup bundles them correctly — this
+		// they're legal in ES modules and Rollup bundles them correctly. This
 		// executes one to prove the rejection was blocking working demos, and
 		// guards against reintroducing it.
 		const { demo } = buildDemo("circularDemo.mdx", "Circular/App.tsx");

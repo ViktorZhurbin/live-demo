@@ -9,8 +9,8 @@ const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
 
-// Demos are keyed by the raw `<code src>` reference — the MDX file plus the
-// verbatim src string — so tests look them up the same way the remark plugin
+// Demos are keyed by the raw `<code src>` reference: the MDX file plus the
+// verbatim src string. Tests look them up the same way the remark plugin
 // does (see `demoRefKey`), not by the resolved file path.
 const refKey = (mdxName: string, src: string) =>
 	demoRefKey(mdxPath(mdxName), src);
@@ -100,7 +100,7 @@ describe("visitFilePaths", () => {
 			demoDataByRef,
 		});
 
-		// Same src string, different MDX page — the page path in the key keeps
+		// Same src string, different MDX page; the page path in the key keeps
 		// them apart.
 		const demoA =
 			demoDataByRef[refKey("collidingSrc/a/page.mdx", "./SimpleComponent.tsx")];
@@ -207,8 +207,8 @@ describe("visitFilePaths", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByRef: DemoDataByRef = {};
 
-		// The failing import lives in MissingImport.tsx, not the MDX page —
-		// the error must name both, or a site with many demos is a hunt.
+		// The failing import lives in MissingImport.tsx, not the MDX page.
+		// The error must name both, or a site with many demos is a hunt.
 		expect(() =>
 			visitFilePaths({
 				filePaths: [mdxPath("brokenImport.mdx")],
@@ -225,7 +225,7 @@ describe("visitFilePaths", () => {
 		const demoDataByRef: DemoDataByRef = {};
 
 		// The scan is the phase that resolves `<code src>` against disk, so a
-		// genuinely missing src is a build error caught here — remarkPlugin no
+		// genuinely missing src is a build error caught here. remarkPlugin no
 		// longer re-resolves and would only warn (see its test).
 		expect(() =>
 			visitFilePaths({

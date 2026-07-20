@@ -19,7 +19,7 @@ export type ErrorTokens = {
 	/** The path genuinely doesn't exist under any supported extension. */
 	IMPORT_NOT_RESOLVED: ImportResolutionTokens;
 	/**
-	 * The specifier's extension isn't one `getPossiblePaths` allows — thrown
+	 * The specifier's extension isn't one `getPossiblePaths` allows. Thrown
 	 * before any existence check, so the file may or may not be on disk.
 	 */
 	IMPORT_EXTENSION_NOT_SUPPORTED: ImportResolutionTokens;
@@ -29,9 +29,9 @@ export type ErrorTokens = {
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };
 	PROVIDER_MISSING: undefined;
-	/** Thrown as generated code inside a demo bundle — see messages.ts header. */
+	/** Thrown as generated code inside a demo bundle (see messages.ts header). */
 	UNDEFINED_NAMED_IMPORT: { importName: string; pkg: string };
-	/** Thrown as generated code inside a demo bundle — see messages.ts header. */
+	/** Thrown as generated code inside a demo bundle (see messages.ts header). */
 	EXTERNAL_IMPORT_NOT_FOUND: { importName: string };
 	/** The lazily-imported Babel/Rollup chunk failed to load (see loadCompiler.ts). */
 	COMPILER_LOAD_FAILED: undefined;
