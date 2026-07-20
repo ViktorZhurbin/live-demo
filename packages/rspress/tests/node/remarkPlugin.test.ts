@@ -246,6 +246,34 @@ describe("remarkPlugin", () => {
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 
+		it("ignores meta strings that merely contain 'live' as a substring", () => {
+			const tree: Root = {
+				type: "root",
+				children: [
+					{ type: "code", lang: "jsx", meta: "live-off", value: "x" },
+					{ type: "code", lang: "jsx", meta: "alive", value: "x" },
+					{ type: "code", lang: "jsx", meta: "livestream", value: "x" },
+				] as never,
+			};
+
+			runPlugin(tree, { demoDataByPath: {} });
+
+			expect(findLiveDemoNodes(tree)).toHaveLength(0);
+		});
+
+		it("matches 'live' as one token among others in the meta string", () => {
+			const tree: Root = {
+				type: "root",
+				children: [
+					{ type: "code", lang: "jsx", meta: "live title=Foo", value: "x" },
+				] as never,
+			};
+
+			runPlugin(tree, { demoDataByPath: {} });
+
+			expect(findLiveDemoNodes(tree)).toHaveLength(1);
+		});
+
 		it("ignores live code blocks with an unsupported language", () => {
 			const tree: Root = {
 				type: "root",

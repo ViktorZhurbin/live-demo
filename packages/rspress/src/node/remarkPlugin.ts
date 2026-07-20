@@ -99,7 +99,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 		visit(tree, "code", (node) => {
 			if (!node?.lang) return;
 
-			const isLive = node.meta?.includes("live");
+			const isLive = node.meta?.split(/\s+/).includes("live");
 
 			if (!(isLive && isAllowedExt(node.lang))) return;
 

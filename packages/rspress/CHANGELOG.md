@@ -194,6 +194,13 @@ internal error state, not usable standalone), `useActiveCode`,
 
 ### Fixed
 
+#### Inline ` ```lang live ` matching no longer triggers on substrings
+
+The remark transform checked `node.meta?.includes("live")`, so any meta
+string merely containing "live" — ` ```jsx live-off `, `alive`, `livestream`
+— was treated as a live demo. It now splits the meta string on whitespace
+and matches "live" as a whole token.
+
 #### A demo only downloads the externals it actually imports
 
 The generated virtual module registers each external as a

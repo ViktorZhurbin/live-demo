@@ -4,7 +4,7 @@ Audited 2026-07-19 against commit `7afaea3` (working tree clean; this file is
 the only addition). Compared throughout with the upstream source this package
 forked from (`.claude/.tmp/plugin-playground/src/cli/`).
 
-Pruned 2026-07-20: F1–F3 shipped (see CHANGELOG and git history for what
+Pruned 2026-07-20: F1–F3, F5 shipped (see CHANGELOG and git history for what
 changed); their write-ups are gone from here since a fixed finding has no
 ongoing value. This file now only tracks what's still open.
 
@@ -43,12 +43,6 @@ class below (F7).
 
 Severity: HIGH / MED / LOW. Tag: **breaking** (consumer-visible contract) vs
 **internal** (fix is consumer-visible only as improvement → CHANGELOG).
-
-### F5 · LOW · internal — `meta?.includes("live")` is substring matching
-
-`remarkPlugin.ts:91`: ` ```jsx live-off ` or any meta _containing_ `live`
-(`alive`, `livestream`) becomes a demo. Match on whitespace-split tokens.
-(Upstream had the same flaw with `pure`/`playground`.)
 
 ### F6 · LOW · internal — the docs' own `<code src>` syntax is untested
 
