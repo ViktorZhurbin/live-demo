@@ -47,6 +47,13 @@ jobs:
       - name: Build website
         run: pnpm --filter website build
 
+      - name: Upload website build
+        uses: actions/upload-artifact@v6
+        with:
+          name: website-build
+          path: website/doc_build/
+          retention-days: 1
+
       # Playwright's own CI docs advise against caching browser binaries:
       # restoring the cache costs about as much as re-downloading, and the
       # OS-level deps `--with-deps` also installs aren't cacheable anyway.
@@ -58,8 +65,29 @@ jobs:
 
       - name: Upload Playwright traces on failure
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-traces
           path: website/test-results/
           retention-days: 30
+
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download website build
+        uses: actions/download-artifact@v6
+        with:
+          name: website-build
+          path: doc_build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: npm
+          command: pages deploy doc_build --project-name=live-demo --branch=main
