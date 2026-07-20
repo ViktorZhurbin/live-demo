@@ -4,13 +4,19 @@ import type { Root } from "mdast";
 import type { MdxJsxFlowElement, MdxjsEsm } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
 import { describe, expect, it, vi } from "vitest";
+import { demoRefKey } from "~node/helpers/demoRefKey";
 import { getMdxAst } from "~node/helpers/getMdxAst";
 import { remarkPlugin } from "~node/remarkPlugin";
-import type { DemoDataByPath } from "~shared/types";
+import type { DemoDataByRef } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
-const validPath = (name: string) => path.join(FIXTURES_DIR, "valid", name);
+
+// Demos are keyed by the raw `<code src>` reference — the MDX page plus the
+// verbatim src string (see `demoRefKey`). Tests seed `demoDataByRef` with the
+// same key the plugin will look up, i.e. the `vfilePath` they run under.
+const refKey = (mdxName: string, src: string) =>
+	demoRefKey(mdxPath(mdxName), src);
 
 // The JSX element name both transforms emit; mangled to avoid colliding with
 // a page's own bindings (kept in sync with remarkPlugin.ts).
@@ -22,9 +28,10 @@ const LAYOUT_PATH = "/layout/LiveDemo.tsx";
 const parseFixture = (name: string) => getMdxAst(mdxPath(name)) as Root;
 
 /**
- * `vfilePath` stands in for the MDX file's own path, which the plugin uses
- * to resolve `<code src>`. Tests exercising `<code src>` must pass the same
- * fixture path used by `parseFixture` so resolution lands on the same file.
+ * `vfilePath` stands in for the MDX file's own path. The plugin keys demo data
+ * by it (plus each `<code src>` string), so tests exercising `<code src>` must
+ * pass the same fixture path used by `parseFixture` — and seed `demoDataByRef`
+ * under `refKey(thatFixture, src)`.
  */
 const runPlugin = (
 	tree: Root,
@@ -84,8 +91,8 @@ describe("remarkPlugin", () => {
 	describe("external <code src> demos", () => {
 		it("transforms <code src> into <LiveDemo> using matching demo data", () => {
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByPath: DemoDataByPath = {
-				[validPath("SimpleComponent.tsx")]: {
+			const demoDataByRef: DemoDataByRef = {
+				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: {
 						"SimpleComponent.tsx":
@@ -94,7 +101,7 @@ describe("remarkPlugin", () => {
 				},
 			};
 
-			runPlugin(tree, { demoDataByPath });
+			runPlugin(tree, { demoDataByRef });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
@@ -104,10 +111,10 @@ describe("remarkPlugin", () => {
 			});
 		});
 
-		it("leaves <code src> untouched but warns when no demo data matches the path", () => {
+		it("leaves <code src> untouched but warns when no demo data matches its reference", () => {
 			const tree = parseFixture("externalDemo.mdx");
 
-			const { warnings } = runPlugin(tree, { demoDataByPath: {} });
+			const { warnings } = runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 			expect(warnings).toHaveLength(1);
@@ -120,30 +127,36 @@ describe("remarkPlugin", () => {
 			expect(codeNodeStillPresent).toBe(true);
 		});
 
-		it("throws, naming the MDX page, when the <code src> itself can't be resolved", () => {
-			// Unlike the no-demo-data case above (src resolves, scan missed it),
-			// here the src path doesn't exist at all — that's a build error, and
-			// the MDX page is the importer.
+		it("warns rather than throws for a <code src> to a missing file — resolution now lives only in the scan phase", () => {
+			// remarkPlugin no longer resolves src against disk. A genuinely
+			// missing file is caught earlier by `visitFilePaths` (see its test);
+			// here, with nothing recorded for this reference, the node is left as
+			// an empty <code> and a warning fires — the same path as any other
+			// unmatched reference.
 			const tree = parseFixture("missingSrc.mdx");
 
-			expect(() =>
-				runPlugin(tree, { demoDataByPath: {} }, mdxPath("missingSrc.mdx")),
-			).toThrow(
-				/Couldn't resolve `\.\/DoesNotExist\.tsx` from `.*missingSrc\.mdx`/,
+			const { warnings } = runPlugin(
+				tree,
+				{ demoDataByRef: {} },
+				mdxPath("missingSrc.mdx"),
 			);
+
+			expect(findLiveDemoNodes(tree)).toHaveLength(0);
+			expect(warnings).toHaveLength(1);
+			expect(warnings[0]).toContain("No demo data for");
 		});
 
 		it("merges UI options into the LiveDemo props when provided", () => {
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByPath: DemoDataByPath = {
-				[validPath("SimpleComponent.tsx")]: {
+			const demoDataByRef: DemoDataByRef = {
+				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "..." },
 				},
 			};
 			const options = { controlPanel: { hide: true } };
 
-			runPlugin(tree, { options, demoDataByPath });
+			runPlugin(tree, { options, demoDataByRef });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(getAttr(node, "options")).toEqual(options);
@@ -151,14 +164,14 @@ describe("remarkPlugin", () => {
 
 		it("omits the options attribute entirely when none are provided", () => {
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByPath: DemoDataByPath = {
-				[validPath("SimpleComponent.tsx")]: {
+			const demoDataByRef: DemoDataByRef = {
+				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "..." },
 				},
 			};
 
-			runPlugin(tree, { demoDataByPath });
+			runPlugin(tree, { demoDataByRef });
 
 			const [node] = findLiveDemoNodes(tree);
 			const hasOptionsAttr = node.attributes.some(
@@ -169,18 +182,18 @@ describe("remarkPlugin", () => {
 
 		it("transforms multiple <code src> demos in the same file independently", () => {
 			const tree = parseFixture("multiFileDemo.mdx");
-			const demoDataByPath: DemoDataByPath = {
-				[validPath("MultiFile/App.tsx")]: {
+			const demoDataByRef: DemoDataByRef = {
+				[refKey("multiFileDemo.mdx", "../valid/MultiFile/App.tsx")]: {
 					entryFileName: "App.tsx",
 					files: { "App.tsx": "...", "Button.tsx": "..." },
 				},
-				[validPath("ComponentWithImports.tsx")]: {
+				[refKey("multiFileDemo.mdx", "../valid/ComponentWithImports.tsx")]: {
 					entryFileName: "ComponentWithImports.tsx",
 					files: { "ComponentWithImports.tsx": "..." },
 				},
 			};
 
-			runPlugin(tree, { demoDataByPath }, mdxPath("multiFileDemo.mdx"));
+			runPlugin(tree, { demoDataByRef }, mdxPath("multiFileDemo.mdx"));
 
 			const nodes = findLiveDemoNodes(tree);
 			expect(nodes).toHaveLength(2);
@@ -190,23 +203,23 @@ describe("remarkPlugin", () => {
 			]);
 		});
 
-		it("resolves an identical <code src> string against each page's own directory, not a colliding key", () => {
+		it("keys an identical <code src> string by its own page, so two pages don't collide", () => {
 			const treeA = parseFixture("collidingSrc/a/page.mdx");
 			const treeB = parseFixture("collidingSrc/b/page.mdx");
 
-			const demoDataByPath: DemoDataByPath = {
-				[mdxPath("collidingSrc/a/SimpleComponent.tsx")]: {
+			const demoDataByRef: DemoDataByRef = {
+				[refKey("collidingSrc/a/page.mdx", "./SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "A" },
 				},
-				[mdxPath("collidingSrc/b/SimpleComponent.tsx")]: {
+				[refKey("collidingSrc/b/page.mdx", "./SimpleComponent.tsx")]: {
 					entryFileName: "SimpleComponent.tsx",
 					files: { "SimpleComponent.tsx": "B" },
 				},
 			};
 
-			runPlugin(treeA, { demoDataByPath }, mdxPath("collidingSrc/a/page.mdx"));
-			runPlugin(treeB, { demoDataByPath }, mdxPath("collidingSrc/b/page.mdx"));
+			runPlugin(treeA, { demoDataByRef }, mdxPath("collidingSrc/a/page.mdx"));
+			runPlugin(treeB, { demoDataByRef }, mdxPath("collidingSrc/b/page.mdx"));
 
 			const [nodeA] = findLiveDemoNodes(treeA);
 			const [nodeB] = findLiveDemoNodes(treeB);
@@ -220,7 +233,7 @@ describe("remarkPlugin", () => {
 		it("transforms an inline live code block into <LiveDemo>", () => {
 			const tree = parseFixture("inlineDemo.mdx");
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
@@ -241,7 +254,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -256,7 +269,7 @@ describe("remarkPlugin", () => {
 				] as never,
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -269,7 +282,7 @@ describe("remarkPlugin", () => {
 				] as never,
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(1);
 		});
@@ -287,7 +300,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -308,7 +321,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -326,14 +339,14 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			expect(() => runPlugin(tree, { demoDataByPath: {} })).not.toThrow();
+			expect(() => runPlugin(tree, { demoDataByRef: {} })).not.toThrow();
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 	});
 
 	describe("per-page layout import", () => {
-		const demoDataByPath: DemoDataByPath = {
-			[validPath("SimpleComponent.tsx")]: {
+		const demoDataByRef: DemoDataByRef = {
+			[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
 				entryFileName: "SimpleComponent.tsx",
 				files: { "SimpleComponent.tsx": "..." },
 			},
@@ -342,7 +355,7 @@ describe("remarkPlugin", () => {
 		it("prepends the layout import as the first child when a demo is present", () => {
 			const tree = parseFixture("externalDemo.mdx");
 
-			runPlugin(tree, { demoDataByPath });
+			runPlugin(tree, { demoDataByRef });
 
 			const importNode = findLayoutImport(tree);
 			// First child so the binding is in scope for the demo nodes below it.
@@ -360,15 +373,16 @@ describe("remarkPlugin", () => {
 			runPlugin(
 				tree,
 				{
-					demoDataByPath: {
-						[validPath("MultiFile/App.tsx")]: {
+					demoDataByRef: {
+						[refKey("multiFileDemo.mdx", "../valid/MultiFile/App.tsx")]: {
 							entryFileName: "App.tsx",
 							files: { "App.tsx": "...", "Button.tsx": "..." },
 						},
-						[validPath("ComponentWithImports.tsx")]: {
-							entryFileName: "ComponentWithImports.tsx",
-							files: { "ComponentWithImports.tsx": "..." },
-						},
+						[refKey("multiFileDemo.mdx", "../valid/ComponentWithImports.tsx")]:
+							{
+								entryFileName: "ComponentWithImports.tsx",
+								files: { "ComponentWithImports.tsx": "..." },
+							},
 					},
 				},
 				mdxPath("multiFileDemo.mdx"),
@@ -385,7 +399,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByPath: {} });
+			runPlugin(tree, { demoDataByRef: {} });
 
 			expect(findLayoutImport(tree)).toBeUndefined();
 		});

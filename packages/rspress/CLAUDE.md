@@ -38,8 +38,10 @@ Two phases:
 **Build time (Node.js, `src/node/` + `src/plugin/`)** — `src/plugin/plugin.ts`
 is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
 `routeGenerated` it scans MDX files (`visitFilePaths.ts`) and for each
-`<code src="..."/>` or ` ```lang live ` block collects the entry file and
-everything it transitively imports (`collectDemoFiles.ts`).
+`<code src="..."/>` block collects the entry file and everything it
+transitively imports (`collectDemoFiles.ts`). Inline ` ```lang live ` blocks
+never reach this scan — `remarkPlugin.ts` turns them into `<LiveDemo>`
+directly, without collecting their imports (see "Limitations" below).
 External imports (react, etc.) are collected across all demos and exported
 from one generated virtual module (`getVirtualModulesCode.ts`) — as lazy
 `() => import(...)` thunks, since that one module is shared by the whole site
@@ -53,7 +55,8 @@ injection alone isn't enough to keep the runtime graph off other pages: the
 default layout (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy` —
 a static top-level import of `Core` gets scope-hoisted by the consumer's
 bundler into a chunk shared across every page regardless of which pages
-import the layout (see `AUDIT.md` F1).
+import the layout (see CHANGELOG.md "Demo machinery no longer loads on
+every page").
 
 That async boundary is packaged as `@live-demo/rspress/web/lazy`
 (`src/web/lazy.tsx`) — a **separate build entry**, not an export of the
@@ -100,6 +103,10 @@ relative to the entry file's directory**, posix-style. The build step
 `tests/integration/buildToRuntime.test.ts`, the only test that spans the seam.
 Every unit test on either half can pass while a demo renders nothing.
 
+A second, build-internal seam: the scan (`visitFilePaths.ts`) and the remark
+transform (`remarkPlugin.ts`) are separate parses of the same MDX, so results
+cross via `demoDataByRef`, keyed by `demoRefKey.ts`'s raw `(mdxPath, src)`.
+
 Note that build time deliberately does _not_ bundle: see `collectDemoFiles.ts` for why.
 
 ### Build & Verify Gotchas
@@ -135,6 +142,9 @@ src/
 - **JSDoc prose**: only when the name and TypeScript's own types don't already
   convey intent. This is TypeScript — don't add `@param`/`@returns` blocks
   that repeat a type signature.
+- **Concision**: prefer the shortest comment that still carries the why. A
+  docblock past ~8 lines is a smell — say the rationale once, in the file that
+  owns it, and have other call sites reference it instead of re-explaining.
 
 ## Testing
 

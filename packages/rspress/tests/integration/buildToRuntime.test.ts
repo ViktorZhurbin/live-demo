@@ -3,8 +3,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import { demoRefKey } from "~node/helpers/demoRefKey";
 import { visitFilePaths } from "~node/visitFilePaths";
-import type { DemoDataByPath, UniqueImports } from "~shared/types";
+import type { DemoDataByRef, UniqueImports } from "~shared/types";
 import { bundleCode } from "~web/compiler/bundleCode";
 import { getFnFromString } from "~web/compiler/getFnFromString";
 
@@ -69,17 +70,16 @@ beforeAll(() => {
 
 const buildDemo = (mdxFixture: string, demoPathUnderValid: string) => {
 	const uniqueImports: UniqueImports = new Set();
-	const demoDataByPath: DemoDataByPath = {};
+	const demoDataByRef: DemoDataByRef = {};
 
-	visitFilePaths({
-		filePaths: [path.join(FIXTURES_DIR, "mdx", mdxFixture)],
-		uniqueImports,
-		demoDataByPath,
-	});
+	const mdxPath = path.join(FIXTURES_DIR, "mdx", mdxFixture);
+	visitFilePaths({ filePaths: [mdxPath], uniqueImports, demoDataByRef });
 
-	const absolutePath = path.join(FIXTURES_DIR, "valid", demoPathUnderValid);
-	const demo = demoDataByPath[absolutePath];
-	expect(demo, `no demo data for ${absolutePath}`).toBeDefined();
+	// Every fixture here references its demo as `../valid/<pathUnderValid>`, so
+	// its stored key is the ref built from that src string (see `demoRefKey`).
+	const key = demoRefKey(mdxPath, `../valid/${demoPathUnderValid}`);
+	const demo = demoDataByRef[key];
+	expect(demo, `no demo data for ${key}`).toBeDefined();
 
 	return { demo, uniqueImports };
 };
@@ -123,6 +123,24 @@ describe("build-time output feeds the runtime bundler", () => {
 		for (const filePath of Object.keys(demo.files)) {
 			expect(code).not.toContain(`'${filePath}'`);
 		}
+	});
+
+	it("runs a demo whose entry file imports above its own directory", async () => {
+		// `../` imports are supported by design (`pathHelpers.ts`'s
+		// `resolveRelativePath`), but until now nothing ran one through the
+		// full build → runtime seam — only unit-tested in isolation on the
+		// shared helper both halves use.
+		const { demo } = buildDemo("climbingDemo.mdx", "Climbing/App.tsx");
+
+		expect(Object.keys(demo.files).sort()).toEqual([
+			"../shared/theme.ts",
+			"App.tsx",
+		]);
+
+		const code = await bundleCode(demo);
+		const component = getFnFromString(code);
+
+		expect(component({})).toBe("<div>THEMED</div>");
 	});
 
 	it("runs a demo whose files import each other circularly", async () => {

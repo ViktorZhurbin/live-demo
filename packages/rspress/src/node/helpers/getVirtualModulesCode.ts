@@ -70,11 +70,11 @@ function getImport(importName, getDefault) {
     throw new Error(\`${importNotFoundMessage}\`)
   }
 
-	if (getDefault && typeof result === "object") {
-		return result.default || result
-	}
+  if (getDefault && typeof result === "object") {
+    return result.default || result
+  }
 
-	return result
+  return result
 }
 
 export default getImport`;

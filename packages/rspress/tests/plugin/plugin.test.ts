@@ -12,7 +12,7 @@ vi.mock("rsbuild-plugin-virtual-module", () => ({
 
 const { liveDemoPluginRspress } = await import("../../src/plugin/plugin");
 
-// remarkPlugins is `[[remarkPlugin, { demoDataByPath, layoutPath, options }]]`;
+// remarkPlugins is `[[remarkPlugin, { demoDataByRef, layoutPath, options }]]`;
 // rspress types the entry loosely, matching getVirtualModuleHandler below.
 const getRemarkLayoutPath = (plugin: any): string =>
 	plugin.markdown?.remarkPlugins?.[0]?.[1]?.layoutPath;

@@ -8,9 +8,10 @@ import path from "node:path";
 
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
-import type { DemoDataByPath, UniqueImports } from "~shared/types";
+import type { DemoDataByRef, UniqueImports } from "~shared/types";
 
 import { collectDemoFiles } from "./helpers/collectDemoFiles";
+import { demoRefKey } from "./helpers/demoRefKey";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
@@ -18,16 +19,16 @@ import { resolveFileInfo } from "./helpers/resolveFileInfo";
 /**
  * Scans `<code src>` demos only — inline ` ```lang live ` blocks are handled
  * entirely by `remarkPlugin` and never reach this function. `uniqueImports`
- * and `demoDataByPath` are both mutated in place.
+ * and `demoDataByRef` are both mutated in place.
  */
 export const visitFilePaths = ({
 	filePaths,
 	uniqueImports,
-	demoDataByPath,
+	demoDataByRef,
 }: {
 	filePaths: string[];
 	uniqueImports: UniqueImports;
-	demoDataByPath: DemoDataByPath;
+	demoDataByRef: DemoDataByRef;
 }) => {
 	for (const filePath of filePaths) {
 		if (!filePath.endsWith(".mdx")) continue;
@@ -56,9 +57,11 @@ export const visitFilePaths = ({
 				uniqueImports.add(externalImport);
 			}
 
-			// Keyed for the remark plugin, which runs later and looks up by the
-			// same absolute path to rewrite this node into <LiveDemo files={...} />
-			demoDataByPath[entryFile.absolutePath] = {
+			// Keyed by the raw `<code src>` reference so the remark plugin, which
+			// runs later on a separate parse, can look it up without resolving
+			// against disk a second time. See `demoRefKey`.
+			const refKey = demoRefKey(filePath, importPath);
+			demoDataByRef[refKey] = {
 				files,
 				entryFileName: entryFile.fileName,
 				// Kept per demo as well as folded into the sitewide set above: the

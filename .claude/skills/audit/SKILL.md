@@ -80,9 +80,8 @@ odd code itself (e.g. a suspicious `display: none`).
 - To prove a test actually guards something, break the source deliberately
   and confirm it fails. This is how overstated findings get caught.
 
-**Record corrections.** When a finding turns out wrong or overstated, amend
-it in place in the output doc and say so. An audit that only accumulates
-claims can't be trusted.
+**Record corrections.** When a finding turns out wrong or overstated, remove it from
+the output doc.
 
 **Tag breaking vs. internal as you go.** Nearly free during the pass,
 expensive to reconstruct later — and it's what makes the doc usable for
@@ -102,14 +101,7 @@ restate it elsewhere.
 One file (e.g. `<package>/AUDIT.md`), amended in place as items resolve. It
 must be readable **cold**, by someone with no context:
 
-- state of the working tree — what's uncommitted
-- the exact verify command, and which directory to run it from
-- **Decisions — do not re-litigate**: a table with the source of each
-- Done / Next / Not yet audited
 - findings, each with severity and a breaking/internal tag
-
-Say plainly what shipped **unverified**. If a layer has no automated
-coverage, name it once, loudly, and note who verifies it instead.
 
 ## Retiring findings as they resolve
 
@@ -120,9 +112,6 @@ The findings doc is temporary. As each finding resolves:
    A behavior change goes in `CHANGELOG.md`. A rationale the code needs goes
    in a comment at the relevant line. Nothing to home? The finding likely
    wasn't durable enough to need one.
-2. **Then compress the entry** to a one-line pointer ("see `X.ts`'s
-   comment", "see CHANGELOG"). Early on, the doc's job is proving findings
+2. **Then remove the entry**. Early on, the doc's job is proving findings
    are real; near the end it's tracking what's still open — don't leave
-   resolved items at full length once they're no longer doing that job.
-3. **Before deleting the file**, re-scan every "Decisions — do not
-   re-litigate" row and every DONE item for content with no home yet.
+   resolved items.

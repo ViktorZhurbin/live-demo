@@ -7,7 +7,7 @@ import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
 import { remarkPlugin } from "~node/remarkPlugin";
 import { visitFilePaths } from "~node/visitFilePaths";
 import { LiveDemoError } from "~shared/errors";
-import type { DemoDataByPath, LiveDemoPluginOptions } from "~shared/types";
+import type { DemoDataByRef, LiveDemoPluginOptions } from "~shared/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,7 +46,7 @@ export const liveDemoPluginRspress = (
 		throw new LiveDemoError("INVALID_CUSTOM_LAYOUT", { customLayout });
 	}
 
-	const demoDataByPath: DemoDataByPath = {};
+	const demoDataByRef: DemoDataByRef = {};
 
 	const extraModules = includeModules || [];
 	const uniqueImports = new Set(defaultModules.concat(extraModules));
@@ -65,7 +65,7 @@ export const liveDemoPluginRspress = (
 			visitFilePaths({
 				filePaths: filePaths,
 				uniqueImports,
-				demoDataByPath,
+				demoDataByRef,
 			});
 		},
 
@@ -82,7 +82,7 @@ export const liveDemoPluginRspress = (
 
 		markdown: {
 			remarkPlugins: [
-				[remarkPlugin, { demoDataByPath, layoutPath, options: options?.ui }],
+				[remarkPlugin, { demoDataByRef, layoutPath, options: options?.ui }],
 			],
 		},
 	};

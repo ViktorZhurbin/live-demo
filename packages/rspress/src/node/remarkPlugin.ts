@@ -4,26 +4,24 @@
  * 1. External examples: <code src="./Component.tsx" /> → <LiveDemo files={...} />
  * 2. Inline examples: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
  */
-import path from "node:path";
-
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { isAllowedExt } from "~shared/pathHelpers";
 import type {
-	DemoDataByPath,
+	DemoDataByRef,
 	LiveDemoPluginOptions,
 	LiveDemoPropsFromPlugin,
 } from "~shared/types";
 
 import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
+import { demoRefKey } from "./helpers/demoRefKey";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
-import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 type RemarkPluginProps = {
 	options?: LiveDemoPluginOptions["ui"];
-	demoDataByPath: DemoDataByPath; // Analyzed demo files
+	demoDataByRef: DemoDataByRef; // Analyzed demo files
 	layoutPath: string; // Layout component to import into pages that use a demo
 };
 
@@ -34,7 +32,7 @@ const LIVE_DEMO_NAME = "_LiveDemo";
 
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
-	demoDataByPath,
+	demoDataByRef,
 	layoutPath,
 }) => {
 	return (tree, vfile) => {
@@ -49,20 +47,14 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			if (typeof importPath !== "string") return;
 
-			const { absolutePath } = resolveFileInfo({
-				importPath,
-				dirname: path.dirname(vfile.path),
-				importer: vfile.path,
-			});
+			const refKey = demoRefKey(vfile.path, importPath);
+			const demoData = demoDataByRef[refKey];
 
-			const demoData = demoDataByPath[absolutePath];
-
-			// Resolves fine here, but the earlier scan phase (`visitFilePaths`)
-			// never recorded it: `routeGenerated` runs once per dev server
-			// process, so adding a new <code src> to an already-routed page
-			// triggers this recompile without rescanning. The node is left
-			// alone, which renders as an empty <code> element — indistinguishable
-			// from a broken demo, hence the warning.
+			// Missing means the scan never recorded it: `routeGenerated` runs
+			// once per dev server process, so adding a new <code src> to an
+			// already-routed page triggers this recompile without rescanning. The
+			// node is left alone, which renders as an empty <code> element —
+			// indistinguishable from a broken demo, hence the warning.
 			//
 			// `console.warn`, not `vfile.message`: rspress's MDX pipeline
 			// collects vfile messages but never prints them, so that route is

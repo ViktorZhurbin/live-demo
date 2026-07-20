@@ -13,8 +13,10 @@ import type { PathWithAllowedExt } from "~shared/types";
 type ReadAndParseFile = {
 	/**
 	 * Path relative to the entry file's directory — the key this file gets in
-	 * the `files` record (see `collectDemoFiles`). Only read for error
-	 * messages here; nothing in this module resolves it against disk.
+	 * the `files` record (see `collectDemoFiles`). Not resolved against disk
+	 * here, but its extension is important: `parseSync` below uses it to
+	 * pick the parser's language, so don't replace it with a base name or an
+	 * extension-less path.
 	 */
 	filePath: string;
 	absolutePath: PathWithAllowedExt;

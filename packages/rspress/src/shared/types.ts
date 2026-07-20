@@ -10,9 +10,10 @@ export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
 export type LiveDemoFiles = Record<string, string>;
 
 /**
- * Keyed by the entry file's resolved absolute path.
+ * Collected demo data, keyed by each `<code src>`'s raw reference — see
+ * `demoRefKey`. The scan phase writes it; the remark transform reads it back.
  */
-export type DemoDataByPath = Record<string, LiveDemoPropsFromPlugin>;
+export type DemoDataByRef = Record<string, LiveDemoPropsFromPlugin>;
 
 /** External package names collected across all demos on a page, for `getVirtualModulesCode`. */
 export type UniqueImports = Set<string>;
