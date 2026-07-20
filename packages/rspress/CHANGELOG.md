@@ -211,6 +211,26 @@ This is invisible to demo authors — `includeModules` and demo source are
 unchanged — but sites with a heavy external in one demo should see that
 weight disappear from their other demo pages.
 
+Externals are no longer discovered only after bundling, which would have put
+them at the end of a serial chain (runtime chunk → Babel/Rollup → bundle →
+externals). The build step records what each `<code src>` demo imports, and
+the runtime starts fetching them when the demo mounts, alongside the
+compiler. The first compile also no longer waits out the edit debounce.
+
+#### The preview pane shows a loading skeleton
+
+It previously stayed blank from mount until the first compile finished —
+through the compiler download, the bundle and the demo's externals. It now
+shows a skeleton, and it's the same `PreviewSkeleton` component `web/lazy`
+already rendered while the runtime chunk loaded, so that area doesn't change
+appearance when `Core` mounts partway through the wait. Later edits are
+unaffected: the last good render stays mounted rather than flashing a
+skeleton on every keystroke.
+
+A `customLayout` that reimplements `web/lazy`'s fallback rather than
+rendering `LiveDemoLazy` will show its own treatment for the first phase and
+this one for the second.
+
 ### Newly allowed
 
 - **Circular imports** no longer fail the build. They're legal in ES modules

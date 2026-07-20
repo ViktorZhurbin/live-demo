@@ -61,6 +61,10 @@ export const visitFilePaths = ({
 			demoDataByPath[entryFile.absolutePath] = {
 				files,
 				entryFileName: entryFile.fileName,
+				// Kept per demo as well as folded into the sitewide set above: the
+				// set decides what the virtual module can resolve, this list lets
+				// the runtime prefetch just this demo's share of it.
+				externalImports: [...externalImports],
 			};
 		});
 	}

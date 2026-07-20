@@ -34,7 +34,7 @@ const ErrorContent = ({ error }: { error: Error }) => {
 };
 
 export const Preview = () => {
-	const { files, entryFileName } = useLiveDemoContext();
+	const { files, entryFileName, externalImports } = useLiveDemoContext();
 	const [error, setError] = useState<Error | undefined>();
 
 	const errorOverlay = error ? (
@@ -58,6 +58,7 @@ export const Preview = () => {
 				<CodeRunner
 					files={files}
 					entryFileName={entryFileName}
+					externalImports={externalImports}
 					error={error}
 					setError={setError}
 				/>

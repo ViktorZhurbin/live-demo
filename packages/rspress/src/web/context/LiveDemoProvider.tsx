@@ -25,6 +25,7 @@ type LiveDemoContextValue = {
 	fullscreen: ReturnType<typeof useFullscreenElement>;
 	options: LiveDemoPropsFromPlugin["options"];
 	entryFileName: LiveDemoPropsFromPlugin["entryFileName"];
+	externalImports: LiveDemoPropsFromPlugin["externalImports"];
 };
 
 const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
@@ -78,6 +79,7 @@ function LiveDemoProvider({
 
 				options: pluginProps.options,
 				entryFileName: pluginProps.entryFileName,
+				externalImports: pluginProps.externalImports,
 			}}
 		>
 			{children}

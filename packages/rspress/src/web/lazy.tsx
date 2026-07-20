@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import { PreviewSkeleton } from "./PreviewSkeleton";
 import type { LiveDemoStringifiedProps } from "./types";
 
 /**
@@ -30,7 +31,7 @@ const Core = lazy(() =>
 );
 
 // Arbitrary; just has to look like code rather than a progress bar.
-const SKELETON_LINE_WIDTHS = ["70%", "90%", "40%", "80%", "55%"];
+const EDITOR_SKELETON_LINE_WIDTHS = ["70%", "90%", "40%", "80%", "55%"];
 
 const LoadingFallback = () => (
 	<div className="live-demo-fallback">
@@ -44,7 +45,7 @@ const LoadingFallback = () => (
 		</div>
 		<div className="live-demo-fallback-panels">
 			<div className="live-demo-fallback-editor">
-				{SKELETON_LINE_WIDTHS.map((width) => (
+				{EDITOR_SKELETON_LINE_WIDTHS.map((width) => (
 					<div
 						key={width}
 						className="live-demo-fallback-shape live-demo-fallback-line"
@@ -52,7 +53,12 @@ const LoadingFallback = () => (
 					/>
 				))}
 			</div>
-			<div className="live-demo-fallback-preview">Loading demo…</div>
+			{/* Same component `CodeRunner` renders into the real preview pane, so
+			    this slot doesn't change appearance when `Core` mounts and the
+			    wait continues through the first compile. */}
+			<div className="live-demo-fallback-preview">
+				<PreviewSkeleton />
+			</div>
 		</div>
 	</div>
 );

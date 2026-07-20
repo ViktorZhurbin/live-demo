@@ -51,6 +51,26 @@
 	color: var(--live-demo-colors-clickable);
 }
 
+/* `PreviewSkeleton`'s own rows. Lives here rather than in a CSS module because
+   that component is also rendered by `web/lazy`, before any hashed class name
+   exists — see its docblock. Both call sites (the pane above, and `Preview`'s
+   wrapper once `Core` has mounted) already center their child, so this only
+   has to size and stack itself. */
+.live-demo-fallback-preview-body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	max-width: 260px;
+}
+
+.live-demo-fallback-preview-label {
+	color: var(--live-demo-colors-clickable);
+	font-size: 0.85rem;
+	margin-bottom: 2px;
+}
+
 /* Mirrors ResizablePanels' own 550px switch to a stacked, taller layout
    (`verticalThreshold` / `.vertical`), so the skeleton doesn't change shape
    or jump height when Core mounts on a narrow screen. */

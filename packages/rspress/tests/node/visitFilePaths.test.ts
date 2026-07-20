@@ -98,6 +98,47 @@ describe("visitFilePaths", () => {
 		expect(uniqueImports.has("react")).toBe(true);
 	});
 
+	/**
+	 * The sitewide set says what the virtual module can resolve; the per-demo
+	 * list says what *this* demo should start downloading at mount. Folding one
+	 * into the other loses that, which is how a counter demo ended up waiting
+	 * on another page's three.js.
+	 */
+	it("records each demo's own externals alongside the sitewide set", () => {
+		const uniqueImports: UniqueImports = new Set();
+		const demoDataByPath: DemoDataByPath = {};
+
+		visitFilePaths({
+			filePaths: [mdxPath("multiFileDemo.mdx")],
+			uniqueImports,
+			demoDataByPath,
+		});
+
+		const appDemo = demoDataByPath[validPath("MultiFile/App.tsx")];
+
+		expect(appDemo.externalImports).toEqual(["react"]);
+		// `./Button` ships in `files`; only bare specifiers are externals.
+		expect(appDemo.externalImports).not.toContain("./Button");
+	});
+
+	it("keeps one demo's externals out of another's", () => {
+		const uniqueImports: UniqueImports = new Set();
+		const demoDataByPath: DemoDataByPath = {};
+
+		visitFilePaths({
+			filePaths: [mdxPath("externalDemo.mdx"), mdxPath("multiFileDemo.mdx")],
+			uniqueImports,
+			demoDataByPath,
+		});
+
+		const simple = demoDataByPath[validPath("SimpleComponent.tsx")];
+
+		// SimpleComponent imports nothing external, so it must stay empty even
+		// though other demos in the same scan contributed to `uniqueImports`.
+		expect(simple.externalImports).toEqual([]);
+		expect(uniqueImports.has("react")).toBe(true);
+	});
+
 	it("accumulates data across multiple MDX files into the same collections", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByPath: DemoDataByPath = {};
