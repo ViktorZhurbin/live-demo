@@ -148,13 +148,36 @@ src/
 
 ## Testing
 
+### Vitest
+
+Test build-time logic in a `node` environment.
+
 Fixtures live in `tests/fixtures/`. **Read its README before adding one.**
 Two bugs have shipped past a fully green suite because a fixture had the
 right extension and the wrong syntax.
 
-`web/` has no test coverage. `vitest.config.ts` runs in a `node` environment,
-not `jsdom`, so component/DOM tests aren't set up. User verifies UI changes
-manually on a dev server instead; batch UI-touching work so one pass covers it.
+### Playwright
+
+Test `web/` components against the actual built+served website.
+
+Coverage is narrow for now, to be expanded. The site already has pages for
+most of what's missing — they're just not pointed at by e2e yet:
+
+- Inline (` ```lang live `) demos rendering in a browser, not just the MDX
+  transform (`website/docs/guide/inline/`)
+- Multi-file demos: `FileTabs` switching (`.../external/multiFile.mdx`)
+- `customLayout` actually mounting, not just its filename check
+  (`.../customLayout.mdx`)
+- The error overlay appearing for a real failure (bad import, syntax error,
+  missing default export) — `shared/errors.test.ts` only covers message
+  construction
+- The lazy-chunk-rejection `ErrorBoundary` in `web/lazy.tsx`
+- Fullscreen toggle, wrap-code toggle, narrow-viewport control panel
+
+### Manual verification
+
+A UI change not yet reached by the e2e list above is the user's to verify,
+on a dev server. Batch UI-touching work so one pass covers it.
 
 ## Limitations (of demo code, not the plugin's own source)
 
