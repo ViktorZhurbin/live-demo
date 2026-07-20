@@ -27,8 +27,5 @@
 		"oxlint": "^1.74.0",
 		"typescript": "^6.0.3"
 	},
-	"engines": {
-		"node": ">=22"
-	},
-	"packageManager": "pnpm@11.13.1"
+	"packageManager": "pnpm@11.15.0"
 }
