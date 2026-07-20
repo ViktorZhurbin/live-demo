@@ -1,6 +1,7 @@
 import type { Plugin } from "@rollup/browser";
 
 import { babelPluginTraverse } from "../babel/babelPluginTraverse";
+import { getBabel } from "../loadCompiler";
 
 /**
  * Transforms bundled code:
@@ -10,7 +11,7 @@ import { babelPluginTraverse } from "../babel/babelPluginTraverse";
  * which is then used to get the component function
  */
 export const pluginBabelTransformImportsExports = (): Plugin => {
-	const { transform } = window.Babel;
+	const { transform } = getBabel();
 
 	return {
 		name: "babel-transform-imports-exports",

@@ -33,6 +33,8 @@ export type ErrorTokens = {
 	UNDEFINED_NAMED_IMPORT: { importName: string; pkg: string };
 	/** Thrown as generated code inside a demo bundle — see messages.ts header. */
 	EXTERNAL_IMPORT_NOT_FOUND: { importName: string };
+	/** The lazily-imported Babel/Rollup chunk failed to load (see loadCompiler.ts). */
+	COMPILER_LOAD_FAILED: undefined;
 	UNEXPECTED: undefined;
 };
 

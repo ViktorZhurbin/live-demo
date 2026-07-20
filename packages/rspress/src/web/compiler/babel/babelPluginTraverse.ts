@@ -4,6 +4,7 @@ import { formatSplicedMessage } from "~shared/errors";
 import { errorMessages } from "~shared/errors/messages";
 
 import { EXPORTS_OBJ, GET_IMPORT_FN } from "../constants";
+import { getBabel } from "../loadCompiler";
 
 /**
  * Rewrite every import into a `__get_import` call resolved by the virtual
@@ -102,7 +103,7 @@ export const babelPluginTraverse = (): PluginItem => {
 };
 
 function getParsedVariableDeclaration(code: string) {
-	const parsed = window.Babel?.packages.parser.parse(code);
+	const parsed = getBabel().packages.parser.parse(code);
 
 	return parsed.program.body[0] as VariableDeclaration;
 }
@@ -142,6 +143,6 @@ function createImportValidationError({
     }
   `;
 
-	const parsed = window.Babel?.packages.parser.parse(validationCode);
+	const parsed = getBabel().packages.parser.parse(validationCode);
 	return parsed.program.body[0];
 }

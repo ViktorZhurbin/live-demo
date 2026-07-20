@@ -1,0 +1,109 @@
+/**
+ * Fallback UI shown while `Core`'s chunk loads, or if it fails to load.
+ *
+ * Plain class names, not CSS modules: `web/lazy` renders these *before*
+ * `Core`'s JS chunk exists, so it can't reach the hashed names a CSS module
+ * would generate. This file is pulled into the main entry's CSS graph (via
+ * `src/web/index.ts`) so it lands in `dist/web/index.css` — which layouts
+ * already import eagerly, i.e. it is present exactly when the fallback needs
+ * it.
+ */
+
+.live-demo-fallback {
+	border: var(--live-demo-layout-border);
+	background-color: var(--live-demo-colors-surface1);
+	border-radius: 6px;
+	margin-block: 10px;
+	font-size: 0.85rem;
+	overflow: hidden;
+
+	/* Queried below. Matches what ResizablePanels measures: the widget's own
+	   width, not the viewport's. */
+	container-type: inline-size;
+}
+
+.live-demo-fallback-toolbar {
+	display: flex;
+	gap: 8px;
+	padding: 8px;
+	border-bottom: var(--live-demo-layout-border);
+}
+
+.live-demo-fallback-panels {
+	display: flex;
+	height: 400px;
+}
+
+.live-demo-fallback-editor {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px;
+}
+
+.live-demo-fallback-preview {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-left: var(--live-demo-layout-border);
+	color: var(--live-demo-colors-clickable);
+}
+
+/* Mirrors ResizablePanels' own 550px switch to a stacked, taller layout
+   (`verticalThreshold` / `.vertical`), so the skeleton doesn't change shape
+   or jump height when Core mounts on a narrow screen. */
+@container (max-width: 550px) {
+	.live-demo-fallback-panels {
+		flex-direction: column;
+		height: 600px;
+	}
+
+	.live-demo-fallback-preview {
+		border-left: none;
+		border-top: var(--live-demo-layout-border);
+	}
+}
+
+.live-demo-fallback-shape {
+	background-color: var(--live-demo-colors-surface2);
+	animation: live-demo-fallback-pulse 1.4s ease-in-out infinite;
+}
+
+.live-demo-fallback-button {
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+}
+
+.live-demo-fallback-line {
+	height: 10px;
+	border-radius: 3px;
+}
+
+.live-demo-fallback-error {
+	border: var(--live-demo-layout-border);
+	background-color: var(--live-demo-colors-surface1);
+	border-radius: 6px;
+	margin-block: 10px;
+	padding: 16px;
+	font-size: 0.85rem;
+	color: var(--live-demo-colors-clickable);
+}
+
+@keyframes live-demo-fallback-pulse {
+	0%,
+	100% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.live-demo-fallback-shape {
+		animation: none;
+	}
+}

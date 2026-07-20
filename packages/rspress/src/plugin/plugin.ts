@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 import type { RspressPlugin } from "@rspress/core";
 import { pluginVirtualModule } from "rsbuild-plugin-virtual-module";
 import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
-import { htmlTags } from "~node/htmlTags";
 import { remarkPlugin } from "~node/remarkPlugin";
 import { visitFilePaths } from "~node/visitFilePaths";
 import { LiveDemoError } from "~shared/errors";
@@ -16,8 +15,8 @@ const __dirname = path.dirname(__filename);
 interface LiveDemoPluginRspressOptions extends LiveDemoPluginOptions {
 	/**
 	 * Path to custom layout file.
-	 * It will be injected as a global component:
-	 * @see https://rspress.dev/api/config/config-build#markdownglobalcomponents
+	 * `remarkPlugin` imports it into each page that has at least one demo, so
+	 * only those pages reference the demo runtime (not the whole site).
 	 *
 	 * The file has to have a default export.
 	 * Path needs to end with `LiveDemo.(jsx?|tsx)`.
@@ -52,6 +51,11 @@ export function liveDemoPluginRspress(
 	const extraModules = includeModules || [];
 	const uniqueImports = new Set(defaultModules.concat(extraModules));
 
+	// Injected per-page by remarkPlugin instead of registered as a global
+	// component, so only pages with a demo pull in the demo runtime graph.
+	const layoutPath =
+		customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx");
+
 	return {
 		name: "@live-demo/rspress",
 
@@ -66,9 +70,6 @@ export function liveDemoPluginRspress(
 		},
 
 		builderConfig: {
-			html: {
-				tags: htmlTags,
-			},
 			plugins: [
 				pluginVirtualModule({
 					virtualModules: {
@@ -80,10 +81,8 @@ export function liveDemoPluginRspress(
 		},
 
 		markdown: {
-			remarkPlugins: [[remarkPlugin, { demoDataByPath, options: options?.ui }]],
-
-			globalComponents: [
-				customLayout ?? path.join(__dirname, "../static/LiveDemo.tsx"),
+			remarkPlugins: [
+				[remarkPlugin, { demoDataByPath, layoutPath, options: options?.ui }],
 			],
 		},
 	};

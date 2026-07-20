@@ -1,6 +1,5 @@
 import type { PluginVirtualModuleOptions } from "rsbuild-plugin-virtual-module";
 import { describe, expect, it, vi } from "vitest";
-import { htmlTags } from "~node/htmlTags";
 
 vi.mock("rsbuild-plugin-virtual-module", () => ({
 	pluginVirtualModule: vi.fn<(options: PluginVirtualModuleOptions) => unknown>(
@@ -12,6 +11,11 @@ vi.mock("rsbuild-plugin-virtual-module", () => ({
 }));
 
 const { liveDemoPluginRspress } = await import("../../src/plugin/plugin");
+
+// remarkPlugins is `[[remarkPlugin, { demoDataByPath, layoutPath, options }]]`;
+// rspress types the entry loosely, matching getVirtualModuleHandler below.
+const getRemarkLayoutPath = (plugin: any): string =>
+	plugin.markdown?.remarkPlugins?.[0]?.[1]?.layoutPath;
 
 /**
  * Guards the plugin's contract with @rspress/core: the shape of the returned
@@ -25,15 +29,12 @@ describe("liveDemoPluginRspress", () => {
 		expect(plugin.name).toBe("@live-demo/rspress");
 	});
 
-	it("injects the Babel/Rollup CDN tags via builderConfig", () => {
-		const plugin = liveDemoPluginRspress();
-		expect(plugin.builderConfig?.html?.tags).toBe(htmlTags);
-	});
-
-	it("registers the remark transform and a global LiveDemo component", () => {
+	it("registers the remark transform with the default layout path", () => {
 		const plugin = liveDemoPluginRspress();
 		expect(plugin.markdown?.remarkPlugins).toHaveLength(1);
-		expect(plugin.markdown?.globalComponents?.[0]).toMatch(/LiveDemo\.tsx$/);
+		// Layout is imported per-page by remarkPlugin, not registered globally.
+		expect(plugin.markdown).not.toHaveProperty("globalComponents");
+		expect(getRemarkLayoutPath(plugin)).toMatch(/LiveDemo\.tsx$/);
 	});
 
 	describe("customLayout validation", () => {
@@ -44,10 +45,10 @@ describe("liveDemoPluginRspress", () => {
 		});
 
 		it.each([["/x/LiveDemo.tsx"], ["/x/LiveDemo.jsx"], ["/x/LiveDemo.js"]])(
-			"accepts %s and uses it as the global component",
+			"accepts %s and uses it as the per-page layout import",
 			(customLayout) => {
 				const plugin = liveDemoPluginRspress({ customLayout });
-				expect(plugin.markdown?.globalComponents?.[0]).toBe(customLayout);
+				expect(getRemarkLayoutPath(plugin)).toBe(customLayout);
 			},
 		);
 	});

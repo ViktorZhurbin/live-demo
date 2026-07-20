@@ -9,6 +9,53 @@ starts with the 3.0 major; earlier history is in git log.
 
 ### Breaking
 
+#### Demo machinery no longer loads on every page
+
+Two changes stop a consuming site from paying for demos on pages that have
+none:
+
+- **Babel and Rollup load lazily.** They were injected as render-blocking
+  CDN `<script>`s in every page's `<head>`; they're now real
+  `dependencies` pulled in with dynamic `import()` the first time a demo
+  compiles, which the consuming site code-splits into async chunks that load
+  only on demo pages. `window.Babel` / `window.rollup` are therefore no
+  longer defined globally, and a compiler that fails to load now surfaces in
+  the preview overlay (new `COMPILER_LOAD_FAILED`) instead of rendering a
+  silent blank.
+- **`LiveDemo` is no longer a global component.** `remarkPlugin` imports the
+  layout per-page (only into pages that contain a demo) rather than
+  registering it via `markdown.globalComponents`. The default layout
+  (`static/LiveDemo.tsx`) also loads `Core` behind `React.lazy`/`Suspense`
+  instead of a static import — without that, the consuming bundler's own
+  module concatenation can still pull the demo graph — CodeMirror, the
+  virtual-modules bundle with every collected external — into a chunk shared
+  by every page.
+
+#### New: `@live-demo/rspress/web/lazy`
+
+A layout should now render `LiveDemoLazy` from this new subpath instead of
+importing `Core` from `@live-demo/rspress/web`:
+
+```jsx
+import { LiveDemoLazy } from "@live-demo/rspress/web/lazy";
+
+const LiveDemo = (props) => <LiveDemoLazy pluginProps={props} isDark={isDark} />;
+```
+
+It owns the async boundary and both of its failure modes: a loading skeleton
+while the runtime chunk arrives, and an inline "couldn't load" message if it
+never does. A static import of anything from `@live-demo/rspress/web` pulls
+the whole demo runtime into the importer's chunk, so `customLayout` authors
+who reached for `Core` directly should switch to this — it's a separate build
+entry precisely so it can be imported statically without that cost.
+
+Breaking for anything that relied on `window.Babel` / `window.rollup` or on a
+global `<LiveDemo>` being available on pages the plugin didn't transform.
+
+Note: the consuming bundler (rspack) may cache a _failed_ dynamic-import
+promise; the loader retries on the next edit, but a persistently failed
+chunk load can need a page reload to recover.
+
 #### Errors are now structured, with a stable message format
 
 Both build-time (Node) and runtime (browser) errors thrown by the plugin

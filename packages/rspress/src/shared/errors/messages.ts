@@ -79,6 +79,12 @@ export const errorMessages: LiveDemoErrorMessages = {
 		message: `Can't resolve ${importName}.`,
 	}),
 
+	COMPILER_LOAD_FAILED: () => ({
+		title: "Couldn't load the demo compiler",
+		message: "Failed to load Babel/Rollup, so this demo can't be compiled.",
+		hint: "Check your network connection, then edit the code to retry (or reload the page).",
+	}),
+
 	UNEXPECTED: () => ({
 		title: "Unexpected error",
 		message: "An unexpected error occurred.",

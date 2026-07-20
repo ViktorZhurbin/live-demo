@@ -3,7 +3,10 @@ import { defineConfig } from "tsdown";
 export default defineConfig([
 	// Browser-side: React components
 	{
-		entry: ["./src/web/index.ts"],
+		// `lazy` is a separate entry on purpose: it must reach the runtime only
+		// through `import()`, so consumers can import it statically without
+		// pulling the demo graph in. See its docblock and AUDIT.md F1.
+		entry: ["./src/web/index.ts", "./src/web/lazy.tsx"],
 		platform: "browser",
 		outDir: "dist/web",
 		deps: { neverBundle: ["@types/react", "_live_demo_virtual_modules"] },

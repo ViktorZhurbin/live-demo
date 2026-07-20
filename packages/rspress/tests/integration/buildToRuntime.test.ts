@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import * as rollupBrowser from "@rollup/browser";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { visitFilePaths } from "~node/visitFilePaths";
 import type { DemoDataByPath, UniqueImports } from "~shared/types";
@@ -47,10 +46,9 @@ vi.mock("_live_demo_virtual_modules", () => ({
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 
 beforeAll(() => {
-	window.rollup = rollupBrowser as typeof window.rollup;
-
-	// @rollup/browser fetches its wasm binary at runtime; under Node that
-	// resolves to a file:// URL, which fetch doesn't support.
+	// @rollup/browser (loaded lazily by bundleCode) fetches its wasm binary at
+	// runtime; under Node that resolves to a file:// URL, which fetch doesn't
+	// support.
 	const originalFetch = globalThis.fetch;
 	globalThis.fetch = async (input, init) => {
 		const url =

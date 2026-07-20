@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import type { Root } from "mdast";
-import type { MdxJsxFlowElement } from "mdast-util-mdx";
+import type { MdxJsxFlowElement, MdxjsEsm } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
 import { describe, expect, it, vi } from "vitest";
 import { getMdxAst } from "~node/helpers/getMdxAst";
@@ -11,6 +11,11 @@ import type { DemoDataByPath } from "~shared/types";
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
 const validPath = (name: string) => path.join(FIXTURES_DIR, "valid", name);
+
+// The JSX element name both transforms emit; mangled to avoid colliding with
+// a page's own bindings (kept in sync with remarkPlugin.ts).
+const LIVE_DEMO_NAME = "_LiveDemo";
+const LAYOUT_PATH = "/layout/LiveDemo.tsx";
 
 // getMdxAst's return type is the generic mdast `Node`; in practice parsing
 // MDX always yields a `Root`.
@@ -23,16 +28,18 @@ const parseFixture = (name: string) => getMdxAst(mdxPath(name)) as Root;
  */
 const runPlugin = (
 	tree: Root,
-	props: Parameters<typeof remarkPlugin>[0],
+	props: Omit<Parameters<typeof remarkPlugin>[0], "layoutPath">,
 	vfilePath: string = mdxPath("externalDemo.mdx"),
 ) => {
+	const fullProps = { layoutPath: LAYOUT_PATH, ...props };
+
 	// remarkPlugin is typed as a unified `Plugin`, which expects to be
 	// invoked with a bound `this: Processor`; tests call it as a plain
 	// function, so the `this` type is cast away here.
 	const attacher = remarkPlugin as unknown as (
-		pluginProps: typeof props,
+		pluginProps: typeof fullProps,
 	) => (tree: Root, vfile: { path: string }) => void;
-	const transformer = attacher(props);
+	const transformer = attacher(fullProps);
 
 	// The plugin warns via `console.warn` — rspress never prints vfile
 	// messages. Spying is the only way to observe it.
@@ -49,10 +56,18 @@ const runPlugin = (
 const findLiveDemoNodes = (tree: Root): MdxJsxFlowElement[] => {
 	const nodes: MdxJsxFlowElement[] = [];
 	visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
-		if (node.name === "LiveDemo") nodes.push(node);
+		if (node.name === LIVE_DEMO_NAME) nodes.push(node);
 	});
 	return nodes;
 };
+
+// The layout import remarkPlugin prepends when a page has at least one demo.
+const isLayoutImport = (node: Root["children"][number]) =>
+	node.type === "mdxjsEsm" &&
+	"value" in node &&
+	String(node.value).includes(LAYOUT_PATH);
+
+const findLayoutImport = (tree: Root) => tree.children.find(isLayoutImport);
 
 const getAttr = (node: MdxJsxFlowElement, name: string) => {
 	const attribute = node.attributes.find(
@@ -285,6 +300,66 @@ describe("remarkPlugin", () => {
 
 			expect(() => runPlugin(tree, { demoDataByPath: {} })).not.toThrow();
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
+		});
+	});
+
+	describe("per-page layout import", () => {
+		const demoDataByPath: DemoDataByPath = {
+			[validPath("SimpleComponent.tsx")]: {
+				entryFileName: "SimpleComponent.tsx",
+				files: { "SimpleComponent.tsx": "..." },
+			},
+		};
+
+		it("prepends the layout import as the first child when a demo is present", () => {
+			const tree = parseFixture("externalDemo.mdx");
+
+			runPlugin(tree, { demoDataByPath });
+
+			const importNode = findLayoutImport(tree);
+			// First child so the binding is in scope for the demo nodes below it.
+			expect(tree.children[0]).toBe(importNode);
+			expect(importNode?.type).toBe("mdxjsEsm");
+			const esmNode = importNode as MdxjsEsm;
+			expect(esmNode.value).toContain(LIVE_DEMO_NAME);
+			// `data.estree` is what the MDX compiler serializes the import from.
+			expect(esmNode.data?.estree).toBeDefined();
+		});
+
+		it("injects exactly one import even with multiple demos on the page", () => {
+			const tree = parseFixture("multiFileDemo.mdx");
+
+			runPlugin(
+				tree,
+				{
+					demoDataByPath: {
+						[validPath("MultiFile/App.tsx")]: {
+							entryFileName: "App.tsx",
+							files: { "App.tsx": "...", "Button.tsx": "..." },
+						},
+						[validPath("ComponentWithImports.tsx")]: {
+							entryFileName: "ComponentWithImports.tsx",
+							files: { "ComponentWithImports.tsx": "..." },
+						},
+					},
+				},
+				mdxPath("multiFileDemo.mdx"),
+			);
+
+			expect(tree.children.filter(isLayoutImport)).toHaveLength(1);
+		});
+
+		it("does not inject the import when no demo is transformed", () => {
+			const tree: Root = {
+				type: "root",
+				children: [
+					{ type: "code", lang: "jsx", meta: null, value: "x" } as never,
+				],
+			};
+
+			runPlugin(tree, { demoDataByPath: {} });
+
+			expect(findLayoutImport(tree)).toBeUndefined();
 		});
 	});
 });

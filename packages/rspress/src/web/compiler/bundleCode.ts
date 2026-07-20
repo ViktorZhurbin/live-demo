@@ -1,6 +1,7 @@
 import { isRelativeImport } from "~shared/pathHelpers";
 import type { CodeRunnerProps } from "~web/ui/CodeRunner/CodeRunner";
 
+import { ensureCompilerLoaded, getRollup } from "./loadCompiler";
 import { pluginBabelTransform } from "./rollup/pluginBabelTransform";
 import { pluginBabelTransformImportsExports } from "./rollup/pluginBabelTransformImportsExports";
 import { pluginResolveModules } from "./rollup/pluginResolveModules";
@@ -15,7 +16,11 @@ type BundleCode = Pick<CodeRunnerProps, "files" | "entryFileName">;
  * `getFnFromString` evaluates the resulting code.
  */
 export const bundleCode = async ({ files, entryFileName }: BundleCode) => {
-	const bundle = await window.rollup.rollup({
+	// Pulls Babel + Rollup in (once) before any pipeline step reads them; a
+	// load failure throws here and lands in CodeRunner's catch → overlay.
+	await ensureCompilerLoaded();
+
+	const bundle = await getRollup().rollup({
 		input: entryFileName,
 		plugins: [
 			pluginResolveModules(files),

@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import * as rollupBrowser from "@rollup/browser";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import type { LiveDemoFiles } from "~shared/types";
 import { bundleCode } from "~web/compiler/bundleCode";
@@ -34,14 +33,12 @@ vi.mock("_live_demo_virtual_modules", () => ({
 	},
 }));
 
-// rollup is loaded from CDN in production (see htmlTags.ts); @rollup/browser
-// gives tests the same window.rollup shape without needing a real browser.
+// Rollup is loaded lazily by bundleCode via ensureCompilerLoaded (see
+// setup.ts / loadCompiler.ts); this shim only covers its wasm fetch.
 beforeAll(() => {
-	window.rollup = rollupBrowser as typeof window.rollup;
-
 	// @rollup/browser fetches its wasm binary at runtime. In a real browser
-	// that's a same-origin request the CDN serves; here it resolves to a
-	// file:// URL, which Node's fetch doesn't support, so read it off disk.
+	// that's a same-origin request; here it resolves to a file:// URL, which
+	// Node's fetch doesn't support, so read it off disk.
 	const originalFetch = globalThis.fetch;
 	globalThis.fetch = async (input, init) => {
 		const url =

@@ -25,14 +25,19 @@
 	],
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/index.d.mts",
 			"import": "./dist/index.mjs",
 			"default": "./dist/index.mjs"
 		},
 		"./web": {
-			"types": "./dist/web/index.d.ts",
+			"types": "./dist/web/index.d.mts",
 			"import": "./dist/web/index.mjs",
 			"default": "./dist/web/index.mjs"
+		},
+		"./web/lazy": {
+			"types": "./dist/web/lazy.d.mts",
+			"import": "./dist/web/lazy.mjs",
+			"default": "./dist/web/lazy.mjs"
 		},
 		"./web/index.css": "./dist/web/index.css"
 	},
@@ -50,8 +55,10 @@
 		"knip": "knip"
 	},
 	"dependencies": {
+		"@babel/standalone": "^8.0.4",
 		"@codemirror/lang-javascript": "^6.2.5",
 		"@mantine/hooks": "^9.4.1",
+		"@rollup/browser": "^4.62.2",
 		"@tabler/icons-react": "^3.44.0",
 		"@uiw/codemirror-theme-vscode": "^4.25.11",
 		"@uiw/react-codemirror": "^4.25.11",
@@ -62,10 +69,8 @@
 		"rsbuild-plugin-virtual-module": "^0.4.5"
 	},
 	"devDependencies": {
-		"@babel/standalone": "8.0.4",
 		"@babel/types": "^7.29.7",
 		"@oxc-project/types": "^0.140.0",
-		"@rollup/browser": "4.62.2",
 		"@rspress/core": "^2.0.18",
 		"@tsdown/css": "^0.22.9",
 		"@types/babel__core": "^7.20.5",

@@ -17,19 +17,28 @@ import type {
 	LiveDemoPropsFromPlugin,
 } from "~shared/types";
 
+import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
 import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
 
 interface RemarkPluginProps {
 	options?: LiveDemoPluginOptions["ui"];
 	demoDataByPath: DemoDataByPath; // Analyzed demo files
+	layoutPath: string; // Layout component to import into pages that use a demo
 }
+
+// Mangled so the per-page `import` this plugin injects can't collide with a
+// binding the page's own author already has in scope. Both transforms emit
+// this as the JSX element name; `createLayoutImportNode` binds it.
+const LIVE_DEMO_NAME = "_LiveDemo";
 
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
 	demoDataByPath,
+	layoutPath,
 }) => {
 	return (tree, vfile) => {
+		let transformed = false;
 		// Transform 1: External demo files
 		// Converts: <code src="./Button.tsx" />
 		// To: <LiveDemo files={{Button.tsx: "...", utils.ts: "..."}} entryFileName="Button.tsx" />
@@ -70,9 +79,10 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
-				name: "LiveDemo",
+				name: LIVE_DEMO_NAME,
 				attributes: getJsxAttributesFromProps(props),
 			});
+			transformed = true;
 		});
 
 		// Transform 2: Inline code blocks
@@ -103,11 +113,17 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
-				name: "LiveDemo",
+				name: LIVE_DEMO_NAME,
 				attributes: getJsxAttributesFromProps(props),
 			});
-			return;
+			transformed = true;
 		});
+
+		// Import the layout only into pages that actually rendered a demo, so
+		// non-demo pages never reference the runtime graph.
+		if (transformed) {
+			tree.children.unshift(createLayoutImportNode(layoutPath, LIVE_DEMO_NAME));
+		}
 	};
 };
 

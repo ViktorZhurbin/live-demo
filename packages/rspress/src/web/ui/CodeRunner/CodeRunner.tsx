@@ -35,9 +35,9 @@ export const CodeRunner = ({
 	);
 
 	const getComponent = async (files: LiveDemoFiles) => {
-		if (!window.Babel || !window.rollup) return;
-
 		try {
+			// bundleCode lazily loads Babel+Rollup; a load failure throws here
+			// and is caught below, surfacing in the overlay rather than blanking.
 			const code = await bundleCode({ entryFileName, files });
 
 			if (code === prevCode && !error) return;

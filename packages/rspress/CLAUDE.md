@@ -41,25 +41,40 @@ is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
 `<code src="..."/>` or ` ```lang live ` block collects the entry file and
 everything it transitively imports (`collectDemoFiles.ts`).
 External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts` then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes
-`<LiveDemo files={...} />`.
+from one generated virtual module (`getVirtualModulesCode.ts`). `remarkPlugin.ts`
+then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes a
+`<LiveDemo files={...} />` element, and — on pages that have at least one demo —
+prepends an `import` of the layout so only those pages pull in the runtime graph
+(`createLayoutImportNode.ts`; it is _not_ a global component). Per-page
+injection alone isn't enough to keep the runtime graph off other pages: the
+default layout (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy` —
+a static top-level import of `Core` gets scope-hoisted by the consumer's
+bundler into a chunk shared across every page regardless of which pages
+import the layout (see `AUDIT.md` F1).
+
+That async boundary is packaged as `@live-demo/rspress/web/lazy`
+(`src/web/lazy.tsx`) — a **separate build entry**, not an export of the
+`web` barrel, because the barrel builds to a single `dist/web/index.mjs`
+whose top-level imports include CodeMirror and the virtual-modules bundle:
+a static import of _anything_ from it pulls in the whole runtime. Layouts
+(including any `customLayout`) should render `LiveDemoLazy` from that
+subpath rather than importing `Core` themselves; it owns the `Suspense`
+boundary, the loading skeleton, and the `ErrorBoundary` that catches a
+_rejected_ chunk load (which `Suspense` alone does not — see its docblock).
 
 **Runtime (browser, `src/web/`)** — user edits code in a CodeMirror-based
-editor, bundled with the package. On change: Babel
-(`@babel/standalone`, loaded from CDN) transpiles JSX/TS, then Rollup
-(`@rollup/browser`, also CDN) bundles the modules using a custom resolver
-plugin that resolves `./Button` against the importing file's
-directory to a key in the `files` record. The bundle is then evaluated with
-`new Function` and rendered into the host page's React tree.
+editor, bundled with the package. On change: Babel (`@babel/standalone`) and
+Rollup (`@rollup/browser`) are loaded lazily via dynamic `import()`
+(`loadCompiler.ts`) — the consuming site code-splits them into async chunks
+that load only on demo pages. Babel transpiles JSX/TS, then Rollup bundles the
+modules using a custom resolver plugin that resolves `./Button` against the
+importing file's directory to a key in the `files` record. The bundle is then
+evaluated with `new Function` and rendered into the host page's React tree.
 
 ### Dependency gotchas
 
 These live here because `package.json` can't hold comments — everything else
 about a file is documented in the file itself.
-
-`@babel/standalone` and `@rollup/browser` are **exact-pinned** in
-`devDependencies` to match the CDN URLs in `src/node/htmlTags.ts`, which are
-the actual runtime versions.
 
 Type packages (`@types/babel__core`, `@types/babel__standalone`) deliberately
 stay on Babel 7 even though the runtime is on `@babel/standalone@8` —

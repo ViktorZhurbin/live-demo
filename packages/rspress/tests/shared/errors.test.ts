@@ -14,6 +14,7 @@ const sampleTokens: { [K in ErrorCode]: ErrorTokens[K] } = {
 	PROVIDER_MISSING: undefined,
 	UNDEFINED_NAMED_IMPORT: { importName: "Card", pkg: "some-lib" },
 	EXTERNAL_IMPORT_NOT_FOUND: { importName: "lodash" },
+	COMPILER_LOAD_FAILED: undefined,
 	UNEXPECTED: undefined,
 };
 

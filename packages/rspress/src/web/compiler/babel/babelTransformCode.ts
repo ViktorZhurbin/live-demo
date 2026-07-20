@@ -1,7 +1,9 @@
 import type { TransformOptions } from "@babel/core";
 
+import { getBabel } from "../loadCompiler";
+
 export const babelTransformCode = (code: string, filename: string) => {
-	const { availablePresets, transform } = window.Babel;
+	const { availablePresets, transform } = getBabel();
 
 	const presets: TransformOptions["presets"] = [
 		// The automatic runtime emits an implicit `react/jsx-runtime` import,
