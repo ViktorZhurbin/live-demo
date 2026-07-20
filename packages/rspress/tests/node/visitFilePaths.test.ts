@@ -26,6 +26,22 @@ describe("visitFilePaths", () => {
 		expect(demo.files["SimpleComponent.tsx"]).toContain("SimpleComponent");
 	});
 
+	it("resolves a <code src> with no file extension, as taught by getStarted.mdx", () => {
+		const uniqueImports: UniqueImports = new Set();
+		const demoDataByPath: DemoDataByPath = {};
+
+		visitFilePaths({
+			filePaths: [mdxPath("extensionlessSrc.mdx")],
+			uniqueImports,
+			demoDataByPath,
+		});
+
+		const demo = demoDataByPath[validPath("SimpleComponent.tsx")];
+		expect(demo).toBeDefined();
+		expect(demo.entryFileName).toBe("SimpleComponent.tsx");
+		expect(demo.files["SimpleComponent.tsx"]).toContain("SimpleComponent");
+	});
+
 	it("includes every file from the demo's module graph, not just the entry", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByPath: DemoDataByPath = {};
