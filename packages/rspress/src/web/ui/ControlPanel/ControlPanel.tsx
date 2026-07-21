@@ -33,7 +33,7 @@ export const ControlPanel = () => {
 				<ToggleButtonGroup
 					values={getPanelViewsValues(isNarrow)}
 					activeValue={panelsView}
-					setValue={(value) => setPanelsView(value)}
+					setValue={setPanelsView}
 				/>
 			</div>
 

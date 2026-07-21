@@ -13,6 +13,8 @@ export const ButtonWrapCode = () => {
 	const Icon = wrapped ? IconTextWrap : IconTextWrapDisabled;
 
 	return (
-		<Button icon={<Icon />} title="Toggle code wrap" onClick={toggleWrapped} />
+		<Button title="Toggle code wrap" onClick={toggleWrapped}>
+			<Icon />
+		</Button>
 	);
 };

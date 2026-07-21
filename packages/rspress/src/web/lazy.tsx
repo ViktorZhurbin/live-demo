@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { PreviewSkeleton } from "./PreviewSkeleton";
-import type { LiveDemoStringifiedProps } from "./types";
+import type { LiveDemoWidgetProps } from "./types";
 
 /**
  * What a layout should render: the demo runtime behind an async boundary.
@@ -58,11 +58,6 @@ const ErrorFallback = () => (
 	</div>
 );
 
-interface LiveDemoLazyProps {
-	isDark: boolean;
-	pluginProps: LiveDemoStringifiedProps;
-}
-
 /**
  * `ErrorBoundary` wraps `Suspense`, not the reverse: `Suspense` only catches
  * the *pending* import promise. A *rejected* one (flaky network, or a stale
@@ -72,7 +67,7 @@ interface LiveDemoLazyProps {
  * retries a rejected import, hence "reload the page" rather than a retry
  * affordance.
  */
-export const LiveDemoLazy = (props: LiveDemoLazyProps) => (
+export const LiveDemoLazy = (props: LiveDemoWidgetProps) => (
 	<ErrorBoundary fallback={<ErrorFallback />}>
 		<Suspense fallback={<LoadingFallback />}>
 			<Core {...props} />

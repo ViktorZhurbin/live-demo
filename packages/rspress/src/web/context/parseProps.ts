@@ -3,8 +3,8 @@ import type { LiveDemoPropsFromPlugin } from "~shared/types";
 import type { LiveDemoStringifiedProps } from "~web/types";
 
 /**
- * Parse props, as they come JSON.stringified.
- * Without stringification having code strings (props.files) in MDX tends to break things.
+ * Parse props, as they come JSON.stringified. See `LiveDemoStringifiedProps`
+ * for why.
  */
 export function parseProps(
 	props: LiveDemoStringifiedProps,

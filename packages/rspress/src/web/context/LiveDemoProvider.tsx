@@ -8,7 +8,7 @@ import {
 } from "react";
 import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "~shared/types";
-import type { LiveDemoStringifiedProps } from "~web/types";
+import type { LiveDemoWidgetProps } from "~web/types";
 
 import { parseProps } from "./parseProps";
 
@@ -32,10 +32,8 @@ const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
 	undefined,
 );
 
-type LiveDemoProviderProps = {
-	isDark: boolean;
+type LiveDemoProviderProps = LiveDemoWidgetProps & {
 	children: React.ReactNode;
-	pluginProps: LiveDemoStringifiedProps;
 };
 
 function LiveDemoProvider({

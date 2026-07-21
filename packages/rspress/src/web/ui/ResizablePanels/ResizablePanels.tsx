@@ -28,7 +28,10 @@ const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
 	setItem: () => {},
 };
 
-// Wrapper width in px below which panels stack vertically instead of side by side.
+// Wrapper width in px below which panels stack vertically instead of side by
+// side. Mirrored by `lazyFallback.css`'s own 550px breakpoint, so the loading
+// skeleton doesn't jump shape when `Core` mounts on a narrow screen — keep
+// the two in sync.
 const VERTICAL_THRESHOLD = 550;
 
 export const ResizablePanels = () => {
