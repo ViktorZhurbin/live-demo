@@ -158,26 +158,13 @@ right extension and the wrong syntax.
 
 ### Playwright
 
-Test `web/` components against the actual built+served website.
+Test `web/` components against the actual `website/` through the preview build.
 
-Coverage is narrow for now, to be expanded. The site already has pages for
-most of what's missing — they're just not pointed at by e2e yet:
+Notes:
 
-- Inline (` ```lang live `) demos rendering in a browser, not just the MDX
-  transform (`website/docs/guide/inline/`)
-- Multi-file demos: `FileTabs` switching (`.../external/multiFile.mdx`)
-- `customLayout` actually mounting, not just its filename check
-  (`.../customLayout.mdx`)
-- The error overlay appearing for a real failure (bad import, syntax error,
-  missing default export) — `shared/errors.test.ts` only covers message
-  construction
-- The lazy-chunk-rejection `ErrorBoundary` in `web/lazy.tsx`
-- Fullscreen toggle, wrap-code toggle, narrow-viewport control panel
-
-### Manual verification
-
-A UI change not yet reached by the e2e list above is the user's to verify,
-on a dev server. Batch UI-touching work so one pass covers it.
+- `customLayout` is a site-wide plugin option, not per-page, so
+  covering it means flipping `website/rspress.config.ts` to use a real custom
+  layout for every demo on the site — deliberately omitted.
 
 ## Limitations (of demo code, not the plugin's own source)
 

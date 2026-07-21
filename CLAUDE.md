@@ -18,7 +18,9 @@ export const App = () => {
 - `packages/rspress/`: the published plugin (`@live-demo/rspress`). Has its own
   `packages/rspress/CLAUDE.md`. Read it before working inside that package.
 - `website/`: the docs site that consumes the plugin. `pnpm build:web` runs
-  `build:lib` first so `website` always builds against a fresh `dist/`.
+  `build:lib` first so `website` always builds against a fresh `dist/`. It's
+  also the target `packages/rspress/`'s Playwright suite builds and tests
+  against (see that package's CLAUDE.md, "Testing" section).
 
 ## Maintaining this file
 

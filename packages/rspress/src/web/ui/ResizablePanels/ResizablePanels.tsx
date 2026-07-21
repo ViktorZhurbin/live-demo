@@ -98,6 +98,10 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 
 	const editorClasses = clsx(styles.editorPanel, classes?.editorPanel);
 
+	// These `id`s double as the e2e locators: react-resizable-panels assigns a
+	// Panel's `id` to its rendered `data-testid` too (documented behavior), and
+	// website/e2e/*.spec.ts select on `getByTestId("editor")`/`("preview")` and
+	// `#editor`/`#preview`. Renaming either breaks those specs.
 	const editorPanel = (
 		<Panel
 			key="editor"
