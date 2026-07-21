@@ -37,12 +37,6 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "Fix the syntax error in this file.",
 	}),
 
-	INVALID_CUSTOM_LAYOUT: ({ customLayout }) => ({
-		title: "Invalid customLayout path",
-		message: `\`customLayout\` must end with \`LiveDemo.(jsx?|tsx)\`; got \`${customLayout}\`.`,
-		hint: "Example: path.join(__dirname, './src/CustomLiveDemo/LiveDemo.tsx')",
-	}),
-
 	NO_DEFAULT_EXPORT: ({ entryFileName }) => ({
 		title: "No default export",
 		message: entryFileName

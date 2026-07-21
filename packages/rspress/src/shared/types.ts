@@ -37,7 +37,6 @@ export type LiveDemoPropsFromPlugin = {
 	options?: LiveDemoPluginOptions["ui"];
 };
 
-/** Panel-size options shared with `ResizablePanelsProps`; see that type for the rest of its props. */
 export type ResizablePanelsOptions = {
 	/** Used for auto saving the panel sizes in local storage */
 	autoSaveId?: string;
@@ -50,7 +49,6 @@ export type ResizablePanelsOptions = {
 	};
 };
 
-/** Mirrors `FileTabsProps`; see that type for how it's consumed. */
 export type FileTabsOptions = {
 	/**
 	 * Hide single file tab

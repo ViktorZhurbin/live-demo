@@ -16,8 +16,6 @@ import { Editor } from "~web/ui/Editor/Editor";
 import { FileTabs } from "~web/ui/FileTabs/FileTabs";
 import { Preview } from "~web/ui/Preview/Preview";
 
-import type { ResizablePanelsProps } from "./types";
-
 import styles from "./ResizablePanels.module.css";
 
 // `useDefaultLayout`'s `storage` param defaults to the `localStorage` global
@@ -30,16 +28,14 @@ const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
 	setItem: () => {},
 };
 
-export const ResizablePanels = (props: ResizablePanelsProps) => {
-	const { options } = useLiveDemoContext();
-	const mergedOptions = { ...options?.resizablePanels, ...props };
+// Wrapper width in px below which panels stack vertically instead of side by side.
+const VERTICAL_THRESHOLD = 550;
 
-	const {
-		classes,
-		autoSaveId,
-		verticalThreshold = 550,
-		defaultPanelSizes = { editor: "50%", preview: "50%" },
-	} = mergedOptions;
+export const ResizablePanels = () => {
+	const { options } = useLiveDemoContext();
+
+	const { autoSaveId, defaultPanelSizes = { editor: "50%", preview: "50%" } } =
+		options?.resizablePanels ?? {};
 
 	const [panelsView] = useLocalStorageView();
 	const isSplitView = panelsView === PanelsView.Split;
@@ -90,13 +86,11 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 	});
 
 	const wrapperSize = useElementSize();
-	const isVertical = wrapperSize.width < verticalThreshold;
+	const isVertical = wrapperSize.width < VERTICAL_THRESHOLD;
 
-	const wrapperClass = clsx(styles.wrapper, classes?.wrapper, {
+	const wrapperClass = clsx(styles.wrapper, {
 		[styles.vertical]: isVertical,
 	});
-
-	const editorClasses = clsx(styles.editorPanel, classes?.editorPanel);
 
 	// These `id`s double as the e2e locators: react-resizable-panels assigns a
 	// Panel's `id` to its rendered `data-testid` too (documented behavior), and
@@ -109,19 +103,15 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 			panelRef={editorPanelRef}
 			collapsible
 			collapsedSize="0%"
-			className={editorClasses}
+			className={styles.editorPanel}
 			defaultSize={defaultPanelSizes.editor}
 			onKeyDown={(e) => {
 				// to avoid interfering with global event listeners
 				e.stopPropagation();
 			}}
 		>
-			{props.editor ?? (
-				<>
-					<FileTabs />
-					<Editor />
-				</>
-			)}
+			<FileTabs />
+			<Editor />
 		</Panel>
 	);
 
@@ -132,10 +122,9 @@ export const ResizablePanels = (props: ResizablePanelsProps) => {
 			panelRef={previewPanelRef}
 			collapsible
 			collapsedSize="0%"
-			className={classes?.previewPanel}
 			defaultSize={defaultPanelSizes.preview}
 		>
-			{props.preview ?? <Preview />}
+			<Preview />
 		</Panel>
 	);
 

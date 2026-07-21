@@ -5,29 +5,18 @@ import { PreviewSkeleton } from "./PreviewSkeleton";
 import type { LiveDemoStringifiedProps } from "./types";
 
 /**
- * The demo runtime behind an async boundary: what a layout should render.
+ * What a layout should render: the demo runtime behind an async boundary.
  *
- * This is its own build entry (`@live-demo/rspress/web/lazy`) rather than an
- * export of the main barrel. That separation is the whole point: the
- * barrel builds to a single `dist/web/index.mjs` whose top-level imports
- * include CodeMirror and the virtual-modules bundle. A *static* import of
- * anything from it drags the entire demo runtime into whatever chunk the
- * importer lands in (sitewide, in rspress's case; see AUDIT.md F1). This
- * module imports it only through `import()`, so the consumer's bundler splits
- * it into an async chunk that loads when a demo actually mounts.
- *
- * `Suspense` and `ErrorBoundary` cover the two distinct failure modes of a
- * lazy chunk. `Suspense` handles the *pending* promise. A *rejected* one
- * (flaky network, or a stale page referencing a chunk hash a redeploy
- * removed) is re-thrown during render, past `Core`'s own error boundary. That
- * one lives inside `Preview`, a descendant that never mounts when
- * `Core` itself failed to load. Only a boundary above `Suspense` catches
- * it. `React.lazy` never retries a rejected import, hence "reload the page"
- * rather than a retry affordance.
+ * Published as its own build entry (`@live-demo/rspress/web/lazy`), separate
+ * from the main barrel. A *static* import of the barrel would get
+ * scope-hoisted into a chunk shared by every page, dragging in CodeMirror
+ * and the virtual-modules bundle even on pages with no demo. Consumers must
+ * reach this module only via dynamic import, so the bundler code-splits it into
+ * an async chunk that loads once a demo actually mounts.
  */
 
 const Core = lazy(() =>
-	import("./index").then((module) => ({ default: module.Core })),
+	import("./ui/Core/Core").then((module) => ({ default: module.Core })),
 );
 
 // Arbitrary; just has to look like code rather than a progress bar.
@@ -74,6 +63,15 @@ interface LiveDemoLazyProps {
 	pluginProps: LiveDemoStringifiedProps;
 }
 
+/**
+ * `ErrorBoundary` wraps `Suspense`, not the reverse: `Suspense` only catches
+ * the *pending* import promise. A *rejected* one (flaky network, or a stale
+ * page referencing a chunk hash a redeploy removed) is re-thrown during
+ * render — past `Core`'s own error boundary, which lives inside `Preview`
+ * and never mounts when `Core` itself fails to load. `React.lazy` never
+ * retries a rejected import, hence "reload the page" rather than a retry
+ * affordance.
+ */
 export const LiveDemoLazy = (props: LiveDemoLazyProps) => (
 	<ErrorBoundary fallback={<ErrorFallback />}>
 		<Suspense fallback={<LoadingFallback />}>

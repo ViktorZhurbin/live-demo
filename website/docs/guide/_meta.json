@@ -14,6 +14,5 @@
 		"type": "dir",
 		"name": "inline",
 		"label": "Inline demos"
-	},
-	"customLayout"
+	}
 ]

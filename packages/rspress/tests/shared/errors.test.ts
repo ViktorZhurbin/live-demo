@@ -8,7 +8,6 @@ const sampleTokens: { [K in ErrorCode]: ErrorTokens[K] } = {
 	IMPORT_NOT_RESOLVED: { importPath: "./Button" },
 	IMPORT_EXTENSION_NOT_SUPPORTED: { importPath: "./styles.css" },
 	PARSE_FAILED: { filePath: "Button.tsx", errorMessage: "Unexpected token" },
-	INVALID_CUSTOM_LAYOUT: { customLayout: "/x/MyLayout.tsx" },
 	NO_DEFAULT_EXPORT: { entryFileName: "App.tsx" },
 	PROP_PARSE_FAILED: { key: "files" },
 	PROVIDER_MISSING: undefined,

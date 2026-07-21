@@ -24,7 +24,6 @@ export type ErrorTokens = {
 	 */
 	IMPORT_EXTENSION_NOT_SUPPORTED: ImportResolutionTokens;
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
-	INVALID_CUSTOM_LAYOUT: { customLayout: string };
 	/** Optional: getFnFromString is callable without an entry file name (tests, direct use). */
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };

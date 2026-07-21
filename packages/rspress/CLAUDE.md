@@ -55,18 +55,18 @@ injection alone isn't enough to keep the runtime graph off other pages: the
 default layout (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy`.
 A static top-level import of `Core` gets scope-hoisted by the consumer's
 bundler into a chunk shared across every page regardless of which pages
-import the layout (see CHANGELOG.md "Demo machinery no longer loads on
-every page").
+import the layout (see `src/web/lazy.tsx`'s module docblock for the
+mechanism).
 
 That async boundary is packaged as `@live-demo/rspress/web/lazy`
 (`src/web/lazy.tsx`) as a **separate build entry**, not an export of the
 `web` barrel. The barrel builds to a single `dist/web/index.mjs`
 whose top-level imports include CodeMirror and the virtual-modules bundle;
-a static import of _anything_ from it pulls in the whole runtime. Layouts
-(including any `customLayout`) should render `LiveDemoLazy` from that
-subpath rather than importing `Core` themselves. It owns the `Suspense`
-boundary, the loading skeleton, and the `ErrorBoundary` that catches a
-_rejected_ chunk load (which `Suspense` alone does not; see its docblock).
+a static import of _anything_ from it pulls in the whole runtime. The layout
+should render `LiveDemoLazy` from that subpath rather than importing `Core`
+itself. It owns the `Suspense` boundary, the loading skeleton, and the
+`ErrorBoundary` that catches a _rejected_ chunk load (which `Suspense` alone
+does not; see its docblock).
 
 **Runtime (browser, `src/web/`)**: user edits code in a CodeMirror-based
 editor, bundled with the package. On change, Babel (`@babel/standalone`) and
@@ -160,12 +160,6 @@ right extension and the wrong syntax.
 
 Test `web/` components against the actual `website/` through the preview build.
 
-Notes:
-
-- `customLayout` is a site-wide plugin option, not per-page, so
-  covering it means flipping `website/rspress.config.ts` to use a real custom
-  layout for every demo on the site — deliberately omitted.
-
 ## Limitations (of demo code, not the plugin's own source)
 
 - No CSS modules in live demos: inline styles or external CSS only
@@ -189,9 +183,8 @@ This section exists to stop defensive-code creep.
   keys in "The build→runtime seam" above.
 - **Graceful recovery on file reads**: a read that fails after the existence
   check (permissions, a removed file) propagates raw.
-- **Runtime validation of plugin options**: `plugin.ts` only checks the
-  `customLayout` filename pattern. Everything else in
-  `LiveDemoPluginOptions` is TypeScript's contract.
+- **Runtime validation of plugin options**: `LiveDemoPluginOptions` is
+  TypeScript's contract only; `plugin.ts` doesn't check any of it at runtime.
 - **`.md` files**: `<code src>` injects JSX, so it only works in `.mdx` files.
 - **Dev-mode staleness on demo-file edit**: the MDX→demo scan (`routeGenerated`)
   runs once per dev-server process. Editing an existing demo's source file

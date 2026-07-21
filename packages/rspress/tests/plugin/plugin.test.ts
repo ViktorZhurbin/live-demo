@@ -37,22 +37,6 @@ describe("liveDemoPluginRspress", () => {
 		expect(getRemarkLayoutPath(plugin)).toMatch(/LiveDemo\.tsx$/);
 	});
 
-	describe("customLayout validation", () => {
-		it("throws when the path does not end in LiveDemo.(jsx|tsx)", () => {
-			expect(() =>
-				liveDemoPluginRspress({ customLayout: "/some/path/MyLayout.tsx" }),
-			).toThrow(/customLayout/);
-		});
-
-		it.each([["/x/LiveDemo.tsx"], ["/x/LiveDemo.jsx"], ["/x/LiveDemo.js"]])(
-			"accepts %s and uses it as the per-page layout import",
-			(customLayout) => {
-				const plugin = liveDemoPluginRspress({ customLayout });
-				expect(getRemarkLayoutPath(plugin)).toBe(customLayout);
-			},
-		);
-	});
-
 	describe("virtual module (registered via rsbuild-plugin-virtual-module)", () => {
 		const getVirtualModuleHandler = (plugin: any) => {
 			const [virtualModulePlugin] = plugin.builderConfig?.plugins ?? [];

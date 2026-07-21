@@ -56,6 +56,19 @@ Note: the consuming bundler (rspack) may cache a _failed_ dynamic-import
 promise; the loader retries on the next edit, but a persistently failed
 chunk load can need a page reload to recover.
 
+#### `customLayout` removed; `web` barrel narrows to `Button` + `LiveDemoStringifiedProps`
+
+- The `customLayout` plugin option are gone. The default layout
+  (`static/LiveDemo.tsx`) is now the only layout.
+- `@live-demo/rspress/web` drops from ten exports to two: `Button` and
+  `LiveDemoStringifiedProps`.
+
+Consumers who need to structurally rearrange the demo chrome (move file
+tabs, relocate the control panel, wrap panels in custom elements) can no
+longer do so. Config-level control is unaffected: `options.ui` (hide flags,
+CodeMirror props, panel sizes) and the `colors.css` custom properties still
+work exactly as before.
+
 #### Errors are now structured, with a stable message format
 
 Both build-time (Node) and runtime (browser) errors thrown by the plugin
@@ -176,21 +189,6 @@ import { Core as LiveDemoCore } from "@live-demo/rspress/web";
 // or adopt the shorter name directly:
 import { Core } from "@live-demo/rspress/web";
 ```
-
-#### `web` entry point narrowed to the documented custom-layout surface
-
-`@live-demo/rspress/web` previously re-exported every `web/` module's entire
-surface via `export *`. It now exports exactly what `customLayout.mdx`
-documents, plus `Button`, which website's own external demos import for
-consistent demo-authoring: `Core`, `ControlPanel`, `Editor`, `FileTabs`,
-`LiveDemoProvider`, `LiveDemoStringifiedProps`, `Preview`,
-`ResizablePanels`, `Wrapper`, `Button`.
-
-Removed (none were documented or used outside the package):
-`CodeRunner`/`CodeRunnerProps` (only meaningful wired to `Preview`'s
-internal error state, not usable standalone), `useActiveCode`,
-`useLiveDemoContext`, `ButtonProps`, `EditorProps`, `FileTabsProps`,
-`ResizablePanelsProps`.
 
 ### Fixed
 
