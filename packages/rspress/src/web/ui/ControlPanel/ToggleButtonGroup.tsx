@@ -15,10 +15,7 @@ export const ToggleButtonGroup = <T extends string>(
 
 	return (
 		<div className={styles.wrapper}>
-			{values.map((entry) => {
-				const label = typeof entry === "object" ? entry.label : entry;
-				const value = typeof entry === "object" ? entry.value : entry;
-
+			{values.map(({ value, label }) => {
 				return (
 					<Button
 						key={value}
