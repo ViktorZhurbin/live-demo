@@ -18,16 +18,35 @@ Maintaining this file:
 
 ## [Unreleased]
 
+### Compared to upstream
+
+#### Per-page layout injection, not a global component
+
+Upstream (`@rspress/plugin-playground`) registers the playground via
+`globalComponents`/`globalStyles`, so every page on the site pays for the
+demo runtime whether or not it has a demo. This plugin injects the layout
+import only on pages that actually have one, keeping the demo runtime graph
+(CodeMirror, Babel, Rollup) out of every other page's bundle.
+
+#### Lazy external imports, not static ones
+
+Upstream's virtual module imports every external statically
+(`import * as i_0 from "react"`), so each demo page downloads the union of
+externals used across _every_ demo on the site (a `useState` counter could
+pull in an unrelated demo's three.js dependency, for instance). This plugin
+exports each external as a `() => import(...)` thunk, downloaded only when a
+page's own demo actually needs it.
+
 ### Breaking
 
-#### Demo machinery no longer loads on every page
+#### `window.Babel` / `window.rollup` no longer set globally
 
-Babel, Rollup, and the demo layout now load only on pages that have a demo,
-instead of on every page. `window.Babel` and `window.rollup` are no longer
-set globally, and a compiler that fails to load now shows an error in the
-preview instead of a blank page. The layout loads its demo runtime lazily
-behind a new `@live-demo/rspress/web/lazy` entry point, showing a loading
-skeleton while it loads and an inline message if it fails.
+Now that the demo runtime only loads on pages with a demo, `window.Babel`
+and `window.rollup` are no longer set globally, and a compiler that fails to
+load shows an error in the preview instead of a blank page. The layout loads
+its demo runtime lazily behind a new `@live-demo/rspress/web/lazy` entry
+point, showing a loading skeleton while it loads and an inline message if it
+fails.
 
 #### `customLayout` removed; `web` barrel narrows to `Button` + `LiveDemoStringifiedProps`
 
@@ -99,13 +118,10 @@ string merely containing "live" (e.g., ` ```jsx live-off `, `alive`, `livestream
 was treated as a live demo. It now splits the meta string on whitespace
 and matches "live" as a whole token.
 
-#### A demo only downloads the externals it actually imports
+#### The first compile starts immediately, not after the edit debounce
 
-Previously every demo's page downloaded the externals used by every demo on
-the site (a `useState` counter could pull in an unrelated demo's three.js
-dependency, for instance). Each page now only downloads what its own demo
-imports, and the first compile starts immediately instead of waiting out the
-edit debounce.
+Previously the preview waited out the same debounce used for edits before
+its first compile. The first compile now starts immediately on load.
 
 #### The preview pane shows a loading skeleton
 

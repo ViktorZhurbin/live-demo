@@ -52,3 +52,8 @@ When 3.0 actually ships, `packages/rspress/README.md`'s and
 `website/docs/guide/getStarted.mdx`'s version-tag guidance (currently
 "v2 = current, install `@1` for Rspress v1") needs a row for whether 3.0
 tracks Rspress v2 and whether `@2` becomes the new legacy tag.
+
+Before releasing 3.0:
+
+- Verify Improvements over `@rspress/plugin-playground` section in README empirically.
+- Tidy up changelog - it should be an actual changelog

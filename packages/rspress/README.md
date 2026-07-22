@@ -60,7 +60,12 @@ This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/offici
 ### Features:
 
 - Multi-file support
-- Typescript support
+
+### Improvements over `@rspress/plugin-playground`:
+
+- Typescript w/o red squiggles (no intellisense still)
+- Per-page layout injection: `@rspress/plugin-playground` injects it globally, ie it's loaded on a 404 page too
+- Lazy external imports: `@rspress/plugin-playground` loads all dependencies used in playgrounds across the project, ie if one page had Three.js it would be loaded on every page too.
 
 ### Plus, some niceties:
 
