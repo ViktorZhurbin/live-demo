@@ -51,26 +51,24 @@ export const App = () => {
 
 ## Docs
 
-Usage, examples, API: https://live-demo.pages.dev/guide/getStarted
+https://live-demo.pages.dev/guide/getStarted
 
-## Motivation
+## Improvements over `@rspress/plugin-playground`:
 
-This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground), which adds some important features.
+This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground), which adds some important improvements:
 
-### Features:
-
-- Multi-file support
-
-### Improvements over `@rspress/plugin-playground`:
-
-- Typescript w/o red squiggles (no intellisense still)
-- Per-page layout injection: `@rspress/plugin-playground` injects it globally, ie it's loaded on a 404 page too
-- Lazy external imports: `@rspress/plugin-playground` loads all dependencies used in playgrounds across the project, ie if one page had Three.js it would be loaded on every page too.
+- **Multi-file support**
+- **Typescript w/o red squiggles** (no intellisense still)
 
 ### Plus, some niceties:
 
 - toggle code wrap
 - resizable panels
-- switch between split view/editor/preview
-- fullscreen view
-- etc.
+- view switcher (split view/editor only/preview only)
+- fullscreen option
+- and some more...
+
+## Coming in v3:
+
+- Per-page layout injection: `@rspress/plugin-playground` injects it globally, ie it's loaded on a 404 page too
+- Lazy external imports: `@rspress/plugin-playground` loads all dependencies used in playgrounds across the project, ie if one page had Three.js it would be loaded on every page too.
