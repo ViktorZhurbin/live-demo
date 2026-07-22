@@ -60,11 +60,13 @@ mechanism).
 
 That async boundary is packaged as `@live-demo/rspress/web/lazy`
 (`src/web/lazy.tsx`) as a **separate build entry**, not an export of the
-`web` barrel. The barrel builds to a single `dist/web/index.mjs`
-whose top-level imports include CodeMirror and the virtual-modules bundle;
-a static import of _anything_ from it pulls in the whole runtime. The layout
-should render `LiveDemoLazy` from that subpath rather than importing `Core`
-itself. It owns the `Suspense` boundary, the loading skeleton, and the
+`web` barrel. The barrel (`src/web/index.ts`) only exports `Button` and a
+type, so it's cheap to import statically today — but the heavy graph
+(CodeMirror, the virtual-modules bundle) is reached exclusively through
+`Core`, which `lazy.tsx` loads via `React.lazy`. The layout should render
+`LiveDemoLazy` from that subpath rather than importing `Core` itself, both
+to keep that boundary intact and because the barrel offers no other way to
+reach it. It owns the `Suspense` boundary, the loading skeleton, and the
 `ErrorBoundary` that catches a _rejected_ chunk load (which `Suspense` alone
 does not; see its docblock).
 

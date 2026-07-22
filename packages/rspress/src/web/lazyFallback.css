@@ -7,6 +7,12 @@
  * `src/web/index.ts`) so it lands in `dist/web/index.css` — which layouts
  * already import eagerly, i.e. it is present exactly when the fallback needs
  * it.
+ *
+ * The `--live-demo-*` custom properties below are defined in
+ * `ui/Core/colors.css`, which only `Core.tsx` (the lazily loaded chunk)
+ * imports. This works today because tsdown merges the whole web config's
+ * CSS into one `index.css`, so Core's variables ship eagerly too. Splitting
+ * CSS per-chunk would silently unstyle this fallback.
  */
 
 .live-demo-fallback {

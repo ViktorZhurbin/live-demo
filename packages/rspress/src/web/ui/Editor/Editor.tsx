@@ -29,6 +29,7 @@ export const Editor = () => {
 				autocompletion: false,
 				tabSize: 2,
 			}}
+			// Full override, not merged — see LiveDemoPluginOptions["ui"]["editor"]'s doc.
 			{...options?.editor}
 		/>
 	);

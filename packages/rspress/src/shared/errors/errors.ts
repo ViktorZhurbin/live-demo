@@ -1,7 +1,7 @@
 /**
- * Error building and normalization, ported from castro/core/src/utils/errors.js.
- * Unlike castro's payload/renderer split, rspress owns the terminal at build
- * time, so `.message` must itself be the fully formatted, multi-line text.
+ * Error building and normalization, ported from a design with a separate
+ * payload/renderer split. Here, rspress owns the terminal at build time, so
+ * `.message` must itself be the fully formatted, multi-line text.
  * Preview.tsx reaches into `.payload` for title/hint styling separately.
  */
 import { errorMessages } from "./messages";

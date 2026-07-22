@@ -15,7 +15,7 @@ export type LiveDemoFiles = Record<string, string>;
  */
 export type DemoDataByRef = Record<string, LiveDemoPropsFromPlugin>;
 
-/** External package names collected across all demos on a page, for `getVirtualModulesCode`. */
+/** External package names collected across all demos in the build, for `getVirtualModulesCode`. */
 export type UniqueImports = Set<string>;
 
 export type LiveDemoPropsFromPlugin = {
@@ -74,6 +74,12 @@ export type LiveDemoPluginOptions = {
 		fileTabs?: FileTabsOptions & {
 			hide?: boolean;
 		};
+		/**
+		 * Spread onto the plugin's own CodeMirror instance *after* its
+		 * defaults, so a key here replaces the plugin's value for that key
+		 * rather than merging into it — see docs/guide/customization for which
+		 * keys that affects.
+		 */
 		editor?: ReactCodeMirrorProps;
 		resizablePanels?: ResizablePanelsOptions;
 	};

@@ -14,5 +14,10 @@
 		"type": "dir",
 		"name": "inline",
 		"label": "Inline demos"
+	},
+	{
+		"type": "file",
+		"name": "customization",
+		"label": "Customization"
 	}
 ]

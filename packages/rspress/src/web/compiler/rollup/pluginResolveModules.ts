@@ -17,7 +17,7 @@ import type { LiveDemoFiles } from "~shared/types";
  * `styles.ts` at the top level instead of `components/styles.ts`.
  *
  * Based off of @link https://rollupjs.org/faqs/#how-do-i-run-rollup-itself-in-a-browser
- * */
+ */
 export const pluginResolveModules = (files: LiveDemoFiles): Plugin => {
 	return {
 		name: "resolve-modules",

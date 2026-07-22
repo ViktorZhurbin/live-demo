@@ -5,7 +5,7 @@ export default defineConfig([
 	{
 		// `lazy` is a separate entry on purpose: it must reach the runtime only
 		// through `import()`, so consumers can import it statically without
-		// pulling the demo graph in. See its docblock and AUDIT.md F1.
+		// pulling the demo graph in. See its docblock.
 		entry: ["./src/web/index.ts", "./src/web/lazy.tsx"],
 		platform: "browser",
 		outDir: "dist/web",

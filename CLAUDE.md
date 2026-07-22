@@ -47,3 +47,8 @@ pnpm check:all # both of the above
 ## Active initiative: major version upgrade
 
 This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
+
+When 3.0 actually ships, `packages/rspress/README.md`'s and
+`website/docs/guide/getStarted.mdx`'s version-tag guidance (currently
+"v2 = current, install `@1` for Rspress v1") needs a row for whether 3.0
+tracks Rspress v2 and whether `@2` becomes the new legacy tag.

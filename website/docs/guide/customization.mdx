@@ -1,0 +1,104 @@
+---
+title: Customization
+---
+
+Two ways to customize how demos look and behave: the `ui` plugin option
+(what shows, and CodeMirror config), and CSS custom properties (colors).
+Both apply site-wide, to every demo — there's no per-demo override.
+
+## `ui` option
+
+```ts title='rspress.config.ts'
+import { liveDemoPluginRspress } from "@live-demo/rspress";
+
+export default defineConfig({
+  plugins: [
+    liveDemoPluginRspress({
+      ui: {
+        controlPanel: { hide: false },
+        fileTabs: { hide: false, hideSingleTab: false },
+        editor: {
+          /* ReactCodeMirrorProps */
+        },
+        resizablePanels: {
+          autoSaveId: "my-site-demo-layout",
+          defaultPanelSizes: { editor: "50%", preview: "50%" },
+        },
+      },
+    }),
+  ],
+  // ...
+});
+```
+
+### `controlPanel.hide`
+
+Hides the whole toolbar above the editor/preview: the split/editor/preview
+view toggle, the wrap-code button, and the fullscreen button together.
+There's no way to hide just one of them.
+
+### `fileTabs`
+
+- `hide`: always hides the file-tab bar.
+- `hideSingleTab`: hides it only when the demo has exactly one file. With
+  two or more files, tabs still show even if this is `true`.
+
+### `editor`
+
+Any [`ReactCodeMirrorProps`](https://github.com/uiwjs/react-codemirror/blob/master/core/README.md),
+spread onto the plugin's own CodeMirror instance **after** its defaults —
+so a key you pass replaces the plugin's value for that key entirely, it
+isn't merged in. Concretely, passing any of these overrides the plugin's
+own behavior for it:
+
+- `value` / `onChange`: replacing either breaks editing.
+- `theme`: replacing it breaks following the site's light/dark toggle.
+- `extensions`: replacing it drops JSX/TS syntax highlighting and the
+  wrap-code toggle (which is implemented as an extension).
+- `basicSetup`: replacing it restores CodeMirror's defaults (line numbers,
+  fold gutter, autocompletion) — the plugin sets all of those as one object,
+  not merged field-by-field.
+
+If you only want to add an extension, spread the plugin's own JSX/TS and
+line-wrap extensions back in alongside yours rather than replacing the
+array.
+
+### `resizablePanels`
+
+- `defaultPanelSizes`: initial split, `{ editor: "50%", preview: "50%" }`
+  by default. Percentage strings or pixel numbers.
+- `autoSaveId`: when set, the user's dragged panel sizes persist to
+  `localStorage` under this key and are restored on reload. When omitted,
+  sizes reset every page load — nothing is persisted.
+
+## Theming
+
+Colors come from CSS custom properties, defined for light mode on `html`
+and overridden under `html.dark` — the class Rspress's own theme toggle
+applies:
+
+```css
+--live-demo-colors-surface1
+--live-demo-colors-surface2
+--live-demo-colors-surface3
+--live-demo-colors-disabled
+--live-demo-colors-base
+--live-demo-colors-clickable
+--live-demo-colors-hover
+--live-demo-colors-accent
+--live-demo-layout-border
+```
+
+To restyle, set these under both `html` and `html.dark` (or a selector at
+least as specific) so your override stays in sync with the site's own
+light/dark toggle instead of freezing one mode:
+
+```css title='styles/index.css'
+html {
+  --live-demo-colors-accent: #6366f1;
+}
+
+html.dark {
+  --live-demo-colors-accent: #818cf8;
+}
+```

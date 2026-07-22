@@ -1,6 +1,6 @@
 /**
- * Structured error payload types, mirroring castro's utils/errors.js split:
- * this file holds shape (codes, tokens, payload), messages.ts holds wording.
+ * Structured error payload types, split by responsibility: this file holds
+ * shape (codes, tokens, payload), messages.ts holds wording.
  */
 
 /**
