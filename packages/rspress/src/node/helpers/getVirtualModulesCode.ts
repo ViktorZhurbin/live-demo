@@ -1,8 +1,9 @@
 /**
  * Builds the source for `_live_demo_virtual_modules`, injected via
  * `rsbuild-plugin-virtual-module` (see `plugin.ts`) so the browser-side
- * Rollup bundler can resolve external imports (react, lodash, etc.) that
- * demo code references but never bundles itself.
+ * module runner (`web/compiler/moduleRunner.ts`) can resolve external
+ * imports (react, lodash, etc.) that demo code references but doesn't ship
+ * itself.
  *
  * Generated shape:
  * ```js

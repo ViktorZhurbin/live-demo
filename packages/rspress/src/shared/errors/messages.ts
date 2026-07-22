@@ -2,10 +2,10 @@
  * Every user-facing error string lives here, keyed by ErrorCode. Wording
  * lives here, structure (LiveDemoErrorPayload) lives in types.ts.
  *
- * UNDEFINED_NAMED_IMPORT and EXTERNAL_IMPORT_NOT_FOUND back `throw`
- * statements generated as text into a demo's bundle (babelPluginTraverse.ts,
- * getVirtualModulesCode.ts): that code can't import LiveDemoError, so it
- * splices `formatSplicedMessage(...)` in as a plain string instead.
+ * EXTERNAL_IMPORT_NOT_FOUND backs a `throw` statement generated as text
+ * inside `getVirtualModulesCode.ts`'s virtual module: that code can't import
+ * LiveDemoError, so it splices `formatSplicedMessage(...)` in as a plain
+ * string instead.
  */
 import type { LiveDemoErrorMessages } from "./types";
 
@@ -57,17 +57,17 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "Wrap this component tree in <LiveDemoProvider>.",
 	}),
 
+	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
+	// template literal in generated code. `${importName}` there is meant to
+	// stay as live interpolation (importName isn't known until getImport() is
+	// called at demo-runtime). Never add a backtick or another `${...}` to
+	// this message: either would corrupt that generated template literal.
 	UNDEFINED_NAMED_IMPORT: ({ importName, pkg }) => ({
 		title: "Import is undefined",
 		message: `Import '${importName}' from '${pkg}' is undefined.`,
 		hint: "This export may not exist in this version of the package.",
 	}),
 
-	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
-	// template literal in generated code. `${importName}` there is meant to
-	// stay as live interpolation (importName isn't known until getImport() is
-	// called at demo-runtime). Never add a backtick or another `${...}` to
-	// this message: either would corrupt that generated template literal.
 	EXTERNAL_IMPORT_NOT_FOUND: ({ importName }) => ({
 		title: "Can't resolve import",
 		message: `Can't resolve ${importName}.`,
@@ -75,7 +75,7 @@ export const errorMessages: LiveDemoErrorMessages = {
 
 	COMPILER_LOAD_FAILED: () => ({
 		title: "Couldn't load the demo compiler",
-		message: "Failed to load Babel/Rollup, so this demo can't be compiled.",
+		message: "Failed to load Babel, so this demo can't be compiled.",
 		hint: "Check your network connection, then edit the code to retry (or reload the page).",
 	}),
 

@@ -26,7 +26,7 @@ Upstream (`@rspress/plugin-playground`) registers the playground via
 `globalComponents`/`globalStyles`, so every page on the site pays for the
 demo runtime whether or not it has a demo. This plugin injects the layout
 import only on pages that actually have one, keeping the demo runtime graph
-(CodeMirror, Babel, Rollup) out of every other page's bundle.
+(CodeMirror, Babel) out of every other page's bundle.
 
 #### Lazy external imports, not static ones
 
@@ -36,6 +36,19 @@ externals used across _every_ demo on the site (a `useState` counter could
 pull in an unrelated demo's three.js dependency, for instance). This plugin
 exports each external as a `() => import(...)` thunk, downloaded only when a
 page's own demo actually needs it.
+
+### Changed
+
+#### `@rollup/browser` removed; demos run via a small in-memory CommonJS `require`
+
+The runtime used to Babel-transpile a demo's files, bundle them with
+`@rollup/browser`, then evaluate the single bundle. It now transpiles each
+file straight to CommonJS and evaluates them lazily through a small
+`require` that resolves relative imports against the demo's `files` and
+caches each module's `exports`. Same demo behavior, ~350 KB (gzip) /
+~285 KB (brotli, offline max-quality) less to download on a page with a
+demo — for `guide/external/basic`, the compiler payload drops from
+Babel + Rollup JS + Rollup's wasm binary to Babel alone.
 
 ### Breaking
 
@@ -68,6 +81,27 @@ that structured info instead of a raw message. Breaking if you pattern-matched
 on the old wording, e.g. `"[LiveDemo]: Couldn't resolve..."` is now
 `"[live-demo] Import couldn't be resolved\nCouldn't resolve..."`. Runtime
 errors thrown by demo code itself are unchanged.
+
+#### A bad named external import no longer gets its own error
+
+Importing a named export a package doesn't have (a typo, or an export
+removed in a newer version) used to throw a dedicated "Import 'x' from 'y'
+is undefined" error. Catching that required knowing, per import, whether it
+was named or default/namespace — information the new CommonJS `require`
+doesn't carry, only the demo's own `getImport`/`require` calls. The failure
+now surfaces the same way native JS would: the value is `undefined`, and
+using it throws whatever error that produces (e.g. "x is not a function").
+
+#### Circular local imports follow Node's CommonJS semantics, not a bundler's
+
+Demos with circularly-importing files no longer get bundled by Rollup, which
+resolved cycles by hoisting; the runtime now evaluates them through a
+CommonJS `require` graph instead. A value read by property access after both
+modules finish their own initial evaluation (the common case — mutually
+recursive functions) is unaffected. A value used immediately at module-eval
+time, before the cycle unwinds, may now see whatever `exports` existed at
+that moment instead of the fully-resolved value, same as any other CJS
+require cycle.
 
 #### `IMPORT_NOT_RESOLVED` split from unsupported-extension errors, and both now name the importer
 
@@ -110,6 +144,13 @@ An extensionless import (`./Button`) now resolves in the order `.tsx`, `.ts`,
 Only affects demos where both `Button.ts` and `Button.tsx` exist side by side.
 
 ### Fixed
+
+#### A broken local import at runtime now names the file, instead of a generic bundler error
+
+Editing a demo's code to import a local file that doesn't exist (e.g. a
+typo'd path) used to surface Rollup's own unresolved-import message. It now
+throws the same `IMPORT_NOT_RESOLVED` error the build step throws for the
+same mistake, naming the import and the file that imports it.
 
 #### Inline ` ```lang live ` matching no longer triggers on substrings
 

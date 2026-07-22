@@ -11,7 +11,7 @@ const sampleTokens: { [K in ErrorCode]: ErrorTokens[K] } = {
 	NO_DEFAULT_EXPORT: { entryFileName: "App.tsx" },
 	PROP_PARSE_FAILED: { key: "files" },
 	PROVIDER_MISSING: undefined,
-	UNDEFINED_NAMED_IMPORT: { importName: "Card", pkg: "some-lib" },
+	UNDEFINED_NAMED_IMPORT: { importName: "usestate", pkg: "react" },
 	EXTERNAL_IMPORT_NOT_FOUND: { importName: "lodash" },
 	COMPILER_LOAD_FAILED: undefined,
 	UNEXPECTED: undefined,
@@ -65,13 +65,13 @@ describe("LiveDemoError", () => {
 
 describe("formatSplicedMessage", () => {
 	it("joins message and hint on one line", () => {
-		const content = errorMessages.UNDEFINED_NAMED_IMPORT({
-			importName: "effect",
-			pkg: "preact/signals",
+		const content = errorMessages.PARSE_FAILED({
+			filePath: "Button.tsx",
+			errorMessage: "Unexpected token",
 		});
 
 		expect(formatSplicedMessage(content)).toBe(
-			"Import 'effect' from 'preact/signals' is undefined. This export may not exist in this version of the package.",
+			"Failed to parse `Button.tsx`: Unexpected token Fix the syntax error in this file.",
 		);
 	});
 

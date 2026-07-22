@@ -28,7 +28,11 @@ export type ErrorTokens = {
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };
 	PROVIDER_MISSING: undefined;
-	/** Thrown as generated code inside a demo bundle (see messages.ts header). */
+	/**
+	 * A named import the resolved package doesn't actually export. Checked by
+	 * `runCode.ts` before evaluation, so it's a normal thrown LiveDemoError —
+	 * unlike EXTERNAL_IMPORT_NOT_FOUND below.
+	 */
 	UNDEFINED_NAMED_IMPORT: { importName: string; pkg: string };
 	/** Thrown as generated code inside a demo bundle (see messages.ts header). */
 	EXTERNAL_IMPORT_NOT_FOUND: { importName: string };

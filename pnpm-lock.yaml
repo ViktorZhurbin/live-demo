@@ -234,9 +234,6 @@ importers:
       '@mdx-js/mdx':
         specifier: '>=3.1.1'
         version: 3.1.1(supports-color@7.2.0)
-      '@rollup/browser':
-        specifier: ^4.62.2
-        version: 4.62.2
       '@tabler/icons-react':
         specifier: ^3.44.0
         version: 3.44.0(react@19.2.7)
@@ -277,9 +274,6 @@ importers:
         specifier: '>=5.1.0'
         version: 5.1.0
     devDependencies:
-      '@babel/types':
-        specifier: ^7.29.7
-        version: 7.29.7
       '@oxc-project/types':
         specifier: ^0.140.0
         version: 0.140.0
@@ -1343,9 +1337,6 @@ packages:
 
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
-
-  '@rollup/browser@4.62.2':
-    resolution: {integrity: sha512-M82p7Avq05+DLkpkQGGZJbtypWCoAUKmCT2m6n2nkc9OXfyykSc8PZhVL3oQjJn5WGnJA5KwwGIdIqXbsWYiaA==}
 
   '@rsbuild/core@2.1.6':
     resolution: {integrity: sha512-w2WxblstOgHnDElkqJZVO/jM/EqPaEhg7zqQhON3Xu3Mj9FlVOJx+SgimOtghFzxLt8x7atX4oMUtMTNSZGf0Q==}
@@ -4053,10 +4044,6 @@ snapshots:
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
-
-  '@rollup/browser@4.62.2':
-    dependencies:
-      '@types/estree': 1.0.9
 
   '@rsbuild/core@2.1.6(core-js@3.47.0)':
     dependencies:

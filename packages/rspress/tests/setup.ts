@@ -1,7 +1,7 @@
 import { ensureCompilerLoaded } from "~web/compiler/loadCompiler";
 
-// In production Babel + Rollup are code-split async chunks the browser
-// imports on demand (see loadCompiler.ts). Load them once up front so the
-// compiler pipeline's getBabel()/getRollup() are populated in this Node env;
-// the memo makes bundleCode's own ensureCompilerLoaded() call a no-op.
+// In production Babel is a code-split async chunk the browser imports on
+// demand (see loadCompiler.ts). Load it once up front so the compiler
+// pipeline's getBabel() is populated in this Node env; the memo makes
+// runCode's own ensureCompilerLoaded() call a no-op.
 await ensureCompilerLoaded();

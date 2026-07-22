@@ -1,10 +1,6 @@
-import fs from "node:fs";
-import { fileURLToPath } from "node:url";
-
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { LiveDemoFiles } from "~shared/types";
-import { bundleCode } from "~web/compiler/bundleCode";
-import { getFnFromString } from "~web/compiler/getFnFromString";
+import { runCode } from "~web/compiler/runCode";
 
 // Mock the virtual modules import - must be inline due to hoisting.
 // `react/jsx-runtime` is included because Babel's automatic JSX runtime emits
@@ -19,7 +15,7 @@ const renderToString = (tag: unknown, props: { children?: unknown }) => {
 
 // The mock resolves synchronously, so there is nothing to preload; the real
 // module awaits its thunks here (see getVirtualModulesCode.ts). Spied so the
-// tests below can assert *which* externals bundleCode asks it to resolve.
+// tests below can assert *which* externals runCode asks it to resolve.
 const { loadImportsMock } = vi.hoisted(() => ({
 	loadImportsMock: vi.fn<(importNames: readonly string[]) => Promise<void>>(
 		async () => {},
@@ -43,38 +39,12 @@ vi.mock("_live_demo_virtual_modules", () => ({
 	},
 }));
 
-// Rollup is loaded lazily by bundleCode via ensureCompilerLoaded (see
-// setup.ts / loadCompiler.ts); this shim only covers its wasm fetch.
-beforeAll(() => {
-	// @rollup/browser fetches its wasm binary at runtime. In a real browser
-	// that's a same-origin request; here it resolves to a file:// URL, which
-	// Node's fetch doesn't support, so read it off disk.
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = async (input, init) => {
-		const url =
-			typeof input === "string"
-				? input
-				: input instanceof URL
-					? input.href
-					: input.url;
-
-		if (url.startsWith("file://")) {
-			const buffer = fs.readFileSync(fileURLToPath(url));
-			return new Response(buffer);
-		}
-
-		return originalFetch(input, init);
-	};
-});
-
-describe("bundleCode", () => {
+describe("runCode", () => {
 	/**
-	 * The virtual module is one module for the whole site, so it can only stay
-	 * off unrelated pages if each external is a lazily-imported chunk. That
-	 * makes `bundleCode` responsible for resolving this demo's externals before
-	 * `getFnFromString` evaluates the code — `getImport` is called synchronously
-	 * during module init and cannot await. If `chunk.imports` ever stops being
-	 * the list of externals, every demo breaks with "Can't resolve".
+	 * `getImport` is called synchronously during module evaluation and can't
+	 * await, so `runCode` has to know every external a demo's files reference —
+	 * including ones discovered by walking imports at compile time, not just
+	 * the build step's static list — before it evaluates anything.
 	 */
 	describe("preloading externals", () => {
 		it("asks loadImports for exactly the externals the demo imports", async () => {
@@ -90,7 +60,7 @@ describe("bundleCode", () => {
 				].join("\n"),
 			};
 
-			await bundleCode({ files, entryFileName: "App.tsx" });
+			await runCode({ files, entryFileName: "App.tsx" });
 
 			expect(loadImportsMock).toHaveBeenCalledTimes(1);
 
@@ -109,7 +79,7 @@ describe("bundleCode", () => {
 				"Button.tsx": `export const Button = () => "click";`,
 			};
 
-			await bundleCode({ files, entryFileName: "App.tsx" });
+			await runCode({ files, entryFileName: "App.tsx" });
 
 			const [importNames] = loadImportsMock.mock.calls[0];
 
@@ -117,7 +87,7 @@ describe("bundleCode", () => {
 			expect(importNames).not.toContain("Button.tsx");
 		});
 
-		it("resolves externals before returning, so evaluation can be synchronous", async () => {
+		it("resolves externals before evaluating, so getImport never sees an unresolved one", async () => {
 			const order: string[] = [];
 			loadImportsMock.mockClear();
 			loadImportsMock.mockImplementationOnce(async () => {
@@ -128,53 +98,27 @@ describe("bundleCode", () => {
 				"App.tsx": `import { useState } from "react"; export default () => useState;`,
 			};
 
-			await bundleCode({ files, entryFileName: "App.tsx" });
-			order.push("bundleCode returned");
+			// Evaluation is synchronous once it starts, so `loadImports` resolving
+			// after `runCode` returns would mean `getImport` ran against an
+			// unresolved external instead.
+			await runCode({ files, entryFileName: "App.tsx" });
+			order.push("runCode returned");
 
-			expect(order).toEqual(["loadImports", "bundleCode returned"]);
+			expect(order).toEqual(["loadImports", "runCode returned"]);
 		});
 	});
 
-	it("bundles a single file with no dependencies", async () => {
+	it("runs a single file with no dependencies", async () => {
 		const files: LiveDemoFiles = {
 			"App.tsx": `export default function App() { return 'Hello'; }`,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
+		const App = await runCode({ files, entryFileName: "App.tsx" });
 
-		expect(code).toContain("exports.default");
+		expect((App as () => string)()).toBe("Hello");
 	});
 
-	it("inlines local file dependencies into a single bundle", async () => {
-		const files: LiveDemoFiles = {
-			"App.tsx": `
-        import { Button } from "./Button";
-        export default function App() { return Button; }
-      `,
-			"Button.tsx": `export function Button() { return 'click me'; }`,
-		};
-
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
-
-		expect(code).toContain("click me");
-		// Local import must be resolved away, not left as a require/import
-		expect(code).not.toMatch(/require\(["']\.\/Button["']\)/);
-	});
-
-	it("rewrites external imports to __get_import calls", async () => {
-		const files: LiveDemoFiles = {
-			"App.tsx": `
-        import { useState } from "react";
-        export default function App() { return useState; }
-      `,
-		};
-
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
-
-		expect(code).toContain("__get_import('react', false)");
-	});
-
-	it("produces a bundle that getFnFromString can execute end-to-end", async () => {
+	it("resolves a local file dependency", async () => {
 		const files: LiveDemoFiles = {
 			"App.tsx": `
         import { greet } from "./greet";
@@ -183,13 +127,12 @@ describe("bundleCode", () => {
 			"greet.tsx": `export function greet(name: string) { return 'Hello, ' + name; }`,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
-		const fn = getFnFromString(code);
+		const App = await runCode({ files, entryFileName: "App.tsx" });
 
-		expect(fn({})).toBe("Hello, World");
+		expect((App as (props: object) => string)({})).toBe("Hello, World");
 	});
 
-	it("transpiles TypeScript and JSX-only syntax as part of the bundle", async () => {
+	it("transpiles TypeScript and JSX-only syntax", async () => {
 		const files: LiveDemoFiles = {
 			"App.tsx": `
         interface Props { value: number }
@@ -197,10 +140,11 @@ describe("bundleCode", () => {
       `,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
-		const fn = getFnFromString(code);
+		const App = await runCode({ files, entryFileName: "App.tsx" });
 
-		expect(fn({ value: 21 })).toBe(42);
+		expect((App as (props: { value: number }) => number)({ value: 21 })).toBe(
+			42,
+		);
 	});
 
 	it("transpiles JSX via react/jsx-runtime from the virtual module", async () => {
@@ -208,10 +152,9 @@ describe("bundleCode", () => {
 			"App.tsx": `export default function App() { return <div>Hello</div>; }`,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
+		const App = await runCode({ files, entryFileName: "App.tsx" });
 
-		expect(code).toContain("__get_import('react/jsx-runtime', false)");
-		expect(getFnFromString(code)({})).toBe("<div>Hello</div>");
+		expect((App as (props: object) => string)({})).toBe("<div>Hello</div>");
 	});
 
 	it("renders JSX in a demo that never imports React", async () => {
@@ -222,25 +165,27 @@ describe("bundleCode", () => {
 			"App.jsx": `export default function App() { return <span>No import needed</span>; }`,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.jsx" });
+		const App = await runCode({ files, entryFileName: "App.jsx" });
 
-		expect(code).not.toContain("__get_import('react', true)");
-		expect(getFnFromString(code)({})).toBe("<span>No import needed</span>");
+		expect((App as (props: object) => string)({})).toBe(
+			"<span>No import needed</span>",
+		);
 	});
 
 	describe("entry export forms", () => {
-		// Every published doc teaches the *named* export form (see
-		// babelPluginTraverse's ExportSpecifier visitor for the mechanism). Until
-		// these cases existed, that syntax had zero coverage at the bundle level
-		// — every other fixture here used `export default`.
+		// Every published doc teaches the *named* export form. Until these cases
+		// existed, that syntax had zero coverage at this level — every other
+		// fixture here used `export default`.
 		it("accepts a named arrow-function export as the demo component", async () => {
 			const files: LiveDemoFiles = {
 				"App.jsx": `export const App = () => <div>Hello World</div>;`,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+			const App = await runCode({ files, entryFileName: "App.jsx" });
 
-			expect(getFnFromString(code)({})).toBe("<div>Hello World</div>");
+			expect((App as (props: object) => string)({})).toBe(
+				"<div>Hello World</div>",
+			);
 		});
 
 		it("accepts a named function-declaration export", async () => {
@@ -248,14 +193,14 @@ describe("bundleCode", () => {
 				"App.tsx": `export function App() { return "NAMED_FN"; }`,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+			const App = await runCode({ files, entryFileName: "App.tsx" });
 
-			expect(getFnFromString(code)({})).toBe("NAMED_FN");
+			expect((App as (props: object) => string)({})).toBe("NAMED_FN");
 		});
 
 		it("accepts a named export alongside an external import", async () => {
 			// The shape of guide/inline/preDefinedImports.mdx: a named export whose
-			// body depends on an import rewritten to __get_import.
+			// body depends on an import resolved via the virtual module.
 			const files: LiveDemoFiles = {
 				"App.jsx": `
           import { useState } from "react";
@@ -266,16 +211,15 @@ describe("bundleCode", () => {
         `,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+			const App = await runCode({ files, entryFileName: "App.jsx" });
 
-			expect(code).toContain("__get_import('react', false)");
-			expect(getFnFromString(code)({})).toBe("<div>null</div>");
+			expect((App as (props: object) => string)({})).toBe("<div>null</div>");
 		});
 
 		it("uses the last export when the entry exports several", async () => {
-			// Intended behavior, not an accident: every export assigns to the same
-			// `exports.default`, so the last one is the demo component. Documented
-			// on the ExportSpecifier visitor in babelPluginTraverse.ts.
+			// Intended behavior, not an accident: with several exports the entry
+			// component is the last one in source order. Documented on
+			// `getEntryResult` in moduleRunner.ts.
 			const files: LiveDemoFiles = {
 				"App.jsx": `
           export const App = () => "FIRST";
@@ -283,9 +227,9 @@ describe("bundleCode", () => {
         `,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+			const App = await runCode({ files, entryFileName: "App.jsx" });
 
-			expect(getFnFromString(code)({})).toBe("SECOND");
+			expect((App as () => string)()).toBe("SECOND");
 		});
 
 		it("accepts a named export that pulls in a local file", async () => {
@@ -297,9 +241,9 @@ describe("bundleCode", () => {
 				"label.ts": `export const label = "FROM_LOCAL";`,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+			const App = await runCode({ files, entryFileName: "App.tsx" });
 
-			expect(getFnFromString(code)({})).toBe("FROM_LOCAL");
+			expect((App as () => string)()).toBe("FROM_LOCAL");
 		});
 	});
 
@@ -317,9 +261,9 @@ describe("bundleCode", () => {
 				"math.ts": `export function add(a: number, b: number): number { return a + b; }`,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+			const App = await runCode({ files, entryFileName: "App.tsx" });
 
-			expect(getFnFromString(code)({})).toBe(3);
+			expect((App as () => number)()).toBe(3);
 		});
 
 		it("strips richer type-only syntax from a .ts module", async () => {
@@ -337,9 +281,9 @@ describe("bundleCode", () => {
         `,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.tsx" });
+			const App = await runCode({ files, entryFileName: "App.tsx" });
 
-			expect(getFnFromString(code)({})).toBe("id:7");
+			expect((App as () => string)()).toBe("id:7");
 		});
 
 		it("runs a .ts entry file", async () => {
@@ -350,9 +294,9 @@ describe("bundleCode", () => {
         `,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.ts" });
+			const App = await runCode({ files, entryFileName: "App.ts" });
 
-			expect(getFnFromString(code)({})).toBe("TS_ENTRY");
+			expect((App as () => string)()).toBe("TS_ENTRY");
 		});
 
 		it("leaves a plain .js module alone", async () => {
@@ -364,9 +308,9 @@ describe("bundleCode", () => {
 				"util.js": `export const shout = (s) => s.toUpperCase();`,
 			};
 
-			const code = await bundleCode({ files, entryFileName: "App.jsx" });
+			const App = await runCode({ files, entryFileName: "App.jsx" });
 
-			expect(getFnFromString(code)({})).toBe("HI");
+			expect((App as () => string)()).toBe("HI");
 		});
 	});
 
@@ -379,9 +323,99 @@ describe("bundleCode", () => {
 			"Widget/index.tsx": `export default function Widget() { return "WIDGET"; }`,
 		};
 
-		const code = await bundleCode({ files, entryFileName: "App.tsx" });
-		const fn = getFnFromString(code);
+		const App = await runCode({ files, entryFileName: "App.tsx" });
 
-		expect(fn({})).toBe("WIDGET");
+		expect((App as () => string)()).toBe("WIDGET");
+	});
+
+	it("throws IMPORT_NOT_RESOLVED naming the importer for a broken local import", async () => {
+		const files: LiveDemoFiles = {
+			"App.tsx": `import { X } from "./DoesNotExist"; export default () => X;`,
+		};
+
+		await expect(runCode({ files, entryFileName: "App.tsx" })).rejects.toThrow(
+			/Couldn't resolve `\.\/DoesNotExist` from `App\.tsx`/,
+		);
+	});
+
+	describe("named imports a package doesn't export", () => {
+		/**
+		 * Babel's CommonJS interop compiles a named import to a property read,
+		 * so a bad one yields `undefined` and only fails later at the use site
+		 * with an opaque TypeError. `runCode` checks up front instead.
+		 */
+		it("throws UNDEFINED_NAMED_IMPORT naming the import and the package", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": `import { usestate } from "react"; export default () => usestate;`,
+			};
+
+			await expect(
+				runCode({ files, entryFileName: "App.tsx" }),
+			).rejects.toThrow(/Import 'usestate' from 'react' is undefined/);
+		});
+
+		it("checks named imports in a demo's local files too, not just its entry", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": `import { useCounter } from "./useCounter"; export default () => useCounter();`,
+				"useCounter.ts": `import { useStateTypo } from "react"; export const useCounter = () => useStateTypo(0);`,
+			};
+
+			await expect(
+				runCode({ files, entryFileName: "App.tsx" }),
+			).rejects.toThrow(/Import 'useStateTypo' from 'react' is undefined/);
+		});
+
+		it("allows default and namespace imports, which have no names to check", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": `import * as React from "react"; export default () => String(typeof React);`,
+			};
+
+			const App = await runCode({ files, entryFileName: "App.tsx" });
+
+			expect((App as () => string)()).toBe("object");
+		});
+
+		it("ignores type-only imports, which are erased before evaluation", async () => {
+			const files: LiveDemoFiles = {
+				"App.tsx": [
+					`import type { ReactNode } from "react";`,
+					`import { type Dispatch, useState } from "react";`,
+					`export default function App(): ReactNode {`,
+					`  const [n] = useState(0);`,
+					`  const unused: Dispatch<number> | undefined = undefined;`,
+					`  return String(n) + String(unused);`,
+					`}`,
+				].join("\n"),
+			};
+
+			const App = await runCode({ files, entryFileName: "App.tsx" });
+
+			expect((App as () => string)()).toBe("nullundefined");
+		});
+	});
+
+	it("runs files that import each other circularly", async () => {
+		// tests/fixtures/valid/Circular's shape: mutually recursive functions,
+		// only invoked after both modules finish their own initial evaluation.
+		// See collectDemoFiles.ts's docblock for the semantics this now relies
+		// on (Node's partial-exports, not a bundler's).
+		const files: LiveDemoFiles = {
+			"App.tsx": `
+          import { isEven } from "./even";
+          export default function App() { return isEven(4) ? "EVEN" : "ODD"; }
+        `,
+			"even.ts": `
+          import { isOdd } from "./odd";
+          export function isEven(n: number): boolean { return n === 0 ? true : isOdd(n - 1); }
+        `,
+			"odd.ts": `
+          import { isEven } from "./even";
+          export function isOdd(n: number): boolean { return n === 0 ? false : isEven(n - 1); }
+        `,
+		};
+
+		const App = await runCode({ files, entryFileName: "App.tsx" });
+
+		expect((App as () => string)()).toBe("EVEN");
 	});
 });

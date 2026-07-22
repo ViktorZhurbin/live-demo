@@ -28,7 +28,9 @@ test.describe("a real failure while editing surfaces in the preview's error over
 		await expect(preview.getByText("Unterminated JSX contents")).toBeVisible();
 	});
 
-	test("an unresolvable import names the missing module", async ({ page }) => {
+	test("an unresolvable local import names the missing module", async ({
+		page,
+	}) => {
 		const preview = page.getByTestId("preview");
 
 		await setCode(
@@ -37,8 +39,21 @@ test.describe("a real failure while editing surfaces in the preview's error over
 		);
 
 		await expect(
-			preview.getByText("Can't resolve DoesNotExist."),
+			preview.getByText("Couldn't resolve `./DoesNotExist`"),
 		).toBeVisible();
+	});
+
+	test("an unresolvable external import names the missing package", async ({
+		page,
+	}) => {
+		const preview = page.getByTestId("preview");
+
+		await setCode(
+			page,
+			'import { Nope } from "left-pad";\nexport const Basic = () => <div>{Nope}</div>;',
+		);
+
+		await expect(preview.getByText("Can't resolve left-pad.")).toBeVisible();
 	});
 
 	test("a missing default export names the entry file", async ({ page }) => {

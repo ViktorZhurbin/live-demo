@@ -11,10 +11,6 @@ fits in the monorepo.
 - `@codemirror/lang-javascript`: https://codemirror.net/docs/ref/
 - `react-resizable-panels`: https://github.com/bvaughn/react-resizable-panels/blob/main/README.md
 - `react-error-boundary`: https://github.com/bvaughn/react-error-boundary/blob/main/README.md
-- Rollup:
-  - Config: https://github.com/rollup/rollup/blob/master/docs/configuration-options/index.md
-  - JS API: https://github.com/rollup/rollup/blob/master/docs/javascript-api/index.md
-  - `@rollup/browser`: https://github.com/rollup/rollup/blob/master/docs/browser/index.md
 - `@babel/standalone`: https://github.com/babel/website/tree/main/docs
 - `tsdown`: https://github.com/rolldown/tsdown/blob/main/skills/tsdown/SKILL.md
 - `vitest`: https://github.com/vitest-dev/vitest/tree/main/docs/guide
@@ -46,7 +42,7 @@ External imports (react, etc.) are collected across all demos and exported
 from one generated virtual module (`getVirtualModulesCode.ts`) as lazy
 `() => import(...)` thunks. That one module is shared by the whole site,
 so static imports would make every demo page pay for every other page's externals.
-`bundleCode.ts` awaits just its own demo's before evaluating. `remarkPlugin.ts`
+`runCode.ts` awaits just its own demo's before evaluating. `remarkPlugin.ts`
 then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes a
 `<LiveDemo files={...} />` element, and on pages that have at least one demo,
 prepends an `import` of the layout so only those pages pull in the runtime graph
@@ -71,13 +67,19 @@ reach it. It owns the `Suspense` boundary, the loading skeleton, and the
 does not; see its docblock).
 
 **Runtime (browser, `src/web/`)**: user edits code in a CodeMirror-based
-editor, bundled with the package. On change, Babel (`@babel/standalone`) and
-Rollup (`@rollup/browser`) are loaded lazily via dynamic `import()`
-(`loadCompiler.ts`). The consuming site code-splits them into async chunks
-that load only on demo pages. Babel transpiles JSX/TS, then Rollup bundles the
-modules using a custom resolver plugin that resolves `./Button` against the
-importing file's directory to a key in the `files` record. The bundle is then
-evaluated with `new Function` and rendered into the host page's React tree.
+editor, bundled with the package. On change, Babel (`@babel/standalone`) is
+loaded lazily via dynamic `import()` (`loadCompiler.ts`). The consuming site
+code-splits it into an async chunk that loads only on demo pages. `runCode.ts`
+walks from the entry file over `files`, transpiling every reachable file
+straight to CommonJS (`babelTransformCode.ts`; JSX/TS presets plus
+`transform-modules-commonjs`, one Babel pass) and collecting the specifiers it
+can't resolve locally as externals. Once those externals are preloaded
+(`loadImports`), `moduleRunner.ts`'s small `require` evaluates each file with
+`new Function`, resolving `./Button`-style specifiers against the importing
+file's directory into a key in the `files` record — same resolution rules
+`collectDemoFiles.ts` uses at build time, via the shared `pathHelpers.ts`
+helpers. The entry file's default export (or its last named export) is then
+rendered into the host page's React tree.
 
 ### Dependency gotchas
 
@@ -100,8 +102,8 @@ them external in `dist/` and the real runtime copy must be
 The one contract spanning both phases: **`files` is keyed by each file's path
 relative to the entry file's directory**, posix-style. The build step
 (`collectDemoFiles.ts`) produces those keys; the runtime resolver
-(`pluginResolveModules.ts`) resolves imports against them. Both go through
-`shared/pathHelpers.ts`. Change one side, change the other, and check
+(`moduleRunner.ts`'s `resolveLocalImport`) resolves imports against them. Both
+go through `shared/pathHelpers.ts`. Change one side, change the other, and check
 `tests/integration/buildToRuntime.test.ts`, the only test that spans the seam.
 Every unit test on either half can pass while a demo renders nothing.
 
@@ -177,10 +179,10 @@ Test `web/` components against the actual `website/` through the preview build.
 This section exists to stop defensive-code creep.
 
 - **Isolation model** - Demo code is **not** sandboxed.
-  `CodeRunner` evaluates the bundle via`new Function(...)` and renders the
-  result with `createElement` directly in the host React tree, wrapped only
-  in a `react-error-boundary`. This is a docs tool and demo code authors are
-  as trusted as the docs themselves.
+  `moduleRunner.ts` evaluates each file via `new Function(...)` and
+  `CodeRunner` renders the result with `createElement` directly in the host
+  React tree, wrapped only in a `react-error-boundary`. This is a docs tool
+  and demo code authors are as trusted as the docs themselves.
 - **Cross-platform**: no Windows path handling. See the posix-style `files`
   keys in "The build→runtime seam" above.
 - **Graceful recovery on file reads**: a read that fails after the existence
@@ -197,8 +199,9 @@ This section exists to stop defensive-code creep.
 
 Every error the plugin itself throws (build- or runtime-side) is a
 `LiveDemoError` (`src/shared/errors/`). See the `errors.ts`/`messages.ts`
-docblocks for the class/message-table split and the two codes that splice a
-plain string into a demo's own bundle instead of importing the class.
+docblocks for the class/message-table split and the one code
+(`EXTERNAL_IMPORT_NOT_FOUND`) that splices a plain string into the generated
+virtual module instead of importing the class.
 
 - **`IMPORT_NOT_RESOLVED`** ("Couldn't resolve import"): the path doesn't
   exist under any supported extension. Check it against `getPossiblePaths`.

@@ -3,7 +3,7 @@
  *
  * This is deliberately just "source plus its import paths" — resolving those
  * paths, deciding which are local, and following them is `collectDemoFiles`'s
- * job, and bundling them is Rollup's at runtime.
+ * job, and evaluating them is `web/compiler/moduleRunner.ts`'s at runtime.
  */
 import type { Program } from "@oxc-project/types";
 import type { PathWithAllowedExt } from "~shared/types";

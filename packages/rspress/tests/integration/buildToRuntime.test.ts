@@ -1,13 +1,10 @@
-import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { demoRefKey } from "~node/helpers/demoRefKey";
 import { visitFilePaths } from "~node/visitFilePaths";
 import type { DemoDataByRef, UniqueImports } from "~shared/types";
-import { bundleCode } from "~web/compiler/bundleCode";
-import { getFnFromString } from "~web/compiler/getFnFromString";
+import { runCode } from "~web/compiler/runCode";
 
 /**
  * The build step (node/) and the browser bundler (web/) never meet in the
@@ -18,7 +15,7 @@ import { getFnFromString } from "~web/compiler/getFnFromString";
  * renders nothing.
  *
  * These tests run a real fixture all the way through: MDX scan → module
- * graph → `files` → Rollup/Babel → executed component.
+ * graph → `files` → Babel → executed component.
  */
 
 const renderToString = (tag: unknown, props: { children?: unknown }) => {
@@ -47,27 +44,6 @@ vi.mock("_live_demo_virtual_modules", () => ({
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 
-beforeAll(() => {
-	// @rollup/browser (loaded lazily by bundleCode) fetches its wasm binary at
-	// runtime; under Node that resolves to a file:// URL, which fetch doesn't
-	// support.
-	const originalFetch = globalThis.fetch;
-	globalThis.fetch = async (input, init) => {
-		const url =
-			typeof input === "string"
-				? input
-				: input instanceof URL
-					? input.href
-					: input.url;
-
-		if (url.startsWith("file://")) {
-			return new Response(fs.readFileSync(fileURLToPath(url)));
-		}
-
-		return originalFetch(input, init);
-	};
-});
-
 const buildDemo = (mdxFixture: string, demoPathUnderValid: string) => {
 	const uniqueImports: UniqueImports = new Set();
 	const demoDataByRef: DemoDataByRef = {};
@@ -88,16 +64,18 @@ describe("build-time output feeds the runtime bundler", () => {
 	it("runs a flat single-file demo end to end", async () => {
 		const { demo } = buildDemo("externalDemo.mdx", "SimpleComponent.tsx");
 
-		const code = await bundleCode(demo);
-		const component = getFnFromString(code);
+		const component = await runCode(demo);
 
-		expect(component({})).toBe("<div>Hello World</div>");
+		expect((component as (props: object) => string)({})).toBe(
+			"<div>Hello World</div>",
+		);
 	});
 
 	it("runs a demo with files in subfolders sharing a base name", async () => {
 		const { demo } = buildDemo("nestedDemo.mdx", "SharedNames/App.tsx");
 
-		// The build step must hand over distinct keys...
+		// The build step must hand over distinct keys, and the runtime resolver
+		// must resolve each import back to the right one, not conflate them.
 		expect(Object.keys(demo.files).sort()).toEqual([
 			"App.tsx",
 			"buttons/styles.ts",
@@ -105,24 +83,11 @@ describe("build-time output feeds the runtime bundler", () => {
 		]);
 		expect(demo.entryFileName).toBe("App.tsx");
 
-		// ...and the runtime must resolve each import back to the right one.
-		const code = await bundleCode(demo);
-		const component = getFnFromString(code);
+		const component = await runCode(demo);
 
-		expect(component({})).toBe("<div>BUTTON_STYLESCARD_STYLES</div>");
-	});
-
-	it("every file key the build emits is reachable by the runtime resolver", async () => {
-		const { demo } = buildDemo("nestedDemo.mdx", "SharedNames/App.tsx");
-
-		const code = await bundleCode(demo);
-
-		// Nothing may survive as an unresolved bare import. That would mean
-		// Rollup treated a local file as an external package.
-		expect(code).not.toMatch(/require\(["']\.\//);
-		for (const filePath of Object.keys(demo.files)) {
-			expect(code).not.toContain(`'${filePath}'`);
-		}
+		expect((component as (props: object) => string)({})).toBe(
+			"<div>BUTTON_STYLESCARD_STYLES</div>",
+		);
 	});
 
 	it("runs a demo whose entry file imports above its own directory", async () => {
@@ -137,17 +102,17 @@ describe("build-time output feeds the runtime bundler", () => {
 			"App.tsx",
 		]);
 
-		const code = await bundleCode(demo);
-		const component = getFnFromString(code);
+		const component = await runCode(demo);
 
-		expect(component({})).toBe("<div>THEMED</div>");
+		expect((component as (props: object) => string)({})).toBe(
+			"<div>THEMED</div>",
+		);
 	});
 
 	it("runs a demo whose files import each other circularly", async () => {
-		// The build step used to reject cycles outright. It doesn't, because
-		// they're legal in ES modules and Rollup bundles them correctly. This
-		// executes one to prove the rejection was blocking working demos, and
-		// guards against reintroducing it.
+		// The build step doesn't reject cycles — they're legal in ES modules —
+		// and the runtime's CommonJS require graph resolves them too, per
+		// `collectDemoFiles.ts`'s docblock. This executes one end to end.
 		const { demo } = buildDemo("circularDemo.mdx", "Circular/App.tsx");
 
 		expect(Object.keys(demo.files).sort()).toEqual([
@@ -156,9 +121,10 @@ describe("build-time output feeds the runtime bundler", () => {
 			"odd.ts",
 		]);
 
-		const code = await bundleCode(demo);
-		const component = getFnFromString(code);
+		const component = await runCode(demo);
 
-		expect(component({})).toBe("<div>EVEN</div>");
+		expect((component as (props: object) => string)({})).toBe(
+			"<div>EVEN</div>",
+		);
 	});
 });
