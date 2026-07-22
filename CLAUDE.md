@@ -13,6 +13,15 @@ export const App = () => {
 ```
 ````
 
+## Scale
+
+This is an experimental side project with nearly zero users (~22 weekly npm
+downloads, none of them known). Treat that as a design input, not trivia:
+abstract "users would pay X" arguments carry little weight here, and a change
+that adds real complexity needs to justify itself on the code's own terms.
+Exploring interesting problems (in-browser bundling, for one) is an explicit
+and legitimate goal alongside shipping something useful.
+
 ## Monorepo layout
 
 - `packages/rspress/`: the published plugin (`@live-demo/rspress`). Has its own
