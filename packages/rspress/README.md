@@ -53,9 +53,9 @@ export const App = () => {
 
 https://live-demo.pages.dev/guide/getStarted
 
-## Improvements over `@rspress/plugin-playground`:
+## Compared to `@rspress/plugin-playground`
 
-This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground), which adds some important improvements:
+This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). It adds some important improvements:
 
 - **Multi-file support**
 - **Typescript w/o red squiggles** (no intellisense still)
@@ -68,7 +68,7 @@ This is a fork of [@rspress/plugin-playground](https://rspress.dev/plugin/offici
 - fullscreen option
 - and some more...
 
-## Coming in v3:
+### Coming in v3:
 
 - Per-page layout injection: `@rspress/plugin-playground` injects it globally, ie it's loaded on a 404 page too
 - Lazy external imports: `@rspress/plugin-playground` loads all dependencies used in playgrounds across the project, ie if one page had Three.js it would be loaded on every page too.

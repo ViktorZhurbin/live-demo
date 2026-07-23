@@ -4,6 +4,7 @@
 *.log*
 .pnpm-store/
 .tmp/
+.playwright-mcp/
 
 # Dist
 node_modules

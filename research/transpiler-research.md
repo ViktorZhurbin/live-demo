@@ -60,6 +60,13 @@ missing its closing brace) to see what its error looks like.
 | Yuku (`@yuku-codegen/wasm`)      | 0.7.4   | 38.6 KB   | 7.9 KB    | (n/a)           | yes, same story                  | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
 | Yuku codegen wasm blob           | 0.7.4   | 221.2 KB  | 44.4 KB   | (n/a)           | —                                | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
 
+**All brotli figures here are offline quality 11 and are not comparable to production
+numbers.** Cloudflare compresses on the fly at a lower quality, so its output is
+larger: the same `@babel/standalone` chunk measured **492.5 KB** brotli over
+`live-demo.pages.dev` against **387.6 KB** offline here. Compare like with like, and
+prefer the raw column when comparing across measurement methods — it's the only
+quality-independent number in the table.
+
 Sizes are the transform-entry-point bundle only (`{ transform }`, minified, esbuild
 `--bundle`), same method for every JS candidate. "Brotli (n/a)" for a wasm blob means I
 didn't re-run brotli on it as a second number worth trusting — see "What I could not
@@ -311,13 +318,45 @@ disqualification with real numbers.
   confirmed this from the docs' claim that they're "the same ESTree/TS-ESTree
   output," not by feeding `module.ast` into `generate()` myself.
 
+## Postscript: the abandoned `@babel/core` swap
+
+Before this research ran, `@babel/standalone` was swapped for `@babel/core` plus only
+the four plugins actually used. It worked — codeframes survived, the async-chunk
+boundary held, `check:all` green, demos verified in a browser. It was still abandoned,
+and both reasons are worth recording because they generalize.
+
+**It exported build config to every consumer.** `@babel/core@8` already stubs its
+config-file loading behind a `browser` export condition, so that anticipated risk was
+solved upstream. What wasn't: `@babel/core` and several of its plugins import
+`node:assert`, `node:path`, and `node:util` for pure string and invariant logic,
+outside that stub. Making it build required `@rsbuild/plugin-node-polyfill` plus two
+hand-written shims — **in `website/rspress.config.ts`, not in the package**. Since the
+consuming site is what bundles the runtime, every consumer would have had to replicate
+that. For a plugin whose pitch is being easier to adopt than
+`@rspress/plugin-playground`, mandatory bundler config is the wrong trade at any size.
+This is where requirement 1 came from.
+
+**Under brotli it was worth roughly nothing.** The headline was ~90 KB gzip. But the
+`@babel/core` chunk measured 387.2 KB brotli, and this research measured
+`@babel/standalone` at 387.6 KB brotli by a comparable offline method. Different
+bundling contexts, so not a clean A/B, but close enough to conclude the win was a
+gzip-only artifact. Cloudflare serves brotli. **Lesson: for a decision about real
+payload, measure brotli against the CDN that actually serves it — a gzip delta can be
+almost entirely compression-artifact.**
+
+The work is preserved at `git stash@{0}` ("babel/standalone > babel/core") if a future
+change makes the packaging question moot — for instance, pre-bundling Babel into the
+package's own `dist/` with the shims applied at package build time, which would remove
+the consumer burden while keeping the smaller Babel. That option was never tested.
+
 ## Recommendation
 
 Stay on `@babel/standalone`. It's the only candidate that clears every hard
 requirement without new code: zero-config browser execution, CJS output, the
 specifier/named-import pass the pipeline already depends on, and a codeframe in the
-error message a user actually sees. The 90 KB gzip that the abandoned `@babel/core`
-swap would have saved isn't recoverable by any transpiler measured here without
+error message a user actually sees. The `@babel/core` swap that looked like ~90 KB
+gzip turned out to be near-zero under brotli and carried a consumer build-config cost
+(see Postscript), and no transpiler measured here recovers real payload without
 either failing requirement 1 outright (oxc) or giving up AST access and error quality
 for a project that's been essentially dormant for two years (Sucrase). If this gets
 revisited, three concrete triggers to watch for: Sucrase shipping a real, sustained
