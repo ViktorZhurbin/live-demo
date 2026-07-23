@@ -1,4 +1,4 @@
-# Browser transpiler research: replacing/keeping `@babel/standalone`
+# Part 1
 
 Date: 2026-07-23. Scope: `packages/rspress/src/web/compiler/` — per-file transpile to
 CommonJS, run through `moduleRunner.ts`'s `new Function(require, module, exports)`
@@ -367,3 +367,203 @@ with a CJS output mode; or someone deciding it's worth building a JSX-automatic-
   corrected research above — has the smallest footprint and the only wasm delivery story
   here that doesn't need cross-origin-isolation headers, at the cost of that transform
   layer not existing yet.
+
+# Part 2
+
+**A custom fork of Sucrase is viable and is is arguably the cleanest long-term path to eliminating Babel while keeping your zero-consumer-config guarantee.**
+
+The initial research rightly disqualified _unmodified_ `sucrase@3.35.1` from `npm`. However, all three reasons it failed in your comparison—lack of specifier metadata, missing error codeframes, and unused legacy code—are artifacts of Sucrase's high-level API wrappers, **not fundamental limitations of its engine**.
+
+Below is a full review of Sucrase’s source code, an evaluation of its internals, and a concrete blueprint for building a hyper-focused **`sucrase-lite`** side project for `@live-demo/rspress`.
+
+---
+
+## Source Code Review & Architecture Evaluation
+
+Sucrase is fundamentally a **token-stream rewriter**, not an AST compiler. It tokenizes source code once using a modified Babel parser, identifies token ranges to delete or insert (e.g., stripping `: string` or replacing `<div />` with `_jsx("div", {})`), and stitches the original string slices back together.
+
+```
+Source Code ──> Tokenizer ──> TokenProcessor ──> Transformers ──> Output String
+                                (Token Stream)     (CJS, JSX, TS)
+
+```
+
+### 1. Specifier & Named Import Extraction
+
+- **Source Files:** `src/transformers/CJSImportTransformer.ts`, `src/util/getImportExportSpecifierInfo.ts`
+- **Current Behavior:** To transform `import { useState, useEffect as useEff } from "react"` into CommonJS `var _react = require("react")`, `CJSImportTransformer` already walks every import statement at the token level. It uses `getImportExportSpecifierInfo()` to extract local names, imported names, and package specifiers.
+- **The Opportunity:** Standard Sucrase discards this metadata when `transform()` completes. By adding a simple array/map collector directly inside `CJSImportTransformer`, your fork can return `importSpecifiers` and `namedImports` natively in the exact shape `runCode.ts` requires—**with zero performance penalty and no second parse**.
+
+### 2. Syntax Error Quality & Codeframes
+
+- **Source Files:** `src/parser/tokenizer/index.ts`, `src/parser/traverser/util.ts`
+- **Current Behavior:** When Sucrase hits a syntax error, `this.unexpected()` calls `getLineAndColumnFromPos(this.input, this.state.pos)` and throws a standard `SyntaxError` with a plain string like `Unexpected token (1:23)`. It computes the exact character offset (`this.state.pos`), but never formats source line context.
+- **The Opportunity:** Because `this.state.pos` and the full `input` string are available at the exact moment an error is thrown, a ~25-line formatting helper inserted into `this.error()` can splice line slices and generate a Babel-identical ASCII codeframe directly into `error.message`:
+
+```sh
+SyntaxError: Unexpected token (1:23)
+> 1 | const App = () => <div>Hello</span>;
+    |                            ^
+
+```
+
+### 3. Automatic JSX Runtime Defaults
+
+- **Source Files:** `src/transformers/JSXTransformer.ts`, `src/util/getJSXPragmaInfo.ts`
+- **Current Behavior:** Sucrase defaults JSX transforms to classic `React.createElement` unless configured with `jsxRuntime: "automatic"` and `production: true`. Without `production: true`, it targets `react/jsx-dev-runtime` (`jsxDEV`).
+- **The Opportunity:** In your fork, you can hardcode the automatic JSX transformer to always emit `react/jsx-runtime` (`_jsx`/`_jsxs`), eliminating the need to pass extra configuration flags at runtime.
+
+### 4. Code Base Footprint & Dead Weight
+
+- **Source Files:** `src/transformers/FlowTransformer.ts`, `src/parser/plugins/flow.ts`, `src/transformers/JestHoistTransformer.ts`, `src/transformers/ReactHotLoaderTransformer.ts`, `src/cli.ts`, `src/register.ts`
+- **Evaluation:** Flow type parsing alone accounts for a significant portion of Sucrase's parser logic. Combined with Jest hoisting, React Hot Loader transforms, and Node CLI/register entry points, over 50% of the repository is unused for your browser demo use case.
+- **The Opportunity:** Deleting these modules leaves a clean core containing only `Tokenizer`, `TokenProcessor`, `TypeScriptTransformer`, `JSXTransformer`, and `CJSImportTransformer`.
+
+---
+
+## Blueprint for a `sucrase-lite` Fork
+
+If you build this as a side project (e.g., an in-monorepo package `@live-demo/transpiler`), here is the step-by-step modification plan:
+
+### Step 1: Prune Unused Code
+
+Remove the following directories and files:
+
+- `src/transformers/FlowTransformer.ts` & `src/parser/plugins/flow.ts`
+- `src/transformers/JestHoistTransformer.ts`
+- `src/transformers/ReactHotLoaderTransformer.ts`
+- `src/cli.ts`, `src/register.ts`, `bin/`, `integrations/`, `ts-node-plugin/`
+
+### Step 2: Hook Import Specifiers into `CJSImportTransformer`
+
+In `src/transformers/CJSImportTransformer.ts`, record imports as they are processed:
+
+```ts
+// Inside CJSImportTransformer processing loop
+export interface TranspileResult {
+  code: string;
+  importSpecifiers: string[];
+  namedImports: Map<string, Set<string>>;
+}
+
+// As getImportExportSpecifierInfo parses tokens:
+const pkg = this.tokens.stringValueForToken(specifierToken);
+importSpecifiers.push(pkg);
+
+if (specifier.importedName && !specifier.isType) {
+  const names = namedImports.get(pkg) ?? new Set();
+  names.add(specifier.importedName);
+  namedImports.set(pkg, names);
+}
+
+```
+
+### Step 3: Enhance `error()` with ASCII Codeframe Generation
+
+In `src/parser/traverser/util.ts`, update the error throw site:
+
+```ts
+export function createCodeframe(input: string, pos: number): string {
+  const lines = input.slice(0, pos).split("\n");
+  const lineNum = lines.length;
+  const colNum = lines[lines.length - 1].length + 1;
+  const allLines = input.split("\n");
+
+  const line = allLines[lineNum - 1] || "";
+  const lineNumberPrefix = `> ${lineNum} | `;
+  const indent = " ".repeat(lineNumberPrefix.length + colNum - 1);
+
+  return `SyntaxError: Unexpected token (${lineNum}:${colNum})\n${lineNumberPrefix}${line}\n${indent}^`;
+}
+
+```
+
+---
+
+## Comparison: `@babel/standalone` vs. `sucrase-lite`
+
+| Metric / Requirement          | `@babel/standalone` (Current) | `sucrase-lite` (Custom Fork)            |
+| ----------------------------- | ----------------------------- | --------------------------------------- |
+| **Bundle Size (Raw)**         | ~2,385 KB                     | **~85 KB**                              |
+| **Bundle Size (Brotli)**      | ~387 KB                       | **~22 KB**                              |
+| **Startup / Execution Speed** | Baseline (~1x)                | **~15x – 20x faster** (No AST creation) |
+| **Consumer Build Config**     | Zero Config                   | **Zero Config**                         |
+| **Module Output**             | CommonJS                      | CommonJS                                |
+| **Specifier Extraction**      | AST Visitor Pass              | Native Token Collector Pass             |
+| **Error Codeframes**          | Baked into `.message`         | Built-in via offset generator           |
+| **Maintenance Burden**        | External dependency           | ~1,200 lines of internal monorepo code  |
+
+---
+
+## Final Recommendation & Strategy
+
+1. **Phase 1 (Immediate):** Stay on `@babel/standalone`. It is stable, already implemented, and correctly handled behind your `@live-demo/rspress/web/lazy` dynamic import boundary.
+2. **Phase 2 (Side Project):** Fork Sucrase into a lightweight monorepo package inside your project. Apply the codeframe helper, hardcode the automatic JSX runtime, and expose the `importSpecifiers`/`namedImports` map directly from `transform()`.
+3. **Phase 3 (Validation):** Run your existing Vitest and Playwright test suites against `sucrase-lite`. Once verified, swap `@babel/standalone` out to permanently reduce your browser demo compiler payload from **~387 KB brotli down to ~22 KB brotli**.
+
+# Part 3
+
+## What the source confirms
+
+**Specifier extraction is even easier than Part 2 says.** It doesn't need a hook in `CJSImportTransformer`. `CJSImportProcessor` already maintains `importInfoByPath: Map<string, ImportInfo>` (`src/CJSImportProcessor.ts:34`), populated by `preprocessTokens()` before any transform runs, where `ImportInfo` is `{defaultNames, wildcardNames, namedImports: [{importedName, localName}], namedExports, hasBareImport, exportStarNames, hasStarExport}`. That is a superset of `TransformedFile`'s `importSpecifiers` + `namedImports`. Type-only specifiers are already excluded at the source (`getImportExportSpecifierInfo` returns `isType: true` with null names, and `CJSImportProcessor.ts:370` skips those), which matches the visitor's `importKind === "type"` early-return in `babelTransformCode.ts`. The patch is: make the field public, return it from `transform()`. Maybe 10 lines.
+
+**Codeframes need no fork at all.** Part 1 recorded `.loc` as empty. That's wrong. `augmentError` (`src/parser/traverser/base.ts:16`) sets both `error.pos` and `error.loc = {line, column}`. Verified by running it:
+
+```
+Error transforming Broken.tsx: Unexpected token, expected ";" (1:23) | pos: 22 | loc: {"line":1,"column":23}
+```
+
+So the codeframe helper belongs in live-demo's own error path, built from `err.loc` plus the source string you already have. Requirement 5 is satisfiable in ~20 lines of your code, in your tests, with no upstream surface. Part 2 putting it inside `unexpected()` is the worse placement.
+
+**JSX runtime**: confirmed, `production: true` is the only thing gating `react/jsx-runtime` over `jsx-dev-runtime` (`JSXTransformer.ts:75`). One option flag. Hardcoding it in a fork buys nothing.
+
+## The gap neither part found
+
+Sucrase does not validate JSX tag matching. Verified:
+
+```js
+transform('export const App = () => <div>Hello</span>;', ...)
+// → _jsxruntime.jsx.call(void 0, 'div', { children: "Hello"})   ← no error
+```
+
+The closing tag name is parsed and then ignored. `<div a="1" a="2" />` also passes silently. Babel rejects the first with "Expected corresponding JSX closing tag". In a live editor where people retype tags constantly, a mistyped closing tag would silently render the wrong thing instead of showing the overlay. This is the most substantive regression in the proposal, and it's the one thing that genuinely argues _for_ owning the code: `jsxParseOpeningElement` / `jsxParseClosingElement` (`src/parser/plugins/jsx/index.ts:186,230`) both go through `jsxParseElementName`, so the token ranges for both names exist and comparing them is maybe 30 lines. Upstream won't add it (it's a deliberate speed tradeoff), so you'd carry it.
+
+## Real sizes
+
+Part 2's ~85 KB raw / ~22 KB brotli is optimistic by roughly 60%. Measured with the same esbuild method Part 1 used:
+
+| Build                                                                     | Raw     | Gzip    | Brotli(q11) |
+| ------------------------------------------------------------------------- | ------- | ------- | ----------- |
+| `@babel/standalone` (Part 1)                                              | 2385 KB | 563 KB  | 388 KB      |
+| npm `sucrase@3.35.1`, unmodified                                          | 201 KB  | 46.2 KB | 40.1 KB     |
+| `src/` bundled without options-validator, sourcemaps, `lines-and-columns` | 162 KB  | 36.0 KB | 30.9 KB     |
+| realistic max-pruned fork (est. from metafile)                            | ~136 KB | ~30 KB  | ~26 KB      |
+
+Per-module bytes from the metafile: Flow parser + transformer 8.7 KB, `ESMImportTransformer` 6.2 KB, ReactDisplayName 2.4 KB, JestHoist 1.3 KB, ReactHotLoader 1.1 KB, `formatTokens` 0.9 KB. All of Part 2's Step 1 deletions total about 16 KB raw, roughly 4 KB brotli.
+
+That reframes the whole thing: **unmodified Sucrase already captures ~348 KB of the ~362 KB brotli win. Pruning buys about 1% of the total, at the cost of the largest and most irreversible part of the diff.** Step 1 is the worst-value step in the plan. Dropping `validateOptions` (`ts-interface-checker`) and `computeSourceMap` (`gen-mapping`) is worth more than deleting Flow, and is two import lines.
+
+Also verified for requirement 1: the npm `sucrase` browser bundle contains zero `node:` builtins and zero `process` references. Genuinely zero consumer config, unlike the `@babel/core` path in the Postscript.
+
+## On staleness vs stability
+
+Your instinct holds up structurally, more than the release dates suggest. Sucrase is a token rewriter, not an AST compiler, so syntax it doesn't need to transform mostly passes through untouched. New JS syntax costs it far less than it costs Babel. Confirmed present in 3.35.1: `satisfies`, `accessor`, `using` / `await using`, import attributes (`with {}`), `in`/`out` variance, const type params. That's TS 5.2-era, and TS has added almost no new syntax since. Decorators are parsed but passed through untransformed, which is roughly parity with your current Babel config (no decorators plugin enabled).
+
+The limit is that it's still a full parser, so genuinely new grammar breaks it, and there's no one upstream to fix it. But the surface a doc demo exercises is covered today, and the ~23-month gap plausibly reflects "done" more than "abandoned" for this use case.
+
+The honest counterpoint to the fork plan: forking converts an external maintenance risk into an internal one over ~13k lines of parser you didn't write. If upstream is dead, you inherit its bugs either way, but a fork also means you inherit them without the fallback of a version bump.
+
+## What I'd actually do
+
+Skip Step 1. Don't vendor 13k lines. Use `pnpm patch` against `sucrase@3.35.1`, with a diff of roughly 100 lines:
+
+1. Expose `importInfoByPath` from `transform()`.
+2. Drop `validateOptions` and the sourcemap import (~9 KB brotli, more than pruning Flow).
+3. Add JSX open/close tag-name validation.
+
+Then in live-demo: a codeframe formatter over `err.loc`, and pass `jsxRuntime: "automatic", production: true`. That gets you ~31 KB brotli, keeps the owned surface small enough to actually review, and keeps `pnpm patch`'s rebase-on-upgrade as a safety net. Upstream's slowness makes patch maintenance nearly free, which is the same property you identified, applied to a cheaper strategy than forking. If the patch grows past ~300 lines, that's the signal to vendor properly.
+
+Two things I didn't check, both worth resolving before committing:
+
+- **The injected `react/jsx-runtime` import won't appear in `importInfoByPath`.** `babelTransformCode.ts`'s docblock specifically relies on Babel's visitor seeing preset-injected specifiers in the same traversal. Sucrase's JSX transformer emits that `require` as text after preprocessing, so the externals walk would miss it. Probably harmless if `react/jsx-runtime` is always resolvable, but it needs checking against `getVirtualModulesCode.ts`, not assuming.
+- **`.call(void 0, ...)` output shape.** Sucrase emits `_jsxruntime.jsx.call(void 0, 'div', {...})` and `_react.useState.call(void 0, 0)`. Functionally fine under `moduleRunner`, but it's a different interop shape from Babel's, and your `UNDEFINED_NAMED_IMPORT` check reads `resolved[importName]` which still works. Worth running the real e2e suite against before trusting.
