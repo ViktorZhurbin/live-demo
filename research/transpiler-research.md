@@ -567,3 +567,361 @@ Two things I didn't check, both worth resolving before committing:
 
 - **The injected `react/jsx-runtime` import won't appear in `importInfoByPath`.** `babelTransformCode.ts`'s docblock specifically relies on Babel's visitor seeing preset-injected specifiers in the same traversal. Sucrase's JSX transformer emits that `require` as text after preprocessing, so the externals walk would miss it. Probably harmless if `react/jsx-runtime` is always resolvable, but it needs checking against `getVirtualModulesCode.ts`, not assuming.
 - **`.call(void 0, ...)` output shape.** Sucrase emits `_jsxruntime.jsx.call(void 0, 'div', {...})` and `_react.useState.call(void 0, 0)`. Functionally fine under `moduleRunner`, but it's a different interop shape from Babel's, and your `UNDEFINED_NAMED_IMPORT` check reads `resolved[importName]` which still works. Worth running the real e2e suite against before trusting.
+
+# Part 4: implemented
+
+Date: 2026-07-23, branch `sucrase-migration`. Parts 1-3 were research; this
+part records what shipping it actually cost and what the earlier parts got
+wrong. **Sucrase is in, `@babel/standalone` is out**, and none of Part 2's
+fork, Part 3's `pnpm patch`, or any vendoring was needed.
+
+## The strategy that won, and why the earlier ones lost
+
+Parts 2 and 3 both assumed the pipeline needs Sucrase's _internal_ import
+metadata, and argued about how invasively to reach it (fork vs. patch). Both
+were solving a problem that dissolves once you look at the output instead of
+the internals.
+
+**Specifiers are recovered by scanning the emitted `require(...)` calls.**
+That's `transformCode.ts`'s `extractRequireSpecifiers`, a regex over Sucrase's
+own generated output. Sucrase stays a plain, upgradable dependency: no patch,
+no fork, no deep imports, only the public `transform` export.
+
+Two things killed the `pnpm patch` plan on contact:
+
+1. **The published package ships `dist/` _and_ `dist/esm/` (plus
+   `dist/types/`).** Exposing `importInfoByPath` means the same edit in ~7
+   compiled files, not one source file. Part 3 costed the patch as if it
+   applied to `src/`. It doesn't — npm ships compiled output.
+2. **The injected `react/jsx-runtime` import is genuinely unreachable that
+   way.** Part 3 flagged this as unchecked; it's now confirmed.
+   `JSXTransformer.claimAutoImportedName` (`dist/transformers/JSXTransformer.js:298`)
+   keeps it in a private `cjsAutomaticModuleNameResolutions` map and emits the
+   `require` as text. It never touches `importInfoByPath`, so the patch would
+   have needed a second edit in a second file anyway.
+
+The output scan gets that injected import **for free**, because by then it's
+just another `require` in the text. The mechanism Parts 2 and 3 treated as the
+hard part is the one the chosen approach handles without special-casing.
+
+## The named-import check moved instead of being preserved
+
+Requirement 4 asked for named-import _names_, solely to power
+`UNDEFINED_NAMED_IMPORT`. Sucrase's emit doesn't preserve them — they become
+plain property reads (`_react.useState`) — and the output scan can't recover
+them.
+
+Rather than reach into internals to keep the old design, the check moved to a
+`Proxy` in `moduleRunner.ts`'s `wrapExternal`, which throws when demo code
+_reads_ a property the package doesn't export. `runCode.ts`'s
+`assertNamedImportsExist` and the entire `namedImports` plumbing are deleted.
+
+This is arguably better than what it replaced — the error names the property
+at the actual use site — but it is a real behavior change, not a wash:
+
+- It fires **during** evaluation, not before it.
+- Feature detection on a missing export (`if (pkg.maybeThing)`) now throws
+  instead of quietly seeing `undefined`.
+- The trap needs an allowlist. Symbol keys and `then` must pass through: a
+  proxy that throws on `then` turns "this isn't a Promise" into an uncatchable
+  rejection anywhere the namespace object gets awaited.
+
+**Requirement 4 was over-specified.** It described the existing implementation
+(a specifier list _and_ a named-import map) rather than the actual need
+(discover externals; diagnose bad named imports). Splitting those two needs
+apart is what unblocked everything else. Worth remembering the next time a
+requirements list is derived from reading the code that satisfies it.
+
+## Real bundle numbers, measured in situ
+
+Part 1 and Part 3 measured candidate bundles offline with esbuild. These are
+the **actual built website chunks** (`website/doc_build/static/js/async/`),
+which is what a visitor downloads:
+
+| Chunk                   | Raw      | Gzip    | Brotli(q11) |
+| ----------------------- | -------- | ------- | ----------- |
+| Sucrase compiler chunk  | 196.3 KB | 43.8 KB | 36.9 KB     |
+| live-demo runtime chunk | 12.1 KB  | 5.0 KB  | 4.5 KB      |
+
+Grepping every async chunk for `@babel/standalone` / `babel-plugin-transform`
+returns zero hits: Babel is fully gone from the output, not merely unreferenced.
+
+Caveat on the comparison: **this is not a matched A/B.** The pre-migration
+build wasn't measured in situ, so the honest framing is Part 1's offline
+`@babel/standalone` figure (2385 KB raw / 388 KB brotli) against this build's
+196.3 KB raw / 36.9 KB brotli. The raw column is the only quality-independent
+one. Part 1's warning still applies: Cloudflare compresses at lower quality
+than offline q11, so the deployed brotli number will be larger than 36.9 KB.
+
+Part 3's size analysis holds up. Unmodified Sucrase captured essentially the
+whole win; the pruning Part 2 built its plan around would have bought ~1% of
+it for the largest and most irreversible part of the diff.
+
+## What Parts 1-3 got wrong, corrected
+
+- **Part 1: "Sucrase's `.loc` is empty."** Wrong, as Part 3 said. `err.loc =
+{line, column}` is populated. `formatCodeframe.ts` renders a codeframe from
+  it, shaped to match oxc's build-side output so both paths through
+  `PARSE_FAILED` look identical. No new error code was needed — `PARSE_FAILED`
+  already had a `codeframe` token, used by `readAndParseFile.ts`.
+- **Part 1: "No AST/specifier access → needs a second parse."** True about the
+  API, wrong about the consequence. The output scan needs no second parse.
+- **Part 2: `~85 KB raw / ~22 KB brotli`.** Optimistic, as Part 3 found; the
+  real shipped chunk is 196.3 KB raw / 36.9 KB brotli.
+- **Part 2: "hardcode the automatic JSX runtime."** Unnecessary.
+  `jsxRuntime: "automatic"` + `production: true` are two option flags.
+- **Part 3: `pnpm patch` for ~100 lines.** Underestimated by the cjs/esm/types
+  triplication described above.
+
+## Gaps accepted and documented
+
+All three are in `packages/rspress/CLAUDE.md`'s Limitations section.
+
+1. **No JSX closing-tag-mismatch or duplicate-prop diagnostics.** Part 3's
+   finding, accepted rather than fixed. `<div></span>` transpiles and runs.
+   Fixing it means owning parser code, which is exactly what the chosen
+   strategy avoids.
+2. **`require('pkg')` at the start of a line in a demo's string is read as a
+   real import.** Found while reviewing the implementation, not predicted by
+   any earlier part. Sucrase passes comments and strings through verbatim, so
+   the output scan can't tell them from its own emit. Fails loudly as
+   `EXTERNAL_IMPORT_NOT_FOUND`, never silently. This is the chosen strategy's
+   one genuine soft spot, and the honest price of not reaching into internals.
+
+   **Narrowed after review** (see Part 5): the scan is now anchored to the two
+   shapes Sucrase actually emits, so the comment and mid-line-string cases are
+   gone. Only a line-initial `require(...)` inside a string still slips
+   through.
+
+3. **Unused value imports are elided in `.js`/`.jsx` too.** The `typescript`
+   transform now runs unconditionally (the old code branched on file
+   extension), so TS-style unused-import elision applies to plain JS as well.
+   Bare `import './styles.css'` survives; only `import X from 'pkg'` with `X`
+   unused and `pkg` wanted for side effects is affected.
+
+## Verification
+
+`pnpm run check:all` green end to end: format, lint, both builds, typecheck,
+**186/186 vitest**, knip, **21/21 Playwright e2e**. Unit tests, lint, and the
+full e2e suite were each re-run independently of the implementing agent's
+report.
+
+`tests/web/compiler/runCode.test.ts` was the load-bearing artifact — ~30 cases
+running the _real_ compiler end to end rather than a mock. Every assertion
+survived the swap. Two things only it and the e2e suite could have caught:
+
+- Two `UNDEFINED_NAMED_IMPORT` fixtures wrapped the bad import in an arrow
+  function `runCode` never calls. Babel's eager check threw regardless; the
+  Proxy only throws on an actual read. The fixtures now read at module top
+  level. **Those two tests had been passing for a reason that no longer
+  exists** — a latent weakness the migration exposed.
+- `website/e2e/errorOverlay.spec.ts` asserted Babel's exact string
+  `"Unterminated JSX contents"`. Sucrase produces
+  `Unexpected token, expected ";" (1:25)` for that input — less specific, and
+  consistent with gap 1 above. Only running Playwright surfaced it.
+
+## Open
+
+- **Deployed brotli size.** Measure the compiler chunk over
+  `live-demo.pages.dev` after this lands, per Part 1's lesson about offline vs.
+  CDN compression quality.
+- **`CHANGELOG.md`'s size claim** should cite the in-situ raw number above
+  rather than any offline brotli figure.
+- **Syntax coverage over time.** Part 3's staleness analysis (token rewriter,
+  so new syntax mostly passes through; TS 5.2-era features confirmed present)
+  is the standing argument for tolerating an upstream that ships rarely. The
+  trigger to revisit is a _grammar_ Sucrase's parser rejects, not another
+  quiet release year.
+
+# Part 5: independent review, and what it changed
+
+Date: 2026-07-23. A review of the staged migration against the domain (an
+Rspress docs plugin), the project's scale, and the tradeoffs. **Verdict: the
+swap is justified and lands net better.** The strongest thing in it is
+structural rather than numeric: recovering specifiers from the _output_ keeps
+Sucrase a plain, upgradable dependency — no fork, no `pnpm patch`, no deep
+imports, only the public `transform` export — which also makes the bet cheap
+to unwind (three files, ~250 lines).
+
+Independently re-verified rather than taken on trust:
+
+- `err.loc` really is populated, **with and without** `filePath` passed. Part
+  1's "loc is empty" was wrong; Part 3's correction stands.
+- Sucrase's browser entry (`dist/esm/index.js`) reaches zero node builtins.
+  `commander`/`mz`/`pirates`/`tinyglobby` are CLI/register-only and
+  unreachable from `transform`, so requirement 1 holds at install _and_ bundle
+  level.
+- The emit shapes the output scan depends on, enumerated across every import
+  and re-export form.
+
+## Changes the review produced
+
+1. **The specifier scan is anchored, not free-floating.** Every import Sucrase
+   emits is one of exactly two shapes: `var _x = require('spec')` for anything
+   with bindings (including its injected jsx-runtime import and all
+   `export ... from` forms), and a statement-position `require('spec');` for a
+   bare `import 'x'`. `REQUIRE_RE` now matches only those, at a line start, a
+   `;`, or the `}` closing a prepended interop helper. Gap 2 above shrinks
+   from "any comment or string" to "a string whose own line starts with it."
+   `transformCode.test.ts` now covers extraction for all ten import forms, so
+   an upstream emit change fails in CI instead of silently dropping a
+   specifier.
+2. **The `wrapExternal` Proxy got the tests it was missing.** It is broader
+   than the check it replaced — it traps _every_ property read on an external,
+   not just the reads named imports compile to — and nothing exercised it
+   against a namespace-heavy package. Added: missing-member-off-a-namespace
+   throws; existing members read fine; the `for...in` + `hasOwnProperty` walk
+   `_interopRequireWildcard` performs survives it; `then` and symbol keys pass
+   through; and the accepted feature-detection regression
+   (`if (pkg.maybeThing)` now throws) is asserted so it stays a decision on
+   record. Plus `website/e2e/namespaceHeavyDemo.spec.ts`, which renders the
+   react-three-fiber page (`import * as THREE`, `THREE.Color`) — the heaviest
+   demo on the site and the one that motivated the whole size effort, and
+   until now the only real namespace-heavy path with no e2e over it.
+3. **The hand-rolled codeframe no longer drifts on tab-indented source.** The
+   caret pad is copied from the offending line's own leading characters, tabs
+   included, instead of being built from spaces. `formatCodeframe.test.ts` is
+   new and covers alignment, tabs, EOF columns, and the undefined paths.
+4. **`ALWAYS_ALLOWED` trimmed to what does work.** `constructor`,
+   `hasOwnProperty`, `__esModule`, and `default` were already passing the
+   trap's own `Reflect.has` check (via `Object.prototype` or the target
+   itself). Only `then` and `prototype` need listing; the comment now says why
+   `then` is the one that matters.
+5. Stale `Babel` references cleaned out of `website/playwright.config.ts` and
+   `tests/fixtures/README.md`.
+
+Deliberately **not** changed: JSX validation stays absent. CodeMirror's
+auto-closing tags cover the realistic version of that failure in the editor,
+which is where it would bite.
+
+Verification after these changes: `pnpm run check:all` green — **211/211
+vitest** (was 186), **22/22 Playwright e2e** (was 21), knip clean.
+
+## Still open
+
+- The CHANGELOG's size claim still cites offline brotli figures; Part 4's
+  in-situ raw numbers (2385 KB → 196.3 KB) are the honest headline.
+- Deployed brotli size over `live-demo.pages.dev`, unchanged from Part 4.
+
+  **Resolved in Part 6** — both closed, with a real matched A/B this time.
+
+# Part 6: real numbers, matched A/B against the two actual deployments
+
+Date: 2026-07-23. Every number before this part was either the offline esbuild
+method (Part 1) or a single build measured in situ with nothing genuine to compare
+it against (Part 4 — the pre-migration build was never deployed and measured
+alongside it). Both gaps close here: prod
+(`live-demo.pages.dev/guide/external/basic`, still Babel + `@rollup/browser`) and the
+`sucrase-migration` feature deployment
+(`bf69ff8d.live-demo.pages.dev/guide/external/basic`, Sucrase only) are the same
+page, same demo, same Cloudflare CDN. A real A/B, not an estimate.
+
+## Method
+
+Loaded each URL in a real browser (Playwright/Chromium) and read
+`performance.getEntriesByType('resource')` for every async JS chunk and the wasm
+blob: `encodedBodySize` is the bytes actually transferred after Cloudflare's live
+brotli (confirmed via each response's `content-encoding: br` header), `decodedBodySize`
+is the raw, decompressed size. Re-read twice per deployment; both agreed to the byte.
+
+Each chunk's identity was confirmed by fetching its text and checking content, not
+filename/hash alone. One false lead worth recording: the real `@babel/standalone`
+chunk contains the substring "rollup" twice — both inside Babel's own error-message
+text about `@rollup/plugin-commonjs` interop, not Rollup code. Confirmed by reading
+the surrounding text. The actual Rollup chunk was confirmed the opposite way: it
+contains `ROLLUP_FILE_URL_` / `ROLLUP_FILE_URL_OBJ_`, constant prefixes Rollup's own
+bundler emits for `import.meta.ROLLUP_FILE_URL_*` and nothing else would, and zero
+occurrences of `@babel/standalone`.
+
+## Numbers
+
+Prod (Babel + `@rollup/browser`), `guide/external/basic`:
+
+| Chunk                          | Raw       | Brotli, live CDN |
+| ------------------------------ | --------- | ---------------- |
+| `@babel/standalone`            | 2251.0 KB | 481.2 KB         |
+| Rollup JS (`@rollup/browser`)  | 401.2 KB  | 112.2 KB         |
+| Rollup wasm                    | 544.7 KB  | 229.1 KB         |
+| live-demo runtime chunk (glue) | 12.3 KB   | 5.2 KB           |
+| **Total, all four chunks**     | 3208.9 KB | 827.6 KB         |
+
+Feature (`sucrase-migration`, Sucrase only), same page:
+
+| Chunk                          | Raw      | Brotli, live CDN |
+| ------------------------------ | -------- | ---------------- |
+| Sucrase                        | 196.3 KB | 44.8 KB          |
+| live-demo runtime chunk (glue) | 12.1 KB  | 5.3 KB           |
+| **Total, both chunks**         | 208.4 KB | 50.0 KB          |
+
+The CodeMirror editor chunk (`3899.09416e05e5.js`, ~186.9 KB brotli) is byte-identical
+in both deployments — same filename hash — and is excluded above as irrelevant to the
+compiler swap.
+
+Sucrase's raw figure (196.3 KB) matches Part 4's in-situ number exactly — that one
+was already right, it just had no genuine pre-migration build to compare against
+until now.
+
+## What this settles
+
+- **Babel → Sucrase, real CDN brotli**: 481.2 KB → 44.8 KB, a 10.7x reduction. Part
+  1's offline-q11 figure for Babel (387.6 KB) undersold its real deployed footprint
+  by ~19% — Cloudflare's live brotli compresses at lower quality than the offline
+  `zlib` quality-11 pass every earlier part used, the exact effect Part 1's
+  Postscript warned about but couldn't demonstrate on Sucrase, since no Sucrase
+  build was deployed yet.
+- **Babel → Sucrase, raw (quality-independent)**: 2251.0 KB → 196.3 KB, an 11.5x
+  reduction.
+- **`@rollup/browser` removal, real CDN brotli**: 112.2 + 229.1 = 341.3 KB. The
+  changelog's existing "~285 KB (brotli, offline max-quality)" undersold this for
+  the same reason as above.
+- **`@rollup/browser` removal, raw**: 401.2 + 544.7 = 945.8 KB.
+- **Combined effect of both changes**, per load of a page with an external-import
+  demo: 827.6 KB → 50.0 KB brotli (777.6 KB less), 3208.9 KB → 208.4 KB raw
+  (3000.7 KB / ~2.93 MB less).
+
+`packages/rspress/CHANGELOG.md` is updated to cite these numbers in place of the
+offline estimates.
+
+# Verdict
+
+## Verdict
+
+The swap is justified and lands net better for this project. I'd keep it. The reasoning, then the tradeoffs ranked by how much they actually matter, then a few small things the previous review passes (Parts 4-5) didn't surface.
+
+## Why it's justified
+
+**The size win is the product, not a nicety.** This plugin's stated differentiator over `@rspress/plugin-playground` is being leaner and easier to adopt. Part 6's matched A/B (same page, same CDN, real brotli) shows the compiler payload going from 481.2 KB to 44.8 KB, and combined with the Rollup removal the demo-page tax dropped from 827.6 KB to 50.0 KB compressed. For a docs plugin, "a demo page costs 50 KB extra instead of 830 KB" is the pitch itself. On a project whose explicit goal includes exploring in-browser compilation done well, this is the strongest single change on the branch.
+
+**The strategy is the right one, and it's the reviewable part.** The research seriously considered a fork (Part 2) and a `pnpm patch` (Part 3). What shipped instead touches only Sucrase's public `transform` export and recovers specifiers by scanning the emitted `require(...)` calls. That decision does three things at once: it keeps Sucrase upgradable, it keeps the owned surface tiny (`transformCode.ts` at 115 lines, `formatCodeframe.ts` at 54, ~50 lines of Proxy in `moduleRunner.ts`), and it makes the whole bet cheap to unwind — the old Babel path is one file in git history and the seams (`loadCompiler`, `transformCode`, the `TransformedFile` shape) are unchanged in shape. A migration you can revert in an afternoon is a very different risk than a vendored parser.
+
+**The scan's fragility is fenced correctly.** A regex over compiler output is the kind of thing that rots silently. Here it can't rot silently: `transformCode.test.ts` runs the real Sucrase against all ten import forms and asserts the recovered specifier, so an upstream emit change breaks CI instead of dropping an import at runtime. The one remaining false positive (a demo string whose own line starts with `require('x')`) fails loudly as `EXTERNAL_IMPORT_NOT_FOUND`, is documented in CLAUDE.md, and even has a test asserting the gap exists. That's the right way to hold a known limitation.
+
+## The tradeoffs, ranked
+
+**1. The maintenance bet on Sucrase is the biggest real risk, and it's acceptable here.** Single maintainer, one substantive release since 2023. The counterargument in Part 3 holds up structurally: a token rewriter mostly passes unknown syntax through, TS 5.2-era syntax is covered, and TypeScript has essentially stopped adding grammar. The failure mode is a future grammar Sucrase's parser rejects, which fails loudly as `PARSE_FAILED`, not silently. For 22 weekly downloads with a one-afternoon revert path, this is a fine bet. It would be a harder call on a project with real adoption.
+
+**2. Losing JSX validation is the most user-visible regression, and it's the one I'd watch.** `<div>Hello</span>` now transpiles and runs. In a live editor this is silent wrongness rather than a crash, which is worse than an error in principle. In practice it's blunted three ways: the common typo produces output that still renders something recognizable, CodeMirror's auto-closing tags prevent most of the mistake at the source, and the changelog states it plainly. The decision in Part 5 to not fix it (fixing means owning parser code, the exact thing the strategy avoids) is coherent. Acceptable, but it's the first thing to reconsider if real users ever complain.
+
+**3. The `UNDEFINED_NAMED_IMPORT` move is a genuine design improvement wearing a regression's clothes.** Lazy, at the use site, naming the actual property read — better error, better semantics. The two costs (fires during evaluation rather than before; `if (pkg.maybeThing)` throws) are documented, and the second one has a test asserting it's a decision on record, which is exactly how an accepted regression should be held. The old behavior also had its own dishonesty that nobody mourned: two fixtures passed for years only because the eager check fired on code that was never executed.
+
+**4. Error message specificity dropped a notch.** Babel said "Unterminated JSX contents"; Sucrase says "Unexpected token, expected ';' (1:25)". The hand-rolled codeframe recovers most of the UX (and matching oxc's build-side shape so both `PARSE_FAILED` paths look identical is a nice touch). Minor.
+
+**5. Unconditional TS transform eliding unused imports in `.js`** — the affected shape (`import X from 'pkg'` with `X` unused, `pkg` wanted for side effects) is rare in demos, and CSS side-effect imports aren't supported anyway. Documented. Negligible.
+
+## Things the earlier reviews didn't surface
+
+Three small observations, none blocking, no code changes made:
+
+- **`toJSON` is a hole in the Proxy's allowlist of the same class as `then`.** A demo that does `JSON.stringify(pkg)` (a plausible "let me inspect this module" move in a live editor) triggers a get of `toJSON`, which is on neither the target nor `Object.prototype`, so it throws a confusing `UNDEFINED_NAMED_IMPORT` for `'toJSON'`. Unlike `then` it can't cascade into an uncatchable rejection, so it's cosmetic, but it's the same category of "read by machinery, not by demo code."
+- **The `in` operator is an undocumented escape hatch for the feature-detection regression.** The Proxy has no `has` trap, so `'maybeThing' in pkg` quietly returns `false` while `pkg.maybeThing` throws. That's the natural workaround for the accepted regression, and neither the changelog note nor the `wrapExternal` docblock mentions it. Worth a sentence in one of them.
+- **`wrapExternal` builds a fresh target and Proxy on every `require` call**, so two demo files importing the same package get different namespace identities and each pay a re-spread. This is pre-existing (main's plain-object `wrapExternal` did the same), the Proxy just makes it slightly more visible. Identity comparison of namespace objects in demo code is vanishingly rare; a per-specifier memo would be a three-line hardening if it ever matters.
+
+## Better, equal, or worse
+
+- **Payload**: much better, and it's a real matched measurement, not an estimate.
+- **Architecture**: better. Less dependency surface, a smaller and more honest compiler seam, and the check that moved (named imports) moved to a structurally better place.
+- **Reversibility and testability**: better. More tests than before (211 vs 186 unit, 22 vs 21 e2e), and the fragile parts are the specifically fenced ones.
+- **Error UX**: slightly worse (JSX validation gone, less specific messages), fully disclosed, appropriate for the scale.
+- **Long-term risk**: worse in the abstract (dormant upstream), fine in the concrete (loud failure modes, cheap revert, syntax surface that has stopped moving).
+
+The pattern across the whole effort — measure on the real CDN, refuse the fork, fence every accepted gap with a test and a doc — is the part I'd want repeated on future swings. The one open item from Part 5 that still stands is trivial: the changelog excerpt you quoted now cites the in-situ numbers, so that's already resolved on the branch.

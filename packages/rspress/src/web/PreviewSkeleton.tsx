@@ -2,7 +2,7 @@
  * Placeholder for the preview pane's contents while a demo is on its way.
  *
  * A demo page waits twice before anything renders — once for the runtime
- * chunk, once for Babel and the demo's externals — and the same slot on
+ * chunk, once for Sucrase and the demo's externals — and the same slot on
  * screen covers both. So both render this: `web/lazy`'s `Suspense` fallback
  * drops it into its stand-in preview pane, and `CodeRunner` renders it into the
  * real one until the first compile produces a component. Two components here

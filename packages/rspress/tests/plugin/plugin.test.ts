@@ -54,7 +54,7 @@ describe("liveDemoPluginRspress", () => {
 			);
 			expect(virtualModule).toContain("'@rspress/core/theme'");
 
-			// Babel's automatic JSX runtime emits this import on the author's
+			// Sucrase's automatic JSX runtime emits this import on the author's
 			// behalf, so it can never be discovered by scanning demo source.
 			// Without it every JSX demo fails with "Can't resolve".
 			expect(virtualModule).toContain("'react/jsx-runtime'");

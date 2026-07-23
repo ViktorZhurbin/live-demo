@@ -25,7 +25,10 @@ test.describe("a real failure while editing surfaces in the preview's error over
 
 		await setCode(page, "export const Basic = () => { return <div>oops");
 
-		await expect(preview.getByText("Unterminated JSX contents")).toBeVisible();
+		// Sucrase doesn't diagnose unterminated JSX specifically (see
+		// packages/rspress/CLAUDE.md, "Limitations") -- it surfaces the generic
+		// parse failure the broken syntax produces past that point instead.
+		await expect(preview.getByText("Unexpected token, expected")).toBeVisible();
 	});
 
 	test("an unresolvable local import names the missing module", async ({

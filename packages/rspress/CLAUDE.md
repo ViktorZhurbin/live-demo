@@ -4,6 +4,10 @@ Implementation of the Live Demo rspress plugin. See the [root
 CLAUDE.md](../../CLAUDE.md) for what the plugin does and how this package
 fits in the monorepo.
 
+## Next goals
+
+- Make changes that simplify adoption and the switch from the official plugin: align APIs and behaviors (where it makes sense).
+
 ## Library references
 
 - `@mantine/hooks`: https://mantine.dev/llms.txt
@@ -11,7 +15,7 @@ fits in the monorepo.
 - `@codemirror/lang-javascript`: https://codemirror.net/docs/ref/
 - `react-resizable-panels`: https://github.com/bvaughn/react-resizable-panels/blob/main/README.md
 - `react-error-boundary`: https://github.com/bvaughn/react-error-boundary/blob/main/README.md
-- `@babel/standalone`: https://github.com/babel/website/tree/main/docs
+- `sucrase`: https://github.com/alangpierce/sucrase (README is the API doc)
 - `tsdown`: https://github.com/rolldown/tsdown/blob/main/skills/tsdown/SKILL.md
 - `vitest`: https://github.com/vitest-dev/vitest/tree/main/docs/guide
 
@@ -67,30 +71,25 @@ reach it. It owns the `Suspense` boundary, the loading skeleton, and the
 does not; see its docblock).
 
 **Runtime (browser, `src/web/`)**: user edits code in a CodeMirror-based
-editor, bundled with the package. On change, Babel (`@babel/standalone`) is
-loaded lazily via dynamic `import()` (`loadCompiler.ts`). The consuming site
-code-splits it into an async chunk that loads only on demo pages. `runCode.ts`
-walks from the entry file over `files`, transpiling every reachable file
-straight to CommonJS (`babelTransformCode.ts`; JSX/TS presets plus
-`transform-modules-commonjs`, one Babel pass) and collecting the specifiers it
-can't resolve locally as externals. Once those externals are preloaded
-(`loadImports`), `moduleRunner.ts`'s small `require` evaluates each file with
-`new Function`, resolving `./Button`-style specifiers against the importing
-file's directory into a key in the `files` record — same resolution rules
-`collectDemoFiles.ts` uses at build time, via the shared `pathHelpers.ts`
-helpers. The entry file's default export (or its last named export) is then
-rendered into the host page's React tree.
+editor, bundled with the package. On change, Sucrase is loaded lazily via
+dynamic `import()` (`loadCompiler.ts`). The consuming site code-splits it into
+an async chunk that loads only on demo pages. `runCode.ts` walks from the
+entry file over `files`, transpiling every reachable file straight to
+CommonJS in one Sucrase pass (`transformCode.ts`; `jsx`/`typescript`/`imports`
+transforms) and collecting the specifiers it can't resolve locally as
+externals — recovered by scanning the emitted `require(...)` calls rather
+than a separate AST visitor, since that's Sucrase's own deterministic output.
+Once those externals are preloaded (`loadImports`), `moduleRunner.ts`'s small
+`require` evaluates each file with `new Function`, resolving `./Button`-style
+specifiers against the importing file's directory into a key in the `files`
+record — same resolution rules `collectDemoFiles.ts` uses at build time, via
+the shared `pathHelpers.ts` helpers. The entry file's default export (or its
+last named export) is then rendered into the host page's React tree.
 
 ### Dependency gotchas
 
 These live here because `package.json` can't hold comments. Everything else
 about a file is documented in the file itself.
-
-Type packages (`@types/babel__core`, `@types/babel__standalone`) deliberately
-stay on Babel 7 even though the runtime is on `@babel/standalone@8`.
-`@babel/standalone` ships no types and has no v8 DefinitelyTyped stub;
-pairing it with a real `@babel/core@8` creates a v7/v8 type split-brain
-requiring `as unknown as` casts. Don't "modernize" them independently.
 
 `@mdx-js/mdx`, `mdast-util-mdx`, `remark-gfm`, `unified`, and
 `unist-util-visit` live in `peerDependencies` only. `tsdown` leaves
@@ -173,6 +172,23 @@ Test `web/` components against the actual `website/` through the preview build.
 - Inline (` ```lang live `) demos don't auto-resolve external imports; only
   `<code src>` demos do. This is intentional (see `remarkPlugin.ts` and
   `website/docs/guide/inline/otherImports.mdx`). Don't "fix" it.
+- No JSX closing-tag-mismatch or duplicate-prop diagnostics: Sucrase is a
+  token rewriter, not a validating parser, and skips that checking by design.
+  A demo with `<div></span>` or `<Foo a="1" a="2">` transpiles and runs
+  whatever that produces instead of failing with a clear parse error.
+- The literal text `require('pkg')` **at the start of a line inside a demo's
+  string** (a code sample in a template literal, say) is read as a real
+  import. `transformCode.ts` recovers specifiers by scanning emitted
+  `require(...)` calls, and Sucrase passes strings through untouched. The
+  scan is anchored to the two shapes Sucrase actually emits, so the same text
+  in a comment or mid-line is ignored; only a line-initial one still slips
+  through, and it fails loudly with `EXTERNAL_IMPORT_NOT_FOUND`, never
+  silently. The fix is to reword or re-indent the demo.
+- An import whose binding is never used in a value position is dropped, in
+  `.js`/`.jsx` as well as TypeScript, because the `typescript` transform runs
+  unconditionally (see `transformCode.ts`). Bare `import './styles.css'` is
+  kept, so this only bites `import X from 'pkg'` where `X` is unused and
+  `pkg` was wanted for its side effects.
 
 ## Deliberately not handled
 
@@ -213,6 +229,12 @@ virtual module instead of importing the class.
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import"): confirm it's a
   real dependency and that it reached the virtual module
   (`getVirtualModulesCode.ts`).
+- **`PARSE_FAILED`**: thrown build-side by `readAndParseFile.ts` (oxc) and
+  now also runtime-side by `transformCode.ts` (Sucrase) when a demo author's
+  edit introduces a syntax error. Same code and message shape either way; the
+  codeframe comes from oxc directly on the build side and from
+  `formatCodeframe.ts` (hand-rolled, matched to oxc's shape) on the runtime
+  side, since Sucrase doesn't produce one itself.
 - **`PROP_PARSE_FAILED`**: the plugin's `JSON.stringify`d props and the
   runtime's `JSON.parse` are out of sync. Check `parseProps.ts`.
 - **A demo picks up the wrong files**: log `Object.keys(files)` at the end of

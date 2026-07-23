@@ -55,7 +55,6 @@
 		"knip": "knip"
 	},
 	"dependencies": {
-		"@babel/standalone": "^8.0.4",
 		"@codemirror/lang-javascript": "^6.2.5",
 		"@mantine/hooks": "^9.4.1",
 		"@tabler/icons-react": "^3.44.0",
@@ -65,14 +64,13 @@
 		"oxc-parser": "^0.140.0",
 		"react-error-boundary": "^6.1.2",
 		"react-resizable-panels": "^4.12.2",
-		"rsbuild-plugin-virtual-module": "^0.4.5"
+		"rsbuild-plugin-virtual-module": "^0.4.5",
+		"sucrase": "^3.35.1"
 	},
 	"devDependencies": {
 		"@oxc-project/types": "^0.140.0",
 		"@rspress/core": "^2.0.18",
 		"@tsdown/css": "^0.22.9",
-		"@types/babel__core": "^7.20.5",
-		"@types/babel__standalone": "^7.1.9",
 		"@types/mdast": "^4.0.4",
 		"@types/node": "^22",
 		"@types/react": "^19",

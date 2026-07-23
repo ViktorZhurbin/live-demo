@@ -34,15 +34,17 @@ export function resolveLocalImport(
  * each module at most once via `new Function`, caching `module.exports`.
  * Everything else (react, lodash, ...) falls through to `getImport`, already
  * resolved by `runCode` before evaluation starts (`getImport` is
- * synchronous — see `getVirtualModulesCode.ts`).
+ * synchronous — see `getVirtualModulesCode.ts`), and is wrapped at most once
+ * per specifier so every demo file importing the same package sees the same
+ * namespace object.
  *
  * External modules arrive as real ES namespace objects from the browser's
- * own `import()`, not Babel's CJS convention, so a bare `getImport` result
- * can't be handed to `require`'s callers as-is: Babel's `_interopRequireDefault`
+ * own `import()`, not Sucrase's CJS convention, so a bare `getImport` result
+ * can't be handed to `require`'s callers as-is: Sucrase's `_interopRequireDefault`
  * only reads `.default` when it sees an `__esModule` marker, and a package
  * with no real `default` export needs the whole module to stand in for one
- * instead. `wrapExternal` below fakes both, so the same interop helpers Babel
- * generates for local `require()` calls also work for external ones.
+ * instead. `wrapExternal` below fakes both, so the same interop helpers
+ * Sucrase generates for local `require()` calls also work for external ones.
  *
  * **Not sandboxed.** `new Function` runs the demo in the host origin with
  * full DOM/global access. Accepted for a docs tool whose demo authors are as
@@ -53,10 +55,16 @@ export function createModuleRunner(
 	transpiled: Map<string, string>,
 ) {
 	const cache = new Map<string, { exports: Record<string, unknown> }>();
+	const externalCache = new Map<string, Record<string, unknown>>();
 
 	function requireModule(specifier: string, importerPath: string): unknown {
 		if (!isRelativeImport(specifier)) {
-			return wrapExternal(getImport(specifier));
+			let wrapped = externalCache.get(specifier);
+			if (!wrapped) {
+				wrapped = wrapExternal(getImport(specifier), specifier);
+				externalCache.set(specifier, wrapped);
+			}
+			return wrapped;
 		}
 
 		const resolved = resolveLocalImport(
@@ -108,15 +116,60 @@ export function createModuleRunner(
 	return { evaluate };
 }
 
-function wrapExternal(resolved: unknown): Record<string, unknown> {
+// Read by language/runtime machinery rather than by demo code naming an
+// import, so a miss on one of these is never the typo'd import the trap is
+// looking for. Most other such names (`constructor`, `hasOwnProperty`,
+// `toString`, ...) are already on `Object.prototype` and so pass the trap's
+// own `Reflect.has` check; `toJSON` isn't, so it needs listing too, or
+// `JSON.stringify(pkg)` throws `UNDEFINED_NAMED_IMPORT` instead of just
+// omitting the (non-existent) property like it would for a plain object.
+//
+// `then` is the one that genuinely matters: a proxy that throws on it turns
+// "this isn't a Promise" into an uncatchable rejection anywhere the object
+// gets awaited. Symbol keys (`Symbol.iterator`, `Symbol.toStringTag`, ...)
+// are let through by the trap itself for the same reason.
+const ALWAYS_ALLOWED = new Set(["then", "prototype", "toJSON"]);
+
+/**
+ * Wraps a resolved external in a `Proxy` whose `get` trap throws
+ * `UNDEFINED_NAMED_IMPORT` when demo code reads a named import the package
+ * doesn't actually export — e.g. `import { usestate } from "react"`. This
+ * used to be checked up front, against Babel's collected named-import list
+ * (`runCode.ts`, pre-Sucrase); Sucrase's own emit doesn't preserve which
+ * names were imported once it's rewritten to plain property reads, so the
+ * check moved to where those reads actually happen. The tradeoff: it now
+ * fires at the *use site* during evaluation instead of before any demo code
+ * runs, which gives a better error location (the property is named directly)
+ * but means feature-detection on a missing export (`if (pkg.maybeThing)`)
+ * now throws instead of quietly seeing `undefined`. There's no `has` trap,
+ * so `'maybeThing' in pkg` still works as a feature-detection escape hatch.
+ */
+function wrapExternal(resolved: unknown, pkg: string): Record<string, unknown> {
 	const hasDefault =
 		resolved != null && typeof resolved === "object" && "default" in resolved;
 
-	return {
+	const target: Record<string, unknown> = {
 		__esModule: true,
 		...(resolved as object),
 		default: hasDefault ? (resolved as { default: unknown }).default : resolved,
 	};
+
+	return new Proxy(target, {
+		get(obj, prop, receiver) {
+			if (
+				typeof prop === "symbol" ||
+				ALWAYS_ALLOWED.has(prop) ||
+				Reflect.has(obj, prop)
+			) {
+				return Reflect.get(obj, prop, receiver);
+			}
+
+			throw new LiveDemoError("UNDEFINED_NAMED_IMPORT", {
+				importName: prop,
+				pkg,
+			});
+		},
+	});
 }
 
 /**

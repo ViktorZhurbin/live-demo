@@ -18,7 +18,7 @@ export default defineConfig({
 	},
 
 	// Bumped past the default 5s: first interaction on a demo page pays for the
-	// lazy Babel chunk load (see loadCompiler.ts) plus the 800ms recompile
+	// lazy Sucrase chunk load (see loadCompiler.ts) plus the 800ms recompile
 	// debounce (CodeRunner.tsx), on top of normal CI slowness.
 	expect: { timeout: 10_000 },
 

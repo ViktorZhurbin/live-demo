@@ -75,7 +75,7 @@ export const errorMessages: LiveDemoErrorMessages = {
 
 	COMPILER_LOAD_FAILED: () => ({
 		title: "Couldn't load the demo compiler",
-		message: "Failed to load Babel, so this demo can't be compiled.",
+		message: "Failed to load Sucrase, so this demo can't be compiled.",
 		hint: "Check your network connection, then edit the code to retry (or reload the page).",
 	}),
 

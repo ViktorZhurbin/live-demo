@@ -26,7 +26,7 @@ export type CodeRunnerProps = {
 
 /**
  * Compiles and evaluates the demo's `files` whenever they change, debounced
- * so every keystroke doesn't trigger a fresh Babel pass. Compile/eval errors
+ * so every keystroke doesn't trigger a fresh Sucrase pass. Compile/eval errors
  * are caught here and handed to `setError` for `Preview`'s overlay.
  * `dynamicComponent` is left untouched on error, so the last successful
  * render stays mounted (dimmed) under the overlay instead of blanking.
@@ -37,7 +37,7 @@ export type CodeRunnerProps = {
  * demo's externals start downloading immediately, rather than after
  * compiling reveals them (`prefetchImports`), so they overlap the compiler's
  * own load; and the first compile skips the debounce, which otherwise spent
- * 800ms idle before even asking for Babel. Both only affect when work
+ * 800ms idle before even asking for Sucrase. Both only affect when work
  * starts. `runCode` still resolves whatever the demo really imports.
  *
  * `prevFilesKey` guards against recompiling (and remounting the component,
@@ -63,7 +63,7 @@ export const CodeRunner = ({
 
 			if (filesKey === prevFilesKey && !error) return;
 
-			// runCode lazily loads Babel and throws NO_DEFAULT_EXPORT itself if
+			// runCode lazily loads Sucrase and throws NO_DEFAULT_EXPORT itself if
 			// the entry exported nothing, so there's no shape to re-check here —
 			// and checking for a function would reject the memo()/forwardRef()
 			// objects it deliberately allows.

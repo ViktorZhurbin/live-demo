@@ -11,13 +11,19 @@ vi.mock("_live_demo_virtual_modules", () => ({
 	default: (moduleName: string) => {
 		if (moduleName === "react") return { useState: () => "STATE" };
 		if (moduleName === "no-default-pkg") return { value: 42 }; // no `.default`
+		// Stands in for a namespace-heavy library (three, ...): the shape most
+		// exposed to `wrapExternal`'s Proxy, since demo code reaches members off
+		// the namespace object itself rather than through named imports.
+		if (moduleName === "namespace-pkg") {
+			return { Mesh: "MESH", Vector3: "VECTOR3", REVISION: "1" };
+		}
 		throw new Error(`Can't resolve ${moduleName}`);
 	},
 }));
 
 // `transpiled` holds hand-written CommonJS, standing in for what
-// `babelTransformCode` would actually produce — exercises the runner without
-// depending on Babel being loaded.
+// `transformCode` would actually produce — exercises the runner without
+// depending on Sucrase being loaded.
 const run = (files: LiveDemoFiles, transpiled: Record<string, string>) =>
 	createModuleRunner(files, new Map(Object.entries(transpiled)));
 
@@ -101,9 +107,11 @@ describe("createModuleRunner", () => {
 	it("resolves a circular local require via Node's partial-exports semantics", () => {
 		// Mirrors tests/fixtures/valid/Circular: mutually recursive functions,
 		// only called after both modules finish their own initial evaluation.
-		// `exports.isEven = isEven` is hoisted ahead of `require("./odd")` by
-		// Babel's real commonjs transform for exactly this reason; this fixture
-		// hand-writes that same shape.
+		// `exports.isEven = isEven` is written before `require("./odd")` here to
+		// prove the cache-before-fill mechanism (`evaluate`'s `cache.set` ahead of
+		// running the body) tolerates it either way — real Sucrase output emits
+		// the require first (see the actual-compiler version of this scenario in
+		// runCode.test.ts), but nothing here depends on that specific order.
 		const files: LiveDemoFiles = { "even.ts": "", "odd.ts": "" };
 		const runner = run(files, {
 			"even.ts": `
@@ -147,6 +155,75 @@ describe("createModuleRunner", () => {
 		const runner = run(files, { "App.tsx": `require("left-pad");` });
 
 		expect(() => runner.evaluate("App.tsx")).toThrow(/Can't resolve left-pad/);
+	});
+
+	/**
+	 * `wrapExternal`'s Proxy is the whole `UNDEFINED_NAMED_IMPORT` check since
+	 * the Sucrase swap (see its docblock). It traps *every* property read on an
+	 * external, not just the ones a named import compiles to, so these cover
+	 * both halves of that: the reads it must catch, and the reads it must let
+	 * through for a namespace-heavy package to work at all.
+	 */
+	describe("external property access", () => {
+		const evaluateApp = (source: string) =>
+			run({ "App.tsx": "" }, { "App.tsx": source }).evaluate("App.tsx");
+
+		it("throws UNDEFINED_NAMED_IMPORT for a missing member off a namespace", () => {
+			expect(() =>
+				evaluateApp(`exports.default = require("namespace-pkg").Mehs;`),
+			).toThrow(/Import 'Mehs' from 'namespace-pkg' is undefined/);
+		});
+
+		it("reads existing members off a namespace normally", () => {
+			const { exports } = evaluateApp(
+				`const N = require("namespace-pkg"); exports.default = [N.Mesh, N.REVISION].join("/");`,
+			);
+
+			expect(exports.default).toBe("MESH/1");
+		});
+
+		it("supports the enumeration `import * as N` compiles to", () => {
+			// Sucrase's `_interopRequireWildcard` copies the module with a
+			// `for...in` loop plus `Object.prototype.hasOwnProperty.call`, so the
+			// trap has to survive both without throwing.
+			const { exports } = evaluateApp(`
+				const _pkg = require("namespace-pkg");
+				const copy = {};
+				for (const key in _pkg) {
+					if (Object.prototype.hasOwnProperty.call(_pkg, key)) copy[key] = _pkg[key];
+				}
+				exports.default = [copy.Mesh, Object.keys({ ..._pkg }).includes("Vector3")].join("/");
+			`);
+
+			expect(exports.default).toBe("MESH/true");
+		});
+
+		it("lets `then` through so awaiting a namespace doesn't reject", async () => {
+			const { exports } = evaluateApp(
+				`exports.default = Promise.resolve(require("namespace-pkg"));`,
+			);
+
+			await expect(exports.default).resolves.toMatchObject({ Mesh: "MESH" });
+		});
+
+		it("lets symbol keys through", () => {
+			const { exports } = evaluateApp(
+				`exports.default = Object.prototype.toString.call(require("namespace-pkg"));`,
+			);
+
+			expect(exports.default).toBe("[object Object]");
+		});
+
+		it("throws on feature detection of a missing export, the accepted regression", () => {
+			// Documented tradeoff of moving the check to the read site: the old
+			// up-front check let `pkg.maybeThing` quietly be `undefined`. Asserted
+			// so the behavior is a decision on record, not an accident.
+			expect(() =>
+				evaluateApp(
+					`exports.default = require("namespace-pkg").maybeThing ? 1 : 0;`,
+				),
+			).toThrow(/Import 'maybeThing' from 'namespace-pkg' is undefined/);
+		});
 	});
 });
 

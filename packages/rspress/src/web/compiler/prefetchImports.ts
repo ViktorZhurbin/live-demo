@@ -5,7 +5,7 @@ import { loadImports } from "_live_demo_virtual_modules";
  *
  * The externals live behind `() => import(...)` thunks in the virtual module
  * (see `getVirtualModulesCode.ts`), so nothing fetches them until someone
- * asks. `runCode` asks — but only once Babel has loaded and the demo's files
+ * asks. `runCode` asks — but only once Sucrase has loaded and the demo's files
  * have been walked and transpiled, which puts a demo's heaviest dependency at
  * the end of a serial chain. The build step already knows what a `<code src>`
  * demo imports, so `CodeRunner` calls this at mount and the two downloads

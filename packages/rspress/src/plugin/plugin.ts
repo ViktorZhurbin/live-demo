@@ -14,8 +14,8 @@ const __dirname = path.dirname(__filename);
 /**
  * Included by default for every demo
  *
- * `react/jsx-runtime` is what Babel's automatic JSX runtime emits an import
- * for (see `babelTransformCode.ts`). Demo authors never write that import
+ * `react/jsx-runtime` is what Sucrase's automatic JSX runtime emits an import
+ * for (see `transformCode.ts`). Demo authors never write that import
  * themselves, so it can't be discovered by scanning their code the way other
  * externals are — it has to be here, or every JSX demo fails to resolve it.
  **/

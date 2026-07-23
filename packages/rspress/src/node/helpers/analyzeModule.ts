@@ -14,8 +14,8 @@ import { readAndParseFile } from "./readAndParseFile";
  * Extract the import/export path from an AST statement, if it has one.
  * Covers plain imports and both re-export forms (`export { x } from` and
  * `export * from`) — anything else returns undefined. Type-only statements
- * (`import type`, `export type ... from`) are erased by runtime Babel, so
- * they're skipped here too; mixed imports (`import { type A, B }`) keep
+ * (`import type`, `export type ... from`) are erased by the runtime compiler
+ * (Sucrase), so they're skipped here too; mixed imports (`import { type A, B }`) keep
  * `importKind: "value"` and aren't affected.
  */
 function extractSourcePath(

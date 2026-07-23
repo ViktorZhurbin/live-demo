@@ -3,9 +3,9 @@ import type { LiveDemoFiles } from "~shared/types";
 import { runCode } from "~web/compiler/runCode";
 
 // Mock the virtual modules import - must be inline due to hoisting.
-// `react/jsx-runtime` is included because Babel's automatic JSX runtime emits
-// an import for it; the plugin ships it in `defaultModules` for the same
-// reason (see plugin.ts).
+// `react/jsx-runtime` is included because Sucrase's automatic JSX runtime
+// emits an import for it; the plugin ships it in `defaultModules` for the
+// same reason (see plugin.ts).
 const renderToString = (tag: unknown, props: { children?: unknown }) => {
 	const children = props?.children;
 	const inner = Array.isArray(children) ? children.join("") : (children ?? "");
@@ -67,7 +67,7 @@ describe("runCode", () => {
 			const [importNames] = loadImportsMock.mock.calls[0];
 
 			// `react` is written by the author; `react/jsx-runtime` is emitted by
-			// Babel's automatic runtime and must be preloaded just the same.
+			// Sucrase's automatic runtime and must be preloaded just the same.
 			expect([...importNames].sort()).toEqual(["react", "react/jsx-runtime"]);
 		});
 
@@ -340,13 +340,17 @@ describe("runCode", () => {
 
 	describe("named imports a package doesn't export", () => {
 		/**
-		 * Babel's CommonJS interop compiles a named import to a property read,
-		 * so a bad one yields `undefined` and only fails later at the use site
-		 * with an opaque TypeError. `runCode` checks up front instead.
+		 * Sucrase's CommonJS interop compiles a named import to a property read
+		 * (`_react.usestate`), so `moduleRunner`'s `wrapExternal` Proxy is what
+		 * catches a bad one now, on the read itself — see its docblock. That
+		 * fires at module *evaluation*, not at call time, so these fixtures read
+		 * the missing name at the top level rather than inside a closure that
+		 * `runCode` never invokes (it hands the exported function back
+		 * uncalled).
 		 */
 		it("throws UNDEFINED_NAMED_IMPORT naming the import and the package", async () => {
 			const files: LiveDemoFiles = {
-				"App.tsx": `import { usestate } from "react"; export default () => usestate;`,
+				"App.tsx": `import { usestate } from "react"; export default usestate;`,
 			};
 
 			await expect(
@@ -356,13 +360,26 @@ describe("runCode", () => {
 
 		it("checks named imports in a demo's local files too, not just its entry", async () => {
 			const files: LiveDemoFiles = {
-				"App.tsx": `import { useCounter } from "./useCounter"; export default () => useCounter();`,
-				"useCounter.ts": `import { useStateTypo } from "react"; export const useCounter = () => useStateTypo(0);`,
+				"App.tsx": `import { useCounter } from "./useCounter"; export default useCounter;`,
+				"useCounter.ts": `import { useStateTypo } from "react"; export const useCounter = useStateTypo;`,
 			};
 
 			await expect(
 				runCode({ files, entryFileName: "App.tsx" }),
 			).rejects.toThrow(/Import 'useStateTypo' from 'react' is undefined/);
+		});
+
+		it("throws for a typo'd member read off a namespace import", async () => {
+			// Sucrase compiles this through its wildcard interop rather than to a
+			// direct property read — same trap, but reached the way a
+			// library-heavy demo (`import * as THREE`) actually reaches it.
+			const files: LiveDemoFiles = {
+				"App.tsx": `import * as React from "react"; export default React.usestate;`,
+			};
+
+			await expect(
+				runCode({ files, entryFileName: "App.tsx" }),
+			).rejects.toThrow(/Import 'usestate' from 'react' is undefined/);
 		});
 
 		it("allows default and namespace imports, which have no names to check", async () => {

@@ -20,8 +20,9 @@ this:
   implicit `react/jsx-runtime` import the virtual-module system never sees.
   Every JSX demo broke at runtime; `pnpm verify` stayed green.
 - Every `.ts` fixture happened to contain no type annotations, so nobody
-  noticed `babelTransformCode` applied preset-typescript to `.tsx` only. Any
-  `.ts` file with a type annotation failed to compile in the browser.
+  noticed the runtime transform applied TypeScript stripping to `.tsx` only
+  (`babelTransformCode`, since replaced by `transformCode.ts`). Any `.ts`
+  file with a type annotation failed to compile in the browser.
 
 So: a `.tsx` fixture should contain JSX. A `.ts` fixture should contain type
 annotations. A `.jsx`/`.js` fixture should contain neither, to prove nothing

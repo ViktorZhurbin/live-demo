@@ -15,7 +15,7 @@ import { runCode } from "~web/compiler/runCode";
  * renders nothing.
  *
  * These tests run a real fixture all the way through: MDX scan → module
- * graph → `files` → Babel → executed component.
+ * graph → `files` → Sucrase → executed component.
  */
 
 const renderToString = (tag: unknown, props: { children?: unknown }) => {

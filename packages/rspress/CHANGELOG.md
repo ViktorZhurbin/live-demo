@@ -39,16 +39,32 @@ page's own demo actually needs it.
 
 ### Changed
 
+#### `@babel/standalone` replaced with `sucrase`
+
+The runtime compiler is now Sucrase instead of Babel. Same demo behavior
+(JSX, TypeScript, the automatic JSX runtime), roughly a tenth of the
+download. Measured on the real deployment (Cloudflare-served, brotli):
+`@babel/standalone` was 481.2 KB, Sucrase is 44.8 KB — 2251.0 KB and 196.3 KB
+uncompressed, respectively. No action needed for most demos. One difference
+to know about:
+
+- **Sucrase doesn't validate JSX.** A mismatched closing tag or a duplicate
+  prop transpiles and runs whatever that produces, instead of failing with a
+  parse error. Codemirror's self-closing tags helps with tag mismatch to some extent.
+  Genuine syntax errors (unterminated strings, unbalanced
+  braces, and so on) still throw `PARSE_FAILED` with a codeframe.
+
 #### `@rollup/browser` removed; demos run via a small in-memory CommonJS `require`
 
 The runtime used to Babel-transpile a demo's files, bundle them with
 `@rollup/browser`, then evaluate the single bundle. It now transpiles each
 file straight to CommonJS and evaluates them lazily through a small
 `require` that resolves relative imports against the demo's `files` and
-caches each module's `exports`. Same demo behavior, ~350 KB (gzip) /
-~285 KB (brotli, offline max-quality) less to download on a page with a
-demo — for `guide/external/basic`, the compiler payload drops from
-Babel + Rollup JS + Rollup's wasm binary to Babel alone.
+caches each module's `exports`. Same demo behavior. Measured on the real
+deployment (Cloudflare-served, brotli): 341.3 KB less to download on a page
+with a demo (945.8 KB uncompressed) — for `guide/external/basic`, the
+compiler payload drops from Babel + Rollup JS (112.2 KB) + Rollup's wasm
+binary (229.1 KB) to Babel alone.
 
 ### Breaking
 
