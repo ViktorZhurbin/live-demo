@@ -10,8 +10,9 @@ export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
 export type LiveDemoFiles = Record<string, string>;
 
 /**
- * Collected demo data, keyed by each `<code src>`'s raw reference — see
- * `demoRefKey`. The scan phase writes it; the remark transform reads it back.
+ * Collected demo data, keyed by each external demo's raw reference (a `file=`
+ * path or the deprecated `<code src>`'s `src`) — see `demoRefKey`. The scan
+ * phase writes it; the remark transform reads it back.
  */
 export type DemoDataByRef = Record<string, LiveDemoPropsFromPlugin>;
 

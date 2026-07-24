@@ -35,9 +35,10 @@ Now you can use it in your MDX files in either of the two ways:
 
 1. As an **"external"** interactive example (snippet in a dedicated file):
 
-```tsx
-<code src="../snippets/MyDemo.tsx" />
+````mdx
+```tsx file="../snippets/MyDemo.tsx" live
 ```
+````
 
 2. As an **"inline"** interactive example:
 

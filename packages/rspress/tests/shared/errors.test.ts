@@ -7,6 +7,8 @@ import type { ErrorCode, ErrorTokens } from "~shared/errors/types";
 const sampleTokens: { [K in ErrorCode]: ErrorTokens[K] } = {
 	IMPORT_NOT_RESOLVED: { importPath: "./Button" },
 	IMPORT_EXTENSION_NOT_SUPPORTED: { importPath: "./styles.css" },
+	UNSUPPORTED_FILE_PREFIX: { importPath: "Button.tsx" },
+	FILE_META_EXTENSION_REQUIRED: { importPath: "./Button" },
 	PARSE_FAILED: { filePath: "Button.tsx", errorMessage: "Unexpected token" },
 	NO_DEFAULT_EXPORT: { entryFileName: "App.tsx" },
 	PROP_PARSE_FAILED: { key: "files" },

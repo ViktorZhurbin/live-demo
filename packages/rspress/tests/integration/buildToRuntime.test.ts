@@ -49,7 +49,12 @@ const buildDemo = (mdxFixture: string, demoPathUnderValid: string) => {
 	const demoDataByRef: DemoDataByRef = {};
 
 	const mdxPath = path.join(FIXTURES_DIR, "mdx", mdxFixture);
-	visitFilePaths({ filePaths: [mdxPath], uniqueImports, demoDataByRef });
+	visitFilePaths({
+		filePaths: [mdxPath],
+		uniqueImports,
+		demoDataByRef,
+		docRoot: FIXTURES_DIR, // Unused here: every fixture below uses `./`/`../`.
+	});
 
 	// Every fixture here references its demo as `../valid/<pathUnderValid>`, so
 	// its stored key is the ref built from that src string (see `demoRefKey`).

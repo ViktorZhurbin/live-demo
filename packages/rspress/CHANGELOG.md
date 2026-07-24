@@ -20,6 +20,29 @@ Maintaining this file:
 
 ### Compared to upstream
 
+#### External demos now use `file=` meta, matching upstream
+
+External demos are now authored the same way upstream's v2
+(`@rspress/plugin-playground`) does — a fenced code block's `file=` meta,
+carrying the plugin's own `live` word alongside it:
+
+```tsx file="./snippets/Component.tsx" live
+
+```
+
+`<code src="./snippets/Component.tsx" />` still works, but is deprecated and
+logs a one-time console warning pointing at the new syntax; it will be
+removed in a future major version. `file=` also supports the `/` (doc-root)
+and `<root>/` (cwd) path prefixes core itself accepts, which `<code src>`
+never did — see `usage.mdx`'s "Path prefixes" table.
+
+**`file=` requires an explicit, supported extension** (`.tsx`/`.ts`/`.jsx`/`.js`)
+— unlike `<code src>`, it can't be extensionless (`file="./Button"`). This
+isn't this plugin's choice: `@rspress/core` reads `file=` literally off disk,
+with no extension-guessing, so an extensionless path fails the MDX compile
+regardless. Migrating an extensionless `<code src>` to `file=` needs the
+extension added back in.
+
 #### Per-page layout injection, not a global component
 
 Upstream (`@rspress/plugin-playground`) registers the playground via
@@ -160,6 +183,14 @@ An extensionless import (`./Button`) now resolves in the order `.tsx`, `.ts`,
 Only affects demos where both `Button.ts` and `Button.tsx` exist side by side.
 
 ### Fixed
+
+#### Editing a `file=` demo's entry file is now picked up without a dev-server restart
+
+Previously any edit to a demo's source file needed a full dev-server restart
+to show up, because the MDX→demo scan runs once per process. Editing the
+_entry_ file's own content is now reflected on the next recompile. Editing a
+file the entry only imports, adding/removing an import, or adding a
+brand-new demo still needs a restart.
 
 #### A broken local import at runtime now names the file, instead of a generic bundler error
 

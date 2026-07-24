@@ -1,6 +1,7 @@
 # Extensionless Src Example
 
-Mirrors the exact syntax `getStarted.mdx` teaches — a `<code src>` with no
-file extension:
+Exercises the deprecated `<code src>` alias's extensionless resolution — the
+canonical `file=` syntax can't do this, since @rspress/core reads that path
+literally off disk with no extension-guessing.
 
 <code src="../valid/SimpleComponent" />

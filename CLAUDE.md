@@ -4,7 +4,8 @@ Rspress plugin that turns code blocks/files in MDX into interactive, editable
 examples (CodeSandbox-style) that run in the browser.
 
 ````mdx
-<code src="./examples/Button.tsx" />
+```tsx file="./examples/Button.tsx" live
+```
 
 ```jsx live
 export const App = () => {

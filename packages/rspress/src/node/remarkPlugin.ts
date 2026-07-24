@@ -1,10 +1,12 @@
 /**
  * Remark plugin that rewrites MDX code blocks/elements into LiveDemo components,
  * using demo data `visitFilePaths` already collected during the earlier scan phase:
- * 1. External examples: <code src="./Component.tsx" /> → <LiveDemo files={...} />
- * 2. Inline examples: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
+ * 1. External demos: ```tsx file="./Component.tsx" live → <LiveDemo files={...} />
+ * 2. Inline demos: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
+ * 3. Deprecated: <code src="./Component.tsx" /> → same as (1), see its own branch below.
  */
-import type { Root } from "mdast";
+import { getNodeAttribute } from "@rspress/core";
+import type { Code, Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
@@ -17,7 +19,8 @@ import type {
 
 import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
 import { demoRefKey } from "./helpers/demoRefKey";
-import { getMdxJsxAttribute } from "./helpers/getMdxJsxAttribute";
+import { parseCodeMeta } from "./helpers/parseCodeMeta";
+import { warnOnce } from "./helpers/warnOnce";
 
 type RemarkPluginProps = {
 	options?: LiveDemoPluginOptions["ui"];
@@ -37,31 +40,51 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 }) => {
 	return (tree, vfile) => {
 		let transformed = false;
-		// Transform 1: External demo files
-		// Converts: <code src="./Button.tsx" />
-		// To: <LiveDemo files={{Button.tsx: "...", utils.ts: "..."}} entryFileName="Button.tsx" />
+
+		// Transform: fenced code blocks carrying the bare `live` word in their
+		// meta. `file="..."` alongside it is an external demo; its absence makes
+		// it inline. A `file=` block *without* `live` is left alone entirely —
+		// core still renders it as a plain, non-interactive file code block.
+		// No top-level `node.lang` gate here (unlike the old code): it would
+		// gate the external branch on something the scan half (visitFilePaths.ts)
+		// doesn't check, unlike the inline branch below, which already re-checks
+		// it itself.
+		visit(tree, "code", (node) => {
+			const { file, isLive } = parseCodeMeta(node.meta);
+			if (!isLive) return;
+
+			if (file) {
+				transformExternalDemo(node, file, vfile.path);
+			} else {
+				transformInlineDemo(node);
+			}
+		});
+
+		// Deprecated: <code src="./Component.tsx" />. Routes through the same
+		// demoDataByRef lookup as the `file=` branch above, keyed the same way
+		// (see `demoRefKey`). Removed in a later major — see visitFilePaths.ts's
+		// matching branch.
 		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
 			if (node.name !== "code") return;
 
-			const importPath = getMdxJsxAttribute(node, "src");
+			const src = getNodeAttribute(node, "src");
+			if (typeof src !== "string") return;
 
-			if (typeof importPath !== "string") return;
+			const refKey = demoRefKey(vfile.path, src);
 
-			const refKey = demoRefKey(vfile.path, importPath);
+			warnOnce(
+				refKey,
+				`[live-demo] <code src="${src}"> is deprecated. Use a fenced code block ` +
+					`with \`file="${src}" live\` instead. <code src> will be removed in a future major version.`,
+			);
+
 			const demoData = demoDataByRef[refKey];
 
-			// Missing means the scan never recorded it: `routeGenerated` runs
-			// once per dev server process, so adding a new <code src> to an
-			// already-routed page triggers this recompile without rescanning. The
-			// node is left alone, which renders as an empty <code> element —
-			// indistinguishable from a broken demo, hence the warning.
-			//
-			// `console.warn`, not `vfile.message`: rspress's MDX pipeline
-			// collects vfile messages but never prints them, so that route is
-			// silent in practice.
+			// See the identical comment in transformExternalDemo below — same
+			// cause (routeGenerated runs once per dev-server process).
 			if (!demoData) {
 				console.warn(
-					`[live-demo] No demo data for <code src="${importPath}"> in ${vfile.path}.\n` +
+					`[live-demo] No demo data for <code src="${src}"> in ${vfile.path}.\n` +
 						"It will render as an empty <code> element. Restart the dev server to pick it up.",
 				);
 				return;
@@ -77,23 +100,66 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 			transformed = true;
 		});
 
-		// Transform 2: Inline code blocks
-		// Converts: ```jsx live\nexport const App = () => <div>Hello</div>\n```
-		// To: <LiveDemo files={{App.jsx: "export const App..."}} entryFileName="App.jsx" />
-		//
-		// Unlike Transform 1, the block's source is never parsed, so its external
-		// imports never reach `uniqueImports` and aren't added to the virtual
-		// module. That asymmetry is intended: inline demos rely on the plugin's
-		// `defaultModules`, on `includeModules`, or on an external demo elsewhere
-		// on the site having pulled the same package in (`uniqueImports` is one
-		// set for the whole build). Documented at
+		function transformExternalDemo(
+			node: Code,
+			file: string,
+			vfilePath: string,
+		) {
+			const demoData = demoDataByRef[demoRefKey(vfilePath, file)];
+
+			// Missing means the scan never recorded it: `routeGenerated` runs once
+			// per dev server process, so adding a new demo to an already-routed
+			// page triggers this recompile without rescanning. The node is left
+			// alone, which renders as a plain file code block (core has already
+			// substituted `node.value` with the file's contents) — not obviously
+			// broken, hence the warning.
+			//
+			// `console.warn`, not `vfile.message`: rspress's MDX pipeline collects
+			// vfile messages but never prints them, so that route is silent in
+			// practice.
+			if (!demoData) {
+				console.warn(
+					`[live-demo] No demo data for \`file="${file}"\` in ${vfilePath}.\n` +
+						"It will render as a plain file code block. Restart the dev server to pick it up.",
+				);
+				return;
+			}
+
+			// @rspress/core's own remarkFileCodeBlock (registered before this
+			// plugin — see @rspress/core's mdx/options.js) runs on every MDX
+			// recompile and re-reads the file into `node.value`, while
+			// `demoData.files` was populated once, whenever routeGenerated last
+			// scanned. Overriding just the entry's slot with the fresh value
+			// fixes the common dev-mode case: editing a demo's entry file without
+			// touching its imports. Files it imports aren't re-read here — those
+			// still need a dev-server restart (see the package's CLAUDE.md).
+			//
+			// `node.value` is empty in this plugin's own unit tests, which parse
+			// MDX without running core's remarkFileCodeBlock — the `?` falls back
+			// to the scan's own content in that case.
+			const files = node.value
+				? { ...demoData.files, [demoData.entryFileName]: node.value }
+				: demoData.files;
+
+			const props = getPropsWithOptions({ ...demoData, files }, options);
+
+			Object.assign(node, {
+				type: "mdxJsxFlowElement",
+				name: LIVE_DEMO_NAME,
+				attributes: getJsxAttributesFromProps(props),
+			});
+			transformed = true;
+		}
+
+		// Unlike the external transform, the block's source is never parsed, so
+		// its external imports never reach `uniqueImports` and aren't added to
+		// the virtual module. That asymmetry is intended: inline demos rely on
+		// the plugin's `defaultModules`, on `includeModules`, or on an external
+		// demo elsewhere on the site having pulled the same package in
+		// (`uniqueImports` is one set for the whole build). Documented at
 		// `website/docs/guide/inline/otherImports.mdx`.
-		visit(tree, "code", (node) => {
-			if (!node.lang) return;
-
-			const isLive = node.meta?.split(/\s+/).includes("live");
-
-			if (!(isLive && isAllowedExt(node.lang))) return;
+		function transformInlineDemo(node: Code) {
+			if (!node.lang || !isAllowedExt(node.lang)) return;
 
 			const entryFileName = `App.${node.lang}`;
 			const baseProps = {
@@ -109,7 +175,7 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				attributes: getJsxAttributesFromProps(props),
 			});
 			transformed = true;
-		});
+		}
 
 		// Import the layout only into pages that actually rendered a demo, so
 		// non-demo pages never reference the runtime graph.

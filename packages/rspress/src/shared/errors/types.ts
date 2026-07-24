@@ -4,10 +4,10 @@
  */
 
 /**
- * Shared by both import-resolution codes: `importer` is the file whose
- * import statement (or `<code src>`) named `importPath`; `mdxPath` is the
- * MDX page that started the scan, when it differs from `importer` (a demo
- * file's own nested import, not the `<code src>` reference itself).
+ * Shared by import-resolution and prefix codes: `importer` is the file whose
+ * import statement (or `file=`/`<code src>` reference) named `importPath`;
+ * `mdxPath` is the MDX page that started the scan, when it differs from
+ * `importer` (a demo file's own nested import, not the reference itself).
  */
 type ImportResolutionTokens = {
 	importPath: string;
@@ -23,6 +23,26 @@ export type ErrorTokens = {
 	 * before any existence check, so the file may or may not be on disk.
 	 */
 	IMPORT_EXTENSION_NOT_SUPPORTED: ImportResolutionTokens;
+	/**
+	 * A `file="..."` meta value doesn't start with `./`, `../`, `/`, or
+	 * `<root>/` — the same four prefixes @rspress/core's own
+	 * `remarkFileCodeBlock` accepts. Thrown by the pre-scan
+	 * (`resolvePrefixedPath`), before core ever sees the file, so a malformed
+	 * prefix fails clearly instead of resolving against the wrong base.
+	 */
+	UNSUPPORTED_FILE_PREFIX: ImportResolutionTokens;
+	/**
+	 * A `file="..."` value has no extension, or one outside the supported set.
+	 * Thrown by the pre-scan (`visitFilePaths.ts`) before `resolveFileInfo` ever
+	 * runs: `resolveFileInfo`'s own extension-guessing (`getPossiblePaths`)
+	 * would happily resolve an extensionless path, but @rspress/core's real
+	 * `remarkFileCodeBlock` reads `file=` literally off disk and has no such
+	 * guessing — so letting the scan succeed here would just move the failure
+	 * to a later, unrelated ENOENT at MDX-compile time. Deliberately doesn't
+	 * apply to the deprecated `<code src>` alias, which keeps its existing
+	 * extensionless resolution.
+	 */
+	FILE_META_EXTENSION_REQUIRED: ImportResolutionTokens;
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
 	/** Optional: getFnFromString is callable without an entry file name (tests, direct use). */
 	NO_DEFAULT_EXPORT: { entryFileName?: string };

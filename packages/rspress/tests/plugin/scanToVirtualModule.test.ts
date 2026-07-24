@@ -49,4 +49,39 @@ describe("routeGenerated seams into the virtual module handler", () => {
 			"importsMap.set('clsx', () => import('clsx'));",
 		);
 	});
+
+	/**
+	 * The `/`-prefixed form of `file=` resolves against `config.root`, read by
+	 * this plugin's own `config` hook (see plugin.ts) — a value `routeGenerated`
+	 * has no other way to learn. This exercises that hook wiring end to end,
+	 * not just `resolvePrefixedPath`'s own string mapping (covered in its unit
+	 * test): the negative case below shows the root genuinely has to flow
+	 * through, not just happen to not throw regardless.
+	 */
+	it("resolves the `/` prefix against the root the config hook observed", async () => {
+		const plugin = liveDemoPluginRspress();
+
+		await plugin.config?.({ root: FIXTURES_DIR }, {} as never, false);
+
+		const mdxPath = path.join(FIXTURES_DIR, "mdx/docRootPrefixDemo.mdx");
+
+		// Resolves (rather than throwing) only if the `/` prefix found the file.
+		await expect(
+			plugin.routeGenerated?.([{ absolutePath: mdxPath } as RouteMeta], false),
+		).resolves.toBeUndefined();
+	});
+
+	it("fails to resolve the `/` prefix if config() never ran (docRoot still at its default)", async () => {
+		const plugin = liveDemoPluginRspress();
+
+		const mdxPath = path.join(FIXTURES_DIR, "mdx/docRootPrefixDemo.mdx");
+
+		// Without a `config()` call, `docRoot` stays at its own default ("docs"
+		// under cwd), which doesn't contain this fixture's target file — proving
+		// the value from `config()` is what makes the test above pass, not
+		// coincidence.
+		await expect(
+			plugin.routeGenerated?.([{ absolutePath: mdxPath } as RouteMeta], false),
+		).rejects.toThrow(/Couldn't resolve/);
+	});
 });

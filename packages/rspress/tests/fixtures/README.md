@@ -42,5 +42,9 @@ exist because a flat single-file fixture missed something real:
 | `valid/Precedence/` | competing extensions on disk; precedence is real |
 | `valid/Circular/` | mutually recursive imports (legal, must still run) |
 | `valid/CircularEntry/` | the *entry file itself* inside the cycle, so the walk revisits its own starting point |
-| `mdx/collidingSrc/{a,b}/` | two pages with identical `<code src="./SimpleComponent.tsx">` strings resolving to different files. Demo data is keyed by page path plus src (`demoRefKey`), so keying by raw string alone would collide these. |
+| `mdx/collidingSrc/{a,b}/` | two pages with identical `file="./SimpleComponent.tsx"` strings resolving to different files. Demo data is keyed by page path plus the raw reference (`demoRefKey`), so keying by raw string alone would collide these. |
 | `valid/Climbing/` + `valid/shared/` | entry file importing `../` above its own directory. The key keeps the `../` prefix (see `pathHelpers.ts`'s `resolveRelativePath`). |
+| `mdx/rootPrefixDemo.mdx` | `file=` using the `<root>/` prefix — resolved against `process.cwd()`, not the MDX file's own directory. |
+| `mdx/docRootPrefixDemo.mdx` | `file=` using the `/` prefix — resolved against the doc root, passed in as `docRoot` rather than derived from disk layout. |
+| `mdx/fileMetaWithoutLive.mdx` | a `file=` block missing the bare `live` word — must be left alone by both the scan and the transform, since core still renders it as a plain file code block. |
+| `mdx/deprecatedSrcDemo.mdx` + `mdx/extensionlessSrc.mdx` | the deprecated `<code src>` alias, kept on the old syntax on purpose (see `remarkPlugin.ts`'s deprecated branch) rather than migrated to `file=`. |

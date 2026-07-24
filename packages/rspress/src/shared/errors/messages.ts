@@ -30,6 +30,26 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "Only .js(x) and .ts(x) files are supported.",
 	}),
 
+	UNSUPPORTED_FILE_PREFIX: ({ importPath, importer, mdxPath }) => ({
+		title: "Unsupported file path prefix",
+		message: `\`file="${importPath}"\`${importer ? ` in \`${importer}\`` : ""} must start with \`./\`, \`../\`, \`/\`, or \`<root>/\`.`,
+		notes:
+			mdxPath && mdxPath !== importer
+				? [`Referenced from ${mdxPath}.`]
+				: undefined,
+		hint: "See the docs on external demos for what each prefix resolves against.",
+	}),
+
+	FILE_META_EXTENSION_REQUIRED: ({ importPath, importer, mdxPath }) => ({
+		title: "file= requires an explicit, supported extension",
+		message: `\`file="${importPath}"\`${importer ? ` in \`${importer}\`` : ""} has no supported extension.`,
+		notes:
+			mdxPath && mdxPath !== importer
+				? [`Referenced from ${mdxPath}.`]
+				: undefined,
+		hint: 'Add the file extension, e.g. `file="./Button.tsx"` — @rspress/core reads this path literally.',
+	}),
+
 	PARSE_FAILED: ({ filePath, errorMessage, codeframe }) => ({
 		title: "Parse failed",
 		message: `Failed to parse \`${filePath}\`: ${errorMessage}`,

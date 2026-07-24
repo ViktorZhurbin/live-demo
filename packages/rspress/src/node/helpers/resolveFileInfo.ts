@@ -21,7 +21,7 @@ import type { PathWithAllowedExt } from "~shared/types";
 type ResolveFileInfo = {
 	importPath: string;
 	dirname: string;
-	/** The file whose import statement (or `<code src>`) names `importPath`. */
+	/** The file whose import statement (or `file=`/`<code src>` reference) names `importPath`. */
 	importer?: string;
 	/** The MDX page that started the scan, if different from `importer`. */
 	mdxPath?: string;

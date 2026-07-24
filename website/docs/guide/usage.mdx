@@ -8,14 +8,43 @@ There are two ways to add an interactive demo in MDX files: **inline** and **ext
 
 For more complex code, you can use "external" demos:
 
-```tsx
-<code src="./snippets/Component.tsx" />
-```
+<pre>
+  ````
+  ```tsx file="./snippets/Component.tsx" live
+  ```
+  ````
+</pre>
 
 > [!NOTE]
 >
-> Editing a file referenced by `<code src="...">` while the dev server is
-> running won't be picked up — restart the dev server to see the change.
+> Editing the referenced file's own content while the dev server is running
+> is picked up automatically. Adding or removing one of its imports, or
+> adding a brand-new demo, still needs a dev server restart.
+
+> [!NOTE]
+>
+> `file=` requires an explicit, supported extension (`.tsx`, `.ts`, `.jsx`,
+> or `.js`) — `file="./Button"` doesn't work. This limitation comes from `@rspress/core`.
+
+### Deprecated: `<code src>`
+
+`<code src="./snippets/Component.tsx" />` still works the same way, but is
+deprecated in favor of `file=` above and will be removed in a future major
+version. Unlike `file=`, `<code src>` can resolve an extensionless path
+(`<code src="./snippets/Component" />`) — that's specific to this deprecated
+form and isn't coming to `file=` (see the note above).
+
+### Path prefixes
+
+`file=` supports four prefixes, matching `@rspress/core`'s own file code
+block:
+
+| Prefix    | Resolves relative to                            |
+| --------- | ----------------------------------------------- |
+| `./`      | the current MDX file's directory                |
+| `../`     | same, climbing up                               |
+| `/`       | the doc root (`root` in `rspress.config.ts`)    |
+| `<root>/` | the directory the dev server/build was run from |
 
 ## Inline demo
 

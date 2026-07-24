@@ -36,23 +36,31 @@ Internal/contributor-only changes don't belong there.
 Two phases:
 
 **Build time (Node.js, `src/node/` + `src/plugin/`)**: `src/plugin/plugin.ts`
-is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. On
+is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. Its
+`config` hook captures `config.root` (mirroring `@rspress/core`'s own
+resolution) into `docRoot`, read later for the `/`-prefixed `file=` form. On
 `routeGenerated` it scans MDX files (`visitFilePaths.ts`) and for each
-`<code src="..."/>` block collects the entry file and everything it
-transitively imports (`collectDemoFiles.ts`). Inline ` ```lang live ` blocks
-never reach this scan. `remarkPlugin.ts` turns them into `<LiveDemo>`
-directly, without collecting their imports (see "Limitations" below).
-External imports (react, etc.) are collected across all demos and exported
-from one generated virtual module (`getVirtualModulesCode.ts`) as lazy
-`() => import(...)` thunks. That one module is shared by the whole site,
-so static imports would make every demo page pay for every other page's externals.
-`runCode.ts` awaits just its own demo's before evaluating. `remarkPlugin.ts`
-then rewrites the MDX AST so `<code src="..."/>` / ` ```lang live ` becomes a
-`<LiveDemo files={...} />` element, and on pages that have at least one demo,
-prepends an `import` of the layout so only those pages pull in the runtime graph
-(`createLayoutImportNode.ts`; it is _not_ a global component). Per-page
-injection alone isn't enough to keep the runtime graph off other pages: the
-default layout (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy`.
+external demo — a fenced code block with both `file="..."` and the bare word
+`live` in its meta, or the deprecated `<code src="..."/>` alias — collects
+the entry file and everything it transitively imports (`collectDemoFiles.ts`).
+`file=`'s path can carry any of four prefixes (`./`, `../`, `/`, `<root>/`,
+matching `@rspress/core`'s own `remarkFileCodeBlock`); `resolvePrefixedPath.ts`
+maps each to the `{ dirname, importPath }` pair the rest of the resolver
+expects. Inline ` ```lang live ` blocks (no `file=`) never reach this scan.
+`remarkPlugin.ts` turns them into `<LiveDemo>` directly, without collecting
+their imports (see "Limitations" below). External imports (react, etc.) are
+collected across all demos and exported from one generated virtual module
+(`getVirtualModulesCode.ts`) as lazy `() => import(...)` thunks. That one
+module is shared by the whole site, so static imports would make every demo
+page pay for every other page's externals. `runCode.ts` awaits just its own
+demo's before evaluating. `remarkPlugin.ts` then rewrites the MDX AST so a
+`file="..." live` block, an inline ` ```lang live ` block, or a deprecated
+`<code src="..."/>` becomes a `<LiveDemo files={...} />` element, and on
+pages that have at least one demo, prepends an `import` of the layout so only
+those pages pull in the runtime graph (`createLayoutImportNode.ts`; it is
+_not_ a global component). Per-page injection alone isn't enough to keep the
+runtime graph off other pages: the default layout (`static/LiveDemo.tsx`)
+loads `Core` behind `React.lazy`.
 A static top-level import of `Core` gets scope-hoisted by the consumer's
 bundler into a chunk shared across every page regardless of which pages
 import the layout (see `src/web/lazy.tsx`'s module docblock for the
@@ -169,9 +177,20 @@ Test `web/` components against the actual `website/` through the preview build.
 - No dynamic imports: all imports must be static
 - No Node.js APIs: demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
+- `file=` can't be extensionless (`file="./Button"`), unlike the deprecated
+  `<code src>`. `@rspress/core`'s own
+  `remarkFileCodeBlock` reads `file=` literally off disk with no
+  extension-guessing, and it's appended after this plugin's remark plugins
+  unconditionally (`@rspress/core`'s `mdx/options.js` — no ordering knob), so
+  there's no way to get ahead of it short of a chained webpack loader
+  rewriting `.mdx` source text, disproportionate for this codebase.
+  `visitFilePaths.ts` rejects an extensionless (or unsupported-extension)
+  `file=` itself, at scan time, with `FILE_META_EXTENSION_REQUIRED` — so it
+  fails with a clear message instead of core's unrelated ENOENT later.
 - Inline (` ```lang live `) demos don't auto-resolve external imports; only
-  `<code src>` demos do. This is intentional (see `remarkPlugin.ts` and
-  `website/docs/guide/inline/otherImports.mdx`). Don't "fix" it.
+  external (`file=`/deprecated `<code src>`) demos do. This is intentional
+  (see `remarkPlugin.ts` and `website/docs/guide/inline/otherImports.mdx`).
+  Don't "fix" it.
 - No JSX closing-tag-mismatch or duplicate-prop diagnostics: Sucrase is a
   token rewriter, not a validating parser, and skips that checking by design.
   A demo with `<div></span>` or `<Foo a="1" a="2">` transpiles and runs
@@ -205,11 +224,17 @@ This section exists to stop defensive-code creep.
   check (permissions, a removed file) propagates raw.
 - **Runtime validation of plugin options**: `LiveDemoPluginOptions` is
   TypeScript's contract only; `plugin.ts` doesn't check any of it at runtime.
-- **`.md` files**: `<code src>` injects JSX, so it only works in `.mdx` files.
+- **`.md` files**: an external demo injects JSX (`<LiveDemo>`), so it only
+  works in `.mdx` files.
 - **Dev-mode staleness on demo-file edit**: the MDX→demo scan (`routeGenerated`)
-  runs once per dev-server process. Editing an existing demo's source file
-  afterward isn't picked up. Restarting the dev server is the only fix (documented in
-  `website/docs/guide/usage.mdx`).
+  runs once per dev-server process. For `file=` demos, editing the _entry_
+  file's own content is now picked up on the next recompile — `remarkPlugin.ts`
+  overrides that one file's content with `node.value`, which `@rspress/core`'s
+  own `remarkFileCodeBlock` re-reads from disk on every recompile (see its
+  module docblock). Still needing a restart: adding or removing one of the
+  entry's imports (the module graph itself isn't rewalked), editing a file the
+  entry merely imports, adding a brand-new demo, and anything on the
+  deprecated `<code src>` path (documented in `website/docs/guide/usage.mdx`).
 
 ## Troubleshooting
 
@@ -226,6 +251,13 @@ virtual module instead of importing the class.
 - **`IMPORT_EXTENSION_NOT_SUPPORTED`** ("isn't a supported file type"): the
   import's extension isn't `.js(x)`/`.ts(x)` (e.g. a `.css` import). This is
   thrown before any existence check; same importer/MDX-page context as above.
+- **`UNSUPPORTED_FILE_PREFIX`**: a `file=` value doesn't start with `./`,
+  `../`, `/`, or `<root>/`. Thrown by `resolvePrefixedPath` before
+  `resolveFileInfo` runs.
+- **`FILE_META_EXTENSION_REQUIRED`**: a `file=` value has no extension, or an
+  unsupported one. Thrown by `visitFilePaths.ts` before `resolveFileInfo`
+  runs, so an extensionless `file=` fails here instead of as an unrelated
+  ENOENT from `@rspress/core`'s own MDX compile later (see "Limitations").
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import"): confirm it's a
   real dependency and that it reached the virtual module
   (`getVirtualModulesCode.ts`).

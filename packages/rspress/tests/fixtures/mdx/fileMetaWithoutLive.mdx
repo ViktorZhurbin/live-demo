@@ -1,0 +1,8 @@
+# File Meta Without Live
+
+A `file=` block missing the bare `live` word. @rspress/core still renders
+this as a plain, non-interactive file code block, so this plugin's scan and
+transform must both leave it alone.
+
+```tsx file="../valid/SimpleComponent.tsx"
+```
