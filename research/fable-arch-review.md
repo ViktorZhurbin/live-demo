@@ -6,11 +6,11 @@ rationale was recorded elsewhere. What remains is the part still open.
 
 Resolved items and where they went:
 
-| Original item                            | Outcome                                                  |
-| ---------------------------------------- | -------------------------------------------------------- |
-| 1. Every visitor pays the compiler       | Investigated, parked → `research/.closed-questions.md`   |
-| 3a. Output CJS instead of ESM + rewrite  | **Implemented** → `decisions/0001`                       |
-| 3b. Replace Babel + Rollup with one tool | Researched, negative → `research/transpiler-research.md` |
+| Original item                            | Outcome                                                |
+| ---------------------------------------- | ------------------------------------------------------ |
+| 1. Every visitor pays the compiler       | Investigated, parked → `research/.closed-questions.md` |
+| 3a. Output CJS instead of ESM + rewrite  | **Implemented** → `decisions/0001`                     |
+| 3b. Replace Babel + Rollup with one tool | **Implemented** (Sucrase) → `decisions/0002`           |
 
 Two of the review's factual premises are also now out of date and worth correcting,
 since they were load-bearing for its priority list: the compiler measured **842 KB
@@ -117,9 +117,9 @@ harder on rspress theme variables instead).
 - **WebContainers**: licensing plus tens of MB; built for full dev environments, not doc
   demos.
 - **react-live / sucrase**: the review dismissed these as single-file with no imports.
-  Half right — Sucrase has since been measured properly and is the runner-up transpiler
-  (10x smaller than Babel), disqualified on AST access and error quality rather than on
-  capability. See `research/transpiler-research.md`.
+  Wrong — Sucrase has since been measured properly and adopted, replacing Babel
+  outright (10x smaller under real CDN brotli). Its missing AST/specifier access was
+  worked around rather than fatal. See `decisions/0002`.
 
 Owning the pipeline was and remains the right call; the items above are refinements of
 that position, not reversals.
@@ -135,6 +135,6 @@ that position, not reversals.
 The review's two closing questions have since been answered. "Is fully self-contained,
 no CDN at runtime a hard constraint?" — yes, and it hardened further: zero build or
 server configuration required from the consuming site is now a hard requirement, which
-is what disqualified both `@babel/core` and oxc (see `research/transpiler-research.md`).
+is what disqualified both `@babel/core` and oxc (see `decisions/0002`).
 "Do you care about SSR/SSG of previews?" — not enough to pay for it at this project's
 scale (see `research/.closed-questions.md`).

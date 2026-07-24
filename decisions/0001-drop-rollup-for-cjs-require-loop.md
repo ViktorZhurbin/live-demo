@@ -155,5 +155,5 @@ Steps 2-4 were to try `@babel/core`, then oxc, then Sucrase.
   clears zero-consumer-config while matching CJS output, specifier access, and
   error quality.
 
-`@babel/standalone` stays. Full evidence in `research/transpiler-research.md`;
-revisit triggers in `research/open-questions.md`.
+`@babel/standalone` stays — **at the time.** It was later replaced by Sucrase;
+see [0002](0002-sucrase-over-babel-standalone.md).
