@@ -64,8 +64,7 @@ Measured at implementation time, recorded in `packages/rspress/CHANGELOG.md`:
   The brotli figure is offline quality 11. Over Cloudflare, which compresses at
   a lower quality, the two removed chunks measured 114.9 KB (Rollup JS) +
   234.6 KB (wasm) = **~350 KB brotli** in production, so the real-world saving
-  is larger than the offline number suggests. See the method note in
-  `research/open-questions.md`.
+  is larger than the offline number suggests.
 - For `guide/external/basic`, the compiler payload drops from Babel + Rollup JS
   plus Rollup's wasm binary to Babel alone.
 - Six files deleted, two added. One dependency dropped, none added.

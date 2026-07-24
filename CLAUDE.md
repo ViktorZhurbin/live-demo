@@ -55,7 +55,7 @@ next to the code, or in the relevant package's own CLAUDE.md.
 # From the repo root:
 pnpm run check # lint+format
 pnpm run verify # build + typecheck + unit tests + knip + e2e tests
-pnpm check:all # both of the above
+pnpm check:all # check && verify
 ```
 
 ## Active initiative: major version upgrade

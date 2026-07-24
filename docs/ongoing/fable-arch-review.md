@@ -6,11 +6,11 @@ rationale was recorded elsewhere. What remains is the part still open.
 
 Resolved items and where they went:
 
-| Original item                            | Outcome                                                |
-| ---------------------------------------- | ------------------------------------------------------ |
-| 1. Every visitor pays the compiler       | Investigated, parked → `research/.closed-questions.md` |
-| 3a. Output CJS instead of ESM + rewrite  | **Implemented** → `decisions/0001`                     |
-| 3b. Replace Babel + Rollup with one tool | **Implemented** (Sucrase) → `decisions/0002`           |
+| Original item                            | Outcome                                            |
+| ---------------------------------------- | -------------------------------------------------- |
+| 1. Every visitor pays the compiler       | Investigated, parked → `docs/.closed-questions.md` |
+| 3a. Output CJS instead of ESM + rewrite  | **Implemented** → `decisions/0001`                 |
+| 3b. Replace Babel + Rollup with one tool | **Implemented** (Sucrase) → `decisions/0002`       |
 
 Two of the review's factual premises are also now out of date and worth correcting,
 since they were load-bearing for its priority list: the compiler measured **842 KB
@@ -137,4 +137,4 @@ no CDN at runtime a hard constraint?" — yes, and it hardened further: zero bui
 server configuration required from the consuming site is now a hard requirement, which
 is what disqualified both `@babel/core` and oxc (see `decisions/0002`).
 "Do you care about SSR/SSG of previews?" — not enough to pay for it at this project's
-scale (see `research/.closed-questions.md`).
+scale (see `docs/.closed-questions.md`).
