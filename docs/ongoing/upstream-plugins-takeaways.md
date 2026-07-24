@@ -19,6 +19,21 @@
 6. **`render` option + composable web exports.** Playground lets you pass your own `Playground.tsx` and documents both `@rspress/plugin-playground/web` (exports `Editor`, `Runner`, the Monaco loader) and the generated module name `_rspress_playground_imports` as public API. Your [static/LiveDemo.tsx](packages/rspress/static/LiveDemo.tsx) path is hardcoded in [plugin.ts:36](packages/rspress/src/plugin/plugin.ts:36) and [src/web/index.ts](packages/rspress/src/web/index.ts) exports only `Button` and a type. You have a much better-factored internal component tree (`LiveDemoProvider`, `ControlPanel`, `ResizablePanels`, `CodeRunner`) and none of it is reachable by a consumer.
    My note: we did have a `customLayout` option, but removed it for simplicity - it was a footgun that easily breaks our lazy loading, and added real API surface. May reconsider later.
 
+7. Options plumbing has a type lie and no per-demo story
+
+- `ui.editor` is typed as full `ReactCodeMirrorProps`, but options travel through
+  `JSON.stringify` in MDX attributes, so functions and CodeMirror extension instances
+  (the things people most want to pass) can't survive the trip. Either narrow the type to
+  the serializable subset or, better, stop serializing site-wide options per demo at all:
+  they're constants for the whole site, so they could be delivered once (through the
+  virtual module or a config module the layout imports), which also slims every demo's
+  attribute payload and `parseProps`.
+- There's no per-demo configuration (docs say so explicitly). Upstream carried fence meta
+  (`direction=vertical`) through to props. Natural carriers exist already: extra fence
+  meta on ` ```jsx live ` and extra attributes on `<code src>`. Worth adding for 3.0;
+  "hide editor for this one demo" is a common docs need. See also `TODO.md`'s entry on
+  whether `<code src>` should become explicit meta, which upstream v2 has since done.
+
 ## The one real architectural idea
 
 Where the demo's file work happens:
