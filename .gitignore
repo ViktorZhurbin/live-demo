@@ -3,7 +3,7 @@
 *.local.*
 *.log*
 .pnpm-store/
-.tmp/
+source-code/
 .playwright-mcp/
 
 # Dist

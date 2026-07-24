@@ -25,7 +25,7 @@ and legitimate goal alongside shipping something useful.
 
 ### Origins
 
-The project started based off of the official plugins: `@rspress/plugin-playground` and `@rspress/plugin-preview`. Source of both is available in `.claude/.tmp/` as an upstream reference (each has a `docs-api.md` file reflecting their v2 API). See `README.md` for differences. `resources/issues-analysis.md` is an attempt to analyze the long standing issues that users face with the official plugins (needs further digging)
+The project started based off of the official plugins: `@rspress/plugin-playground` and `@rspress/plugin-preview`. Source of both is available in `.claude/source-code/` as an upstream reference (each has a `docs-api.md` file reflecting their v2 API). See `README.md` for differences. `resources/issues-analysis.md` is an attempt to analyze the long standing issues that users face with the official plugins (needs further digging)
 
 ## Monorepo layout
 
