@@ -174,7 +174,7 @@ Test `web/` components against the actual `website/` through the preview build.
 
 ## Limitations (of demo code, not the plugin's own source)
 
-- No CSS modules in live demos: inline styles or external CSS only
+- No CSS in live demos: inline styles or global CSS only
 - No dynamic imports: all imports must be static
 - No Node.js APIs: demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports

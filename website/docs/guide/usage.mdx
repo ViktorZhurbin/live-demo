@@ -120,3 +120,11 @@ export const App = () => {
 > to be there when the site builds. Typing a brand-new import while editing a
 > demo in the browser — for a package no demo's source mentions anywhere — won't
 > resolve.
+
+> [!NOTE]
+>
+> Only `.js(x)`/`.ts(x)` files can be imported by demo code — there's no
+> bundler behind the scenes to hand a `.css` import off to. A multi-file demo
+> that imports one fails the build with a clear error naming the file. Style
+> demo components with inline styles, CSS-in-JS, or global CSS from your docs
+> site instead.
