@@ -59,15 +59,5 @@ describe("liveDemoPluginRspress", () => {
 			// Without it every JSX demo fails with "Can't resolve".
 			expect(virtualModule).toContain("'react/jsx-runtime'");
 		});
-
-		it("adds user-provided includeModules to the virtual module", async () => {
-			const plugin = liveDemoPluginRspress({
-				includeModules: ["@mantine/hooks"],
-			});
-			const handler = getVirtualModuleHandler(plugin);
-			const virtualModule = await handler();
-
-			expect(virtualModule).toContain("'@mantine/hooks'");
-		});
 	});
 });

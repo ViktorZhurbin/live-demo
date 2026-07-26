@@ -240,6 +240,51 @@ describe("visitFilePaths", () => {
 		expect(demoB.files["SimpleComponent.tsx"]).toContain(">B<");
 	});
 
+	/**
+	 * An inline block has no file to collect, but the packages it imports still
+	 * have to reach the virtual module or they can't resolve at runtime. This
+	 * is the only path that puts an import into `uniqueImports` without also
+	 * writing a `demoDataByRef` entry.
+	 */
+	it("collects an inline block's own external imports without recording demo data", () => {
+		const uniqueImports: UniqueImports = new Set();
+		const demoDataByRef: DemoDataByRef = {};
+
+		visitFilePaths({
+			filePaths: [mdxPath("inlineDemoWithImports.mdx")],
+			uniqueImports,
+			demoDataByRef,
+			docRoot: DOC_ROOT,
+		});
+
+		expect(uniqueImports.has("luxon")).toBe(true);
+		// Second fence on the same page, and a different language.
+		expect(uniqueImports.has("clsx")).toBe(true);
+
+		// Inline demos are single-file: nothing to resolve `./helper` against.
+		expect(uniqueImports.has("./helper")).toBe(false);
+		// Erased by the runtime compiler, so it never needs to resolve.
+		expect(uniqueImports.has("type-only-package")).toBe(false);
+
+		expect(demoDataByRef).toEqual({});
+	});
+
+	it("ignores an inline block that doesn't parse instead of failing the build", () => {
+		const uniqueImports: UniqueImports = new Set();
+		const demoDataByRef: DemoDataByRef = {};
+
+		// A syntax error in a live-edited code fence must stay a runtime error
+		// in the preview pane, not take the whole docs build down.
+		expect(() =>
+			visitFilePaths({
+				filePaths: [mdxPath("inlineDemoBrokenSyntax.mdx")],
+				uniqueImports,
+				demoDataByRef,
+				docRoot: DOC_ROOT,
+			}),
+		).not.toThrow();
+	});
+
 	it("collects external imports from across the demo's module graph", () => {
 		const uniqueImports: UniqueImports = new Set();
 		const demoDataByRef: DemoDataByRef = {};

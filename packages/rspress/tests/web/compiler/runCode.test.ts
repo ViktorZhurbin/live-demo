@@ -199,8 +199,8 @@ describe("runCode", () => {
 		});
 
 		it("accepts a named export alongside an external import", async () => {
-			// The shape of guide/inline/preDefinedImports.mdx: a named export whose
-			// body depends on an import resolved via the virtual module.
+			// The shape of guide/usage.mdx's inline counter demo: a named export
+			// whose body depends on an import resolved via the virtual module.
 			const files: LiveDemoFiles = {
 				"App.jsx": `
           import { useState } from "react";

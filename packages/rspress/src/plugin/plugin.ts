@@ -24,12 +24,9 @@ const defaultModules = ["react", "react/jsx-runtime", "@rspress/core/theme"];
 export const liveDemoPluginRspress = (
 	options?: LiveDemoPluginOptions,
 ): RspressPlugin => {
-	const { includeModules } = options ?? {};
-
 	const demoDataByRef: DemoDataByRef = {};
 
-	const extraModules = includeModules || [];
-	const uniqueImports = new Set(defaultModules.concat(extraModules));
+	const uniqueImports = new Set(defaultModules);
 
 	// Injected per-page by remarkPlugin instead of registered as a global
 	// component, so only pages with a demo pull in the demo runtime graph.

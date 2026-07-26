@@ -151,13 +151,16 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 			transformed = true;
 		}
 
-		// Unlike the external transform, the block's source is never parsed, so
-		// its external imports never reach `uniqueImports` and aren't added to
-		// the virtual module. That asymmetry is intended: inline demos rely on
-		// the plugin's `defaultModules`, on `includeModules`, or on an external
-		// demo elsewhere on the site having pulled the same package in
-		// (`uniqueImports` is one set for the whole build). Documented at
-		// `website/docs/guide/inline/otherImports.mdx`.
+		// No file collection here, unlike the external transform: an inline
+		// demo is its own single file. The packages it imports are picked up
+		// separately, by `collectInlineImports` during the scan, so they reach
+		// the virtual module the same way an external demo's do.
+		//
+		// What still can't work is an import *typed at runtime* that no demo
+		// declared anywhere: the consuming bundler has to see every specifier
+		// statically to build the virtual module, so that throws
+		// `EXTERNAL_IMPORT_NOT_FOUND` at evaluation instead of resolving.
+		// Documented at `website/docs/guide/usage.mdx`.
 		function transformInlineDemo(node: Code) {
 			if (!node.lang || !isAllowedExt(node.lang)) return;
 

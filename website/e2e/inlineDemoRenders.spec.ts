@@ -1,18 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-// Targets the second ` ```jsx live ` block on this page (the React-hooks
-// counter), not the first (a static Badge). The page has two separate <Tabs>
-// groups, each with a live demo in its active "Live" tab, so two demos share
-// the id="editor"/id="preview" that Panel assigns -- .nth(1) disambiguates
-// instead of the single-demo `#editor` pattern other specs use. See
-// docs/guide/inline/preDefinedImports.mdx.
+// The inline (` ```lang live `) counterpart to editCodeUpdatesPreview.spec.ts,
+// which makes these same two assertions against an external (`file=`) demo.
+// The overlap is deliberate: inline and external demos reach the runtime by
+// different build-time paths (parsed in place vs. read off disk and walked),
+// so one passing says nothing about the other.
+//
+// Scoped to the `data-testid="inline-demo"` wrapper in docs/guide/usage.mdx --
+// that page carries three demos, all sharing the id="editor"/id="preview" that
+// Panel assigns, so the wrapper is what keeps these locators unambiguous.
 test.describe("an inline ```lang live``` demo renders and runs in the browser", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/guide/inline/preDefinedImports");
+		await page.goto("/guide/usage");
 	});
 
 	test("the rendered demo is interactive before any edit", async ({ page }) => {
-		const preview = page.getByTestId("preview").nth(1);
+		const preview = page.getByTestId("inline-demo").getByTestId("preview");
 
 		await expect(preview.getByText("Count is: 0")).toBeVisible();
 
@@ -24,8 +27,9 @@ test.describe("an inline ```lang live``` demo renders and runs in the browser", 
 	test("editing the source recompiles and re-renders the preview", async ({
 		page,
 	}) => {
-		const editorContent = page.locator("#editor .cm-content").nth(1);
-		const preview = page.getByTestId("preview").nth(1);
+		const demo = page.getByTestId("inline-demo");
+		const editorContent = demo.locator("#editor .cm-content");
+		const preview = demo.getByTestId("preview");
 
 		await expect(preview.getByText("Count is: 0")).toBeVisible();
 

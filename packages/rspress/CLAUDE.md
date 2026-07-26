@@ -46,9 +46,10 @@ the entry file and everything it transitively imports (`collectDemoFiles.ts`).
 `file=`'s path can carry any of four prefixes (`./`, `../`, `/`, `<root>/`,
 matching `@rspress/core`'s own `remarkFileCodeBlock`); `resolvePrefixedPath.ts`
 maps each to the `{ dirname, importPath }` pair the rest of the resolver
-expects. Inline ` ```lang live ` blocks (no `file=`) never reach this scan.
-`remarkPlugin.ts` turns them into `<LiveDemo>` directly, without collecting
-their imports (see "Limitations" below). External imports (react, etc.) are
+expects. Inline ` ```lang live ` blocks (no `file=`) collect no files — they
+are a single file, held in the MDX itself — but the scan still parses their
+source for the packages they import (`collectInlineImports.ts`), so those
+reach the virtual module too. External imports (react, etc.) are
 collected across all demos and exported from one generated virtual module
 (`getVirtualModulesCode.ts`) as lazy `() => import(...)` thunks. That one
 module is shared by the whole site, so static imports would make every demo
@@ -187,10 +188,12 @@ Test `web/` components against the actual `website/` through the preview build.
   `visitFilePaths.ts` rejects an extensionless (or unsupported-extension)
   `file=` itself, at scan time, with `FILE_META_EXTENSION_REQUIRED` — so it
   fails with a clear message instead of core's unrelated ENOENT later.
-- Inline (` ```lang live `) demos don't auto-resolve external imports; only
-  external (`file=`/deprecated `<code src>`) demos do. This is intentional
-  (see `remarkPlugin.ts` and `website/docs/guide/inline/otherImports.mdx`).
-  Don't "fix" it.
+- No import can be resolved that isn't declared in some demo's source at build
+  time — the consuming bundler has to see every specifier statically to build
+  the virtual module. The one case this bites: typing a brand-new import while
+  editing a demo in the browser, which throws `EXTERNAL_IMPORT_NOT_FOUND`
+  instead of resolving. Inherent to the design, not a gap to close (see
+  `getVirtualModulesCode.ts` and `website/docs/guide/usage.mdx`).
 - No JSX closing-tag-mismatch or duplicate-prop diagnostics: Sucrase is a
   token rewriter, not a validating parser, and skips that checking by design.
   A demo with `<div></span>` or `<Foo a="1" a="2">` transpiles and runs
@@ -227,14 +230,12 @@ This section exists to stop defensive-code creep.
 - **`.md` files**: an external demo injects JSX (`<LiveDemo>`), so it only
   works in `.mdx` files.
 - **Dev-mode staleness on demo-file edit**: the MDX→demo scan (`routeGenerated`)
-  runs once per dev-server process. For `file=` demos, editing the _entry_
-  file's own content is now picked up on the next recompile — `remarkPlugin.ts`
-  overrides that one file's content with `node.value`, which `@rspress/core`'s
-  own `remarkFileCodeBlock` re-reads from disk on every recompile (see its
-  module docblock). Still needing a restart: adding or removing one of the
-  entry's imports (the module graph itself isn't rewalked), editing a file the
-  entry merely imports, adding a brand-new demo, and anything on the
-  deprecated `<code src>` path (documented in `website/docs/guide/usage.mdx`).
+  runs once per dev-server process, so most **on-disk** changes to a demo's file
+  graph need a restart to show up — a new or removed import, an edit to a file the
+  entry only imports (not the entry itself), a brand-new demo, anything on the deprecated
+  `<code src>` path. The one thing that doesn't: editing a `file=` entry's own
+  content, which stays fresh across re-compiles without a re-scan (see
+  `remarkPlugin.ts`'s `transformExternalDemo` docblock for how).
 
 ## Troubleshooting
 

@@ -12,8 +12,11 @@
  * resolves to, a page could build against one file while this scan collected
  * another. The second, deprecated syntax is `<code src="...">`, kept working
  * as a thin alias (see the second `visit` call below and `remarkPlugin.ts`'s
- * matching branch). Inline ` ```lang live ` blocks reach neither — they carry
- * no file to resolve and are handled entirely by `remarkPlugin`.
+ * matching branch). Inline ` ```lang live ` blocks carry no file to resolve,
+ * so they collect no *files* here, but their source is still parsed for the
+ * packages it imports (`collectInlineImports`) — otherwise those packages
+ * would never reach the virtual module. `remarkPlugin` handles everything
+ * else about them.
  *
  * `file=`'s path also can't be extensionless, unlike `<code src>`:
  * `resolveFileInfo`'s own extension-guessing would happily resolve one, but
@@ -32,6 +35,7 @@ import { getFileExt, isAllowedExt } from "~shared/pathHelpers";
 import type { DemoDataByRef, UniqueImports } from "~shared/types";
 
 import { collectDemoFiles } from "./helpers/collectDemoFiles";
+import { collectInlineImports } from "./helpers/collectInlineImports";
 import { demoRefKey } from "./helpers/demoRefKey";
 import { getMdxAst } from "./helpers/getMdxAst";
 import { parseCodeMeta } from "./helpers/parseCodeMeta";
@@ -92,7 +96,24 @@ export const visitFilePaths = ({
 
 		visit(mdxAst, "code", (node) => {
 			const { file, isLive } = parseCodeMeta(node.meta);
-			if (!file || !isLive) return;
+			if (!isLive) return;
+
+			// Inline block: nothing to resolve or read, but the packages it
+			// imports still have to reach the virtual module, so its source is
+			// parsed in place (see `collectInlineImports`). The language gate
+			// mirrors `remarkPlugin`'s `transformInlineDemo` — the scan and the
+			// transform must agree on which fences count as inline demos.
+			if (!file) {
+				if (!node.lang || !isAllowedExt(node.lang)) return;
+
+				for (const inlineImport of collectInlineImports({
+					code: node.value,
+					lang: node.lang,
+				})) {
+					uniqueImports.add(inlineImport);
+				}
+				return;
+			}
 
 			// See the module docblock: unlike the deprecated `<code src>` below,
 			// `file=` can't rely on `resolveFileInfo`'s extension-guessing — core

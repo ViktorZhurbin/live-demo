@@ -1,0 +1,12 @@
+# Inline demo with a syntax error
+
+The scan must not throw on this: an unparseable inline block contributes no
+imports and still renders, reporting its own error at runtime (see
+`collectInlineImports`). The `live` block below is missing a closing brace.
+
+```jsx live
+import { DateTime } from "luxon";
+
+export default function BrokenInlineDemo() {
+  return <div>{DateTime.now().toISO()</div>;
+```

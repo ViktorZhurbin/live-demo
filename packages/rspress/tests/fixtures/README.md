@@ -48,3 +48,5 @@ exist because a flat single-file fixture missed something real:
 | `mdx/docRootPrefixDemo.mdx` | `file=` using the `/` prefix — resolved against the doc root, passed in as `docRoot` rather than derived from disk layout. |
 | `mdx/fileMetaWithoutLive.mdx` | a `file=` block missing the bare `live` word — must be left alone by both the scan and the transform, since core still renders it as a plain file code block. |
 | `mdx/deprecatedSrcDemo.mdx` + `mdx/extensionlessSrc.mdx` | the deprecated `<code src>` alias, kept on the old syntax on purpose (see `remarkPlugin.ts`'s deprecated branch) rather than migrated to `file=`. |
+| `mdx/inlineDemoWithImports.mdx` | inline blocks contribute their own imports to the virtual module (`collectInlineImports`): externals collected, relative and type-only imports skipped, across two fences and two languages on one page. |
+| `mdx/inlineDemoBrokenSyntax.mdx` | an unparseable inline block must not fail the scan — a syntax error in a code fence stays a runtime preview error rather than becoming a failed docs build. |

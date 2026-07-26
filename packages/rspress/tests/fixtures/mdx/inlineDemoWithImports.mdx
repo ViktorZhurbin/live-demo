@@ -1,0 +1,27 @@
+# Inline demos that import packages
+
+A `jsx` block: an external package plus a relative import that can't resolve
+(an inline demo is a single file), and no type syntax.
+
+```jsx live
+import { DateTime } from "luxon";
+import { helper } from "./helper";
+
+export default function InlineDemo() {
+  return <div>{DateTime.now().toISO()}{helper()}</div>;
+}
+```
+
+A `tsx` block on the same page: a type-only import that must be skipped, a
+value import that must not be, real JSX and a real type annotation.
+
+```tsx live
+import type { Settings } from "type-only-package";
+import clsx from "clsx";
+
+const label: string = "Inline";
+
+export default function TypedInlineDemo({ settings }: { settings: Settings }) {
+  return <div className={clsx("a", settings.theme)}>{label}</div>;
+}
+```

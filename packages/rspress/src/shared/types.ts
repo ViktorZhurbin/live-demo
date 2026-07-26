@@ -59,14 +59,6 @@ export type FileTabsOptions = {
 };
 
 export type LiveDemoPluginOptions = {
-	/**
-	 * Modules that will be available in demos,
-	 * @example
-	 * includeModules: ["@mantine/hooks"]
-	 * Then you can use `import { ... } from "@mantine/hooks"` in any demo.
-	 **/
-	includeModules?: string[];
-
 	/** Props passed from plugin to LiveDemo components. */
 	ui?: {
 		controlPanel?: {

@@ -58,6 +58,12 @@ pnpm run verify # build + typecheck + unit tests + knip + e2e tests
 pnpm check:all # check && verify
 ```
 
+**No MDX comments in `.mdx` files.** `oxfmt` formats them as Markdown and
+rewrites `*` as `_`, so a `{/* … */}` comment becomes `{/_ … _/}` — which then
+fails the docs build with "Could not parse expression with acorn: Unterminated
+regular expression". HTML comments aren't an escape hatch either (MDX parses
+`<!--` as JSX). Put the note in the code that depends on the markup instead.
+
 ## Active initiative: major version upgrade
 
 This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
@@ -71,3 +77,4 @@ Before releasing 3.0:
 
 - Verify Improvements over `@rspress/plugin-playground` section in README empirically.
 - Tidy up changelog - it should be an actual changelog
+- Review and clean up docs website

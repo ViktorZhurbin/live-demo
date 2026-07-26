@@ -112,6 +112,14 @@ still work as before.
 `Preview`, `CodeRunner`, `ResizablePanels`, `Wrapper`, `LiveDemoProvider`,
 and `useLiveDemoContext` are no longer exported.
 
+#### `includeModules` plugin option removed
+
+It existed to make a package available to inline demos, which weren't
+scanned for their own imports. Now that they are (see "Newly allowed"
+below), any package a demo's source actually imports resolves on its own,
+whether inline or external. If your config set `includeModules`, drop it and
+make sure the package is imported somewhere in a demo's source instead.
+
 #### Errors are now structured, with a stable message format
 
 Errors thrown by the plugin itself now carry a `code` and a structured
@@ -227,6 +235,20 @@ render stays on screen instead of flashing a skeleton on every keystroke.
 - **`import type` / `export type ... from`** are no longer treated as
   dependencies, so a type-only external import can no longer fail the build.
   Mixed imports (`import { type A, B }`) are unaffected.
+- **Inline ` ```lang live ` demos now resolve their own external imports.**
+  Previously only external (`file=`) demos did, and an inline block importing
+  anything beyond the pre-defined modules failed unless some other demo on
+  the site happened to import the same package (or `includeModules` named
+  it — see "Breaking" for its removal).
+
+  ```jsx live
+  import { QRCodeSVG } from "qrcode.react"; // now resolves on its own
+  ```
+
+  The package still has to be a dependency of your docs site and has to be
+  imported by some demo's source at build time. An import typed at runtime,
+  while editing a demo in the browser, still can't resolve — the consuming
+  bundler needs to see every specifier statically.
 
 ### Newly warned
 

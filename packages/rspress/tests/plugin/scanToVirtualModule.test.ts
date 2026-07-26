@@ -27,11 +27,11 @@ const getVirtualModuleHandler = (plugin: any) => {
  * `routeGenerated` and the virtual-module handler are joined only by the
  * mutable `uniqueImports` set closed over by both, plus an ordering
  * assumption (the handler runs after the scan). `plugin.test.ts` checks the
- * handler's output for defaults/`includeModules`, which are populated at
- * plugin creation, before any scan — those assertions would pass even if
- * `routeGenerated`'s mutations never reached the handler. This exercises the
- * actual seam: scan a fixture that imports something *not* in defaults or
- * `includeModules`, then read it back off the same plugin instance.
+ * handler's output for defaults, which are populated at plugin creation,
+ * before any scan — those assertions would pass even if `routeGenerated`'s
+ * mutations never reached the handler. This exercises the actual seam: scan
+ * a fixture that imports something *not* in defaults, then read it back off
+ * the same plugin instance.
  */
 describe("routeGenerated seams into the virtual module handler", () => {
 	it("makes a scanned demo's external import resolvable from the live plugin object", async () => {
@@ -48,6 +48,30 @@ describe("routeGenerated seams into the virtual module handler", () => {
 		expect(virtualModule).toContain(
 			"importsMap.set('clsx', () => import('clsx'));",
 		);
+	});
+
+	/**
+	 * The inline half of the same seam. An inline block has no file on disk, so
+	 * its imports reach `uniqueImports` only via `collectInlineImports` during
+	 * the scan — nothing else in the pipeline would put them there.
+	 */
+	it("makes an inline demo's external import resolvable from the live plugin object", async () => {
+		const plugin = liveDemoPluginRspress();
+		const handler = getVirtualModuleHandler(plugin);
+
+		const mdxPath = path.join(FIXTURES_DIR, "mdx/inlineDemoWithImports.mdx");
+		await plugin.routeGenerated?.(
+			[{ absolutePath: mdxPath } as RouteMeta],
+			false,
+		);
+
+		const virtualModule = await handler();
+		expect(virtualModule).toContain(
+			"importsMap.set('luxon', () => import('luxon'));",
+		);
+		// Relative and type-only specifiers must never reach the module.
+		expect(virtualModule).not.toContain("./helper");
+		expect(virtualModule).not.toContain("type-only-package");
 	});
 
 	/**

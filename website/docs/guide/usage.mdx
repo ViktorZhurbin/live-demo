@@ -4,35 +4,68 @@ title: Usage
 
 There are two ways to add an interactive demo in MDX files: **inline** and **external**.
 
-## External demo
-
-For more complex code, you can use "external" demos:
-
-<pre>
-  ````
-  ```tsx file="./snippets/Component.tsx" live
-  ```
-  ````
-</pre>
-
 > [!NOTE]
 >
-> Editing the referenced file's own content while the dev server is running
-> is picked up automatically. Adding or removing one of its imports, or
-> adding a brand-new demo, still needs a dev server restart.
+> Demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
+
+## Inline demo
+
+For simpler cases, you can use "inline" demos: add `live` after the language meta string of a code block.
+
+````
+```jsx live
+export const App = () => {
+  /* ... */
+};
+```
+````
+
+Which turns into an editable demo:
+
+<div data-testid="inline-demo">
+
+```jsx live
+import React from "react"
+import { Badge } from "@rspress/core/theme";
+import { Button } from "@live-demo/rspress/web";
+
+export const App = () => {
+  const [count, setCount] = React.useState(0)
+
+  const increment = () => {
+    setCount(prev => prev + 1)
+  }
+
+  return (
+    <div>
+      <Badge>Count is: {count}</Badge>
+      <Button onClick={increment}>Increment</Button>
+    </div>
+  )
+}
+```
+
+</div>
+
+## External demo
+
+For more complex code, you can use "external" demos. The code lives in its own file, which declutters the MDX markup and lets your IDE work on it properly.
+
+````
+```tsx file="./external/snippets/multiFile/MultiFile.tsx" live
+```
+````
+
+Which turns into:
+
+```tsx file="./external/snippets/multiFile/MultiFile.tsx" live
+
+```
 
 > [!NOTE]
 >
 > `file=` requires an explicit, supported extension (`.tsx`, `.ts`, `.jsx`,
 > or `.js`) — `file="./Button"` doesn't work. This limitation comes from `@rspress/core`.
-
-### Deprecated: `<code src>`
-
-`<code src="./snippets/Component.tsx" />` still works the same way, but is
-deprecated in favor of `file=` above and will be removed in a future major
-version. Unlike `file=`, `<code src>` can resolve an extensionless path
-(`<code src="./snippets/Component" />`) — that's specific to this deprecated
-form and isn't coming to `file=` (see the note above).
 
 ### Path prefixes
 
@@ -46,20 +79,44 @@ block:
 | `/`       | the doc root (`root` in `rspress.config.ts`)    |
 | `<root>/` | the directory the dev server/build was run from |
 
-## Inline demo
+### Deprecated: `<code src>`
 
-For simpler cases, you can use "inline" demos:
+`<code src="./snippets/Component.tsx" />` still works the same way, but is
+deprecated in favor of `file=` above and will be removed in a future major
+version. Unlike `file=`, `<code src>` can resolve an extensionless path
+(`<code src="./snippets/Component" />`) — that's specific to this deprecated
+form and isn't coming to `file=` (see the note above).
 
-<pre>
-  ````
-  ```tsx live
-  export const App = () => {
-    return <div>Hello World</div>;
-  }
-  ```
-  ````
-</pre>
+## Imports
+
+Imports are resolved at build time, so every package a demo uses has to be
+installed in your docs site's `package.json`. Adding or removing an import, or
+adding a brand-new demo, needs a dev server restart.
+
+`react` and `@rspress/core/theme` are available in every demo without being
+listed anywhere. So is `Button` from `@live-demo/rspress/web` — the plugin is
+already a dependency of any site using it. The demos above use all three.
+
+Beyond those, a demo can import any package your docs site depends on, inline
+and external alike. Below, [`qrcode.react`](https://www.npmjs.com/package/qrcode.react)
+renders a real, scannable QR code — edit the text and the code changes with it,
+which is only possible if the import actually resolved:
+
+<div data-testid="import-demo">
+
+```jsx live
+import { QRCodeSVG } from "qrcode.react";
+
+export const App = () => {
+  return <QRCodeSVG value="https://live-demo.pages.dev" size={128} />;
+};
+```
+
+</div>
 
 > [!NOTE]
 >
-> Both inline and external demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
+> Imports are collected from each demo's own source at build time, so they have
+> to be there when the site builds. Typing a brand-new import while editing a
+> demo in the browser — for a package no demo's source mentions anywhere — won't
+> resolve.
