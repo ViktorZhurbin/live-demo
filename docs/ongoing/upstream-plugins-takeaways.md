@@ -1,3 +1,7 @@
+> Research snapshot. For what's worth acting on, in what order, and which
+> findings below have since gone stale, see
+> [upstream-plugins-actions.md](./upstream-plugins-actions.md).
+
 ## What the two v2 plugins actually are now
 
 **`@rspress/plugin-preview`** — no in-browser compilation at all. The remark plugin writes each demo's code to a real file under `node_modules/.rspress/virtual-demo/`, imports it as a normal module, and the bundler compiles it. Its distinguishing feature is `iframe-fixed` / `iframe-follow`: it spins up a _second, complete Rsbuild instance_ with its own dev server (port 7890) and generated entries, so demos get real bundling and full style isolation, plus a QR code to open them on a phone.
