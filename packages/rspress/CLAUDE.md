@@ -174,6 +174,9 @@ Test `web/` components against the actual `website/` through the preview build.
 
 ## Limitations (of demo code, not the plugin's own source)
 
+These are consequences of the "no bundler" commitment, not independent
+choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
+
 - No CSS in live demos: inline styles or global CSS only
 - No dynamic imports: all imports must be static
 - No Node.js APIs: demos run in the browser
@@ -220,7 +223,10 @@ This section exists to stop defensive-code creep.
   `moduleRunner.ts` evaluates each file via `new Function(...)` and
   `CodeRunner` renders the result with `createElement` directly in the host
   React tree, wrapped only in a `react-error-boundary`. This is a docs tool
-  and demo code authors are as trusted as the docs themselves.
+  and demo code authors are as trusted as the docs themselves. It's also a
+  scope commitment rather than skipped defensive code — the rationale, and
+  what it rules out, live in
+  [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
 - **Cross-platform**: no Windows path handling. See the posix-style `files`
   keys in "The build→runtime seam" above.
 - **Graceful recovery on file reads**: a read that fails after the existence

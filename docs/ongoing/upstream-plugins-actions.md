@@ -176,6 +176,27 @@ clearly. Purely a payload/clarity win; it does not fix item 2's type lie.
   Tailwind to scoped BEM (research doc, issue #1269) — so this is a Playwright
   check against `website/`, not a change.
 
+### 8. Reconsider the TS/JS view toggle — **medium, not from upstream**
+
+Surfaced from the origin project rather than from upstream (see ADR 0003's
+"Prior art"). The react-babylonjs plugin shipped a language toggle: `files` was
+typed `Record<Language, FilesEntry>`, carrying a TSX _and_ a JSX copy of every
+file built at compile time (`cli/helpers/transformTsxToJsx.ts`, Babel with
+`retainLines` so the JSX output stayed line-aligned with the source), switched
+in the control panel at runtime.
+
+It was cut with the rest of the extraction, but unlike Monaco or the InstantDB
+sharing it fails no test in ADR 0003 — it's a build-time transform and a toggle,
+Ring 1 throughout. It also answers a real docs need: readers who don't write
+TypeScript currently see TSX with no alternative.
+
+Cost is mostly payload, not complexity: every demo's `files` doubles in the MDX
+attributes. Which makes it a natural companion to item 6 — if site-wide data is
+moving off per-node attributes anyway, that's the moment to price a second copy
+of the files. Sucrase can do the TS-stripping now; whether it preserves
+formatting as well as Babel's `retainLines` did is the open question, and the
+answer decides whether this is worth it.
+
 ## Deferred
 
 - **`previewLanguages` + `previewCodeTransform`.** Cheap and a good fit with the
