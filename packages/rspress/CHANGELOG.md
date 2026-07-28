@@ -43,6 +43,14 @@ with no extension-guessing, so an extensionless path fails the MDX compile
 regardless. Migrating an extensionless `<code src>` to `file=` needs the
 extension added back in.
 
+#### `playground` accepted as an alias for `live`
+
+A site migrating off `@rspress/plugin-playground` can swap the plugin
+registration and keep its existing `playground` fences unchanged — no MDX
+find-and-replace needed. One consequence: the two plugins can't be
+registered on the same site, since both would then claim the same fence
+keyword. See `usage.mdx` for the rest of the tradeoff.
+
 #### Per-page layout injection, not a global component
 
 Upstream (`@rspress/plugin-playground`) registers the playground via

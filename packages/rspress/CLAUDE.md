@@ -41,7 +41,8 @@ is the actual `RspressPlugin` registered via `liveDemoPluginRspress()`. Its
 resolution) into `docRoot`, read later for the `/`-prefixed `file=` form. On
 `routeGenerated` it scans MDX files (`visitFilePaths.ts`) and for each
 external demo — a fenced code block with both `file="..."` and the bare word
-`live` in its meta, or the deprecated `<code src="..."/>` alias — collects
+`live` in its meta (`playground` also accepted, see `parseCodeMeta.ts`), or
+the deprecated `<code src="..."/>` alias — collects
 the entry file and everything it transitively imports (`collectDemoFiles.ts`).
 `file=`'s path can carry any of four prefixes (`./`, `../`, `/`, `<root>/`,
 matching `@rspress/core`'s own `remarkFileCodeBlock`); `resolvePrefixedPath.ts`

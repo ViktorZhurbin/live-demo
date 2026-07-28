@@ -24,6 +24,17 @@ describe("parseCodeMeta", () => {
 		expect(parseCodeMeta("livestream").isLive).toBe(false);
 	});
 
+	it("matches 'playground' as an alias for 'live'", () => {
+		expect(parseCodeMeta("playground")).toEqual({
+			isLive: true,
+			file: undefined,
+		});
+		expect(parseCodeMeta('file="./Button.tsx" playground')).toEqual({
+			isLive: true,
+			file: "./Button.tsx",
+		});
+	});
+
 	it("extracts a file= value alongside live", () => {
 		expect(parseCodeMeta('file="./Button.tsx" live')).toEqual({
 			isLive: true,

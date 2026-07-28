@@ -5,6 +5,12 @@
  * `remarkFileCodeBlock` (`dist/node/mdx/remarkPlugins/fileCodeBlock.js`'s
  * `parseFileFromMeta`) — not a byte-for-byte reimplementation of its
  * tokenizer.
+ *
+ * `playground` is accepted as an alias for `live`, so a site migrating off
+ * `@rspress/plugin-playground` can swap the plugin registration without
+ * touching its MDX. See `website/docs/guide/usage.mdx` for the tradeoff this
+ * implies (this plugin can't coexist with the official one on the same site
+ * once `playground` fences are in play).
  */
 type CodeMeta = {
 	isLive: boolean;
@@ -23,5 +29,8 @@ export const parseCodeMeta = (meta: string | null | undefined): CodeMeta => {
 		}
 	}
 
-	return { isLive: tokens.includes("live"), file };
+	return {
+		isLive: tokens.includes("live") || tokens.includes("playground"),
+		file,
+	};
 };

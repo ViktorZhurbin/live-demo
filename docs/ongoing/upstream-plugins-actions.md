@@ -102,7 +102,7 @@ The only real path to passing functions is a user-supplied module path the
 bundler imports, i.e. playground's `render` option. That's `customLayout`
 again — deliberately removed, see "Closed" below.
 
-### 3. Accept `playground` as an alias for `live` — **tiny, unlocks migration**
+### 3. Accept `playground` as an alias for `live` — **tiny, unlocks migration** — done
 
 One extra token in `parseCodeMeta.ts:26`'s `tokens.includes("live")` check.
 A site migrating off `@rspress/plugin-playground` then swaps one plugin

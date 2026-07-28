@@ -8,6 +8,16 @@ There are two ways to add an interactive demo in MDX files: **inline** and **ext
 >
 > Demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
 
+> [!NOTE]
+>
+> `playground` is accepted as an alias for `live`, so a site migrating off
+> `@rspress/plugin-playground` can swap the plugin registration and keep its
+> existing `playground` fences unchanged. One tradeoff this implies: the two
+> plugins can't be registered on the same site, since both would then claim
+> the same fence keyword. Upstream's `defaultRenderMode` option is designed
+> so `@rspress/plugin-playground` can coexist with other tools; this plugin
+> is meant as a drop-in replacement instead, not a companion to it.
+
 ## Inline demo
 
 For simpler cases, you can use "inline" demos: add `live` after the language meta string of a code block.
