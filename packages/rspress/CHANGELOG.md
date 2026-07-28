@@ -198,15 +198,30 @@ An extensionless import (`./Button`) now resolves in the order `.tsx`, `.ts`,
 `.jsx`, `.js`, then `Button/index.*`. It was `.ts`, `.tsx`, `.js`, `.jsx`.
 Only affects demos where both `Button.ts` and `Button.tsx` exist side by side.
 
+#### A syntax error in a demo file now fails the build, not just the demo
+
+Saving a demo file with a syntax error fails the page's MDX compile with
+`PARSE_FAILED`, naming the file and the offending line. It previously built
+fine and surfaced the error in the demo's own preview pane once the page
+loaded. Editing in the browser editor is unchanged — that still shows the
+error in the preview.
+
 ### Fixed
 
-#### Editing a `file=` demo's entry file is now picked up without a dev-server restart
+#### A demo's files, not just its entry, now stay fresh across a page recompile
 
-Previously any edit to a demo's source file needed a full dev-server restart
-to show up, because the MDX→demo scan runs once per process. Editing the
-_entry_ file's own content is now reflected on the next recompile. Editing a
-file the entry only imports, adding/removing an import, or adding a
-brand-new demo still needs a restart.
+Previously, only edits to a demo's _entry_ file showed up without a
+dev-server restart; a file the entry merely imported stayed frozen at
+whatever the dev server saw on startup, however many times you edited it.
+Now, whenever a demo's page recompiles, every file in its graph — entry and
+imports alike — reflects current disk content. What still needs a nudge:
+editing only an imported file doesn't itself cause that recompile (the dev
+server doesn't watch a file that's only reached through the plugin's own
+resolution, as opposed to one named directly in the MDX); it shows up on the
+next recompile triggered another way — editing the entry too, or a restart.
+Adding a brand-new demo to a page works without a restart, since editing the
+MDX is itself the recompile; the one case that still needs one is a demo
+introducing an _external_ import no demo used before.
 
 #### A broken local import at runtime now names the file, instead of a generic bundler error
 
@@ -257,10 +272,3 @@ render stays on screen instead of flashing a skeleton on every keystroke.
   imported by some demo's source at build time. An import typed at runtime,
   while editing a demo in the browser, still can't resolve — the consuming
   bundler needs to see every specifier statically.
-
-### Newly warned
-
-- **A `<code src>` that resolves on disk but has no demo data collected for
-  it** (e.g. added to a page during a dev session, after the scan already
-  ran) now logs a console warning naming the file and suggesting a dev-server
-  restart, instead of silently rendering an empty `<code>` element.

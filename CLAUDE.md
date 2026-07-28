@@ -23,6 +23,13 @@ that adds real complexity needs to justify itself on the code's own terms.
 Exploring interesting problems (in-browser bundling, for one) is an explicit
 and legitimate goal alongside shipping something useful.
 
+One thing that survives having no users, and shouldn't be mistaken for a
+"users would want X" argument: **wire payload**, because it's measured rather
+than argued and it's the substance of the one comparative claim `README.md`
+makes. See [ADR 0004](docs/decisions/0004-payload-ranking-axis.md), which also
+sets the rule that a payload claim needs a real measurement before it reaches
+the README, the changelog, or `docs/decisions/`.
+
 ### Origins
 
 The project started based off of the official plugins: `@rspress/plugin-playground` and `@rspress/plugin-preview`. Source of both is available in `.claude/source-code/` as an upstream reference (each has a `docs-api.md` file reflecting their v2 API). See `README.md` for differences. `resources/issues-analysis.md` is an attempt to analyze the long standing issues that users face with the official plugins (needs further digging)
@@ -35,6 +42,24 @@ The project started based off of the official plugins: `@rspress/plugin-playgrou
   `build:lib` first so `website` always builds against a fresh `dist/`. It's
   also the target `packages/rspress/`'s Playwright suite builds and tests
   against (see that package's CLAUDE.md, "Testing" section).
+
+## Project docs (`docs/`)
+
+Three tiers, by lifetime. Put a fact in the shortest-lived one that can hold
+it, and promote it when it turns out to outlive that tier.
+
+- **`docs/decisions/`** — ADRs. Durable, numbered, and binding on future work:
+  they constrain what gets built, not just what was built.
+- **`docs/ongoing/`** — working documents with a finite life: research
+  snapshots, measurement runs, and the ordered action list. These get items
+  checked off and are eventually deleted, so **nothing durable should live
+  here alone.** If a working doc grows a principle that will outlive the list
+  it's in, move it to an ADR and leave a pointer.
+- **`docs/.open-questions.md`** and **`docs/.shelved-questions.md`** —
+  investigated far enough to have an answer, deliberately not acted on. Each
+  entry records what was measured, why it's parked, and what would unpark it.
+  Check these before re-deriving an idea from scratch; several look obvious
+  and were already probed and rejected for recorded reasons.
 
 ## Maintaining this file
 

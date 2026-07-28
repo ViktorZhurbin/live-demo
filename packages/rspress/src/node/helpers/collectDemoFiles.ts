@@ -20,12 +20,22 @@
  * The one thing both sides *must* agree on is how a file is keyed — see
  * `toFilePath` below, and `tests/integration/buildToRuntime.test.ts`, the
  * only test that spans the build→runtime seam.
+ *
+ * Called on the same demo from two places — the build-time scan (once per
+ * dev-server process, externals only) and `remarkPlugin` (per MDX compile,
+ * for `files`) — so the same walk can run twice. `moduleCache` is threaded
+ * through to `analyzeModule`, which spares the repeat *reads and parses*.
+ * The resolution half isn't cached: `resolveFileInfo` still stats each
+ * candidate extension per import, per walk. Cheap at this scale, and
+ * uncached deliberately — a path that resolves is a filesystem fact that can
+ * change between walks, unlike a file's contents at a given mtime.
  */
 import path from "node:path";
 
 import { isRelativeImport } from "~shared/pathHelpers";
 import type { LiveDemoFiles, PathWithAllowedExt } from "~shared/types";
 
+import type { ModuleCache } from "./analyzeModule";
 import { analyzeModule } from "./analyzeModule";
 import { resolveFileInfo } from "./resolveFileInfo";
 
@@ -33,6 +43,8 @@ type CollectDemoFiles = {
 	absolutePath: PathWithAllowedExt;
 	/** The MDX page this demo was reached from, for error context on a failed nested import. */
 	mdxPath?: string;
+	/** Per plugin-instance cache threaded down to `analyzeModule` — see its docblock. */
+	moduleCache: ModuleCache;
 };
 
 /**
@@ -52,6 +64,7 @@ type CollectDemoFiles = {
 export const collectDemoFiles = ({
 	absolutePath: entryPath,
 	mdxPath,
+	moduleCache,
 }: CollectDemoFiles): {
 	files: LiveDemoFiles;
 	externalImports: Set<string>;
@@ -74,7 +87,11 @@ export const collectDemoFiles = ({
 	// entries appended during iteration.
 	for (const absolutePath of queue) {
 		const filePath = toFilePath(absolutePath) as PathWithAllowedExt;
-		const { content, dependencies } = analyzeModule({ absolutePath, filePath });
+		const { content, dependencies } = analyzeModule({
+			absolutePath,
+			filePath,
+			moduleCache,
+		});
 
 		files[filePath] = content;
 

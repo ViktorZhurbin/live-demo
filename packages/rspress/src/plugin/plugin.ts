@@ -3,10 +3,11 @@ import { fileURLToPath } from "node:url";
 
 import type { RspressPlugin } from "@rspress/core";
 import { pluginVirtualModule } from "rsbuild-plugin-virtual-module";
+import type { ModuleCache } from "~node/helpers/analyzeModule";
 import { getVirtualModulesCode } from "~node/helpers/getVirtualModulesCode";
 import { remarkPlugin } from "~node/remarkPlugin";
 import { visitFilePaths } from "~node/visitFilePaths";
-import type { DemoDataByRef, LiveDemoPluginOptions } from "~shared/types";
+import type { LiveDemoPluginOptions } from "~shared/types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,9 +25,12 @@ const defaultModules = ["react", "react/jsx-runtime", "@rspress/core/theme"];
 export const liveDemoPluginRspress = (
 	options?: LiveDemoPluginOptions,
 ): RspressPlugin => {
-	const demoDataByRef: DemoDataByRef = {};
-
 	const uniqueImports = new Set(defaultModules);
+
+	// Per plugin-instance, not module-level (see `analyzeModule.ts`'s
+	// docblock) — populated once by the scan, hit again by every remark
+	// compile after that.
+	const moduleCache: ModuleCache = new Map();
 
 	// Injected per-page by remarkPlugin instead of registered as a global
 	// component, so only pages with a demo pull in the demo runtime graph.
@@ -59,8 +63,8 @@ export const liveDemoPluginRspress = (
 			visitFilePaths({
 				filePaths: filePaths,
 				uniqueImports,
-				demoDataByRef,
 				docRoot,
+				moduleCache,
 			});
 		},
 
@@ -77,7 +81,17 @@ export const liveDemoPluginRspress = (
 
 		markdown: {
 			remarkPlugins: [
-				[remarkPlugin, { demoDataByRef, layoutPath, options: options?.ui }],
+				[
+					remarkPlugin,
+					{
+						layoutPath,
+						options: options?.ui,
+						// Getter, not a value — see `getDocRoot`'s docblock on
+						// `RemarkPluginProps` in `remarkPlugin.ts` for why.
+						getDocRoot: () => docRoot,
+						moduleCache,
+					},
+				],
 			],
 		},
 	};

@@ -7,9 +7,12 @@ import type { PathWithAllowedExt } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../../fixtures");
 
+// A fresh cache per call: these tests exercise the walk itself, not the
+// cross-call caching (that's analyzeModule.test.ts's "module cache" block).
 const collect = (fixture: string) =>
 	collectDemoFiles({
 		absolutePath: path.join(FIXTURES_DIR, fixture) as PathWithAllowedExt,
+		moduleCache: new Map(),
 	});
 
 const filePathsOf = (fixture: string) =>
@@ -176,6 +179,7 @@ describe("collectDemoFiles", () => {
 						"invalid/MissingNestedImport/App.tsx",
 					) as PathWithAllowedExt,
 					mdxPath: "/site/guide.mdx",
+					moduleCache: new Map(),
 				}),
 			).toThrow(/from `.*MissingNestedImport\/Button\.tsx`.*guide\.mdx/s);
 		});

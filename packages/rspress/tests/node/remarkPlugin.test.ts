@@ -1,24 +1,24 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import type { Code, Root } from "mdast";
 import type { MdxJsxFlowElement, MdxjsEsm } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { demoRefKey } from "~node/helpers/demoRefKey";
+import type { ModuleCache } from "~node/helpers/analyzeModule";
 import { getMdxAst } from "~node/helpers/getMdxAst";
+import { parseCodeMeta } from "~node/helpers/parseCodeMeta";
+import { resolveFileMetaEntry } from "~node/helpers/resolveFileMetaEntry";
 import { resetWarnOnce } from "~node/helpers/warnOnce";
 import { remarkPlugin } from "~node/remarkPlugin";
-import type { DemoDataByRef } from "~shared/types";
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 const mdxPath = (name: string) => path.join(FIXTURES_DIR, "mdx", name);
 
-// Demos are keyed by the raw reference (the `file=` path, or the deprecated
-// `<code src>`'s `src`) plus the MDX page (see `demoRefKey`). Tests seed
-// `demoDataByRef` with the same key the plugin will look up (i.e., the
-// `vfilePath` they run under).
-const refKey = (mdxName: string, src: string) =>
-	demoRefKey(mdxPath(mdxName), src);
+// Only `docRootPrefixDemo.mdx`/`rootPrefixDemo.mdx` exercise this; every other
+// fixture uses `./`/`../`, which never reads it.
+const DOC_ROOT = path.join(FIXTURES_DIR, "unused-doc-root");
 
 // The JSX element name both transforms emit; mangled to avoid colliding with
 // a page's own bindings (kept in sync with remarkPlugin.ts).
@@ -30,17 +30,49 @@ const LAYOUT_PATH = "/layout/LiveDemo.tsx";
 const parseFixture = (name: string) => getMdxAst(mdxPath(name)) as Root;
 
 /**
- * `vfilePath` stands in for the MDX file's own path. The plugin keys demo data
- * by it (plus each reference string). Tests exercising an external demo must
- * pass the same fixture path used by `parseFixture` and seed `demoDataByRef`
- * under `refKey(thatFixture, ref)`.
+ * Simulates @rspress/core's own `remarkFileCodeBlock`, which runs before this
+ * plugin in the real pipeline and re-reads a `file=` block's target off disk
+ * into `node.value` on every compile. This plugin's own MDX parse
+ * (`getMdxAst`, used by `parseFixture` above) never runs that plugin, so
+ * without this, `node.value` would stay "" for every `file=` block — not what
+ * a real compile looks like.
  */
+const populateNodeValues = (
+	tree: Root,
+	vfilePath: string,
+	docRoot: string = DOC_ROOT,
+) => {
+	const docDirname = path.dirname(vfilePath);
+
+	visit(tree, "code", (node) => {
+		const { file, isLive } = parseCodeMeta(node.meta);
+		if (!isLive || !file) return;
+
+		const entryFile = resolveFileMetaEntry({
+			file,
+			docDirname,
+			docRoot,
+			mdxPath: vfilePath,
+		});
+		node.value = fs.readFileSync(entryFile.absolutePath, "utf8");
+	});
+};
+
+type RunPluginProps = Partial<
+	Omit<Parameters<typeof remarkPlugin>[0], "layoutPath">
+>;
+
 const runPlugin = (
 	tree: Root,
-	props: Omit<Parameters<typeof remarkPlugin>[0], "layoutPath">,
+	props: RunPluginProps = {},
 	vfilePath: string = mdxPath("externalDemo.mdx"),
 ) => {
-	const fullProps = { layoutPath: LAYOUT_PATH, ...props };
+	const fullProps = {
+		layoutPath: LAYOUT_PATH,
+		getDocRoot: () => DOC_ROOT,
+		moduleCache: new Map() as ModuleCache,
+		...props,
+	};
 
 	// remarkPlugin is typed as a unified `Plugin`, which expects to be
 	// invoked with a bound `this: Processor`; tests call it as a plain
@@ -50,8 +82,8 @@ const runPlugin = (
 	) => (tree: Root, vfile: { path: string }) => void;
 	const transformer = attacher(fullProps);
 
-	// The plugin warns via `console.warn` (rspress never prints vfile
-	// messages). Spying is the only way to observe it.
+	// The deprecated `<code src>` branch still warns via `console.warn`
+	// (rspress never prints vfile messages) for its deprecation notice.
 	const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
 	try {
@@ -98,84 +130,49 @@ afterEach(() => {
 
 describe("remarkPlugin", () => {
 	describe("external `file=` demos", () => {
-		it("transforms a `file=` block into <LiveDemo> using matching demo data", () => {
+		it("transforms a `file=` block into <LiveDemo>, reading the entry and its graph off disk", () => {
+			const vfilePath = mdxPath("externalDemo.mdx");
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: {
-						"SimpleComponent.tsx":
-							"export default function SimpleComponent(){}",
-					},
-				},
-			};
+			populateNodeValues(tree, vfilePath);
 
-			runPlugin(tree, { demoDataByRef });
+			runPlugin(tree, {}, vfilePath);
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
 			expect(getAttr(node, "entryFileName")).toBe("SimpleComponent.tsx");
-			expect(getAttr(node, "files")).toEqual({
-				"SimpleComponent.tsx": "export default function SimpleComponent(){}",
-			});
+			expect(getAttr(node, "files")["SimpleComponent.tsx"]).toContain(
+				"Hello World",
+			);
 		});
 
-		it("leaves the block untouched but warns when no demo data matches its reference", () => {
-			const tree = parseFixture("externalDemo.mdx");
-
-			const { warnings } = runPlugin(tree, { demoDataByRef: {} });
-
-			expect(findLiveDemoNodes(tree)).toHaveLength(0);
-			expect(warnings).toHaveLength(1);
-			expect(warnings[0]).toContain("No demo data for");
-
-			let codeNodeStillPresent = false;
-			visit(tree, "code", (node) => {
-				if (node.lang === "tsx") codeNodeStillPresent = true;
-			});
-			expect(codeNodeStillPresent).toBe(true);
-		});
-
-		it("warns rather than throws for a `file=` reference to a missing file (resolution now lives only in the scan phase)", () => {
-			// remarkPlugin never resolves file= against disk. A genuinely missing
-			// file is caught earlier by `visitFilePaths` (see its test). Here,
-			// with nothing recorded for this reference, the node is left alone
-			// and a warning fires (the same path as any other unmatched reference).
+		it("throws when a `file=` reference points at a file that doesn't exist", () => {
+			// Unlike the earlier two-scan design, this plugin now resolves `file=`
+			// itself, so a missing file is caught here rather than only by the
+			// build-time scan (see visitFilePaths.test.ts's matching case). A
+			// thrown LiveDemoError still surfaces clearly through rspress's MDX
+			// pipeline — verified manually against a real `website` build before
+			// this refactor; see the task's spike note.
+			const vfilePath = mdxPath("missingSrc.mdx");
 			const tree = parseFixture("missingSrc.mdx");
 
-			const { warnings } = runPlugin(
-				tree,
-				{ demoDataByRef: {} },
-				mdxPath("missingSrc.mdx"),
+			expect(() => runPlugin(tree, {}, vfilePath)).toThrow(
+				/Couldn't resolve `\.\/DoesNotExist\.tsx` from `.*missingSrc\.mdx`/,
 			);
-
-			expect(findLiveDemoNodes(tree)).toHaveLength(0);
-			expect(warnings).toHaveLength(1);
-			expect(warnings[0]).toContain("No demo data for");
 		});
 
-		it("overrides the entry file's content with node.value when core has already substituted it", () => {
-			// Simulates @rspress/core's own remarkFileCodeBlock, which runs before
-			// this plugin and replaces `node.value` with the file's current
-			// contents on every dev-mode recompile — fixing staleness between
-			// `demoDataByRef` (populated once by routeGenerated) and an edit made
-			// to the entry file itself since.
+		it("uses node.value as the entry file's own content, not a fresh disk read", () => {
+			// @rspress/core's remarkFileCodeBlock has already put the current
+			// on-disk content into node.value by the time this plugin runs.
+			// collectDemoFiles still reads the entry from disk itself (it needs
+			// the AST to find the entry's own imports), but the *content* stored
+			// in `files` for the entry comes from node.value, not that read —
+			// this proves it by making the two disagree.
 			const tree = parseFixture("externalDemo.mdx");
 			visit(tree, "code", (node) => {
 				node.value = "export default function SimpleComponent(){ return 2; }";
 			});
 
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: {
-						"SimpleComponent.tsx":
-							"export default function SimpleComponent(){ return 1; }",
-					},
-				},
-			};
-
-			runPlugin(tree, { demoDataByRef });
+			runPlugin(tree, {});
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(getAttr(node, "files")["SimpleComponent.tsx"]).toContain(
@@ -183,65 +180,54 @@ describe("remarkPlugin", () => {
 			);
 		});
 
-		it("keeps the scan's own content when node.value is empty (this plugin's own MDX parse never ran core's remarkFileCodeBlock)", () => {
-			const tree = parseFixture("externalDemo.mdx");
-
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "from the scan" },
-				},
-			};
-
-			runPlugin(tree, { demoDataByRef });
-
-			const [node] = findLiveDemoNodes(tree);
-			expect(getAttr(node, "files")["SimpleComponent.tsx"]).toBe(
-				"from the scan",
-			);
-		});
-
 		it("leaves a `file=` block alone when its meta is missing the bare `live` word", () => {
 			const tree = parseFixture("fileMetaWithoutLive.mdx");
 
-			runPlugin(tree, {
-				demoDataByRef: {
-					[refKey("fileMetaWithoutLive.mdx", "../valid/SimpleComponent.tsx")]: {
-						entryFileName: "SimpleComponent.tsx",
-						files: { "SimpleComponent.tsx": "..." },
-					},
-				},
-			});
+			runPlugin(tree, {}, mdxPath("fileMetaWithoutLive.mdx"));
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 
+		it("resolves a `file=` reference using the `<root>/` prefix, against process.cwd()", () => {
+			const vfilePath = mdxPath("rootPrefixDemo.mdx");
+			const tree = parseFixture("rootPrefixDemo.mdx");
+			populateNodeValues(tree, vfilePath);
+
+			runPlugin(tree, {}, vfilePath);
+
+			const [node] = findLiveDemoNodes(tree);
+			expect(getAttr(node, "entryFileName")).toBe("SimpleComponent.tsx");
+		});
+
+		it("resolves a `file=` reference using the `/` prefix, against getDocRoot()", () => {
+			const vfilePath = mdxPath("docRootPrefixDemo.mdx");
+			const tree = parseFixture("docRootPrefixDemo.mdx");
+			populateNodeValues(tree, vfilePath, FIXTURES_DIR);
+
+			runPlugin(tree, { getDocRoot: () => FIXTURES_DIR }, vfilePath);
+
+			const [node] = findLiveDemoNodes(tree);
+			expect(getAttr(node, "entryFileName")).toBe("SimpleComponent.tsx");
+		});
+
 		it("merges UI options into the LiveDemo props when provided", () => {
+			const vfilePath = mdxPath("externalDemo.mdx");
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "..." },
-				},
-			};
+			populateNodeValues(tree, vfilePath);
 			const options = { controlPanel: { hide: true } };
 
-			runPlugin(tree, { options, demoDataByRef });
+			runPlugin(tree, { options }, vfilePath);
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(getAttr(node, "options")).toEqual(options);
 		});
 
 		it("omits the options attribute entirely when none are provided", () => {
+			const vfilePath = mdxPath("externalDemo.mdx");
 			const tree = parseFixture("externalDemo.mdx");
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "..." },
-				},
-			};
+			populateNodeValues(tree, vfilePath);
 
-			runPlugin(tree, { demoDataByRef });
+			runPlugin(tree, {}, vfilePath);
 
 			const [node] = findLiveDemoNodes(tree);
 			const hasOptionsAttr = node.attributes.some(
@@ -251,19 +237,11 @@ describe("remarkPlugin", () => {
 		});
 
 		it("transforms multiple `file=` demos in the same file independently", () => {
+			const vfilePath = mdxPath("multiFileDemo.mdx");
 			const tree = parseFixture("multiFileDemo.mdx");
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("multiFileDemo.mdx", "../valid/MultiFile/App.tsx")]: {
-					entryFileName: "App.tsx",
-					files: { "App.tsx": "...", "Button.tsx": "..." },
-				},
-				[refKey("multiFileDemo.mdx", "../valid/ComponentWithImports.tsx")]: {
-					entryFileName: "ComponentWithImports.tsx",
-					files: { "ComponentWithImports.tsx": "..." },
-				},
-			};
+			populateNodeValues(tree, vfilePath);
 
-			runPlugin(tree, { demoDataByRef }, mdxPath("multiFileDemo.mdx"));
+			runPlugin(tree, {}, vfilePath);
 
 			const nodes = findLiveDemoNodes(tree);
 			expect(nodes).toHaveLength(2);
@@ -273,29 +251,22 @@ describe("remarkPlugin", () => {
 			]);
 		});
 
-		it("keys an identical reference string by its own page, so two pages don't collide", () => {
+		it("resolves an identical `file=` string on two different pages to each page's own file", () => {
+			const pathA = mdxPath("collidingSrc/a/page.mdx");
+			const pathB = mdxPath("collidingSrc/b/page.mdx");
 			const treeA = parseFixture("collidingSrc/a/page.mdx");
 			const treeB = parseFixture("collidingSrc/b/page.mdx");
+			populateNodeValues(treeA, pathA);
+			populateNodeValues(treeB, pathB);
 
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("collidingSrc/a/page.mdx", "./SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "A" },
-				},
-				[refKey("collidingSrc/b/page.mdx", "./SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "B" },
-				},
-			};
-
-			runPlugin(treeA, { demoDataByRef }, mdxPath("collidingSrc/a/page.mdx"));
-			runPlugin(treeB, { demoDataByRef }, mdxPath("collidingSrc/b/page.mdx"));
+			runPlugin(treeA, {}, pathA);
+			runPlugin(treeB, {}, pathB);
 
 			const [nodeA] = findLiveDemoNodes(treeA);
 			const [nodeB] = findLiveDemoNodes(treeB);
 
-			expect(getAttr(nodeA, "files")).toEqual({ "SimpleComponent.tsx": "A" });
-			expect(getAttr(nodeB, "files")).toEqual({ "SimpleComponent.tsx": "B" });
+			expect(getAttr(nodeA, "files")["SimpleComponent.tsx"]).toContain(">A<");
+			expect(getAttr(nodeB, "files")["SimpleComponent.tsx"]).toContain(">B<");
 		});
 
 		it("transforms a `file=` block even without a `lang`, matching the scan half's own lack of a lang check", () => {
@@ -313,14 +284,8 @@ describe("remarkPlugin", () => {
 					} as Code,
 				],
 			};
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "..." },
-				},
-			};
 
-			runPlugin(tree, { demoDataByRef });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(1);
 		});
@@ -328,61 +293,46 @@ describe("remarkPlugin", () => {
 
 	describe("deprecated <code src>", () => {
 		it("transforms <code src> into <LiveDemo>, same as the file= path", () => {
+			const vfilePath = mdxPath("deprecatedSrcDemo.mdx");
 			const tree = parseFixture("deprecatedSrcDemo.mdx");
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("deprecatedSrcDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "export default function () {}" },
-				},
-			};
 
-			const { warnings } = runPlugin(
-				tree,
-				{ demoDataByRef },
-				mdxPath("deprecatedSrcDemo.mdx"),
-			);
+			const { warnings } = runPlugin(tree, {}, vfilePath);
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
 			expect(getAttr(node, "entryFileName")).toBe("SimpleComponent.tsx");
-			// Deprecation notice, not the "no demo data" warning.
+			expect(getAttr(node, "files")["SimpleComponent.tsx"]).toContain(
+				"Hello World",
+			);
+			// Deprecation notice only — resolving inline means there's no
+			// "missing demo data" state left to also warn about.
 			expect(warnings).toHaveLength(1);
 			expect(warnings[0]).toContain("deprecated");
 		});
 
-		it("warns about missing demo data in addition to the deprecation notice", () => {
-			const tree = parseFixture("deprecatedSrcDemo.mdx");
+		it("resolves a <code src> with no file extension, unlike the `file=` syntax", () => {
+			const vfilePath = mdxPath("extensionlessSrc.mdx");
+			const tree = parseFixture("extensionlessSrc.mdx");
 
-			const { warnings } = runPlugin(
-				tree,
-				{ demoDataByRef: {} },
-				mdxPath("deprecatedSrcDemo.mdx"),
-			);
+			runPlugin(tree, {}, vfilePath);
 
-			expect(findLiveDemoNodes(tree)).toHaveLength(0);
-			expect(warnings).toHaveLength(2);
-			expect(warnings.some((w) => w.includes("deprecated"))).toBe(true);
-			expect(warnings.some((w) => w.includes("No demo data for"))).toBe(true);
+			const [node] = findLiveDemoNodes(tree);
+			expect(getAttr(node, "entryFileName")).toBe("SimpleComponent.tsx");
 		});
 
 		it("warns about the deprecated syntax only once per (page, path)", () => {
-			const demoDataByRef: DemoDataByRef = {
-				[refKey("deprecatedSrcDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-					entryFileName: "SimpleComponent.tsx",
-					files: { "SimpleComponent.tsx": "..." },
-				},
-			};
+			const vfilePath = mdxPath("deprecatedSrcDemo.mdx");
 
 			// Two separate "recompiles" of the same page, as dev-mode HMR would do.
 			const first = runPlugin(
 				parseFixture("deprecatedSrcDemo.mdx"),
-				{ demoDataByRef },
-				mdxPath("deprecatedSrcDemo.mdx"),
+				{},
+				vfilePath,
 			);
 			const second = runPlugin(
 				parseFixture("deprecatedSrcDemo.mdx"),
-				{ demoDataByRef },
-				mdxPath("deprecatedSrcDemo.mdx"),
+				{},
+				vfilePath,
 			);
 
 			expect(first.warnings.some((w) => w.includes("deprecated"))).toBe(true);
@@ -394,7 +344,7 @@ describe("remarkPlugin", () => {
 		it("transforms an inline live code block into <LiveDemo>", () => {
 			const tree = parseFixture("inlineDemo.mdx");
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			const [node] = findLiveDemoNodes(tree);
 			expect(node).toBeDefined();
@@ -415,7 +365,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -430,7 +380,7 @@ describe("remarkPlugin", () => {
 				] as Code[],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -443,7 +393,7 @@ describe("remarkPlugin", () => {
 				] as Code[],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(1);
 		});
@@ -461,7 +411,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -482,7 +432,7 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
@@ -500,23 +450,18 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			expect(() => runPlugin(tree, { demoDataByRef: {} })).not.toThrow();
+			expect(() => runPlugin(tree, {})).not.toThrow();
 			expect(findLiveDemoNodes(tree)).toHaveLength(0);
 		});
 	});
 
 	describe("per-page layout import", () => {
-		const demoDataByRef: DemoDataByRef = {
-			[refKey("externalDemo.mdx", "../valid/SimpleComponent.tsx")]: {
-				entryFileName: "SimpleComponent.tsx",
-				files: { "SimpleComponent.tsx": "..." },
-			},
-		};
-
 		it("prepends the layout import as the first child when a demo is present", () => {
+			const vfilePath = mdxPath("externalDemo.mdx");
 			const tree = parseFixture("externalDemo.mdx");
+			populateNodeValues(tree, vfilePath);
 
-			runPlugin(tree, { demoDataByRef });
+			runPlugin(tree, {}, vfilePath);
 
 			const importNode = findLayoutImport(tree);
 			// First child so the binding is in scope for the demo nodes below it.
@@ -529,25 +474,11 @@ describe("remarkPlugin", () => {
 		});
 
 		it("injects exactly one import even with multiple demos on the page", () => {
+			const vfilePath = mdxPath("multiFileDemo.mdx");
 			const tree = parseFixture("multiFileDemo.mdx");
+			populateNodeValues(tree, vfilePath);
 
-			runPlugin(
-				tree,
-				{
-					demoDataByRef: {
-						[refKey("multiFileDemo.mdx", "../valid/MultiFile/App.tsx")]: {
-							entryFileName: "App.tsx",
-							files: { "App.tsx": "...", "Button.tsx": "..." },
-						},
-						[refKey("multiFileDemo.mdx", "../valid/ComponentWithImports.tsx")]:
-							{
-								entryFileName: "ComponentWithImports.tsx",
-								files: { "ComponentWithImports.tsx": "..." },
-							},
-					},
-				},
-				mdxPath("multiFileDemo.mdx"),
-			);
+			runPlugin(tree, {}, vfilePath);
 
 			expect(tree.children.filter(isLayoutImport)).toHaveLength(1);
 		});
@@ -560,9 +491,85 @@ describe("remarkPlugin", () => {
 				],
 			};
 
-			runPlugin(tree, { demoDataByRef: {} });
+			runPlugin(tree, {});
 
 			expect(findLayoutImport(tree)).toBeUndefined();
+		});
+	});
+
+	/**
+	 * The bug this refactor fixes: `remarkPlugin` no longer just reads back
+	 * what a once-per-process scan recorded, so an edit to a file the entry
+	 * merely *imports* has to show up on the very next compile with no
+	 * rescan — and `analyzeModule`'s per-file mtime cache has to be what keeps
+	 * that from re-reading the untouched entry a second time too.
+	 */
+	describe("dev-mode freshness of an imported (non-entry) file", () => {
+		it("picks up an on-disk edit to an imported file across two compiles sharing one moduleCache, without re-reading the unchanged entry", () => {
+			const dir = fs.mkdtempSync(path.join(os.tmpdir(), "remarkPlugin-"));
+			const vfilePath = path.join(dir, "page.mdx");
+			const entryPath = path.join(dir, "App.tsx");
+			const importedPath = path.join(dir, "Button.tsx");
+
+			fs.writeFileSync(
+				entryPath,
+				'import { Button } from "./Button";\nexport default function App() { return Button(); }\n',
+			);
+			fs.writeFileSync(importedPath, 'export const Button = () => "v1";\n');
+
+			const moduleCache: ModuleCache = new Map();
+			const buildTree = (): Root => ({
+				type: "root",
+				children: [
+					{
+						type: "code",
+						lang: "tsx",
+						meta: 'file="./App.tsx" live',
+						value: fs.readFileSync(entryPath, "utf8"),
+					} as Code,
+				],
+			});
+
+			try {
+				const firstTree = buildTree();
+				runPlugin(firstTree, { moduleCache }, vfilePath);
+				const [firstNode] = findLiveDemoNodes(firstTree);
+				expect(getAttr(firstNode, "files")["Button.tsx"]).toContain("v1");
+
+				fs.writeFileSync(importedPath, 'export const Button = () => "v2";\n');
+				// Guarantee a strictly later mtime than whatever got cached above
+				// — see analyzeModule.test.ts's identical note on why this can't
+				// just rely on two back-to-back writes.
+				const future = new Date(Date.now() + 10_000);
+				fs.utimesSync(importedPath, future, future);
+
+				// Spying starts before `buildTree()`, which itself does one
+				// `readFileSync` on the entry to populate `node.value` — modeling
+				// core's own re-read, not `collectDemoFiles`'s. The assertion below
+				// is that this is the *only* entry read: `collectDemoFiles` must
+				// not add a second one just because it re-parses the entry for its
+				// own dependency list.
+				const readFileSync = vi.spyOn(fs, "readFileSync");
+				try {
+					const secondTree = buildTree();
+					runPlugin(secondTree, { moduleCache }, vfilePath);
+
+					const [secondNode] = findLiveDemoNodes(secondTree);
+					expect(getAttr(secondNode, "files")["Button.tsx"]).toContain("v2");
+
+					// The entry's own mtime never changed, so its cached parse
+					// should be served straight from `moduleCache` rather than
+					// read from disk a second time.
+					const entryReads = readFileSync.mock.calls.filter(([target]) =>
+						String(target).endsWith("App.tsx"),
+					);
+					expect(entryReads).toHaveLength(1);
+				} finally {
+					readFileSync.mockRestore();
+				}
+			} finally {
+				fs.rmSync(dir, { recursive: true, force: true });
+			}
 		});
 	});
 });

@@ -1,9 +1,8 @@
 import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
-import { demoRefKey } from "~node/helpers/demoRefKey";
-import { visitFilePaths } from "~node/visitFilePaths";
-import type { DemoDataByRef, UniqueImports } from "~shared/types";
+import { collectDemoFiles } from "~node/helpers/collectDemoFiles";
+import type { PathWithAllowedExt } from "~shared/types";
 import { runCode } from "~web/compiler/runCode";
 
 /**
@@ -14,8 +13,11 @@ import { runCode } from "~web/compiler/runCode";
  * and a resolver expecting another passes both halves' tests and still
  * renders nothing.
  *
- * These tests run a real fixture all the way through: MDX scan → module
- * graph → `files` → Sucrase → executed component.
+ * These tests run a real fixture all the way through: module graph → `files`
+ * → Sucrase → executed component. `collectDemoFiles` is called directly
+ * rather than through MDX/`remarkPlugin` — both `visitFilePaths` and
+ * `remarkPlugin` are just callers of it now, and this seam is about its
+ * output, not how a caller reaches it.
  */
 
 const renderToString = (tag: unknown, props: { children?: unknown }) => {
@@ -44,30 +46,30 @@ vi.mock("_live_demo_virtual_modules", () => ({
 
 const FIXTURES_DIR = path.join(__dirname, "../fixtures");
 
-const buildDemo = (mdxFixture: string, demoPathUnderValid: string) => {
-	const uniqueImports: UniqueImports = new Set();
-	const demoDataByRef: DemoDataByRef = {};
+const buildDemo = (entryPathUnderValid: string) => {
+	const absolutePath = path.join(
+		FIXTURES_DIR,
+		"valid",
+		entryPathUnderValid,
+	) as PathWithAllowedExt;
 
-	const mdxPath = path.join(FIXTURES_DIR, "mdx", mdxFixture);
-	visitFilePaths({
-		filePaths: [mdxPath],
-		uniqueImports,
-		demoDataByRef,
-		docRoot: FIXTURES_DIR, // Unused here: every fixture below uses `./`/`../`.
+	const { files, externalImports } = collectDemoFiles({
+		absolutePath,
+		moduleCache: new Map(),
 	});
 
-	// Every fixture here references its demo as `../valid/<pathUnderValid>`, so
-	// its stored key is the ref built from that src string (see `demoRefKey`).
-	const key = demoRefKey(mdxPath, `../valid/${demoPathUnderValid}`);
-	const demo = demoDataByRef[key];
-	expect(demo, `no demo data for ${key}`).toBeDefined();
-
-	return { demo, uniqueImports };
+	return {
+		demo: {
+			entryFileName: path.basename(absolutePath),
+			files,
+			externalImports: [...externalImports],
+		},
+	};
 };
 
 describe("build-time output feeds the runtime bundler", () => {
 	it("runs a flat single-file demo end to end", async () => {
-		const { demo } = buildDemo("externalDemo.mdx", "SimpleComponent.tsx");
+		const { demo } = buildDemo("SimpleComponent.tsx");
 
 		const component = await runCode(demo);
 
@@ -77,7 +79,7 @@ describe("build-time output feeds the runtime bundler", () => {
 	});
 
 	it("runs a demo with files in subfolders sharing a base name", async () => {
-		const { demo } = buildDemo("nestedDemo.mdx", "SharedNames/App.tsx");
+		const { demo } = buildDemo("SharedNames/App.tsx");
 
 		// The build step must hand over distinct keys, and the runtime resolver
 		// must resolve each import back to the right one, not conflate them.
@@ -100,7 +102,7 @@ describe("build-time output feeds the runtime bundler", () => {
 		// `resolveRelativePath`), but until now nothing ran one through the
 		// full build → runtime seam. It was only unit-tested in isolation on the
 		// shared helper both halves use.
-		const { demo } = buildDemo("climbingDemo.mdx", "Climbing/App.tsx");
+		const { demo } = buildDemo("Climbing/App.tsx");
 
 		expect(Object.keys(demo.files).sort()).toEqual([
 			"../shared/theme.ts",
@@ -118,7 +120,7 @@ describe("build-time output feeds the runtime bundler", () => {
 		// The build step doesn't reject cycles — they're legal in ES modules —
 		// and the runtime's CommonJS require graph resolves them too, per
 		// `collectDemoFiles.ts`'s docblock. This executes one end to end.
-		const { demo } = buildDemo("circularDemo.mdx", "Circular/App.tsx");
+		const { demo } = buildDemo("Circular/App.tsx");
 
 		expect(Object.keys(demo.files).sort()).toEqual([
 			"App.tsx",

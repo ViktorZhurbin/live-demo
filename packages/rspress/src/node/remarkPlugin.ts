@@ -1,10 +1,17 @@
 /**
- * Remark plugin that rewrites MDX code blocks/elements into LiveDemo components,
- * using demo data `visitFilePaths` already collected during the earlier scan phase:
+ * Remark plugin that rewrites MDX code blocks/elements into LiveDemo
+ * components. Unlike the build-time scan (`visitFilePaths.ts`), which only
+ * needs each demo's externals, this resolves `file="..."`/`<code src>` and
+ * walks the full module graph itself (`collectDemoFiles`), synchronously, on
+ * every MDX compile — so a demo's `files` are never more than one recompile
+ * stale. `analyzeModule`'s cache (see its docblock) spares the repeat reads
+ * that walk would otherwise redo.
  * 1. External demos: ```tsx file="./Component.tsx" live → <LiveDemo files={...} />
  * 2. Inline demos: ```jsx live → <LiveDemo files={{App.jsx: "..."}} />
  * 3. Deprecated: <code src="./Component.tsx" /> → same as (1), see its own branch below.
  */
+import path from "node:path";
+
 import { getNodeAttribute } from "@rspress/core";
 import type { Code, Root } from "mdast";
 import type { MdxJsxFlowElement } from "mdast-util-mdx";
@@ -12,19 +19,28 @@ import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { isAllowedExt } from "~shared/pathHelpers";
 import type {
-	DemoDataByRef,
 	LiveDemoPluginOptions,
 	LiveDemoPropsFromPlugin,
 } from "~shared/types";
 
+import type { ModuleCache } from "./helpers/analyzeModule";
+import { collectDemoFiles } from "./helpers/collectDemoFiles";
 import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
-import { demoRefKey } from "./helpers/demoRefKey";
 import { parseCodeMeta } from "./helpers/parseCodeMeta";
+import { resolveFileInfo } from "./helpers/resolveFileInfo";
+import { resolveFileMetaEntry } from "./helpers/resolveFileMetaEntry";
 import { warnOnce } from "./helpers/warnOnce";
 
 type RemarkPluginProps = {
 	options?: LiveDemoPluginOptions["ui"];
-	demoDataByRef: DemoDataByRef; // Analyzed demo files
+	/**
+	 * Reads `plugin.ts`'s `docRoot` at transform time rather than taking its
+	 * value: `markdown.remarkPlugins` is built once, at plugin-definition
+	 * time, before the `config` hook has resolved `docRoot` from `config.root`.
+	 * A plain value here would freeze in that pre-`config()` default.
+	 */
+	getDocRoot: () => string;
+	moduleCache: ModuleCache;
 	layoutPath: string; // Layout component to import into pages that use a demo
 };
 
@@ -35,11 +51,13 @@ const LIVE_DEMO_NAME = "_LiveDemo";
 
 export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 	options,
-	demoDataByRef,
+	getDocRoot,
+	moduleCache,
 	layoutPath,
 }) => {
 	return (tree, vfile) => {
 		let transformed = false;
+		const docDirname = path.dirname(vfile.path);
 
 		// Transform: fenced code blocks carrying the bare `live` word in their
 		// meta. `file="..."` alongside it is an external demo; its absence makes
@@ -54,94 +72,85 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 			if (!isLive) return;
 
 			if (file) {
-				transformExternalDemo(node, file, vfile.path);
+				transformExternalDemo(node, file);
 			} else {
 				transformInlineDemo(node);
 			}
 		});
 
-		// Deprecated: <code src="./Component.tsx" />. Routes through the same
-		// demoDataByRef lookup as the `file=` branch above, keyed the same way
-		// (see `demoRefKey`). Removed in a later major — see visitFilePaths.ts's
-		// matching branch.
+		// Deprecated: <code src="./Component.tsx" />. Removed in a later major —
+		// see visitFilePaths.ts's matching branch.
 		visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement) => {
 			if (node.name !== "code") return;
 
 			const src = getNodeAttribute(node, "src");
 			if (typeof src !== "string") return;
 
-			const refKey = demoRefKey(vfile.path, src);
-
 			warnOnce(
-				refKey,
+				`${vfile.path}\0${src}`,
 				`[live-demo] <code src="${src}"> is deprecated. Use a fenced code block ` +
 					`with \`file="${src}" live\` instead. <code src> will be removed in a future major version.`,
 			);
 
-			const demoData = demoDataByRef[refKey];
-
-			// See the identical comment in transformExternalDemo below — same
-			// cause (routeGenerated runs once per dev-server process).
-			if (!demoData) {
-				console.warn(
-					`[live-demo] No demo data for <code src="${src}"> in ${vfile.path}.\n` +
-						"It will render as an empty <code> element. Restart the dev server to pick it up.",
-				);
-				return;
-			}
-
-			const props = getPropsWithOptions(demoData, options);
-
-			Object.assign(node, {
-				type: "mdxJsxFlowElement",
-				name: LIVE_DEMO_NAME,
-				attributes: getJsxAttributesFromProps(props),
-			});
-			transformed = true;
+			// No `node.value` counterpart here: `<code src>` isn't a fenced block,
+			// so core's remarkFileCodeBlock never read this file. The walk's own
+			// read is the only copy of the entry's content there is.
+			emitDemoNode(
+				node,
+				resolveFileInfo({
+					importPath: src,
+					dirname: docDirname,
+					importer: vfile.path,
+					mdxPath: vfile.path,
+				}),
+			);
 		});
 
-		function transformExternalDemo(
-			node: Code,
-			file: string,
-			vfilePath: string,
-		) {
-			const demoData = demoDataByRef[demoRefKey(vfilePath, file)];
-
-			// Missing means the scan never recorded it: `routeGenerated` runs once
-			// per dev server process, so adding a new demo to an already-routed
-			// page triggers this recompile without rescanning. The node is left
-			// alone, which renders as a plain file code block (core has already
-			// substituted `node.value` with the file's contents) — not obviously
-			// broken, hence the warning.
-			//
-			// `console.warn`, not `vfile.message`: rspress's MDX pipeline collects
-			// vfile messages but never prints them, so that route is silent in
-			// practice.
-			if (!demoData) {
-				console.warn(
-					`[live-demo] No demo data for \`file="${file}"\` in ${vfilePath}.\n` +
-						"It will render as a plain file code block. Restart the dev server to pick it up.",
-				);
-				return;
-			}
+		function transformExternalDemo(node: Code, file: string) {
+			const entryFile = resolveFileMetaEntry({
+				file,
+				docDirname,
+				docRoot: getDocRoot(),
+				mdxPath: vfile.path,
+			});
 
 			// @rspress/core's own remarkFileCodeBlock (registered before this
-			// plugin — see @rspress/core's mdx/options.js) runs on every MDX
-			// recompile and re-reads the file into `node.value`, while
-			// `demoData.files` was populated once, whenever routeGenerated last
-			// scanned. Overriding just the entry's slot with the fresh value
-			// fixes the common dev-mode case: editing a demo's entry file without
-			// touching its imports. Files it imports aren't re-read here — those
-			// still need a dev-server restart (see the package's CLAUDE.md).
-			//
-			// `node.value` is empty in this plugin's own unit tests, which parse
-			// MDX without running core's remarkFileCodeBlock — the `?` falls back
-			// to the scan's own content in that case.
-			const files = node.value
-				? { ...demoData.files, [demoData.entryFileName]: node.value }
-				: demoData.files;
+			// plugin — see @rspress/core's mdx/options.js) already re-read this
+			// same file into `node.value` by the time this runs, so it's simpler
+			// to take that over asking `collectDemoFiles`'s own read to double as
+			// the entry's content.
+			emitDemoNode(node, entryFile, node.value);
+		}
 
-			const props = getPropsWithOptions({ ...demoData, files }, options);
+		/**
+		 * Walk `entryFile`'s graph and rewrite `node` in place into a
+		 * `<LiveDemo>` element. Shared by both external syntaxes, which differ
+		 * only in how the reference resolves and whether a fresher copy of the
+		 * entry's own content exists to override the walk's (`entryContent`).
+		 */
+		function emitDemoNode(
+			node: Code | MdxJsxFlowElement,
+			entryFile: ReturnType<typeof resolveFileInfo>,
+			entryContent?: string,
+		) {
+			const { files, externalImports } = collectDemoFiles({
+				absolutePath: entryFile.absolutePath,
+				mdxPath: vfile.path,
+				moduleCache,
+			});
+
+			if (entryContent !== undefined) {
+				files[entryFile.fileName] = entryContent;
+			}
+
+			const props = getPropsWithOptions(
+				{
+					entryFileName: entryFile.fileName,
+					files,
+					externalImports: [...externalImports],
+				},
+				options,
+			);
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
