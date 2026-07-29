@@ -1,6 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, type Ref, Suspense, useEffect, useRef, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+import { observeEnteredViewport } from "./observeEnteredViewport";
 import { PreviewSkeleton } from "./PreviewSkeleton";
 import type { LiveDemoWidgetProps } from "./types";
 
@@ -19,11 +20,17 @@ const Core = lazy(() =>
 	import("./ui/Core/Core").then((module) => ({ default: module.Core })),
 );
 
+// How far ahead of the viewport edge the demo starts loading. Enough lead
+// that a reader scrolling at a normal pace arrives after the download has
+// started, without pulling in demos they'll never see. Applies to all four
+// sides, which costs nothing for a one-shot gate.
+const VIEWPORT_ROOT_MARGIN = "400px";
+
 // Arbitrary; just has to look like code rather than a progress bar.
 const EDITOR_SKELETON_LINE_WIDTHS = ["70%", "90%", "40%", "80%", "55%"];
 
-const LoadingFallback = () => (
-	<div className="live-demo-fallback">
+const LoadingFallback = ({ ref }: { ref?: Ref<HTMLDivElement> }) => (
+	<div ref={ref} className="live-demo-fallback">
 		<div className="live-demo-fallback-toolbar">
 			{[0, 1, 2].map((key) => (
 				<div
@@ -59,6 +66,20 @@ const ErrorFallback = () => (
 );
 
 /**
+ * Rendering `<Core>` is what triggers its `import()`, so withholding it until
+ * the demo nears the viewport is what keeps a page's demos off the critical
+ * path: a reader who never scrolls to one downloads neither the editor nor
+ * the compiler (ADR 0004's payload axis). This boundary is the only place
+ * that works — the editor rides in `Core`'s own chunk group, so a gate
+ * *inside* `Core` can only defer what `Core` itself loads lazily (Sucrase,
+ * the externals), with CodeMirror already downloaded by then.
+ *
+ * The skeleton is what's observed. It occupies the same box the real widget
+ * will (`lazyFallback.css` mirrors `ResizablePanels`' height and breakpoint),
+ * so its position is settled from first paint and nothing shifts when `Core`
+ * swaps in. It also renders on the server, unchanged from before: the gate
+ * starts shut on both sides, so hydration still matches.
+ *
  * `ErrorBoundary` wraps `Suspense`, not the reverse: `Suspense` only catches
  * the *pending* import promise. A *rejected* one (flaky network, or a stale
  * page referencing a chunk hash a redeploy removed) is re-thrown during
@@ -67,10 +88,35 @@ const ErrorFallback = () => (
  * retries a rejected import, hence "reload the page" rather than a retry
  * affordance.
  */
-export const LiveDemoLazy = (props: LiveDemoWidgetProps) => (
-	<ErrorBoundary fallback={<ErrorFallback />}>
-		<Suspense fallback={<LoadingFallback />}>
-			<Core {...props} />
-		</Suspense>
-	</ErrorBoundary>
-);
+export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
+	const [isNearViewport, setIsNearViewport] = useState(false);
+	const skeletonRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const skeleton = skeletonRef.current;
+
+		if (!skeleton) return;
+
+		return observeEnteredViewport(
+			skeleton,
+			() => {
+				setIsNearViewport(true);
+			},
+			{
+				rootMargin: VIEWPORT_ROOT_MARGIN,
+			},
+		);
+	}, []);
+
+	if (!isNearViewport) {
+		return <LoadingFallback ref={skeletonRef} />;
+	}
+
+	return (
+		<ErrorBoundary fallback={<ErrorFallback />}>
+			<Suspense fallback={<LoadingFallback />}>
+				<Core {...props} />
+			</Suspense>
+		</ErrorBoundary>
+	);
+};

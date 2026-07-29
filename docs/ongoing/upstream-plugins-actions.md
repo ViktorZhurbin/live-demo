@@ -13,16 +13,18 @@ and wire payload per [ADR 0004](../decisions/0004-payload-ranking-axis.md).
 At ~22 weekly downloads, "users would want X" is not an argument; "deletes
 code", "migration becomes a config change", and "measured" are.
 
-**Reordered 2026-07-28** when the payload axis was added, pulling in items 1
-and 2 (not from upstream — see "Where this list departs from upstream").
-Numbering changed; cross-references in this file are updated, elsewhere may
-not be.
+**Reordered 2026-07-28** when the payload axis was added, pulling in two
+items that aren't from upstream (see "Where this list departs from
+upstream"); renumbered again 2026-07-29 as items landed. The headings stay
+numbered because the order is the point, but nothing refers to an item _by_
+its number — numbering is what drifts when items land, so references name
+the item instead.
 
 ## Corrections to the research doc
 
 - **`includeModules` doesn't exist.** Removed in the current major
   (`CHANGELOG.md`) once inline demos started being scanned for their own
-  imports. Item 5 below covers what's actually left.
+  imports. The library self-aliasing item below covers what's actually left.
 - **The debounce comparison is already resolved.** Lives in
   `CodeRunner.tsx:15`, 800ms, with two refinements playground lacks:
   mount-time `.flush()` so first paint doesn't idle out the debounce, and
@@ -41,31 +43,16 @@ not be.
   [ADR 0004](../decisions/0004-payload-ranking-axis.md).
   `asset-size-comparison.md`: ~92% of demo-specific cost is CodeMirror
   (182.4 KB) + Sucrase (44.8 KB) of 246.6 KB brotli. Neither official plugin
-  addresses this — both are heavier and offload to a CDN. Items 1 and 2
-  come from this measurement.
-- **Item 2 absorbs the old "narrow `ui.editor`'s type" item.** Owning the
-  editor removes the foreign prop surface, so the type stops needing a
+  addresses this — both are heavier and offload to a CDN. Owning the editor,
+  and the now-done viewport gate, come from this measurement.
+- **Owning the editor absorbs the old "narrow `ui.editor`'s type" item.**
+  Removing the foreign prop surface means the type stops needing a
   description. Same problem, structural fix instead of a patch.
 - **"Deliver site-wide `ui` once" is closed, not deferred.** See "Closed".
 
 ## The list
 
-### 1. Viewport-gate the first compile — small, largest measured payload win
-
-Promoted from `.shelved-questions.md`. Wrap `CodeRunner`'s mount-time flush
-(`CodeRunner.tsx:97-106`) and `prefetchImports` in an `IntersectionObserver`.
-A reader who never scrolls to the demo never loads 182.4 KB CodeMirror +
-44.8 KB Sucrase — ~92% of the demo-specific payload.
-
-No fidelity risk, no SSR exposure, no new option (Ring 1 throughout). Doesn't
-substitute for the parked static-preview design — it only helps readers who
-never reach the demo, a different population from those who reach it and
-wait.
-
-Care needed: the mount-flush exists so first paint doesn't idle out the
-800ms debounce. Gating must preserve that once the demo enters view.
-
-### 2. Own the editor: drop `@uiw/react-codemirror` — medium, deletes a dependency
+### 1. Own the editor: drop `@uiw/react-codemirror` — medium, deletes a dependency
 
 The whole CodeMirror surface is three imports in `Editor.tsx:1-3` plus one
 type import (`shared/types.ts:1`). Replacing the wrapper with
@@ -89,7 +76,7 @@ Unchanged by this: the only real path to passing functions through is a
 user-supplied module path the bundler imports — playground's `render`
 option, i.e. `customLayout` again, deliberately removed (see "Closed").
 
-### 3. CSS Modules in demos — medium, best fun-to-value on the list
+### 2. CSS Modules in demos — medium, best fun-to-value on the list
 
 Full analysis in [css-imports.md](./css-imports.md): no bundler is needed,
 and bringing Rollup back would buy nothing. Ring 1 under ADR 0003.
@@ -111,7 +98,7 @@ cache. Design the `<style>` lifecycle up front — with an 800ms debounce,
 every recompile injects another node unless keyed, replaced, and removed on
 unmount.
 
-### 4. Per-block meta options — medium
+### 3. Per-block meta options — medium
 
 `website/docs/guide/customization.mdx:7` says outright there's no per-demo
 override — the most obviously-shaped gap. `parseCodeMeta.ts` already
@@ -128,10 +115,10 @@ read at runtime via `usePageData()` so it costs nothing at build time) is a
 natural follow-on once per-block exists. Split it out — per-block alone
 covers the common "hide the editor for this one demo" need.
 
-### 5. Verify `resolve.alias` already covers library self-aliasing — tiny, verify first
+### 4. Verify `resolve.alias` already covers library self-aliasing — tiny, verify first
 
-The capability behind research item 5 that survives `includeModules`'s
-removal: a component library's own docs writing
+The one capability behind `includeModules` that survives its removal: a
+component library's own docs writing
 `import { Button } from 'my-lib'` and having it resolve to
 `../src/index.ts` — the primary audience for this plugin category.
 
@@ -144,7 +131,7 @@ at `getVirtualModulesCode` — the specifier still has to be imported by some
 demo to land in the map, so the `includeModules` removal rationale stays
 intact.
 
-### 6. Logger and `rp-not-doc` — tiny each
+### 5. Logger and `rp-not-doc` — tiny each
 
 - Replace `console.warn` with `@rsbuild/core`'s `createLogger({ prefix: … })`
   so plugin output formats with the rest of the build. The file-collection
@@ -156,6 +143,62 @@ intact.
   this is a Playwright check against `website/`, not necessarily a change.
 
 ## Done
+
+- **Viewport-gate the whole demo runtime** (2026-07-29). `lazy.tsx` withholds
+  `<Core>` until a one-shot `IntersectionObserver`
+  (`observeEnteredViewport.ts`, 400px `rootMargin`) sees its own loading
+  skeleton near the viewport. A reader who never scrolls to a demo loads
+  neither CodeMirror nor Sucrase nor the demo's externals.
+
+  **The gate has to sit at that boundary, and only there.** It was first
+  built one level down — an observer in `Wrapper.tsx` flipping a context flag
+  that `CodeRunner`'s two effects waited on — which deferred Sucrase and the
+  externals but _not_ the editor: rendering `<Core>` is what fires its
+  `import()`, and the bundler puts CodeMirror in that same chunk group.
+  Verified in the built output, not argued:
+
+  ```js
+  lazy(() => Promise.all([a.e(3899), a.e(1764)]).then(...)) // 3899 = CodeMirror, 1764 = Core
+  ```
+
+  Since `Core` mounts unconditionally, both chunks were fetched on page load
+  regardless of the gate. That version would have deferred 44.8 KB brotli of
+  the 246.6 KB a demo page costs; gating `Core` itself defers essentially all
+  of it. The generalizable half of this — a payload gate is worth only what
+  the chunk boundary above it withholds — now lives in
+  [ADR 0004](../decisions/0004-payload-ranking-axis.md); the chunk-graph
+  evidence above is what it was learned from.
+
+  Two smaller things worth keeping:
+  - **The skeleton is what's observed.** It already occupies the widget's box
+    (`lazyFallback.css` mirrors `ResizablePanels`' height and 550px
+    breakpoint), so the observed node's position is settled from first paint
+    and nothing shifts when `Core` swaps in. The earlier `Wrapper` version
+    had to reason about `ResizablePanels` re-laying out from vertical to
+    horizontal once measured client-side, which moved `Preview`'s node and
+    fired the gate early during that transient layout; observing above the
+    lazy boundary sidesteps that entirely.
+  - **Hand-rolled, though `@mantine/hooks` is already a dependency.** Not
+    because either hook leaks — `useIntersection`'s callback ref disconnects
+    on detach, which here is exactly when the gate opens. `useInViewport`
+    passes no options to the observer, so it can't express the 400px lead;
+    `useIntersection` exposes the live entry and resets it on detach, so the
+    caller needs its own latch either way. Neither degrades where
+    `IntersectionObserver` is missing.
+
+  Three e2e specs now scroll before asserting: their demos sit below the fold
+  on `/guide/usage` (the `inline-demo` wrapper measures ~1205px down against
+  a 720px viewport, outside the gate's 1120px reach). Note what to scroll —
+  nothing _inside_ a demo exists until it has loaded, so a spec has to scroll
+  to markup outside it (`import-demo`, a plain MDX wrapper) or it waits for
+  the very element the scroll is what produces.
+
+  **Not re-measured.** `viewportGatesFirstCompile.spec.ts` proves both chunks
+  are withheld until scroll (by content-matching `cm-content` and
+  `jsxPragma`), and the chunk sizes above are from `asset-size-comparison.md`
+  — but no fresh deploy was measured. ADR 0004 wants a real measurement
+  before a figure reaches the README or CHANGELOG; the CHANGELOG entry
+  deliberately claims the behavior, not a number.
 
 - **Move file collection into the remark pass** (2026-07-28).
   `visitFilePaths` still runs once per dev-server process in
@@ -192,7 +235,7 @@ intact.
   token in `parseCodeMeta.ts`'s `live` check. A site migrating off
   `@rspress/plugin-playground` swaps one plugin registration and changes
   nothing in its MDX — the highest value-per-line change in the repo, and
-  what research item 2 was reaching for.
+  what the research doc's `defaultRenderMode` suggestion was reaching for.
 
   Tradeoff to document rather than engineer around: claiming `playground`
   means the two plugins can't be registered together. Upstream designed for
@@ -219,7 +262,7 @@ intact.
   alternative.
 
   Deferred on cost, not scope: doubles every demo's `files` payload, which
-  cuts against items 1 and 2, and rests on whether Sucrase preserves
+  cuts against ADR 0004's axis, and rests on whether Sucrase preserves
   formatting as well as Babel's `retainLines` did — unanswered. Its old
   framing as a companion to delivering site-wide data no longer applies;
   that item is closed.

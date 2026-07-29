@@ -97,6 +97,21 @@ with a demo (945.8 KB uncompressed) — for `guide/external/basic`, the
 compiler payload drops from Babel + Rollup JS (112.2 KB) + Rollup's wasm
 binary (229.1 KB) to Babel alone.
 
+#### A demo loads when it nears the viewport, not on page load
+
+A demo below the fold no longer loads anything — editor, compiler, or its
+external imports — until the reader scrolls within 400px of it. A reader who
+never reaches the demo downloads none of it; a page of demos costs whatever
+its reader actually looks at. Until then the same loading skeleton that
+already covered the runtime chunk holds the demo's place, so nothing shifts
+when it swaps in. A demo already in view starts loading as soon as the page
+hydrates.
+
+Worth knowing if you test your own docs site: an assertion against a
+below-the-fold demo now has to scroll to it first, and the elements inside a
+demo don't exist until it has loaded — scroll to something outside it (the
+demo's own wrapper in your MDX, say).
+
 ### Breaking
 
 #### `window.Babel` / `window.rollup` no longer set globally

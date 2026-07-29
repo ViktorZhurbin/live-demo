@@ -2,12 +2,14 @@
 
 - **Status:** Accepted, 2026-07-28. The invariant already holds; the ranking
   rule constrains future work.
-- **Scope:** all of `packages/rspress`. A prioritization decision plus one
-  architectural invariant.
+- **Scope:** all of `packages/rspress`. A prioritization decision, one
+  architectural invariant, and how to tell a real payload win from a
+  plausible one.
 - **Supersedes:** nothing. **Superseded by:** nothing.
-- **Absorbs:** the "Payload is now a first-class axis" note from
-  `docs/ongoing/upstream-plugins-actions.md`, which was a durable principle
-  living in a document that gets deleted.
+- **Absorbs:** the "Payload is now a first-class axis" note and the
+  chunk-boundary rule below, both from
+  `docs/ongoing/upstream-plugins-actions.md` — durable principles living in
+  a document that gets deleted.
 - **Depends on:** [ADR 0003](./0003-scope-boundary.md) for what's in scope.
   This ADR only ranks things 0003 has already admitted.
 
@@ -68,7 +70,31 @@ Held up by four mechanisms, treated as one invariant:
 Changing any of them requires re-measuring, not reasoning. `web/lazy.tsx`'s
 docblock covers the least obvious one (scope-hoisting).
 
-### 3. Measure, don't assert
+### 3. A payload gate is worth only what the chunk boundary above it withholds
+
+Deferring _when_ something runs saves nothing if the bundler already fetched
+it. **Check the emitted chunk graph, not the component tree** — a gate's
+value is decided by where the `import()` calls sit and how the bundler groups
+what they pull in, which the source's nesting doesn't show.
+
+Learned the expensive way: the viewport gate was first built inside `Core`,
+where it deferred the compiler and a demo's externals but not the editor,
+because rendering `<Core>` is what fires its `import()` and CodeMirror rides
+in that same chunk group. Since `Core` mounted unconditionally, both chunks
+were fetched on page load regardless. Moving the gate above the `React.lazy`
+boundary in `web/lazy.tsx` withholds the editor as well — by the component
+sizes above, the difference between deferring Sucrase alone and deferring
+essentially the whole demo-specific cost. Same behavior, one boundary up.
+
+Those two figures are read off the existing measurement, not a fresh deploy;
+"Measure, don't assert" below is why no number from this paragraph belongs in
+README or CHANGELOG until one is taken.
+
+This is the eager invariant read forwards: the four mechanisms listed there
+are all chunk boundaries, which is why changing any of them requires
+re-measuring.
+
+### 4. Measure, don't assert
 
 - A payload claim needs a **real measurement on a real deploy** before it
   reaches README, CHANGELOG, or `docs/decisions/`. Local `rspress preview`

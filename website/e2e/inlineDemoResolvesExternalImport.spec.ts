@@ -18,7 +18,17 @@ test("an inline demo's own external import resolves and renders real output", as
 }) => {
 	await page.goto("/guide/usage");
 
-	const preview = page.getByTestId("import-demo").getByTestId("preview");
+	const demo = page.getByTestId("import-demo");
+
+	// This demo sits near the bottom of a long page, and its runtime doesn't
+	// load until it's near the viewport (see web/lazy.tsx's gate). What's under
+	// test here is the build-time import seam, not eagerness, so scroll first.
+	// The wrapper is plain MDX markup and exists while the demo is still
+	// gated; `preview` only appears once the demo has mounted, so scrolling to
+	// *it* would wait for something the scroll is what produces.
+	await demo.scrollIntoViewIfNeeded();
+
+	const preview = demo.getByTestId("preview");
 
 	await expect(preview.locator("svg")).toBeVisible();
 	// A demo whose import failed to resolve renders the error overlay instead

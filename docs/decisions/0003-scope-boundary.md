@@ -205,8 +205,9 @@ same distance away.
 - **The "Isolation model" entry under "Deliberately not handled" now points
   here.** Demos are not sandboxed because they are mounted into the host React
   tree, which is a scope commitment, not a decision to skip defensive code.
-- **`docs/ongoing/upstream-plugins-actions.md` items 4 and 5** (per-block meta,
-  library self-aliasing) sit inside Ring 1 and need no further scope argument.
+- **`docs/ongoing/upstream-plugins-actions.md`'s per-block meta options and
+  library self-aliasing items** sit inside Ring 1 and need no further scope
+  argument.
   Its deferred `previewCodeTransform` entry is also Ring 1 — deferred on
   demand, not on scope.
 - **The `README.md` "Compared to `@rspress/plugin-playground`" section should

@@ -12,6 +12,13 @@ import { expect, test } from "@playwright/test";
 test.describe("an inline ```lang live``` demo renders and runs in the browser", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto("/guide/usage");
+
+		// This demo sits ~1200px down, past the gate's reach at the default
+		// viewport, so its runtime doesn't load until scrolled to (see
+		// web/lazy.tsx). These tests are about the inline build path, not about
+		// when loading starts, so bring it into view first. The wrapper below is
+		// plain MDX markup, present whether or not the demo has mounted.
+		await page.getByTestId("inline-demo").scrollIntoViewIfNeeded();
 	});
 
 	test("the rendered demo is interactive before any edit", async ({ page }) => {

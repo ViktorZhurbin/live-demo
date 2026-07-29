@@ -114,6 +114,14 @@ resolution rules `collectDemoFiles.ts` uses at build time, via the shared
 `pathHelpers.ts` helpers. The entry file's default export (or its last named
 export) is rendered into the host page's React tree.
 
+None of that — nor the editor — starts on page load. `lazy.tsx` withholds
+`<Core>` until a one-shot `IntersectionObserver`
+(`observeEnteredViewport.ts`) sees its loading skeleton come within 400px of
+the viewport, so a demo the reader never scrolls to costs nothing beyond
+that skeleton (ADR 0004's payload axis). The gate belongs at that boundary
+and can't move deeper: rendering `<Core>` is what fires its `import()`, and
+the editor rides in the same chunk group. See `lazy.tsx`'s docblock.
+
 ### Dependency gotchas
 
 These live here because `package.json` can't hold comments. Everything else
@@ -157,18 +165,6 @@ which resolves through `package.json`'s `exports` map to `dist/`. If `dist`
 doesn't exist yet, that import fails typecheck with a "Cannot find module"
 error (it doesn't fail quietly). CI (`.github/workflows/ci.yml`) runs
 `build:lib` before `typecheck` for this reason, and `pnpm verify` (root `package.json` script) mirrors that order. Keep both in sync if either changes.
-
-## Key files
-
-```
-src/
-├── plugin/           # RspressPlugin entry point
-├── node/             # build-time: MDX scanning, file collection, remark transform
-├── shared/           # types, path helpers, constants used by both sides
-│   └── errors/       # LiveDemoError, ErrorCode messages (see Troubleshooting)
-└── web/              # runtime: editor + in-page preview
-    └── ui/           # plugin UI
-```
 
 ## Conventions
 
@@ -343,6 +339,7 @@ virtual module instead of importing the class.
   same place `IMPORT_NOT_RESOLVED` already surfaces from, and a broken file
   on disk should fail loudly rather than ship a page whose demo explains the
   problem only after it loads.
+
 - **`PROP_PARSE_FAILED`**: the plugin's `JSON.stringify`d props and the
   runtime's `JSON.parse` are out of sync. Check `parseProps.ts`.
 - **A demo picks up the wrong files**: log `Object.keys(files)` at the end of

@@ -40,6 +40,11 @@ export type CodeRunnerProps = {
  * 800ms idle before even asking for Sucrase. Both only affect when work
  * starts. `runCode` still resolves whatever the demo really imports.
  *
+ * "On mount" is later than page load: nothing in this subtree exists until
+ * the demo nears the viewport, which is where `web/lazy.tsx` gates the whole
+ * runtime chunk. So there's no separate viewport check here — mounting *is*
+ * the signal.
+ *
  * `prevFilesKey` guards against recompiling (and remounting the component,
  * losing its internal state) when `files` is a referentially-new object with
  * identical content — cheaper than comparing compiled output, since it skips

@@ -49,12 +49,13 @@ Three tiers, by lifetime. Put a fact in the shortest-lived one that can hold
 it, and promote it when it turns out to outlive that tier.
 
 - **`docs/decisions/`** — ADRs. Durable, numbered, and binding on future work:
-  they constrain what gets built, not just what was built.
+  they constrain what gets built and what was built.
 - **`docs/ongoing/`** — working documents with a finite life: research
   snapshots, measurement runs, and the ordered action list. These get items
   checked off and are eventually deleted, so **nothing durable should live
-  here alone.** If a working doc grows a principle that will outlive the list
-  it's in, move it to an ADR and leave a pointer.
+  here alone.** Do not reference them in durable docs either.
+  If a working doc grows a principle that will outlive the list it's in,
+  move it to an ADR.
 - **`docs/.open-questions.md`** and **`docs/.shelved-questions.md`** —
   investigated far enough to have an answer, deliberately not acted on. Each
   entry records what was measured, why it's parked, and what would unpark it.
@@ -83,6 +84,8 @@ pnpm run verify # build + typecheck + unit tests + knip + e2e tests
 pnpm check:all # check && verify
 ```
 
+### Special notes
+
 **No MDX comments in `.mdx` files.** `oxfmt` formats them as Markdown and
 rewrites `*` as `_`, so a `{/* … */}` comment becomes `{/_ … _/}` — which then
 fails the docs build with "Could not parse expression with acorn: Unterminated
@@ -92,6 +95,8 @@ regular expression". HTML comments aren't an escape hatch either (MDX parses
 ## Active initiative: major version upgrade
 
 This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
+
+### 3.0.0 Release
 
 When 3.0 actually ships, `packages/rspress/README.md`'s and
 `website/docs/guide/getStarted.mdx`'s version-tag guidance (currently
