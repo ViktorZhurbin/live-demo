@@ -37,90 +37,90 @@ Two phases:
 
 **Build time (Node.js, `src/node/` + `src/plugin/`)**
 
-`src/plugin/plugin.ts` is the `RspressPlugin` registered via
-`liveDemoPluginRspress()`. Its `config` hook captures `config.root`
-(mirroring `@rspress/core`'s own resolution) into `docRoot`, used later for
-the `/`-prefixed `file=` form. `markdown.remarkPlugins` is built once,
-before `config()` runs, so `docRoot` reaches `remarkPlugin` as a
-`getDocRoot` getter rather than by value (`plugin.ts`'s inline comment on
-the getter).
+- `src/plugin/plugin.ts` registers `liveDemoPluginRspress()` as an
+  `RspressPlugin`. Its `config` hook captures `config.root` (mirroring
+  `@rspress/core`'s own resolution) into `docRoot`, used for the
+  `/`-prefixed `file=` form. `markdown.remarkPlugins` is built before
+  `config()` runs, so `docRoot` reaches `remarkPlugin` as a `getDocRoot`
+  getter, not by value — see the getter's inline comment in `plugin.ts`.
 
-On `routeGenerated`, `visitFilePaths.ts` scans MDX files once per
-dev-server process. For each external demo — a fenced block with both
-`file="..."` and the bare word `live` in its meta (`playground` also
-accepted, see `parseCodeMeta.ts`), or the deprecated `<code src="..."/>`
-alias — it walks the entry file and everything it transitively imports
-(`collectDemoFiles.ts`), folding only external imports into the sitewide
-`uniqueImports` set; the `files` from that walk is discarded. `file=`'s path
-can carry any of four prefixes (`./`, `../`, `/`, `<root>/`, matching
-`@rspress/core`'s own `remarkFileCodeBlock`); `resolvePrefixedPath.ts` maps
-each to the `{ dirname, importPath }` pair the rest of the resolver expects.
-Inline ` ```lang live ` blocks (no `file=`) collect no files — they're a
-single file held in the MDX itself — but the scan still parses their source
-for imported packages (`collectInlineImports.ts`), so those reach the
-virtual module too.
+- On `routeGenerated`, `visitFilePaths.ts` scans every MDX file once per
+  dev-server process. An external demo is a fenced block with `file="..."`
+  and the bare word `live` (or `playground`, see `parseCodeMeta.ts`) in its
+  meta, or the deprecated `<code src="..."/>`. For each one it walks the
+  entry file and its transitive imports (`collectDemoFiles.ts`), folding
+  external imports into the sitewide `uniqueImports` set — the walk's own
+  `files` result is discarded. `resolvePrefixedPath.ts` maps `file=`'s four
+  supported prefixes (`./`, `../`, `/`, `<root>/`, matching `@rspress/core`'s
+  `remarkFileCodeBlock`) to the `{ dirname, importPath }` pair the resolver
+  expects. Inline ` ```lang live ` blocks collect no files — the MDX itself
+  is the one file — but `collectInlineImports.ts` still parses their source
+  for imported packages, so those reach the virtual module too.
 
-External imports across all demos are collected into one generated virtual
-module (`getVirtualModulesCode.ts`) as lazy `() => import(...)` thunks —
-shared by the whole site, so static imports would make every demo page pay
-for every other page's externals. `runCode.ts` awaits only its own demo's.
+- All demos' external imports feed one generated virtual module
+  (`getVirtualModulesCode.ts`) as lazy `() => import(...)` thunks, shared
+  sitewide: a static import would make every page pay for every other
+  page's externals. `runCode.ts` awaits only its own demo's.
 
-`remarkPlugin.ts` resolves the same `file=`/`<code src>` reference itself
-and re-walks its graph (`collectDemoFiles.ts` again) on every MDX compile,
-so a demo's `files` reflect current disk content rather than whatever the
-once-per-process scan saw. `analyzeModule.ts`'s per-file cache, keyed by
-`(absolutePath, mtimeMs)`, keeps that second walk from doubling every disk
-read the scan already did; an edit's new mtime is what forces a cache miss.
+- `remarkPlugin.ts` resolves the same `file=`/`<code src>` reference and
+  re-walks its graph (`collectDemoFiles.ts` again) on every MDX compile, so
+  a demo's `files` reflect current disk content rather than the
+  once-per-process scan. `analyzeModule.ts`'s per-file cache — keyed by
+  `(absolutePath, mtimeMs)` — keeps that re-walk from doubling the scan's
+  disk reads; an edit's new mtime forces the cache miss.
 
-It then rewrites the MDX AST so a `file="..." live` block, an inline
-` ```lang live ` block, or a deprecated `<code src="..."/>` becomes a
-`<LiveDemo files={...} />` element, and on pages with at least one demo,
-prepends an `import` of the layout so only those pages pull in the runtime
-graph (`createLayoutImportNode.ts` — not a global component).
+- It rewrites the MDX AST: a `file="..." live` block, an inline
+  ` ```lang live ` block, or `<code src="..."/>` becomes a
+  `<LiveDemo files={...} />` element. Pages with at least one demo get a
+  prepended layout `import` (`createLayoutImportNode.ts`) so only those
+  pages pull in the runtime graph.
 
-Per-page injection alone isn't enough: the default layout
-(`static/LiveDemo.tsx`) loads `Core` behind `React.lazy`, because a static
-top-level import would get scope-hoisted by the consumer's bundler into a
-chunk shared across every page regardless of which pages import the layout
-(see `src/web/lazy.tsx`'s module docblock for the mechanism).
+- Per-page injection alone isn't enough. The default layout
+  (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy`: a static
+  top-level import would get scope-hoisted by the consumer's bundler into a
+  chunk shared by every page, regardless of which ones import the layout
+  (mechanism in `src/web/lazy.tsx`'s docblock).
 
-That async boundary is packaged as `@live-demo/rspress/web/lazy`
-(`src/web/lazy.tsx`) as a **separate build entry**, not an export of the
-`web` barrel — the barrel (`src/web/index.ts`) only exports `Button` and a
-type, cheap to import statically, while the heavy graph (CodeMirror, the
-virtual-modules bundle) is reached exclusively through `Core`, which
-`lazy.tsx` loads via `React.lazy`. The layout should render `LiveDemoLazy`
-from that subpath rather than importing `Core` directly, both to keep the
-boundary intact and because the barrel offers no other way to reach it. It
-owns the `Suspense` boundary, the loading skeleton, and the `ErrorBoundary`
-that catches a _rejected_ chunk load (`Suspense` alone doesn't; see its
-docblock).
+- That async boundary is its own build entry,
+  `@live-demo/rspress/web/lazy` (`src/web/lazy.tsx`) — not an export of the
+  `web` barrel. The barrel (`src/web/index.ts`) exports only `Button` and a
+  type (cheap to import statically); the heavy graph (CodeMirror, the
+  virtual-modules bundle) is reached exclusively through `Core`, which
+  `lazy.tsx` loads via `React.lazy`. Layouts should render `LiveDemoLazy`
+  from that subpath rather than importing `Core` directly — the barrel
+  offers no other path to it. `lazy.tsx` owns the `Suspense` boundary, the
+  loading skeleton, and the `ErrorBoundary` that catches a _rejected_ chunk
+  load (`Suspense` alone doesn't; see its docblock).
 
 **Runtime (browser, `src/web/`)**
 
-User edits code in a CodeMirror-based editor, bundled with the package. On
-change, Sucrase loads lazily via dynamic `import()` (`loadCompiler.ts`); the
-consuming site code-splits it into an async chunk that loads only on demo
-pages. `runCode.ts` walks from the entry file over `files`, transpiling
-every reachable file straight to CommonJS in one Sucrase pass
-(`transformCode.ts`; `jsx`/`typescript`/`imports` transforms) and collecting
-unresolvable specifiers as externals — recovered by scanning the emitted
-`require(...)` calls rather than a separate AST visitor, since that's
-Sucrase's own deterministic output. Once those externals are preloaded
-(`loadImports`), `moduleRunner.ts`'s small `require` evaluates each file
-with `new Function`, resolving `./Button`-style specifiers against the
-importing file's directory into a key in the `files` record — the same
-resolution rules `collectDemoFiles.ts` uses at build time, via the shared
-`pathHelpers.ts` helpers. The entry file's default export (or its last named
-export) is rendered into the host page's React tree.
+- The user edits code in a CodeMirror-based editor, bundled with the
+  package. On change, Sucrase loads lazily via dynamic `import()`
+  (`loadCompiler.ts`); the consuming site code-splits it into an async
+  chunk that loads only on demo pages.
 
-None of that — nor the editor — starts on page load. `lazy.tsx` withholds
-`<Core>` until a one-shot `IntersectionObserver`
-(`observeEnteredViewport.ts`) sees its loading skeleton come within 400px of
-the viewport, so a demo the reader never scrolls to costs nothing beyond
-that skeleton (ADR 0004's payload axis). The gate belongs at that boundary
-and can't move deeper: rendering `<Core>` is what fires its `import()`, and
-the editor rides in the same chunk group. See `lazy.tsx`'s docblock.
+- `runCode.ts` walks from the entry file over `files`, transpiling every
+  reachable file straight to CommonJS in one Sucrase pass
+  (`transformCode.ts`; `jsx`/`typescript`/`imports` transforms) and
+  collecting unresolvable specifiers as externals. Externals are recovered
+  by scanning the emitted `require(...)` calls rather than a separate AST
+  visitor, since that's Sucrase's own deterministic output.
+
+- Once externals are preloaded (`loadImports`), `moduleRunner.ts`'s small
+  `require` evaluates each file with `new Function`, resolving
+  `./Button`-style specifiers against the importing file's directory into a
+  key in the `files` record — the same resolution rules
+  `collectDemoFiles.ts` uses at build time, via the shared
+  `pathHelpers.ts` helpers. The entry file's default export (or its last
+  named export) renders into the host page's React tree.
+
+- None of that — nor the editor — starts on page load. `lazy.tsx` withholds
+  `<Core>` until a one-shot `IntersectionObserver`
+  (`observeEnteredViewport.ts`) sees its loading skeleton come within 400px
+  of the viewport, so a demo the reader never scrolls to costs nothing
+  beyond that skeleton (ADR 0004's payload axis). The gate can't move
+  deeper: rendering `<Core>` is what fires its `import()`, and the editor
+  rides in the same chunk group. See `lazy.tsx`'s docblock.
 
 ### Dependency gotchas
 
@@ -225,20 +225,18 @@ choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
 - No Node.js APIs: demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
 - `file=` can't be extensionless (`file="./Button"`), unlike the deprecated
-  `<code src>`. `@rspress/core`'s own
-  `remarkFileCodeBlock` reads `file=` literally off disk with no
-  extension-guessing, and it's appended after this plugin's remark plugins
-  unconditionally (`@rspress/core`'s `mdx/options.js` — no ordering knob), so
-  there's no way to get ahead of it short of a chained webpack loader
-  rewriting `.mdx` source text, disproportionate for this codebase.
-  `resolveFileMetaEntry.ts` (shared by the scan and `remarkPlugin`) rejects an
-  extensionless (or unsupported-extension) `file=` itself with
-  `FILE_META_EXTENSION_REQUIRED` — so it fails with a clear message instead of
-  core's unrelated ENOENT later.
-- No import can be resolved that isn't declared in some demo's source at build
-  time — the consuming bundler has to see every specifier statically to build
-  the virtual module. The one case this bites: typing a brand-new import while
-  editing a demo in the browser, which throws `EXTERNAL_IMPORT_NOT_FOUND`
+  `<code src>`. `@rspress/core`'s `remarkFileCodeBlock` reads `file=`
+  literally off disk with no extension-guessing and runs unconditionally
+  after this plugin's remark plugins (`@rspress/core`'s `mdx/options.js` —
+  no ordering knob), so this plugin can't get ahead of it.
+  `resolveFileMetaEntry.ts` (shared by the scan and `remarkPlugin`) rejects
+  an extensionless or unsupported-extension `file=` itself with
+  `FILE_META_EXTENSION_REQUIRED`, so the failure is a clear message instead
+  of core's unrelated ENOENT later.
+- No import can be resolved that isn't declared in some demo's source at
+  build time — the consuming bundler has to see every specifier statically
+  to build the virtual module. This bites typing a brand-new import while
+  editing a demo in the browser: it throws `EXTERNAL_IMPORT_NOT_FOUND`
   instead of resolving. Inherent to the design, not a gap to close (see
   `getVirtualModulesCode.ts` and `website/docs/guide/usage.mdx`).
 - No JSX closing-tag-mismatch or duplicate-prop diagnostics: Sucrase is a
@@ -248,11 +246,10 @@ choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
 - The literal text `require('pkg')` **at the start of a line inside a demo's
   string** (a code sample in a template literal, say) is read as a real
   import. `transformCode.ts` recovers specifiers by scanning emitted
-  `require(...)` calls, and Sucrase passes strings through untouched. The
-  scan is anchored to the two shapes Sucrase actually emits, so the same text
-  in a comment or mid-line is ignored; only a line-initial one still slips
-  through, and it fails loudly with `EXTERNAL_IMPORT_NOT_FOUND`, never
-  silently. The fix is to reword or re-indent the demo.
+  `require(...)` calls — the only two shapes Sucrase actually emits — so the
+  same text in a comment or mid-line is ignored, but a line-initial one still
+  slips through and fails loudly with `EXTERNAL_IMPORT_NOT_FOUND`, never
+  silently. Fix: reword or re-indent the demo.
 - An import whose binding is never used in a value position is dropped, in
   `.js`/`.jsx` as well as TypeScript, because the `typescript` transform runs
   unconditionally (see `transformCode.ts`). Bare `import './styles.css'` is
@@ -279,23 +276,20 @@ This section exists to stop defensive-code creep.
   TypeScript's contract only; `plugin.ts` doesn't check any of it at runtime.
 - **`.md` files**: an external demo injects JSX (`<LiveDemo>`), so it only
   works in `.mdx` files.
-- **Dev-mode staleness: what a recompile picks up vs. what triggers one**.
-  `remarkPlugin` re-walks a demo's whole file graph fresh on every MDX
-  compile (not just the entry, as before), so once a page recompiles,
-  everything in it — the entry and everything it imports — reflects current
-  disk content. That's a different question from what makes a page recompile
-  in the first place, which is Rspack's own dependency tracking: it watches
-  the MDX file itself and a `file=`'s literal target (core tracks that path
-  explicitly), but not a file reached only through `collectDemoFiles`'s own
-  read — something a demo's entry merely imports. Editing _only_ such a file
-  doesn't itself trigger a recompile (verified against a real dev server);
-  the edit shows up on the next recompile that happens for another reason —
-  editing the entry too, editing the MDX file, or restarting. Adding a
-  brand-new demo (either syntax) needs no restart: editing the MDX is itself
-  the recompile, and both branches resolve and walk from scratch with no scan
-  data involved. The one case that does is a demo introducing an _external_
-  import no demo used before, since `uniqueImports` feeds a virtual module
-  fixed at plugin-config time.
+- **Dev-mode staleness**: what a recompile picks up is not the same as what
+  triggers one. `remarkPlugin` re-walks a demo's whole file graph fresh on
+  every MDX compile, so once a page recompiles, the entry and everything it
+  imports reflect current disk content. What triggers that recompile is
+  Rspack's own dependency tracking, which watches the MDX file itself and a
+  `file=`'s literal target — not a file reached only through
+  `collectDemoFiles`'s own read (something a demo's entry merely imports).
+  So editing _only_ such a file doesn't itself trigger a recompile (verified
+  against a real dev server); the edit surfaces on whatever recompile
+  happens next for another reason — editing the entry, editing the MDX
+  file, or restarting. Adding a brand-new demo needs no restart: editing the
+  MDX is itself the recompile. The one edit that does need a restart is a
+  demo introducing an _external_ import no demo used before, since
+  `uniqueImports` feeds a virtual module fixed at plugin-config time.
 
 ## Troubleshooting
 
@@ -324,21 +318,20 @@ virtual module instead of importing the class.
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import"): confirm it's a
   real dependency and that it reached the virtual module
   (`getVirtualModulesCode.ts`).
-- **`PARSE_FAILED`**: thrown build-side by `readAndParseFile.ts` (oxc) and
-  now also runtime-side by `transformCode.ts` (Sucrase) when a demo author's
-  edit introduces a syntax error. Same code and message shape either way; the
+- **`PARSE_FAILED`**: thrown build-side by `readAndParseFile.ts` (oxc), or
+  runtime-side by `transformCode.ts` (Sucrase) when a demo author's edit
+  introduces a syntax error. Same code and message shape either way; the
   codeframe comes from oxc directly on the build side and from
   `formatCodeframe.ts` (hand-rolled, matched to oxc's shape) on the runtime
   side, since Sucrase doesn't produce one itself.
 
   Note which side you get. Saving a syntactically broken demo file **to
-  disk** fails the page's MDX compile, because `collectDemoFiles` parses
-  every file in the graph — the entry included, for its dependency list —
-  from inside the remark transform. Only edits made in the browser editor
-  reach the runtime path and its error overlay. This is deliberate: it's the
-  same place `IMPORT_NOT_RESOLVED` already surfaces from, and a broken file
-  on disk should fail loudly rather than ship a page whose demo explains the
-  problem only after it loads.
+  disk** fails the page's MDX compile — `collectDemoFiles` parses every file
+  in the graph, entry included, from inside the remark transform. Only edits
+  made in the browser editor reach the runtime path and its error overlay.
+  Deliberate: same surfacing point as `IMPORT_NOT_RESOLVED`, and a broken
+  file on disk should fail loudly rather than ship a page whose demo
+  explains the problem only after it loads.
 
 - **`PROP_PARSE_FAILED`**: the plugin's `JSON.stringify`d props and the
   runtime's `JSON.parse` are out of sync. Check `parseProps.ts`.
