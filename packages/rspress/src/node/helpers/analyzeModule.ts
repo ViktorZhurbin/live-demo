@@ -23,8 +23,8 @@ import { readAndParseFile } from "./readAndParseFile";
 /**
  * Per plugin-instance, not module-level, so two plugin instances (e.g. two
  * `vitest` runs in the same process) never share cached file contents — see
- * `docs/ongoing/upstream-plugins-actions.md`'s "Closed" section on why
- * `uniqueImports` follows the same rule.
+ * this package's CLAUDE.md, "Build-time state is per plugin instance", for
+ * why `uniqueImports` follows the same rule.
  */
 export type ModuleCache = Map<
 	string,

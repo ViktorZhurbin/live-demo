@@ -6,9 +6,9 @@
  *
  * This is the **build-time** half of import resolution: it walks the
  * candidates from `getPossiblePaths` (`shared/pathHelpers.ts`) against the
- * real filesystem. The runtime half, `pluginResolveModules.ts`, walks the
- * same candidates against the in-memory `files` record. Both must agree —
- * change one, change the other, and see
+ * real filesystem. The runtime half, `moduleRunner.ts`'s
+ * `resolveLocalImport`, walks the same candidates against the in-memory
+ * `files` record. Both must agree — change one, change the other, and see
  * `tests/integration/buildToRuntime.test.ts`, the only test spanning the seam.
  */
 import fs from "node:fs";

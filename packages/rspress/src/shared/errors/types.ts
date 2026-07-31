@@ -26,32 +26,36 @@ export type ErrorTokens = {
 	/**
 	 * A `file="..."` meta value doesn't start with `./`, `../`, `/`, or
 	 * `<root>/` — the same four prefixes @rspress/core's own
-	 * `remarkFileCodeBlock` accepts. Thrown by the pre-scan
-	 * (`resolvePrefixedPath`), before core ever sees the file, so a malformed
-	 * prefix fails clearly instead of resolving against the wrong base.
+	 * `remarkFileCodeBlock` accepts. Thrown via `resolvePrefixedPath`, called
+	 * from `resolveFileMetaEntry.ts` — shared by the scan and `remarkPlugin`,
+	 * whichever resolves the reference first — before core ever sees the
+	 * file, so a malformed prefix fails clearly instead of resolving against
+	 * the wrong base.
 	 */
 	UNSUPPORTED_FILE_PREFIX: ImportResolutionTokens;
 	/**
 	 * A `file="..."` value has no extension, or one outside the supported set.
-	 * Thrown by the pre-scan (`visitFilePaths.ts`) before `resolveFileInfo` ever
-	 * runs: `resolveFileInfo`'s own extension-guessing (`getPossiblePaths`)
-	 * would happily resolve an extensionless path, but @rspress/core's real
-	 * `remarkFileCodeBlock` reads `file=` literally off disk and has no such
-	 * guessing — so letting the scan succeed here would just move the failure
-	 * to a later, unrelated ENOENT at MDX-compile time. Deliberately doesn't
-	 * apply to the deprecated `<code src>` alias, which keeps its existing
-	 * extensionless resolution.
+	 * Thrown by `resolveFileMetaEntry.ts` — shared by the scan and
+	 * `remarkPlugin`, whichever resolves the reference first — before
+	 * `resolveFileInfo` ever runs: `resolveFileInfo`'s own extension-guessing
+	 * (`getPossiblePaths`) would happily resolve an extensionless path, but
+	 * @rspress/core's real `remarkFileCodeBlock` reads `file=` literally off
+	 * disk and has no such guessing — so letting the scan succeed here would
+	 * just move the failure to a later, unrelated ENOENT at MDX-compile time.
+	 * Deliberately doesn't apply to the deprecated `<code src>` alias, which
+	 * keeps its existing extensionless resolution.
 	 */
 	FILE_META_EXTENSION_REQUIRED: ImportResolutionTokens;
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
-	/** Optional: getFnFromString is callable without an entry file name (tests, direct use). */
+	/** Optional: getEntryResult is callable without an entry file name (tests, direct use). */
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };
 	PROVIDER_MISSING: undefined;
 	/**
-	 * A named import the resolved package doesn't actually export. Checked by
-	 * `runCode.ts` before evaluation, so it's a normal thrown LiveDemoError —
-	 * unlike EXTERNAL_IMPORT_NOT_FOUND below.
+	 * A named import the resolved package doesn't actually export. Thrown by
+	 * `moduleRunner.ts`'s `wrapExternal` — a Proxy `get` trap that fires when
+	 * demo code reads the missing property, during evaluation. See its
+	 * docblock for why the check lives there instead of an upfront scan.
 	 */
 	UNDEFINED_NAMED_IMPORT: { importName: string; pkg: string };
 	/** Thrown as generated code inside a demo bundle (see messages.ts header). */
@@ -76,6 +80,6 @@ export type LiveDemoErrorMessages = {
 };
 
 /** Structured error payload: data + code, voice lives in messages.ts. */
-export interface LiveDemoErrorPayload extends LiveDemoErrorContent {
+export type LiveDemoErrorPayload = LiveDemoErrorContent & {
 	code: ErrorCode;
-}
+};

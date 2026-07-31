@@ -182,6 +182,10 @@ error (it doesn't fail quietly). CI (`.github/workflows/ci.yml`) runs
   A docblock past ~8 lines is a smell. Say the rationale once in the file
   that owns it, and have other call sites reference it instead of re-explaining.
 
+### Function declaration style
+
+Use arrow functions by default. Leverage named function declaration hoisting to keep local helpers at the bottom of the file.
+
 ### Build-time state is per plugin instance
 
 Every piece of state that belongs to a _build_ — `uniqueImports`,
@@ -226,13 +230,16 @@ choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
 - `file=` can't be extensionless (`file="./Button"`), unlike the deprecated
   `<code src>`. `@rspress/core`'s `remarkFileCodeBlock` reads `file=`
-  literally off disk with no extension-guessing and runs unconditionally
-  after this plugin's remark plugins (`@rspress/core`'s `mdx/options.js` —
-  no ordering knob), so this plugin can't get ahead of it.
-  `resolveFileMetaEntry.ts` (shared by the scan and `remarkPlugin`) rejects
-  an extensionless or unsupported-extension `file=` itself with
-  `FILE_META_EXTENSION_REQUIRED`, so the failure is a clear message instead
-  of core's unrelated ENOENT later.
+  literally off disk with no extension-guessing, and core registers it
+  _before_ any plugin's remark plugins (`@rspress/core`'s `mdx/options.js`
+  spreads `remarkPluginsFromPlugins` last, with no ordering knob) — so within
+  the remark pass this plugin can't get ahead of it, and an extensionless
+  `file=` would fail as core's unrelated ENOENT. What gets ahead of it is the
+  `routeGenerated` scan, which runs before any MDX compiles:
+  `resolveFileMetaEntry.ts` (shared by the scan and `remarkPlugin`) rejects an
+  extensionless or unsupported-extension `file=` there with
+  `FILE_META_EXTENSION_REQUIRED`, so the failure is a clear message instead.
+  Guarded by `tests/node/helpers/resolveFileMetaEntry.test.ts`.
 - No import can be resolved that isn't declared in some demo's source at
   build time — the consuming bundler has to see every specifier statically
   to build the virtual module. This bites typing a brand-new import while
@@ -312,9 +319,9 @@ virtual module instead of importing the class.
 - **`FILE_META_EXTENSION_REQUIRED`**: a `file=` value has no extension, or an
   unsupported one. Thrown by `resolveFileMetaEntry.ts` before `resolveFileInfo`
   runs — from both the scan and `remarkPlugin`, whichever resolves the
-  reference first — so an extensionless `file=` fails here instead of as an
-  unrelated ENOENT from `@rspress/core`'s own MDX compile later (see
-  "Limitations").
+  reference first. In practice that's the scan, which is what lets an
+  extensionless `file=` fail here rather than as an unrelated ENOENT from
+  `@rspress/core`'s own MDX compile (see "Limitations").
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import"): confirm it's a
   real dependency and that it reached the virtual module
   (`getVirtualModulesCode.ts`).

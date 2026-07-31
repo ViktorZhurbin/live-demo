@@ -78,7 +78,8 @@ export const collectDemoFiles = ({
 	// Each file is keyed by its path relative to the entry file's directory,
 	// posix-style. Keying by base name alone would let `buttons/styles.ts` and
 	// `cards/styles.ts` overwrite each other; the runtime resolver
-	// (`pluginResolveModules`) resolves imports against these same keys.
+	// (`moduleRunner.ts`'s `resolveLocalImport`) resolves imports against
+	// these same keys.
 	const entryDir = path.dirname(entryPath);
 	const toFilePath = (absolutePath: string) =>
 		path.relative(entryDir, absolutePath).split(path.sep).join("/");

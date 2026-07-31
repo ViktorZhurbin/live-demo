@@ -15,9 +15,9 @@ import type { Program } from "@oxc-project/types";
  * (Sucrase), so they're skipped here too; mixed imports (`import { type A, B }`) keep
  * `importKind: "value"` and aren't affected.
  */
-export function extractSourcePath(
+export const extractSourcePath = (
 	statement: Program["body"][number],
-): string | undefined {
+): string | undefined => {
 	if (statement.type === "ImportDeclaration") {
 		if (statement.importKind === "type") return undefined;
 		return statement.source.value;
@@ -29,4 +29,4 @@ export function extractSourcePath(
 		return statement.source.value;
 	}
 	return undefined;
-}
+};

@@ -11,7 +11,7 @@
  * importsMap.set('react', () => import('react'));
  *
  * export async function loadImports(importNames) { ... }
- * function getImport(importName, getDefault) { ... }
+ * function getImport(importName) { ... }
  * export default getImport
  * ```
  * Consumed in the browser as `import getImport from '_live_demo_virtual_modules'`.
@@ -21,7 +21,7 @@
  * the union of externals across every demo on every page. Static imports made
  * the consuming bundler pull all of them into the demo-runtime chunk, so a
  * counter demo paid for another page's three.js. Thunks let each external
- * code-split, and `bundleCode` awaits only the ones its demo actually
+ * code-split, and `runCode` awaits only the ones its demo actually
  * imports before evaluating it.
  *
  * `getImport` stays synchronous: the evaluated bundle calls it during module
@@ -64,15 +64,11 @@ export async function loadImports(importNames) {
   )
 }
 
-function getImport(importName, getDefault) {
+function getImport(importName) {
   const result = ${RESOLVED_MAP}.get(importName)
 
   if (!result) {
     throw new Error(\`${importNotFoundMessage}\`)
-  }
-
-  if (getDefault && typeof result === "object") {
-    return result.default || result
   }
 
   return result

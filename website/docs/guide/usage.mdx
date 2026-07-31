@@ -100,8 +100,10 @@ form and isn't coming to `file=` (see the note above).
 ## Imports
 
 Imports are resolved at build time, so every package a demo uses has to be
-installed in your docs site's `package.json`. Adding or removing an import, or
-adding a brand-new demo, needs a dev server restart.
+installed in your docs site's `package.json`. One edit needs a dev server
+restart: introducing a package no demo on the site imported before. Everything
+else — editing a demo, adding a brand-new one, dropping an import — is picked
+up by the normal recompile.
 
 `react` and `@rspress/core/theme` are available in every demo without being
 listed anywhere. So is `Button` from `@live-demo/rspress/web` — the plugin is

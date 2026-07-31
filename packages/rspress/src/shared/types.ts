@@ -20,12 +20,13 @@ export type LiveDemoPropsFromPlugin = {
 	 *
 	 * A prefetch hint, not a contract: the runtime uses it to start loading
 	 * the demo's externals at mount, in parallel with the compiler, instead of
-	 * discovering them only after bundling (see `CodeRunner`). `bundleCode`
+	 * discovering them only after bundling (see `CodeRunner`). `runCode`
 	 * still resolves whatever the bundle actually imports, so an edit that adds
 	 * an import is handled without this list.
 	 *
-	 * Absent for inline demos — their source is never parsed, so their imports
-	 * aren't known at build time (see `remarkPlugin`'s Transform 2).
+	 * Absent for inline demos: their source is parsed for imports too
+	 * (`collectInlineImports.ts`, via `visitFilePaths.ts`), and those imports
+	 * do reach the virtual module — only this prop isn't populated for them.
 	 */
 	externalImports?: string[];
 	options?: LiveDemoPluginOptions["ui"];

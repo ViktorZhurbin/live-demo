@@ -4,7 +4,11 @@
  * same tokens, quote-stripping included, as @rspress/core's own
  * `remarkFileCodeBlock` (`dist/node/mdx/remarkPlugins/fileCodeBlock.js`'s
  * `parseFileFromMeta`) — not a byte-for-byte reimplementation of its
- * tokenizer.
+ * tokenizer. The one known divergence, deliberately left alone: core splits
+ * on a literal `' '` where this splits on `/\s+/`, so a tab-separated meta
+ * parses here and yields a corrupt path in core. Core fails loudly on its own
+ * in that case, and matching its prefix rules — the part a disagreement would
+ * actually silently mis-resolve — is handled in `resolvePrefixedPath`.
  *
  * `playground` is accepted as an alias for `live`, so a site migrating off
  * `@rspress/plugin-playground` can swap the plugin registration without

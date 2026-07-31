@@ -31,7 +31,9 @@ const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
 // Wrapper width in px below which panels stack vertically instead of side by
 // side. Mirrored by `lazyFallback.css`'s own 550px breakpoint, so the loading
 // skeleton doesn't jump shape when `Core` mounts on a narrow screen — keep
-// the two in sync.
+// the two in sync, strictness included: that file uses `@container (width <
+// 550px)` to match this `<` exactly, since CSS `max-width` would also fire
+// at 550 itself.
 const VERTICAL_THRESHOLD = 550;
 
 export const ResizablePanels = () => {
@@ -154,6 +156,12 @@ export const ResizablePanels = () => {
 				style={{ flexDirection: isVertical ? "column" : "row" }}
 				orientation={isVertical ? "vertical" : "horizontal"}
 			>
+				{/*
+				 * Stacked, the preview goes on top — the rendered result is what a
+				 * reader on a narrow screen should see first. `lazyFallback.css`
+				 * mirrors this order (via `column-reverse`) so the panes don't trade
+				 * places when Core mounts; flipping it here means flipping it there.
+				 */}
 				{isVertical ? previewPanel : editorPanel}
 				<Separator className={separatorClasses} />
 				{isVertical ? editorPanel : previewPanel}

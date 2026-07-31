@@ -11,7 +11,7 @@ describe("getVirtualModulesCode", () => {
 		const result = getVirtualModulesCode(imports);
 
 		expect(result).toContain("importsMap.set('react', () => import('react'))");
-		expect(result).toContain("function getImport(importName, getDefault)");
+		expect(result).toContain("function getImport(importName)");
 		expect(result).toContain("export default getImport");
 	});
 
@@ -33,7 +33,7 @@ describe("getVirtualModulesCode", () => {
 		const result = getVirtualModulesCode(imports);
 
 		// Should still include the getImport function
-		expect(result).toContain("function getImport(importName, getDefault)");
+		expect(result).toContain("function getImport(importName)");
 		expect(result).toContain("export default getImport");
 
 		// Should not register anything
@@ -91,14 +91,6 @@ describe("getVirtualModulesCode", () => {
 		expect(result).toContain("Can't resolve");
 	});
 
-	it("should include default export handling logic", () => {
-		const imports = new Set(["react"]);
-		const result = getVirtualModulesCode(imports);
-
-		expect(result).toContain('if (getDefault && typeof result === "object")');
-		expect(result).toContain("return result.default || result");
-	});
-
 	/**
 	 * Everything above asserts on the generated *text*. This block runs it.
 	 *
@@ -125,7 +117,7 @@ describe("getVirtualModulesCode", () => {
 			fs.writeFileSync(filePath, getVirtualModulesCode(imports));
 
 			return (await import(filePath)) as {
-				default: (name: string, getDefault?: boolean) => unknown;
+				default: (name: string) => unknown;
 				loadImports: (names: readonly string[]) => Promise<void>;
 			};
 		};
@@ -158,18 +150,6 @@ describe("getVirtualModulesCode", () => {
 			// Registered in importsMap, but loadImports was never called, so the
 			// thunk is unresolved — this is what a missed preload looks like.
 			expect(() => getImport("node:path")).toThrow(/Can't resolve/);
-		});
-
-		it("unwraps the default export when asked", async () => {
-			const { default: getImport, loadImports } = await evaluateModule(
-				new Set(["node:path"]),
-			);
-
-			await loadImports(["node:path"]);
-
-			const asDefault = getImport("node:path", true) as { join?: unknown };
-
-			expect(asDefault.join).toBeTypeOf("function");
 		});
 
 		it("loads each import once across repeated calls", async () => {

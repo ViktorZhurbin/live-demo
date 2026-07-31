@@ -78,17 +78,30 @@
 }
 
 /* Mirrors ResizablePanels' own 550px switch to a stacked, taller layout
-   (`verticalThreshold` / `.vertical`), so the skeleton doesn't change shape
-   or jump height when Core mounts on a narrow screen. */
-@container (max-width: 550px) {
+   (`VERTICAL_THRESHOLD` / `.vertical`), so the skeleton doesn't change shape,
+   height, or pane order when Core mounts on a narrow screen.
+
+   `column-reverse`, not `column`: stacked, ResizablePanels renders the
+   *preview* first (`isVertical ? previewPanel : editorPanel`), so matching it
+   means flipping this DOM order rather than keeping it. Reversing in CSS
+   rather than reordering the markup keeps one pair of children serving both
+   orientations — and the children are inert placeholder divs, so visual order
+   diverging from DOM order costs nothing here. The divider moves to the
+   preview's bottom edge accordingly, since the preview is now on top.
+
+   Range syntax (`width < 550px`), not `max-width: 550px`: `max-width` is
+   inclusive, so at exactly 550px it would stack while ResizablePanels'
+   `width < VERTICAL_THRESHOLD` stays horizontal — the one width where these
+   two disagree is precisely the one the shared constant is meant to pin. */
+@container (width < 550px) {
 	.live-demo-fallback-panels {
-		flex-direction: column;
+		flex-direction: column-reverse;
 		height: 600px;
 	}
 
 	.live-demo-fallback-preview {
 		border-left: none;
-		border-top: var(--live-demo-layout-border);
+		border-bottom: var(--live-demo-layout-border);
 	}
 }
 

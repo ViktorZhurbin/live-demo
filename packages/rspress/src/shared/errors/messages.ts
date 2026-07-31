@@ -77,17 +77,20 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "Wrap this component tree in <LiveDemoProvider>.",
 	}),
 
-	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
-	// template literal in generated code. `${importName}` there is meant to
-	// stay as live interpolation (importName isn't known until getImport() is
-	// called at demo-runtime). Never add a backtick or another `${...}` to
-	// this message: either would corrupt that generated template literal.
 	UNDEFINED_NAMED_IMPORT: ({ importName, pkg }) => ({
 		title: "Import is undefined",
 		message: `Import '${importName}' from '${pkg}' is undefined.`,
 		hint: "This export may not exist in this version of the package.",
 	}),
 
+	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
+	// template literal in generated code. `${importName}` there is meant to
+	// stay as live interpolation (importName isn't known until getImport() is
+	// called at demo-runtime). Never add a backtick or another `${...}` to
+	// this message: either would corrupt that generated template literal.
+	// `getVirtualModulesCode.test.ts`'s "executing the generated module" block
+	// writes that module to disk and imports it, so such an edit fails there
+	// rather than only in a browser.
 	EXTERNAL_IMPORT_NOT_FOUND: ({ importName }) => ({
 		title: "Can't resolve import",
 		message: `Can't resolve ${importName}.`,
