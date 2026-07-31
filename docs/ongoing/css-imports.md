@@ -87,8 +87,11 @@ from `plugin-preview` and now makes users pass `@rsbuild/plugin-sass` through
 
 1. Build CSS Modules support, not plain CSS imports, and say so in the docs —
    the scoping is the feature, not an implementation detail.
-2. The file-collection refactor (moved file collection into remark;
-   [upstream-plugins-actions.md](./upstream-plugins-actions.md)'s "Done"
-   section) already landed and touches the same `collectDemoFiles` path this
-   needs to change — read that entry's cache design before starting.
+2. The file-collection refactor already landed and touches the same
+   `collectDemoFiles` path this needs to change: `remarkPlugin` resolves and
+   walks the demo graph itself on every MDX compile, with `analyzeModule.ts`
+   caching per `(absolutePath, mtimeMs)` in a `Map` threaded through
+   `collectDemoFiles`. Read that cache before starting — a per-file `<style>`
+   element has to key off it, or an 800ms-debounced recompile injects a new
+   node every pass.
 3. Leave Rollup out.

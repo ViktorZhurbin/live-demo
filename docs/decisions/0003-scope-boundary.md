@@ -152,8 +152,10 @@ resize handle, and `ResizablePanels` already exists, so it reads as a small
 step. It isn't: CSS media queries respond to the viewport, not to a container,
 so dragging the preview pane wider will not fire a demo's
 `@media (max-width: 600px)` rule. The feature would look implemented and not
-work. Genuine viewport testing needs an iframe — the exact thing
-`docs/ongoing/upstream-plugins-takeaways.md` concludes is not worth copying.
+work. Genuine viewport testing needs an iframe — the exact thing this project
+declined to copy from `@rspress/plugin-preview`, whose `iframe-fixed` /
+`iframe-follow` modes cost a second complete Rsbuild instance with its own dev
+server.
 
 **Props tables pass the test and are still out.** `react-docgen-typescript` runs
 at build time and needs no second pipeline, so the architectural test clears it.
@@ -190,10 +192,9 @@ same distance away.
   rather than a separate one.
 - **URL-encoded demo state.** Ring 1, not an exploration — encoding files into
   the URL needs no backend, which is what sank the original InstantDB version.
-  Listed here only because `docs/ongoing/upstream-plugins-takeaways.md`'s Gemini
-  section claims this plugin already has shareable links. It does not; that
-  claim is fabricated, along with the rest of that section's assertions about
-  this repo. (What it garbled is real, though — the _original_ had sharing.)
+  Listed here only to correct a claim that has circulated in this repo's own
+  notes: **this plugin does not have shareable links.** The _original_ did, over
+  a hosted database, which is what that claim garbled.
 
 ## Consequences
 
@@ -205,10 +206,5 @@ same distance away.
 - **The "Isolation model" entry under "Deliberately not handled" now points
   here.** Demos are not sandboxed because they are mounted into the host React
   tree, which is a scope commitment, not a decision to skip defensive code.
-- **`docs/ongoing/upstream-plugins-actions.md`'s per-block meta options and
-  library self-aliasing items** sit inside Ring 1 and need no further scope
-  argument.
-  Its deferred `previewCodeTransform` entry is also Ring 1 — deferred on
-  demand, not on scope.
 - **The `README.md` "Compared to `@rspress/plugin-playground`" section should
   stay Ring 1 claims only.** Comparing against Storybook invites mode 3.

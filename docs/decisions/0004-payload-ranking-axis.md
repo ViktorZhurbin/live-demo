@@ -5,11 +5,6 @@
 - **Scope:** all of `packages/rspress`. A prioritization decision, one
   architectural invariant, and how to tell a real payload win from a
   plausible one.
-- **Supersedes:** nothing. **Superseded by:** nothing.
-- **Absorbs:** the "Payload is now a first-class axis" note and the
-  chunk-boundary rule below, both from
-  `docs/ongoing/upstream-plugins-actions.md` — durable principles living in
-  a document that gets deleted.
 - **Depends on:** [ADR 0003](./0003-scope-boundary.md) for what's in scope.
   This ADR only ranks things 0003 has already admitted.
 
