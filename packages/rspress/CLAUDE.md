@@ -4,10 +4,6 @@ Implementation of the Live Demo rspress plugin. See the [root
 CLAUDE.md](../../CLAUDE.md) for what the plugin does and how this package
 fits in the monorepo.
 
-## Next goals
-
-- Make changes that simplify adoption and the switch from the official plugin: align APIs and behaviors (where it makes sense).
-
 ## Library references
 
 - `@mantine/hooks`: https://mantine.dev/llms.txt
@@ -75,22 +71,12 @@ Two phases:
   prepended layout `import` (`createLayoutImportNode.ts`) so only those
   pages pull in the runtime graph.
 
-- Per-page injection alone isn't enough. The default layout
-  (`static/LiveDemo.tsx`) loads `Core` behind `React.lazy`: a static
-  top-level import would get scope-hoisted by the consumer's bundler into a
-  chunk shared by every page, regardless of which ones import the layout
-  (mechanism in `src/web/lazy.tsx`'s docblock).
-
-- That async boundary is its own build entry,
-  `@live-demo/rspress/web/lazy` (`src/web/lazy.tsx`) — not an export of the
-  `web` barrel. The barrel (`src/web/index.ts`) exports only `Button` and a
-  type (cheap to import statically); the heavy graph (CodeMirror, the
-  virtual-modules bundle) is reached exclusively through `Core`, which
-  `lazy.tsx` loads via `React.lazy`. Layouts should render `LiveDemoLazy`
-  from that subpath rather than importing `Core` directly — the barrel
-  offers no other path to it. `lazy.tsx` owns the `Suspense` boundary, the
-  loading skeleton, and the `ErrorBoundary` that catches a _rejected_ chunk
-  load (`Suspense` alone doesn't; see its docblock).
+- Per-page injection alone isn't enough: the runtime graph (CodeMirror, the
+  virtual-modules bundle) still has to stay out of every page's chunk. That's
+  what `src/web/lazy.tsx` is for — its own build entry
+  (`@live-demo/rspress/web/lazy`), not an export of the `web` barrel. Layouts
+  render `LiveDemoLazy` from that subpath rather than importing `Core`
+  directly; see its docblock for why and how.
 
 **Runtime (browser, `src/web/`)**
 
@@ -100,11 +86,9 @@ Two phases:
   chunk that loads only on demo pages.
 
 - `runCode.ts` walks from the entry file over `files`, transpiling every
-  reachable file straight to CommonJS in one Sucrase pass
-  (`transformCode.ts`; `jsx`/`typescript`/`imports` transforms) and
-  collecting unresolvable specifiers as externals. Externals are recovered
-  by scanning the emitted `require(...)` calls rather than a separate AST
-  visitor, since that's Sucrase's own deterministic output.
+  reachable file to CommonJS and collecting unresolvable specifiers as
+  externals; see `transformCode.ts`'s docblock for how the Sucrase pass and
+  specifier extraction work.
 
 - Once externals are preloaded (`loadImports`), `moduleRunner.ts`'s small
   `require` evaluates each file with `new Function`, resolving
@@ -252,11 +236,9 @@ choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
   whatever that produces instead of failing with a clear parse error.
 - The literal text `require('pkg')` **at the start of a line inside a demo's
   string** (a code sample in a template literal, say) is read as a real
-  import. `transformCode.ts` recovers specifiers by scanning emitted
-  `require(...)` calls — the only two shapes Sucrase actually emits — so the
-  same text in a comment or mid-line is ignored, but a line-initial one still
-  slips through and fails loudly with `EXTERNAL_IMPORT_NOT_FOUND`, never
-  silently. Fix: reword or re-indent the demo.
+  import and fails loudly with `EXTERNAL_IMPORT_NOT_FOUND`, never silently.
+  Fix: reword or re-indent the demo. See `transformCode.ts`'s `REQUIRE_RE`
+  comment for why only that position is ambiguous.
 - An import whose binding is never used in a value position is dropped, in
   `.js`/`.jsx` as well as TypeScript, because the `typescript` transform runs
   unconditionally (see `transformCode.ts`). Bare `import './styles.css'` is
