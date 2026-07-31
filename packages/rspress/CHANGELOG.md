@@ -57,7 +57,8 @@ Upstream (`@rspress/plugin-playground`) registers the playground via
 `globalComponents`/`globalStyles`, so every page on the site pays for the
 demo runtime whether or not it has a demo. This plugin injects the layout
 import only on pages that actually have one, keeping the demo runtime graph
-(CodeMirror, Babel) out of every other page's bundle.
+(CodeMirror, the compiler, every collected external) out of every other page's
+bundle.
 
 #### Lazy external imports, not static ones
 
@@ -92,10 +93,11 @@ The runtime used to Babel-transpile a demo's files, bundle them with
 file straight to CommonJS and evaluates them lazily through a small
 `require` that resolves relative imports against the demo's `files` and
 caches each module's `exports`. Same demo behavior. Measured on the real
-deployment (Cloudflare-served, brotli): 341.3 KB less to download on a page
-with a demo (945.8 KB uncompressed) — for `guide/external/basic`, the
-compiler payload drops from Babel + Rollup JS (112.2 KB) + Rollup's wasm
-binary (229.1 KB) to Babel alone.
+deployment (Cloudflare-served, brotli) when this landed, with Babel still the
+compiler: 341.3 KB less to download on a page with a demo (945.8 KB
+uncompressed) — for `guide/external/basic`, Rollup's JS (112.2 KB) and wasm
+binary (229.1 KB) both go, leaving the compiler alone. Sucrase replaced Babel
+on top of that, above.
 
 #### A demo loads when it nears the viewport, not on page load
 
@@ -152,15 +154,17 @@ on the old wording, e.g. `"[LiveDemo]: Couldn't resolve..."` is now
 `"[live-demo] Import couldn't be resolved\nCouldn't resolve..."`. Runtime
 errors thrown by demo code itself are unchanged.
 
-#### A bad named external import no longer gets its own error
+#### A bad named external import now throws where it's used, not before the demo runs
 
-Importing a named export a package doesn't have (a typo, or an export
-removed in a newer version) used to throw a dedicated "Import 'x' from 'y'
-is undefined" error. Catching that required knowing, per import, whether it
-was named or default/namespace — information the new CommonJS `require`
-doesn't carry, only the demo's own `getImport`/`require` calls. The failure
-now surfaces the same way native JS would: the value is `undefined`, and
-using it throws whatever error that produces (e.g. "x is not a function").
+Importing a named export a package doesn't have (a typo, or an export removed
+in a newer version) still throws "Import 'x' from 'y' is undefined", but at
+the point demo code _reads_ the missing property rather than up front, before
+any demo code runs. The error names the property directly, so it points at the
+line that's wrong.
+
+One consequence: feature-detecting a missing export by reading it
+(`if (pkg.maybeThing)`) now throws instead of seeing `undefined`. Use
+`'maybeThing' in pkg`, which is unaffected.
 
 #### Circular local imports follow Node's CommonJS semantics, not a bundler's
 
@@ -245,17 +249,34 @@ typo'd path) used to surface Rollup's own unresolved-import message. It now
 throws the same `IMPORT_NOT_RESOLVED` error the build step throws for the
 same mistake, naming the import and the file that imports it.
 
-#### Inline ` ```lang live ` matching no longer triggers on substrings
+#### Only a bare `live` token turns a code block into a demo
 
-The remark transform checked `node.meta?.includes("live")`, so any meta
-string merely containing "live" (e.g., ` ```jsx live-off `, `alive`, `livestream`)
-was treated as a live demo. It now splits the meta string on whitespace
-and matches "live" as a whole token.
+The remark transform checked `node.meta?.includes("live")`, so any meta merely
+containing the word became an editor — ` ```jsx live-off `, `alive`,
+`livestream`, and someone else's quoted value in
+` ```jsx title="A live demo" `. Meta is now tokenized with quotes respected, so
+only a bare `live` / `playground` token counts; a `file=` value containing
+spaces survives too.
 
 #### The first compile starts immediately, not after the edit debounce
 
 Previously the preview waited out the same debounce used for edits before
 its first compile. The first compile now starts immediately on load.
+
+#### A demo in an imported `.mdx` partial now resolves its imports
+
+A demo living in a file that isn't itself a page — an `_`-prefixed partial
+imported into one, say — was transformed into a working editor, but any
+package it imported failed at runtime with "Can't resolve …", since only
+routed pages were scanned for imports. Restarting the dev server didn't help
+either — a partial is never in the route table, so no run of that scan ever
+reached it. Pages' `.mdx` imports are now followed too.
+
+#### Inline demos start loading their imports at mount
+
+Inline demos now carry the same build-time import list external demos do, so
+their packages start downloading alongside the compiler instead of after the
+first compile.
 
 #### The preview pane shows a loading skeleton
 
@@ -265,6 +286,10 @@ render stays on screen instead of flashing a skeleton on every keystroke.
 
 ### Newly allowed
 
+- **The plugin's option types are exported**: `LiveDemoPluginOptions`,
+  `ResizablePanelsOptions`, and `FileTabsOptions` can be imported from
+  `@live-demo/rspress`, so a config hoisted out of the `liveDemoPluginRspress()`
+  call can still be typed.
 - **Circular imports** no longer fail the build.
 - **Directory imports** resolve to `Button/index.tsx`.
 - **`.ts` files with type annotations** now compile; previously only `.tsx`

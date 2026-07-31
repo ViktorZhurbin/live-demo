@@ -22,10 +22,10 @@ import { LiveDemoError } from "~shared/errors";
 let transform: typeof SucraseTransform | undefined;
 let loading: Promise<void> | undefined;
 
-export function ensureCompilerLoaded(): Promise<void> {
+export const ensureCompilerLoaded = (): Promise<void> => {
 	loading ??= load();
 	return loading;
-}
+};
 
 async function load(): Promise<void> {
 	try {
@@ -36,7 +36,7 @@ async function load(): Promise<void> {
 	}
 }
 
-export function getTransform(): typeof SucraseTransform {
+export const getTransform = (): typeof SucraseTransform => {
 	if (!transform) throw new LiveDemoError("COMPILER_LOAD_FAILED");
 	return transform;
-}
+};

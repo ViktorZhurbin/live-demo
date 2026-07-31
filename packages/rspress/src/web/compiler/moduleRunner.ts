@@ -14,11 +14,11 @@ import type { LiveDemoFiles } from "~shared/types";
  * filesystem. `getPossiblePaths` is the single definition of the candidate
  * list — never re-implement it here.
  */
-export function resolveLocalImport(
+export const resolveLocalImport = (
 	files: LiveDemoFiles,
 	fromDir: string,
 	specifier: string,
-): string | undefined {
+): string | undefined => {
 	const filePath = resolveRelativePath(fromDir, specifier);
 
 	for (const candidate of getPossiblePaths(filePath)) {
@@ -26,7 +26,7 @@ export function resolveLocalImport(
 	}
 
 	return undefined;
-}
+};
 
 /**
  * Evaluates a demo's already-transpiled files as a small CommonJS graph,
@@ -50,10 +50,10 @@ export function resolveLocalImport(
  * full DOM/global access. Accepted for a docs tool whose demo authors are as
  * trusted as the docs themselves (see the package CLAUDE.md).
  */
-export function createModuleRunner(
+export const createModuleRunner = (
 	files: LiveDemoFiles,
 	transpiled: Map<string, string>,
-) {
+) => {
 	const cache = new Map<string, { exports: Record<string, unknown> }>();
 	const externalCache = new Map<string, Record<string, unknown>>();
 
@@ -61,7 +61,7 @@ export function createModuleRunner(
 		if (!isRelativeImport(specifier)) {
 			let wrapped = externalCache.get(specifier);
 			if (!wrapped) {
-				wrapped = wrapExternal(getImport(specifier), specifier);
+				wrapped = wrapExternal(loadExternal(specifier), specifier);
 				externalCache.set(specifier, wrapped);
 			}
 			return wrapped;
@@ -114,6 +114,26 @@ export function createModuleRunner(
 	}
 
 	return { evaluate };
+};
+
+/**
+ * The virtual module throws a plain `Error` when a specifier isn't in its map
+ * — it's generated source text and can't import `LiveDemoError` (see
+ * `getVirtualModulesCode.ts`). Re-throwing here, the one place demo code
+ * actually reaches an external from, is what gets it rendered with the same
+ * title/hint treatment as every other error instead of as a bare message.
+ * `getImport` fails for exactly one reason, so nothing else is relabeled.
+ */
+function loadExternal(specifier: string): unknown {
+	try {
+		return getImport(specifier);
+	} catch (cause) {
+		throw new LiveDemoError(
+			"EXTERNAL_IMPORT_NOT_FOUND",
+			{ importName: specifier },
+			{ cause },
+		);
+	}
 }
 
 // Read by language/runtime machinery rather than by demo code naming an
@@ -179,10 +199,10 @@ function wrapExternal(resolved: unknown, pkg: string): Record<string, unknown> {
  * are the documented form (`export const App = ...`), so this is the common
  * case, not a fallback for a mistake.
  */
-export function getEntryResult(
+export const getEntryResult = (
 	moduleExports: Record<string, unknown>,
 	entryFileName?: string,
-) {
+) => {
 	if (moduleExports.default !== undefined) return moduleExports.default;
 
 	const lastKey = Object.keys(moduleExports).at(-1);
@@ -192,4 +212,4 @@ export function getEntryResult(
 	}
 
 	return moduleExports[lastKey];
-}
+};

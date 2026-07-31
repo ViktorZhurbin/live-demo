@@ -121,6 +121,11 @@ const getAttr = (node: MdxJsxFlowElement, name: string) => {
 		: undefined;
 };
 
+const hasAttr = (node: MdxJsxFlowElement, name: string) =>
+	node.attributes.some(
+		(attr) => attr.type === "mdxJsxAttribute" && attr.name === name,
+	);
+
 // The deprecated `<code src>` branch warns once per (page, path) for the
 // process's lifetime (see warnOnce.ts) — reset between tests so cases don't
 // leak into each other.
@@ -178,6 +183,22 @@ describe("remarkPlugin", () => {
 			expect(getAttr(node, "files")["SimpleComponent.tsx"]).toContain(
 				"return 2;",
 			);
+		});
+
+		// Same prefetch hint the inline branch emits, on the same omit-when-empty
+		// terms — see `LiveDemoPropsFromPlugin`.
+		it("carries the entry graph's externals, and omits the prop when it has none", () => {
+			const withExternals = parseFixture("multiFileDemo.mdx");
+			runPlugin(withExternals, {}, mdxPath("multiFileDemo.mdx"));
+
+			const [multiFileNode] = findLiveDemoNodes(withExternals);
+			expect(getAttr(multiFileNode, "externalImports")).toEqual(["react"]);
+
+			const withoutExternals = parseFixture("externalDemo.mdx");
+			runPlugin(withoutExternals, {}, mdxPath("externalDemo.mdx"));
+
+			const [simpleNode] = findLiveDemoNodes(withoutExternals);
+			expect(hasAttr(simpleNode, "externalImports")).toBe(false);
 		});
 
 		it("leaves a `file=` block alone when its meta is missing the bare `live` word", () => {
@@ -350,6 +371,39 @@ describe("remarkPlugin", () => {
 			expect(node).toBeDefined();
 			expect(getAttr(node, "entryFileName")).toBe("App.jsx");
 			expect(getAttr(node, "files")["App.jsx"]).toContain("InlineDemo");
+		});
+
+		// Only a prefetch hint (see LiveDemoPropsFromPlugin) — the runtime still
+		// resolves whatever the demo actually imports. Without it an inline
+		// demo's externals don't start downloading until after its first
+		// compile, unlike an external demo's.
+		it("carries an inline demo's own external imports as a prefetch hint", () => {
+			const tree: Root = {
+				type: "root",
+				children: [
+					{
+						type: "code",
+						lang: "jsx",
+						meta: "live",
+						value:
+							'import { DateTime } from "luxon";\nexport default () => null;',
+					},
+				] as Code[],
+			};
+
+			runPlugin(tree, {});
+
+			const [node] = findLiveDemoNodes(tree);
+			expect(getAttr(node, "externalImports")).toEqual(["luxon"]);
+		});
+
+		it("omits externalImports entirely when an inline demo imports nothing", () => {
+			const tree = parseFixture("inlineDemo.mdx");
+
+			runPlugin(tree, {});
+
+			const [node] = findLiveDemoNodes(tree);
+			expect(hasAttr(node, "externalImports")).toBe(false);
 		});
 
 		it("ignores code blocks without the 'live' meta flag", () => {

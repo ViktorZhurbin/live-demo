@@ -40,7 +40,10 @@ type TransformedFile = {
  * already in the outer `PARSE_FAILED` message text — passing it would just
  * repeat the filename.
  */
-export function transformCode(code: string, filePath: string): TransformedFile {
+export const transformCode = (
+	code: string,
+	filePath: string,
+): TransformedFile => {
 	const transform = getTransform();
 
 	let result: { code: string };
@@ -72,7 +75,7 @@ export function transformCode(code: string, filePath: string): TransformedFile {
 		code: result.code,
 		importSpecifiers: extractRequireSpecifiers(result.code),
 	};
-}
+};
 
 // Matches Sucrase's own emitted `require('x')` / `require("x")` calls. Safe to
 // assume no escaped quotes inside the literal: these are import specifiers

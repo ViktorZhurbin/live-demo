@@ -83,17 +83,23 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "This export may not exist in this version of the package.",
 	}),
 
-	// getVirtualModulesCode.ts splices this message, unescaped, inside a real
-	// template literal in generated code. `${importName}` there is meant to
-	// stay as live interpolation (importName isn't known until getImport() is
-	// called at demo-runtime). Never add a backtick or another `${...}` to
-	// this message: either would corrupt that generated template literal.
-	// `getVirtualModulesCode.test.ts`'s "executing the generated module" block
-	// writes that module to disk and imports it, so such an edit fails there
-	// rather than only in a browser.
+	// getVirtualModulesCode.ts splices this message *and hint*, unescaped,
+	// inside a real template literal in generated code. `${importName}` there
+	// is meant to stay as live interpolation (importName isn't known until
+	// getImport() is called at demo-runtime). Never add a backtick or another
+	// `${...}` to either field: both would corrupt that generated template
+	// literal. `getVirtualModulesCode.test.ts`'s "executing the generated
+	// module" block writes that module to disk and imports it, so such an edit
+	// fails there rather than only in a browser.
+	//
+	// That generated throw is the fallback, not the usual path: demo code
+	// reaches externals through `moduleRunner.ts`, which re-throws it as a real
+	// LiveDemoError so the preview renders this title and hint rather than a
+	// bare message string.
 	EXTERNAL_IMPORT_NOT_FOUND: ({ importName }) => ({
 		title: "Can't resolve import",
 		message: `Can't resolve ${importName}.`,
+		hint: "Every package a demo imports has to be a dependency of your docs site and imported by some demo's source at build time — an import typed into the browser editor can't resolve on its own.",
 	}),
 
 	COMPILER_LOAD_FAILED: () => ({

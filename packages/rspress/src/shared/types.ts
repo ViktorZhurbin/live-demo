@@ -24,9 +24,9 @@ export type LiveDemoPropsFromPlugin = {
 	 * still resolves whatever the bundle actually imports, so an edit that adds
 	 * an import is handled without this list.
 	 *
-	 * Absent for inline demos: their source is parsed for imports too
-	 * (`collectInlineImports.ts`, via `visitFilePaths.ts`), and those imports
-	 * do reach the virtual module — only this prop isn't populated for them.
+	 * Omitted entirely when a demo imports nothing external, inline or not —
+	 * an empty array would be one more JSON attribute in the page's HTML for
+	 * no gain.
 	 */
 	externalImports?: string[];
 	options?: LiveDemoPluginOptions["ui"];

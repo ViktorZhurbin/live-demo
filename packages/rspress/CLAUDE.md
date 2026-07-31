@@ -41,13 +41,15 @@ Two phases:
   getter, not by value — see the getter's inline comment in `plugin.ts`.
 
 - On `routeGenerated`, `visitFilePaths.ts` scans every MDX file once per
-  dev-server process. An external demo is a fenced block with `file="..."`
-  and the bare word `live` (or `playground`, see `parseCodeMeta.ts`) in its
-  meta, or the deprecated `<code src="..."/>`. For each one it walks the
-  entry file and its transitive imports (`collectDemoFiles.ts`), folding
-  external imports into the sitewide `uniqueImports` set — the walk's own
-  `files` result is discarded. `resolvePrefixedPath.ts` maps `file=`'s four
-  supported prefixes (`./`, `../`, `/`, `<root>/`, matching `@rspress/core`'s
+  dev-server process — the routed pages, plus the `.mdx` partials they
+  import, which are compiled like any page but never appear in the route
+  table. An external demo is a fenced block with `file="..."` and the bare
+  word `live` (or `playground`, see `parseCodeMeta.ts`) in its meta, or the
+  deprecated `<code src="..."/>`. For each one it walks the entry file and
+  its transitive imports (`collectDemoFiles.ts`), folding external imports
+  into the sitewide `uniqueImports` set — the walk's own `files` result is
+  discarded. `resolvePrefixedPath.ts` maps `file=`'s four supported prefixes
+  (`./`, `../`, `/`, `<root>/`, matching `@rspress/core`'s
   `remarkFileCodeBlock`) to the `{ dirname, importPath }` pair the resolver
   expects. Inline ` ```lang live ` blocks collect no files — the MDX itself
   is the one file — but `collectInlineImports.ts` still parses their source
@@ -69,7 +71,9 @@ Two phases:
   ` ```lang live ` block, or `<code src="..."/>` becomes a
   `<LiveDemo files={...} />` element. Pages with at least one demo get a
   prepended layout `import` (`createLayoutImportNode.ts`) so only those
-  pages pull in the runtime graph.
+  pages pull in the runtime graph. An inline block's source is parsed for
+  imports here as well as in the scan — the two serve different ends (the
+  virtual module vs. the per-demo prefetch hint), see `transformInlineDemo`.
 
 - Per-page injection alone isn't enough: the runtime graph (CodeMirror, the
   virtual-modules bundle) still has to stay out of every page's chunk. That's
@@ -306,7 +310,11 @@ virtual module instead of importing the class.
   `@rspress/core`'s own MDX compile (see "Limitations").
 - **`EXTERNAL_IMPORT_NOT_FOUND`** ("Can't resolve import"): confirm it's a
   real dependency and that it reached the virtual module
-  (`getVirtualModulesCode.ts`).
+  (`getVirtualModulesCode.ts`). Thrown twice over: as a plain `Error` in the
+  generated virtual module (which can't import the class), then re-thrown as
+  a real `LiveDemoError` by `moduleRunner.ts`'s `loadExternal` — the only
+  path demo code reaches an external through, and what gets the overlay to
+  render the title and hint.
 - **`PARSE_FAILED`**: thrown build-side by `readAndParseFile.ts` (oxc), or
   runtime-side by `transformCode.ts` (Sucrase) when a demo author's edit
   introduces a syntax error. Same code and message shape either way; the

@@ -1,0 +1,14 @@
+# A partial, not a page
+
+An `_`-prefixed file is excluded from @rspress/core's route table, so this is
+never handed to the scan directly — only reached through the page that
+imports it. Its demo's external import has to be collected anyway, or it
+can't resolve at runtime.
+
+```jsx live
+import { DateTime } from "luxon";
+
+export default function PartialDemo() {
+  return <div>{DateTime.now().toISO()}</div>;
+}
+```

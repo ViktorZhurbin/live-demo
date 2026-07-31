@@ -23,12 +23,12 @@ function formatMessage(content: LiveDemoErrorContent): string {
 }
 
 /** Joins message + hint for throw sites that can't use LiveDemoError (see messages.ts header). */
-export function formatSplicedMessage({
+export const formatSplicedMessage = ({
 	message = "",
 	hint,
-}: LiveDemoErrorContent): string {
+}: LiveDemoErrorContent): string => {
 	return hint ? `${message} ${hint}`.trim() : message;
-}
+};
 
 /**
  * Trailing constructor args, correlated to the code: a token-less code may
@@ -64,7 +64,7 @@ export class LiveDemoError<K extends ErrorCode = ErrorCode> extends Error {
  * Normalizes any thrown value into a payload.
  * Preserves .payload when present; wraps others as UNEXPECTED.
  */
-export function toPayload(err: unknown): LiveDemoErrorPayload {
+export const toPayload = (err: unknown): LiveDemoErrorPayload => {
 	if (err instanceof LiveDemoError) {
 		return err.payload;
 	}
@@ -74,4 +74,4 @@ export function toPayload(err: unknown): LiveDemoErrorPayload {
 		title: "Unexpected error",
 		message: err instanceof Error ? err.message : String(err),
 	};
-}
+};

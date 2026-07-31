@@ -51,12 +51,12 @@ const ${RESOLVED_MAP} = new Map()
 export async function loadImports(importNames) {
   await Promise.all(
     importNames.map(async (importName) => {
-      // Unknown names are skipped, not rejected: getImport throws a message
-      // naming the import, which is far more useful than failing here.
       if (${RESOLVED_MAP}.has(importName)) return
 
       const loader = ${IMPORTS_MAP}.get(importName)
 
+      // Unknown names are skipped, not rejected: getImport throws a message
+      // naming the import, which is far more useful than failing here.
       if (loader) {
         ${RESOLVED_MAP}.set(importName, await loader())
       }

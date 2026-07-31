@@ -21,10 +21,10 @@ import { loadImports } from "_live_demo_virtual_modules";
  * Returns the settled promise so that guarantee is testable; callers are meant
  * to ignore it.
  */
-export function prefetchImports(
+export const prefetchImports = (
 	importNames: string[] | undefined,
-): Promise<void> {
+): Promise<void> => {
 	if (!importNames?.length) return Promise.resolve();
 
 	return loadImports(importNames).catch(() => {});
-}
+};

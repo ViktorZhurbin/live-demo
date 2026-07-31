@@ -11,6 +11,15 @@
  * keeps a demo's files fresh across dev-mode recompiles (see its docblock).
  * `analyzeModule`'s cache is what keeps that affordable.
  *
+ * The route list isn't the whole set of MDX files that get compiled: core
+ * excludes `_`-prefixed files from routing (`excludeConvention`) but its MDX
+ * rule matches any imported `.mdx`, so a demo living in a partial is
+ * transformed like any other while never appearing here. Since
+ * `routeGenerated` fires once per process, that would leave such a demo's
+ * externals out of the virtual module permanently — not even a restart would
+ * fix it. So the walk follows each page's own `.mdx` imports (see
+ * `getMdxPartialImports`), transitively.
+ *
  * Two syntaxes reach this scan. The canonical one is a fenced code block
  * carrying both `file="..."` and the bare word `live` in its meta — the same
  * `file=` meta @rspress/core's own `remarkFileCodeBlock` reads, which is why
@@ -25,12 +34,13 @@
  * would never reach the virtual module. `remarkPlugin` handles everything
  * else about them.
  */
+import fs from "node:fs";
 import path from "node:path";
 
 import { getNodeAttribute } from "@rspress/core";
-import type { MdxJsxFlowElement } from "mdast-util-mdx";
+import type { MdxjsEsm, MdxJsxFlowElement } from "mdast-util-mdx";
 import { visit } from "unist-util-visit";
-import { isAllowedExt } from "~shared/pathHelpers";
+import { isAllowedExt, isRelativeImport } from "~shared/pathHelpers";
 import type { PathWithAllowedExt, UniqueImports } from "~shared/types";
 
 import type { ModuleCache } from "./helpers/analyzeModule";
@@ -53,11 +63,29 @@ export const visitFilePaths = ({
 	docRoot: string;
 	moduleCache: ModuleCache;
 }) => {
-	for (const mdxRoutePath of filePaths) {
-		if (!mdxRoutePath.endsWith(".mdx")) continue;
+	// Grows as `.mdx` imports are discovered; `for...of` picks up entries
+	// appended during iteration, same shape as `collectDemoFiles`'s own walk.
+	const queue = filePaths.filter((filePath) => filePath.endsWith(".mdx"));
+	const visited = new Set(queue);
 
+	for (const mdxRoutePath of queue) {
 		const mdxAst = getMdxAst(mdxRoutePath);
 		const docDirname = path.dirname(mdxRoutePath);
+
+		visit(mdxAst, "mdxjsEsm", (node: MdxjsEsm) => {
+			for (const importPath of getMdxPartialImports(node)) {
+				const absolutePath = path.resolve(docDirname, importPath);
+
+				// A missing partial isn't this scan's error to raise: the page's
+				// own MDX compile fails on it with the bundler's message.
+				if (visited.has(absolutePath) || !fs.existsSync(absolutePath)) {
+					continue;
+				}
+
+				visited.add(absolutePath);
+				queue.push(absolutePath);
+			}
+		});
 
 		// Shared by both syntaxes below: walk the entry's module graph and fold
 		// only its externals into the sitewide set. `files` is discarded — see
@@ -125,3 +153,28 @@ export const visitFilePaths = ({
 		});
 	}
 };
+
+/**
+ * Relative `.mdx` specifiers a page imports — the partials whose demos would
+ * otherwise never be scanned (see module docblock). Only `import` statements:
+ * a partial is rendered as a component, never re-exported. `.md` is left out
+ * on purpose, since a demo injects JSX and so only works in `.mdx`.
+ *
+ * Relative only, matching the rest of the plugin: no bundler alias is resolved
+ * anywhere here, so a partial imported as `@/x.mdx` isn't followed — the same
+ * reason an aliased import inside a demo file reads as an external package
+ * (`collectDemoFiles.ts`).
+ */
+function getMdxPartialImports(node: MdxjsEsm): string[] {
+	const body = node.data?.estree?.body ?? [];
+
+	return body
+		.filter((statement) => statement.type === "ImportDeclaration")
+		.map((statement) => statement.source.value)
+		.filter(
+			(value) =>
+				typeof value === "string" &&
+				value.endsWith(".mdx") &&
+				isRelativeImport(value),
+		) as string[];
+}

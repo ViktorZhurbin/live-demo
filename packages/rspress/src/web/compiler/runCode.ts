@@ -27,7 +27,7 @@ type RunCode = Pick<CodeRunnerProps, "files" | "entryFileName">;
  * here: `moduleRunner`'s `wrapExternal` throws `UNDEFINED_NAMED_IMPORT` at
  * the point the demo actually reads the missing property (see its docblock).
  */
-export async function runCode({ files, entryFileName }: RunCode) {
+export const runCode = async ({ files, entryFileName }: RunCode) => {
 	// Pulls Sucrase in (once) before anything below reads it; a load failure
 	// throws here and lands in CodeRunner's catch → overlay.
 	await ensureCompilerLoaded();
@@ -80,4 +80,4 @@ export async function runCode({ files, entryFileName }: RunCode) {
 	const { exports } = runner.evaluate(entryFileName);
 
 	return getEntryResult(exports, entryFileName);
-}
+};

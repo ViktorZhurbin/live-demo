@@ -78,11 +78,18 @@ describe("formatSplicedMessage", () => {
 	});
 
 	it("returns just the message when there's no hint", () => {
-		const content = errorMessages.EXTERNAL_IMPORT_NOT_FOUND({
-			importName: "lodash",
-		});
+		const content = errorMessages.UNEXPECTED(undefined);
 
-		expect(formatSplicedMessage(content)).toBe("Can't resolve lodash.");
+		expect(formatSplicedMessage(content)).toBe("An unexpected error occurred.");
+	});
+
+	it("carries the hint into the spliced message, since nothing else renders it", () => {
+		const spliced = formatSplicedMessage(
+			errorMessages.EXTERNAL_IMPORT_NOT_FOUND({ importName: "lodash" }),
+		);
+
+		expect(spliced).toContain("Can't resolve lodash.");
+		expect(spliced).toContain("has to be a dependency of your docs site");
 	});
 
 	// getVirtualModulesCode.ts splices this one unescaped inside a real

@@ -5,11 +5,11 @@
  * Sucrase doesn't ship a codeframe itself — only `err.pos`/`err.loc` (see
  * `transformCode.ts`) — so this fills that gap by hand.
  */
-export function formatCodeframe(
+export const formatCodeframe = (
 	source: string,
 	filePath: string,
 	loc: { line: number; column: number } | undefined,
-): string | undefined {
+): string | undefined => {
 	// Sucrase only attaches `loc` when its parser's own `augmentError` catches
 	// the error (see the module docblock); guard the rest defensively too, in
 	// case a location survives but no longer matches the source it's paired with.
@@ -51,4 +51,4 @@ export function formatCodeframe(
 		...contextAfter,
 		`${gutter} \`----`,
 	].join("\n");
-}
+};

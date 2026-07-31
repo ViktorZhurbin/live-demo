@@ -6,9 +6,9 @@ import type { LiveDemoStringifiedProps } from "~web/types";
  * Parse props, as they come JSON.stringified. See `LiveDemoStringifiedProps`
  * for why.
  */
-export function parseProps(
+export const parseProps = (
 	props: LiveDemoStringifiedProps,
-): LiveDemoPropsFromPlugin {
+): LiveDemoPropsFromPlugin => {
 	return Object.fromEntries(
 		Object.entries(props).map(([key, value]) => {
 			try {
@@ -21,4 +21,4 @@ export function parseProps(
 			}
 		}),
 	) as LiveDemoPropsFromPlugin;
-}
+};

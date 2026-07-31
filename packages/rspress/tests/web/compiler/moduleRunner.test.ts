@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles } from "~shared/types";
 import {
 	createModuleRunner,
@@ -150,11 +151,28 @@ describe("createModuleRunner", () => {
 		expect(exports.default).toBe(42);
 	});
 
-	it("surfaces the virtual module's own error for an unresolvable external", () => {
+	// The virtual module is generated source and can't import LiveDemoError, so
+	// it throws a plain Error. Re-throwing it here is what gets the preview to
+	// render the title and hint instead of a bare message.
+	it("re-throws the virtual module's plain error as a LiveDemoError", () => {
 		const files: LiveDemoFiles = { "App.tsx": "" };
 		const runner = run(files, { "App.tsx": `require("left-pad");` });
 
-		expect(() => runner.evaluate("App.tsx")).toThrow(/Can't resolve left-pad/);
+		let thrown: unknown;
+		try {
+			runner.evaluate("App.tsx");
+		} catch (error) {
+			thrown = error;
+		}
+
+		expect(thrown).toBeInstanceOf(LiveDemoError);
+		expect((thrown as LiveDemoError).payload.code).toBe(
+			"EXTERNAL_IMPORT_NOT_FOUND",
+		);
+		expect((thrown as LiveDemoError).payload.hint).toBeDefined();
+		expect((thrown as Error).message).toMatch(/Can't resolve left-pad/);
+		// The mock's own error, kept for whoever is debugging the demo.
+		expect((thrown as Error).cause).toBeInstanceOf(Error);
 	});
 
 	/**

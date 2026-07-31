@@ -25,6 +25,7 @@ import type {
 
 import type { ModuleCache } from "./helpers/analyzeModule";
 import { collectDemoFiles } from "./helpers/collectDemoFiles";
+import { collectInlineImports } from "./helpers/collectInlineImports";
 import { createLayoutImportNode } from "./helpers/createLayoutImportNode";
 import { parseCodeMeta } from "./helpers/parseCodeMeta";
 import { resolveFileInfo } from "./helpers/resolveFileInfo";
@@ -143,14 +144,17 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 				files[entryFile.fileName] = entryContent;
 			}
 
-			const props = getPropsWithOptions(
-				{
-					entryFileName: entryFile.fileName,
-					files,
+			const baseProps: LiveDemoPropsFromPlugin = {
+				entryFileName: entryFile.fileName,
+				files,
+				// Omitted when empty rather than sent as `[]` — see
+				// `LiveDemoPropsFromPlugin`.
+				...(externalImports.size > 0 && {
 					externalImports: [...externalImports],
-				},
-				options,
-			);
+				}),
+			};
+
+			const props = getPropsWithOptions(baseProps, options);
 
 			Object.assign(node, {
 				type: "mdxJsxFlowElement",
@@ -161,9 +165,12 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 		}
 
 		// No file collection here, unlike the external transform: an inline
-		// demo is its own single file. The packages it imports are picked up
-		// separately, by `collectInlineImports` during the scan, so they reach
-		// the virtual module the same way an external demo's do.
+		// demo is its own single file. Its *imports* are parsed twice by
+		// design — once by the scan, which is what puts them in the virtual
+		// module, and again here, which is what lets `CodeRunner` prefetch
+		// them at mount instead of discovering them after the first compile.
+		// The scan's copy can't be reused: it runs once per process and keys
+		// nothing per block.
 		//
 		// What still can't work is an import *typed at runtime* that no demo
 		// declared anywhere: the consuming bundler has to see every specifier
@@ -174,9 +181,17 @@ export const remarkPlugin: Plugin<[RemarkPluginProps], Root> = ({
 			if (!node.lang || !isAllowedExt(node.lang)) return;
 
 			const entryFileName = `App.${node.lang}`;
-			const baseProps = {
+			const externalImports = collectInlineImports({
+				code: node.value,
+				lang: node.lang,
+			});
+
+			const baseProps: LiveDemoPropsFromPlugin = {
 				entryFileName,
 				files: { [entryFileName]: node.value },
+				// Omitted when empty rather than sent as `[]` — see
+				// `LiveDemoPropsFromPlugin`.
+				...(externalImports.length > 0 && { externalImports }),
 			};
 
 			const props = getPropsWithOptions(baseProps, options);

@@ -113,6 +113,23 @@ describe("visitFilePaths", () => {
 		expect(() => scan("inlineDemoBrokenSyntax.mdx")).not.toThrow();
 	});
 
+	/**
+	 * `_`-prefixed files are excluded from core's route table but still
+	 * compiled (and so still transformed into demos) when a page imports them.
+	 * Since `routeGenerated` fires once per process, missing this leaves the
+	 * partial's externals out of the virtual module permanently — no restart
+	 * recovers it.
+	 */
+	it("follows a page's `.mdx` imports, so a demo in a partial is scanned too", () => {
+		const uniqueImports = scan("partialHost.mdx");
+
+		expect(uniqueImports.has("luxon")).toBe(true);
+	});
+
+	it("ignores an imported `.mdx` that isn't on disk, leaving that to the MDX compile", () => {
+		expect(() => scan("partialHost.mdx")).not.toThrow();
+	});
+
 	it("accumulates externals from multiple MDX files into the same set", () => {
 		const uniqueImports = scan("externalDemo.mdx", "multiFileDemo.mdx");
 

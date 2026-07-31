@@ -9,11 +9,11 @@
  * other silently never opens); the fallback below is the difference between
  * "no gate" and "no demo".
  */
-export function observeEnteredViewport(
+export const observeEnteredViewport = (
 	element: Element,
 	onEnter: () => void,
 	options?: IntersectionObserverInit,
-): () => void {
+): (() => void) => {
 	if (typeof IntersectionObserver === "undefined") {
 		onEnter();
 		return () => {};
@@ -34,4 +34,4 @@ export function observeEnteredViewport(
 	observer.observe(element);
 
 	return () => observer.disconnect();
-}
+};
