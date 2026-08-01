@@ -27,10 +27,8 @@ export const Editor = () => {
 				lineNumbers: false,
 				foldGutter: false,
 				autocompletion: false,
-				tabSize: 2,
+				tabSize: options?.editor?.tabSize ?? 2,
 			}}
-			// Full override, not merged — see LiveDemoPluginOptions["ui"]["editor"]'s doc.
-			{...options?.editor}
 		/>
 	);
 };

@@ -1,5 +1,3 @@
-import type { ReactCodeMirrorProps } from "@uiw/react-codemirror";
-
 import type { LiveDemoLanguage } from "./constants";
 
 export type PathWithAllowedExt = `${string}.${LiveDemoLanguage}`;
@@ -52,6 +50,11 @@ export type FileTabsOptions = {
 	hideSingleTab?: boolean;
 };
 
+export type EditorOptions = {
+	/** @defaultValue `2` */
+	tabSize?: number;
+};
+
 export type LiveDemoPluginOptions = {
 	/** Props passed from plugin to LiveDemo components. */
 	ui?: {
@@ -61,13 +64,7 @@ export type LiveDemoPluginOptions = {
 		fileTabs?: FileTabsOptions & {
 			hide?: boolean;
 		};
-		/**
-		 * Spread onto the plugin's own CodeMirror instance *after* its
-		 * defaults, so a key here replaces the plugin's value for that key
-		 * rather than merging into it — see docs/guide/customization for which
-		 * keys that affects.
-		 */
-		editor?: ReactCodeMirrorProps;
+		editor?: EditorOptions;
 		resizablePanels?: ResizablePanelsOptions;
 	};
 };

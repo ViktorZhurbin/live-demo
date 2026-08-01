@@ -17,9 +17,7 @@ export default defineConfig({
       ui: {
         controlPanel: { hide: false },
         fileTabs: { hide: false, hideSingleTab: false },
-        editor: {
-          /* ReactCodeMirrorProps */
-        },
+        editor: { tabSize: 2 },
         resizablePanels: {
           autoSaveId: "my-site-demo-layout",
           defaultPanelSizes: { editor: "50%", preview: "50%" },
@@ -45,23 +43,7 @@ There's no way to hide just one of them.
 
 ### `editor`
 
-Any [`ReactCodeMirrorProps`](https://github.com/uiwjs/react-codemirror/blob/master/core/README.md),
-spread onto the plugin's own CodeMirror instance **after** its defaults —
-so a key you pass replaces the plugin's value for that key entirely, it
-isn't merged in. Concretely, passing any of these overrides the plugin's
-own behavior for it:
-
-- `value` / `onChange`: replacing either breaks editing.
-- `theme`: replacing it breaks following the site's light/dark toggle.
-- `extensions`: replacing it drops JSX/TS syntax highlighting and the
-  wrap-code toggle (which is implemented as an extension).
-- `basicSetup`: replacing it restores CodeMirror's defaults (line numbers,
-  fold gutter, autocompletion) — the plugin sets all of those as one object,
-  not merged field-by-field.
-
-If you only want to add an extension, spread the plugin's own JSX/TS and
-line-wrap extensions back in alongside yours rather than replacing the
-array.
+- `tabSize`: number of spaces per indent level. Defaults to `2`.
 
 ### `resizablePanels`
 
