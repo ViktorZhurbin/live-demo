@@ -53,6 +53,25 @@ There's no way to hide just one of them.
   `localStorage` under this key and are restored on reload. When omitted,
   sizes reset every page load — nothing is persisted.
 
+### Typing the config separately
+
+`LiveDemoPluginOptions`, `ResizablePanelsOptions`, and `FileTabsOptions` are
+exported from `@live-demo/rspress`, so a `ui` object can be hoisted out of the
+`liveDemoPluginRspress()` call and still be typed:
+
+```ts title='rspress.config.ts'
+import type { LiveDemoPluginOptions } from "@live-demo/rspress";
+import { liveDemoPluginRspress } from "@live-demo/rspress";
+
+const liveDemoOptions: LiveDemoPluginOptions = {
+  ui: { controlPanel: { hide: false } },
+};
+
+export default defineConfig({
+  plugins: [liveDemoPluginRspress(liveDemoOptions)],
+});
+```
+
 ## Theming
 
 Colors come from CSS custom properties, defined for light mode on `html`

@@ -16,21 +16,31 @@ import { PackageManagerTabs } from "@rspress/core/theme";
 
 <PackageManagerTabs command="install @live-demo/rspress -D" />
 
-> [!NOTE]
+> [!TIP]
 >
-> Still on Rspress v1? Install the last version that supports it instead: `@live-demo/rspress@1`.
+> Still on Rspress v1? Install the last version that supports it instead:
+> `@live-demo/rspress@1`, and import `defineConfig` from `rspress/config`
+> rather than `@rspress/core` below.
 
 ## Register
 
 ```ts title='rspress.config.ts'
-// Rspress v1
-import { defineConfig } from "rspress/config";
-// Rspress v2
-import { defineConfig } from "@rspress/core";
-
 import { liveDemoPluginRspress } from "@live-demo/rspress";
+import { defineConfig } from "@rspress/core";
 
 export default defineConfig({
 	plugins: [liveDemoPluginRspress()],
 });
 ```
+
+Next: [Usage](./usage) for the two ways to write a demo.
+
+## Coming from `@rspress/plugin-playground`
+
+Swapping the plugin registration is the whole migration — `playground` is
+accepted as an alias for `live`, so existing fences keep working unchanged.
+
+The two plugins can't be registered on the same site, since both would claim
+the same fence keyword. Upstream's `defaultRenderMode` option exists so
+`@rspress/plugin-playground` can coexist with other tools; this plugin is meant
+as a drop-in replacement instead, not a companion to it.

@@ -133,13 +133,14 @@ require cycle.
 
 </details>
 
-#### Extension resolution prefers `.tsx`
+#### Import resolution inside a demo prefers `.tsx`
 
 <details>
 <summary>Details</summary>
 
-An extensionless import (`./Button`) now resolves in the order `.tsx`, `.ts`,
-`.jsx`, `.js`, then `Button/index.*`. It was `.ts`, `.tsx`, `.js`, `.jsx`.
+An extensionless local `import` in a demo's own source (`./Button`) now resolves in
+the order `.tsx`, `.ts`, `.jsx`, `.js`, then `Button/index.*`. It was `.ts`,
+`.tsx`, `.js`, `.jsx`.
 Only affects demos where both `Button.ts` and `Button.tsx` exist side by side.
 
 </details>

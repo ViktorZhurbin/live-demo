@@ -56,20 +56,8 @@ https://live-demo.pages.dev/guide/getStarted
 
 ## Compared to `@rspress/plugin-playground`
 
-This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). It adds some important improvements:
+This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). Differences:
 
-- **Multi-file support**
-- **Typescript w/o red squiggles** (no intellisense still)
-
-### Plus, some niceties:
-
-- toggle code wrap
-- resizable panels
-- view switcher (split view/editor only/preview only)
-- fullscreen option
-- and some more...
-
-### Coming in v3:
-
-- Per-page layout injection: `@rspress/plugin-playground` injects it globally, ie it's loaded on a 404 page too
-- Lazy external imports: `@rspress/plugin-playground` loads all dependencies used in playgrounds across the project, ie if one page had Three.js it would be loaded on every page too.
+- Multi-file support
+- Typescript w/o red squiggles (no intellisense still) **[VERIFY]** if upstream still has this problem
+- Small runtime that loads only when needed and only what's needed

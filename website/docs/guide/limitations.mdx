@@ -1,0 +1,55 @@
+---
+title: Limitations
+---
+
+Demos don't run through a bundler. Their files are transpiled one by one in
+the browser and wired together by a small `require`, which is what keeps the
+runtime small — and is where every limitation below comes from.
+
+These apply to **demo code**, not to your docs site.
+
+## Imports
+
+- **Only `.js(x)` / `.ts(x)` files can be imported.** There's no bundler to
+  hand a `.css` import off to. A demo that imports one fails the build with an
+  error naming the file. Style demo components with inline styles, CSS-in-JS,
+  or global CSS from your docs site instead.
+- **Every package has to exist at build time.** Imports are collected from
+  each demo's own source when the site builds, so typing a brand-new import
+  while editing a demo in the browser — for a package no demo's source
+  mentions anywhere — won't resolve.
+- **Static imports only.** `import()` in a demo isn't resolved.
+- **No Node.js APIs.** Demos run in the browser.
+- **An extensionless `file=` doesn't work** (`file="./Button"`); see
+  [Usage](./usage#external-demo).
+- **An import kept only for its side effects is dropped** if its binding is
+  never used — `import X from "pkg"` with no use of `X`. A bare
+  `import "pkg"` is kept.
+
+## Compilation
+
+- **No `React` binding is injected.** Demos compile with the automatic JSX
+  runtime; `React.useState(...)` needs an explicit `import React from "react"`.
+- **JSX isn't validated.** The compiler (Sucrase) rewrites tokens rather than
+  parsing, so a mismatched closing tag (`<div></span>`) or a duplicate prop
+  transpiles and runs whatever that produces, instead of failing with a parse
+  error. Genuine syntax errors — unterminated strings, unbalanced braces —
+  still fail with a codeframe.
+- **Types aren't checked.** TypeScript annotations are stripped, not verified.
+- **A syntax error saved to a demo file fails the page's build**, naming the
+  file and line. Only edits made in the browser editor surface the error in
+  the preview instead.
+- **Circular local imports follow Node's CommonJS semantics**, not a bundler's.
+  Mutually recursive functions work as expected; a value read at module-eval
+  time, before the cycle unwinds, may see a partially-filled `exports`.
+- **The literal text `require('pkg')` at the start of a line inside a string**
+  (a code sample in a template literal, say) is read as a real import and
+  fails. Re-indent or reword the demo.
+
+## Isolation
+
+> [!CAUTION]
+>
+> Demo code is **not** sandboxed — it's evaluated and rendered directly in the
+> page, wrapped only in an error boundary. It's as trusted as the docs it lives
+> in. Don't use these demos to run code you didn't write.

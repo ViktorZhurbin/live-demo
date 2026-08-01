@@ -10,10 +10,6 @@ function HomeLayout() {
 		<BasicHomeLayout
 			afterHeroActions={
 				<>
-					<div style={{ width: "100%", textAlign: "left" }}>
-						<HomeDemo />
-					</div>
-
 					<div style={{ width: "100%", maxWidth: 450, margin: "-1rem 0" }}>
 						<PackageManagerTabs command="install @live-demo/rspress -D" />
 					</div>
@@ -24,6 +20,10 @@ function HomeLayout() {
 					>
 						Get started
 					</a>
+
+					<div style={{ width: "100%", textAlign: "left" }}>
+						<HomeDemo />
+					</div>
 				</>
 			}
 		/>

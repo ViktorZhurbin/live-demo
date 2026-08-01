@@ -2,21 +2,21 @@
 title: Basic
 ---
 
-"External" demos allow you to write code in dedicated files, declutter MDX markup, and take advantage of your IDE's features.
+"External" demos let you write demo code in dedicated files: the MDX stays
+readable, and your IDE treats the demo as the source file it is.
 
-## Example
+Point a fenced block at one with `file=`, and add `live`:
 
-This MDX file includes an external demo defined as:
-
-<pre>
-  ````
-  ```tsx file="./snippets/basic/Basic.tsx" live
-  ```
-  ````
-</pre>
+````
+```tsx file="./snippets/basic/Basic.tsx" live
+```
+````
 
 Which turns into:
 
 ```tsx file="./snippets/basic/Basic.tsx" live
 
 ```
+
+The fence body stays empty — the file's contents are what gets shown. See
+[Usage](../usage#path-prefixes) for the path prefixes `file=` accepts.

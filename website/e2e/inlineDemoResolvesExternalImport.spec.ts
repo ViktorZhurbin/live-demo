@@ -12,7 +12,7 @@ import { expect, test } from "@playwright/test";
 // empty preview rather than something that merely looks plausible.
 //
 // Scoped to the `data-testid="import-demo"` wrapper in docs/guide/usage.mdx --
-// that page carries three demos sharing the same id="preview".
+// that page carries two demos sharing the same id="preview".
 test("an inline demo's own external import resolves and renders real output", async ({
 	page,
 }) => {

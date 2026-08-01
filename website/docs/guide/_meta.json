@@ -12,6 +12,11 @@
 	},
 	{
 		"type": "file",
+		"name": "limitations",
+		"label": "Limitations"
+	},
+	{
+		"type": "file",
 		"name": "customization",
 		"label": "Customization"
 	}

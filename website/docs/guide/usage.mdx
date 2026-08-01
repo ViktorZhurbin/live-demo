@@ -4,19 +4,10 @@ title: Usage
 
 There are two ways to add an interactive demo in MDX files: **inline** and **external**.
 
-> [!NOTE]
+> [!IMPORTANT]
 >
-> Demos need to **export a function** that can be consumed by `React.createElement`. Even this will do: `export default () => "Hey"`
-
-> [!NOTE]
->
-> `playground` is accepted as an alias for `live`, so a site migrating off
-> `@rspress/plugin-playground` can swap the plugin registration and keep its
-> existing `playground` fences unchanged. One tradeoff this implies: the two
-> plugins can't be registered on the same site, since both would then claim
-> the same fence keyword. Upstream's `defaultRenderMode` option is designed
-> so `@rspress/plugin-playground` can coexist with other tools; this plugin
-> is meant as a drop-in replacement instead, not a companion to it.
+> A demo renders its entry file's **default export**, or — if there isn't one —
+> its **last named export**. Named is the usual form: `export const App = () => ...`.
 
 ## Inline demo
 
@@ -35,11 +26,11 @@ Which turns into an editable demo:
 <div data-testid="inline-demo">
 
 ```jsx live
-import React from "react"
+import { useState } from "react";
 import { Button } from "@live-demo/rspress/web";
 
 export const App = () => {
-  const [count, setCount] = React.useState(0)
+  const [count, setCount] = useState(0)
 
   const increment = () => {
     setCount(prev => prev + 1)
@@ -56,6 +47,13 @@ export const App = () => {
 
 </div>
 
+> [!WARNING]
+>
+> Demos compile with the automatic JSX runtime, so JSX itself needs no `React`
+> import — but nothing puts `React` in scope either. `React.useState(...)`
+> without an `import React from "react"` throws "React is not defined". Import
+> the hooks you use, as above.
+
 ## External demo
 
 For more complex code, you can use "external" demos. The code lives in its own file, which declutters the MDX markup and lets your IDE work on it properly.
@@ -65,13 +63,10 @@ For more complex code, you can use "external" demos. The code lives in its own f
 ```
 ````
 
-Which turns into:
+See [External demos](./external/basic) for what that renders, including
+[multi-file](./external/multiFile) ones.
 
-```tsx file="./external/snippets/multiFile/MultiFile.tsx" live
-
-```
-
-> [!NOTE]
+> [!WARNING]
 >
 > `file=` requires an explicit, supported extension (`.tsx`, `.ts`, `.jsx`,
 > or `.js`) — `file="./Button"` doesn't work. This limitation comes from `@rspress/core`.
@@ -98,15 +93,9 @@ form and isn't coming to `file=` (see the note above).
 
 ## Imports
 
-Imports are resolved at build time, so every package a demo uses has to be
-installed in your docs site's `package.json`. One edit needs a dev server
-restart: introducing a package no demo on the site imported before. Everything
-else — editing a demo, adding a brand-new one, dropping an import — is picked
-up by the normal recompile.
-
 `react` is available in every demo without being listed anywhere. So is
 `Button` from `@live-demo/rspress/web` — the plugin is already a dependency of
-any site using it. The demos above use both.
+any site using it. The demo above uses both.
 
 Beyond those, a demo can import any package your docs site depends on, inline
 and external alike. Below, [`qrcode.react`](https://www.npmjs.com/package/qrcode.react)
@@ -125,17 +114,11 @@ export const App = () => {
 
 </div>
 
-> [!NOTE]
->
-> Imports are collected from each demo's own source at build time, so they have
-> to be there when the site builds. Typing a brand-new import while editing a
-> demo in the browser — for a package no demo's source mentions anywhere — won't
-> resolve.
+Imports are resolved at build time, so a package has to be installed in your
+docs site's `package.json` **and** imported by some demo's source when the site
+builds. One edit needs a dev server restart: introducing a package no demo on
+the site imported before. Everything else — editing a demo, adding a brand-new
+one, dropping an import — is picked up by the normal recompile.
 
-> [!NOTE]
->
-> Only `.js(x)`/`.ts(x)` files can be imported by demo code — there's no
-> bundler behind the scenes to hand a `.css` import off to. A multi-file demo
-> that imports one fails the build with a clear error naming the file. Style
-> demo components with inline styles, CSS-in-JS, or global CSS from your docs
-> site instead.
+[Limitations](./limitations) covers what that rules out, along with the rest of
+what demo code can and can't do.
