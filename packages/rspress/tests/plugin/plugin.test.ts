@@ -44,7 +44,7 @@ describe("liveDemoPluginRspress", () => {
 				._live_demo_virtual_modules;
 		};
 
-		it("always includes the default modules (react + jsx-runtime + rspress theme)", async () => {
+		it("always includes the default modules (react + jsx-runtime)", async () => {
 			const plugin = liveDemoPluginRspress();
 			const handler = getVirtualModuleHandler(plugin);
 			const virtualModule = await handler();
@@ -52,12 +52,21 @@ describe("liveDemoPluginRspress", () => {
 			expect(virtualModule).toContain(
 				"importsMap.set('react', () => import('react'));",
 			);
-			expect(virtualModule).toContain("'@rspress/core/theme'");
 
 			// Sucrase's automatic JSX runtime emits this import on the author's
 			// behalf, so it can never be discovered by scanning demo source.
 			// Without it every JSX demo fails with "Can't resolve".
 			expect(virtualModule).toContain("'react/jsx-runtime'");
+		});
+
+		// Dropped in 3.0: as a barrel it drags Shiki and ~30 grammars onto every
+		// page. See `defaultModules`' docblock in `plugin.ts`.
+		it("does not include the rspress theme barrel by default", async () => {
+			const plugin = liveDemoPluginRspress();
+			const handler = getVirtualModuleHandler(plugin);
+			const virtualModule = await handler();
+
+			expect(virtualModule).not.toContain("'@rspress/core/theme'");
 		});
 	});
 });

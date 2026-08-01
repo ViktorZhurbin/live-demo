@@ -36,7 +36,6 @@ Which turns into an editable demo:
 
 ```jsx live
 import React from "react"
-import { Badge } from "@rspress/core/theme";
 import { Button } from "@live-demo/rspress/web";
 
 export const App = () => {
@@ -48,7 +47,7 @@ export const App = () => {
 
   return (
     <div>
-      <Badge>Count is: {count}</Badge>
+      <p>Count is: {count}</p>
       <Button onClick={increment}>Increment</Button>
     </div>
   )
@@ -105,9 +104,9 @@ restart: introducing a package no demo on the site imported before. Everything
 else — editing a demo, adding a brand-new one, dropping an import — is picked
 up by the normal recompile.
 
-`react` and `@rspress/core/theme` are available in every demo without being
-listed anywhere. So is `Button` from `@live-demo/rspress/web` — the plugin is
-already a dependency of any site using it. The demos above use all three.
+`react` is available in every demo without being listed anywhere. So is
+`Button` from `@live-demo/rspress/web` — the plugin is already a dependency of
+any site using it. The demos above use both.
 
 Beyond those, a demo can import any package your docs site depends on, inline
 and external alike. Below, [`qrcode.react`](https://www.npmjs.com/package/qrcode.react)

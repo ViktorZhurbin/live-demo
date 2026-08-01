@@ -27,7 +27,9 @@ minimal diff off the last:
 Pages, trimmed from the full `website/docs` down to one of each kind:
 
 - **`guide/getStarted`** — external (`file=`/`playground`/`<code src>`) demo,
-  a `.tsx` counter using `@rspress/core/theme`'s `Badge`.
+  a `.tsx` counter using `@rspress/core/theme`'s `Badge`. (That demo no
+  longer imports `Badge` — see the 2026-08-01 update below, which is
+  precisely about what that import was costing.)
 - **`guide/usage`** — inline demo, same counter shape. Not separately
   measured below (inline and external share the same runtime; only the
   entry point differs), but present on all three branches if that
@@ -103,7 +105,13 @@ consistently.
 ## Results
 
 Real transferred bytes (brotli), everything the page loaded, own origin +
-any third-party CDN combined:
+any third-party CDN combined.
+
+> **The `current` column is stale as of 2026-08-01, in current's favour.**
+> Dropping the `@rspress/core/theme` default external took ~62 KB brotli off
+> both of its rows. The three-way comparison below therefore understates
+> current's margin; the update section at the end has the new figures. The
+> `upstream` and `v2.0.6` columns are unaffected.
 
 |                                             |      **current** (unreleased) |    **upstream** (`plugin-playground`) |             **v2.0.6** (published) |
 | ------------------------------------------- | ----------------------------: | ------------------------------------: | ---------------------------------: |
@@ -267,6 +275,86 @@ only look at your own deployment's own JS output. On a page that actually
 has a demo, upstream's cost is dominated by one thing — the TypeScript
 language service (815 KB) — specific to this demo being `.tsx`; a `.jsx`-only
 demo would likely avoid it, untested here.
+
+## Update, 2026-08-01: dropping the `@rspress/core/theme` default external
+
+`@rspress/core/theme` was in the plugin's `defaultModules`, so every demo
+could import it without declaring it. It's a barrel: making it an external
+marks all of its exports live, `CodeBlockRuntime` included, which pulls in
+Shiki and ~30 TextMate grammars. The site's layout needs that same barrel
+eagerly, so the bundler merged the two — putting a runtime syntax
+highlighter into the initial chunk of **every page**, demo or not.
+
+A stock `create-rspress@latest --template basic` site on the same
+`@rspress/core@2.0.18` ships no Shiki runtime at all (checked: no chunk
+containing `createOnigScanner` or `codeToTokensBase`). So this was ours, not
+core's — worth stating plainly, because the natural reading of a Shiki chunk
+in an Rspress build is that Rspress put it there.
+
+### Measured
+
+Same method as above — Playwright for the request list, `curl -H
+"Accept-Encoding: br, gzip"` with `%{size_download}` per unique URL,
+`content-encoding: br` confirmed on all 52 responses. **Different basis from
+the three-way table**: production `main` (`live-demo.pages.dev`) against the
+branch preview `test-drop-rspress-theme.live-demo.pages.dev`, both the full
+untrimmed site. Don't read these rows against the three-branch table's
+absolute numbers; the delta is the point.
+
+|                                      |   before |    after |    delta |
+| ------------------------------------ | -------: | -------: | -------: |
+| Demo page (`getStarted`) total       | 471.5 KB | 410.9 KB | −60.6 KB |
+| No-demo page (`customization`) total | 237.5 KB | 176.1 KB | −61.5 KB |
+| Demo-specific cost (demo − no-demo)  | 233.9 KB | 234.8 KB |  +0.9 KB |
+| Requests (demo / no-demo)            |  15 / 11 |  15 / 11 |        — |
+
+**The demo-specific cost doesn't move.** The entire saving is on the shared
+eager side, which is the useful shape: it's the no-demo page — the one ADR
+0004's eager invariant is about — that gets 25.9% lighter. A reader who never
+opens a page with a demo was paying for a syntax highlighter they had no use
+for.
+
+### 2.4 KB of it is CSS
+
+The sitewide stylesheet went 16,566 → 14,086 B brotli (84,978 → 70,351 raw),
+counted in both rows above since every page loads it. Worth recording where
+that came from, because it's easy to misattribute later:
+
+**It is not Shiki's CSS.** Both stylesheets still carry all 35 `.shiki`
+selectors — compile-time highlighting emits `.shiki` markup for ordinary code
+blocks and always needed those rules. Nothing about code-block styling
+changed.
+
+What went is the CSS for _theme components the site never renders_, which the
+barrel had been keeping alive. 151 selectors dropped, by component:
+
+| component    | selectors | what it is                    |
+| ------------ | --------: | ----------------------------- |
+| `rp-prompt`  |        50 | the "Copy Prompt" agent block |
+| `rp-llms`    |        22 | llms.txt buttons / view menu  |
+| `rp-page`    |        21 | `PageTabs`                    |
+| `rp-banner`  |         6 | site banner                   |
+| `rp-source`  |         5 | `SourceCode` link             |
+| `rp-steps`   |         4 | `Steps`                       |
+| `rp-outline` |         2 | outline "open in" wrapper     |
+| (other)      |        41 | keyframes, one-off rules      |
+
+So the barrel's cost was never only Shiki. Marking every export live also
+pinned each component's stylesheet, whether or not the site used the
+component — the same failure in a second dimension.
+
+Build output drops too, though this part was never transferred: 190 of 322
+async chunks were TextMate grammars (5.5 MB raw), emitted but never fetched,
+since nothing ever called `CodeBlockRuntime`. Dead deploy weight, not reader
+cost — don't quote it as a payload win.
+
+### The part that isn't sealed
+
+`visitFilePaths` folds each demo's own imports into the same sitewide virtual
+module, so **one demo importing `@rspress/core/theme` brings the whole cost
+back for every page.** Removing it from the defaults only stops the plugin
+imposing it unprompted. `usage.mdx` warns demo authors, and
+`plugin.ts`'s `defaultModules` docblock records why it must not return.
 
 ## Caveats for whoever reruns this
 

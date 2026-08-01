@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // See docs/guide/external/multiFile.mdx / snippets/multiFile/{MultiFile,Imported}.tsx.
-// MultiFile.tsx (the entry file) renders Imported.tsx's Badge plus its own
+// MultiFile.tsx (the entry file) renders Imported.tsx's count plus its own
 // Increment button, so switching tabs is checked against the editor's content
 // (which file is showing) while the preview (both files' combined output)
 // stays on screen throughout.
@@ -29,7 +29,9 @@ test.describe("FileTabs switches which file's source the editor shows", () => {
 		await importedTab.click();
 
 		await expect(importedTab).toHaveAttribute("data-active", "true");
-		await expect(page.locator("#editor .cm-content")).toContainText("Badge");
+		await expect(page.locator("#editor .cm-content")).toContainText(
+			"props.count",
+		);
 		await expect(page.locator("#editor .cm-content")).not.toContainText(
 			"Increment",
 		);

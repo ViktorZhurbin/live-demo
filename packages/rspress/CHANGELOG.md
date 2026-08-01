@@ -203,6 +203,23 @@ export const App = () => {
 `import React from "react"` still works, and type-only uses (`React.FC`) are
 unaffected.
 
+#### `@rspress/core/theme` is no longer an implicit demo import
+
+Demos used to resolve `@rspress/core/theme` without listing it anywhere; now
+only `react` and `react/jsx-runtime` do.
+
+Reasoning: `@rspress/core/theme` is a barrel — importing it pulls
+Shiki into the eager bundle of every page on the site, not just the page holding the demo. This plugin does not use Shiki at all. A demo can still import it explicitly, just beware of the cost. Measured on the real
+deployment (Cloudflare-served, brotli):
+
+- a page with no demo drops from 237.5 KB to 176.1 KB,
+- a page with a demo from 471.5 KB to 410.9 KB.
+
+2.4 KB of that is CSS, not JS: keeping the barrel live also kept the styles
+for theme components the site never renders (`Banner`, `PageTabs`, the
+llms.txt buttons, `Steps`, `SourceCode`). Shiki's own code-block CSS stays —
+compile-time highlighting still needs it.
+
 #### `files` keys are demo-relative paths, not base names
 
 `files` is now keyed by each file's path relative to the entry file's

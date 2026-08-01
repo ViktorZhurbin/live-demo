@@ -20,7 +20,7 @@ const __dirname = path.dirname(__filename);
  * themselves, so it can't be discovered by scanning their code the way other
  * externals are — it has to be here, or every JSX demo fails to resolve it.
  **/
-const defaultModules = ["react", "react/jsx-runtime", "@rspress/core/theme"];
+const defaultModules = ["react", "react/jsx-runtime"];
 
 export const liveDemoPluginRspress = (
 	options?: LiveDemoPluginOptions,

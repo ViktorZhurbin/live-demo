@@ -1,5 +1,4 @@
 import { Button } from "@live-demo/rspress/web";
-import { Badge } from "@rspress/core/theme";
 import { useState } from "react";
 
 export const Basic = () => {
@@ -11,9 +10,7 @@ export const Basic = () => {
 
 	return (
 		<div>
-			<Badge type="info">Count is {count}</Badge>
-			<br />
-			<br />
+			<p>Count is {count}</p>
 			<Button onClick={increment}>Increment</Button>
 		</div>
 	);
