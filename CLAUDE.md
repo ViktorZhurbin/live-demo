@@ -50,13 +50,13 @@ it, and promote it when it turns out to outlive that tier.
 
 - **`docs/decisions/`** — ADRs. Durable, numbered, and binding on future work:
   they constrain what gets built and what was built.
-- **`docs/ongoing/`** — working documents with a finite life: research
-  snapshots, measurement runs, and the ordered action list. These get items
-  checked off and are eventually deleted, so **nothing durable should live
-  here alone.** Do not reference them in durable docs either.
-  If a working doc grows a principle that will outlive the list it's in,
-  move it to an ADR.
-- **`docs/.open-questions.md`** and **`docs/.shelved-questions.md`** —
+- **`docs/ongoing/`** — the ordered action list for the current initiative.
+  Items get checked off and the file is eventually deleted, so **nothing
+  durable should live here alone.** Do not reference it from durable docs
+  either. If it grows a principle that will outlive the list, move it to an
+  ADR.
+- **`docs/explorations/`** — research snapshots and measurement runs with a
+  finite life, plus `.open-questions.md` and `.shelved-questions.md`: things
   investigated far enough to have an answer, deliberately not acted on. Each
   entry records what was measured, why it's parked, and what would unpark it.
   Check these before re-deriving an idea from scratch; several look obvious

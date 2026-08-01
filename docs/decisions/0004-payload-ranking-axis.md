@@ -19,7 +19,7 @@ Root `CLAUDE.md` says ~22 weekly downloads, no known users, and that
 2. It's falsifiable. "Cleaner" and "simpler" are arguable forever; bytes on
    the wire aren't — the closest thing here to an external referee.
 3. The measurement already exists and was expensive:
-   `docs/ongoing/asset-size-comparison.md` is real Cloudflare deploys,
+   `docs/explorations/asset-size-comparison.md` is real Cloudflare deploys,
    brotli end-to-end, three branches, every demo clicked before any number
    was trusted.
 

@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 // identified by a string unique to it — `jsxPragma` (a Sucrase transform
 // option) for the compiler, `cm-content` (CodeMirror's own class name) for
 // the editor — rather than by filename. Same way
-// docs/ongoing/asset-size-comparison.md attributed chunks to packages.
+// docs/explorations/asset-size-comparison.md attributed chunks to packages.
 //
 // The demo is pushed below the fold by an injected spacer rather than by the
 // page's own prose: every demo page in `website/docs` puts its demo within a
