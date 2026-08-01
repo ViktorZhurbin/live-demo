@@ -12,11 +12,11 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@live-demo/rspress": "workspace:*",
 		"@react-three/drei": "^10.7.6",
 		"@react-three/fiber": "^9.4.0",
 		"@react-three/postprocessing": "^3.0.4",
 		"@rspress/core": "2.0.18",
+		"@rspress/plugin-playground": "2.0.18",
 		"clsx": "^2.1.1",
 		"qrcode.react": "^4.2.0",
 		"react": "^19",

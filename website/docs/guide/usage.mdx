@@ -25,11 +25,10 @@ Which turns into an editable demo:
 
 <div data-testid="inline-demo">
 
-```jsx live
+```jsx playground
 import { useState } from "react";
-import { Button } from "@live-demo/rspress/web";
 
-export const App = () => {
+const App = () => {
   const [count, setCount] = useState(0)
 
   const increment = () => {
@@ -39,10 +38,12 @@ export const App = () => {
   return (
     <div>
       <p>Count is: {count}</p>
-      <Button onClick={increment}>Increment</Button>
+      <button onClick={increment}>Increment</button>
     </div>
   )
 }
+
+export default App;
 ```
 
 </div>
@@ -104,12 +105,14 @@ which is only possible if the import actually resolved:
 
 <div data-testid="import-demo">
 
-```jsx live
+```jsx playground
 import { QRCodeSVG } from "qrcode.react";
 
-export const App = () => {
+const App = () => {
   return <QRCodeSVG value="https://live-demo.vktrz.workers.dev" size={128} />;
 };
+
+export default App;
 ```
 
 </div>

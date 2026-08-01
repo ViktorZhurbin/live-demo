@@ -1,7 +1,6 @@
-import { Button } from "@live-demo/rspress/web";
 import { useState } from "react";
 
-export const Basic = () => {
+const Basic = () => {
 	const [count, setCount] = useState(0);
 
 	const increment = () => {
@@ -11,7 +10,9 @@ export const Basic = () => {
 	return (
 		<div>
 			<p>Count is {count}</p>
-			<Button onClick={increment}>Increment</Button>
+			<button onClick={increment}>Increment</button>
 		</div>
 	);
 };
+
+export default Basic;

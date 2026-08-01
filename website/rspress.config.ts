@@ -1,20 +1,25 @@
 import * as path from "node:path";
 
-import { liveDemoPluginRspress } from "@live-demo/rspress";
 import { defineConfig } from "@rspress/core";
+import { pluginPlayground } from "@rspress/plugin-playground";
 
 export default defineConfig({
 	llms: true,
 	root: path.join(__dirname, "docs"),
 
 	plugins: [
-		liveDemoPluginRspress({
-			ui: {
-				resizablePanels: {
-					autoSaveId: "live-demo-docs",
-					defaultPanelSizes: { editor: "55%", preview: "45%" },
-				},
-			},
+		pluginPlayground({
+			// Upstream's routeGenerated scan collects imports from inline
+			// `jsx/tsx playground` fences and `<code src>` elements only. A
+			// `file=` fence has an empty body in the raw MDX it parses (core's
+			// remarkFileCodeBlock fills it later, inside the compile it doesn't
+			// see), so its imports are never collected. Declare them here.
+			include: [
+				"@react-three/drei",
+				"@react-three/fiber",
+				"@react-three/postprocessing",
+				"three",
+			],
 		}),
 	],
 
