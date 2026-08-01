@@ -326,7 +326,7 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(@react-three/fiber@9.6.1(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(three@0.182.0))(@types/three@0.185.1)(react@19.2.7)(three@0.182.0)
       '@rspress/core':
-        specifier: ^2.0.18
+        specifier: 2.0.18
         version: 2.0.18(@rspack/core@2.1.4(@swc/helpers@0.5.23))(@types/mdast@4.0.4)(@types/react@19.2.17)(core-js@3.47.0)(micromark-util-types@2.0.2)(micromark@4.0.2(supports-color@7.2.0))(supports-color@7.2.0)
       clsx:
         specifier: ^2.1.1
