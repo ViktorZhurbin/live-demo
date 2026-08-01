@@ -59,5 +59,4 @@ https://live-demo.pages.dev/guide/getStarted
 This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). Differences:
 
 - Multi-file support
-- Typescript w/o red squiggles (no intellisense still) **[VERIFY]** if upstream still has this problem
 - Small runtime that loads only when needed and only what's needed
