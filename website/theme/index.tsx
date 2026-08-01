@@ -3,8 +3,6 @@ import {
 	PackageManagerTabs,
 } from "@rspress/core/theme-original";
 
-import { HomeDemo } from "../components/HomeDemo";
-
 function HomeLayout() {
 	return (
 		<BasicHomeLayout
@@ -20,10 +18,6 @@ function HomeLayout() {
 					>
 						Get started
 					</a>
-
-					<div style={{ width: "100%", textAlign: "left" }}>
-						<HomeDemo />
-					</div>
 				</>
 			}
 		/>

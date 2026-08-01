@@ -9,10 +9,15 @@ export default defineConfig({
 
 	plugins: [
 		liveDemoPluginRspress({
+			// 2.0.6 doesn't scan inline ```lang live blocks for their own
+			// imports, so usage.mdx's qrcode.react demo needs this. External
+			// (<code src>) demos are scanned, so three.js et al. don't.
+			includeModules: ["qrcode.react"],
 			ui: {
 				resizablePanels: {
 					autoSaveId: "live-demo-docs",
-					defaultPanelSizes: { editor: "55%", preview: "45%" },
+					// 2.0.6 typed these as numbers, not "55%" strings.
+					defaultPanelSizes: { editor: 55, preview: 45 },
 				},
 			},
 		}),
