@@ -63,6 +63,11 @@ This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plu
   demo as a single standalone file.
 - Small runtime that loads only when needed and only what's needed.
 
+Migrating: `playground` is accepted as an alias for `live`, so existing
+fences keep working unchanged — swapping the plugin registration is the whole
+migration. The two can't be registered on the same site, since both claim the
+same fence keyword.
+
 ### Payload
 
 Both plugins deployed to Cloudflare Pages from the same 9-page docs site, with just one page having a Three.js demo. Same `@rspress/core@2.0.18`, brotli, real page loads:
@@ -73,10 +78,8 @@ Both plugins deployed to Cloudflare Pages from the same 9-page docs site, with j
 | demo importing only `react`       |  432.6 kB |                  3155.8 kB |
 | demo importing the three.js graph | 1334.3 kB |                  3151.5 kB |
 
-Upstream preloads Monaco from a CDN on every page of the site, and its virtual
-module imports every external statically — which is why its two demo rows are
-the same size: the three.js demo's dependencies land on the `react`-only demo's
-page too.
+Upstream preloads Monaco on every page and imports every external statically
+— full reasoning in the breakdown below.
 
 Full breakdown:
 [asset-size comparison](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/explorations/asset-size-comparison.md).
