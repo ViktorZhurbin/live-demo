@@ -134,11 +134,11 @@ three legs while still carrying each plugin's eager cost.
 | page                                  |                  **current** |             **upstream** |               **v2.0.6** |
 | ------------------------------------- | ---------------------------: | -----------------------: | -----------------------: |
 | _the plugin's share is_               | _CodeMirror + Sucrase, lazy_ | _Monaco + Babel + union_ | _Babel + Rollup + union_ |
-| `customization` — no demo             |                 **187.1 KB** |                 849.7 KB |                 885.1 KB |
-| `getStarted` — cheap demo             |                 **422.5 KB** |                3081.8 KB |                2239.2 KB |
-| `goWild` — three.js demo              |                **1303.0 KB** |                3077.6 KB |                2234.5 KB |
-| `usage` — inline demos, before scroll |                 **421.5 KB** |                3081.3 KB |                2238.3 KB |
-| `usage` — after scrolling to the 2nd  |                 **427.9 KB** |                3081.3 KB |                2238.3 KB |
+| `customization` — no demo             |                 **191.6 kB** |                 870.1 kB |                 906.3 kB |
+| `getStarted` — cheap demo             |                 **432.6 kB** |                3155.8 kB |                2293.0 kB |
+| `goWild` — three.js demo              |                **1334.3 kB** |                3151.5 kB |                2288.1 kB |
+| `usage` — inline demos, before scroll |                 **431.7 kB** |                3155.2 kB |                2292.0 kB |
+| `usage` — after scrolling to the 2nd  |                 **438.2 kB** |                3155.2 kB |                2292.0 kB |
 
 Request counts: `customization` 12 / 14 / 14, `getStarted` 16 / 24 / 16,
 `goWild` 20 / 24 / 16, `usage` 16–17 / 24 / 17 (current / upstream / v2.0.6).
@@ -159,9 +159,9 @@ Cheap-demo page against heavy-demo page, on the same leg:
 
 | leg          | `getStarted` |  `goWild` |         delta |
 | ------------ | -----------: | --------: | ------------: |
-| **current**  |     422.5 KB | 1303.0 KB | **+880.5 KB** |
-| **upstream** |    3081.8 KB | 3077.6 KB |       −4.2 KB |
-| **v2.0.6**   |    2239.2 KB | 2234.5 KB |       −4.7 KB |
+| **current**  |     432.6 kB | 1334.3 kB | **+901.7 kB** |
+| **upstream** |    3155.8 kB | 3151.5 kB |       −4.3 kB |
+| **v2.0.6**   |    2293.0 kB | 2288.1 kB |       −4.9 kB |
 
 On current, a page pays for its own demo's dependency graph and nothing else.
 On both alternatives the two pages are the same size — three.js is already on
@@ -170,23 +170,23 @@ because its route chunk and prose are smaller; the demo payload is identical.
 
 Chunk attribution on current confirms the separation is real, not coincidence
 (identity-encoded, so these raw sizes don't belong beside the brotli totals
-above): `799.28b0945ad8.js` (1546.6 KB raw) carries `THREE` ×103 and
+above): `799.28b0945ad8.js` (1583.7 kB raw) carries `THREE` ×103 and
 `EffectComposer` ×5 and is fetched only by `goWild`; `899.a789894b09.js`
-(543.3 KB raw) is CodeMirror (`cm-content` ×10); `554.561e42b916.js`
-(196.3 KB raw) is Sucrase (`jsxPragma` ×5). No chunk mixes them.
+(556.3 kB raw) is CodeMirror (`cm-content` ×10); `554.561e42b916.js`
+(201.0 kB raw) is Sucrase (`jsxPragma` ×5). No chunk mixes them.
 
 ### The eager tax — ADR 0004's invariant
 
 `customization` has no demo. Current ships **no plugin bytes** to it: its eager
-chunk `821.53d7c21a87.js` (228.7 KB raw) greps 0 for `jsxPragma`, `cm-content`,
+chunk `821.53d7c21a87.js` (234.2 kB raw) greps 0 for `jsxPragma`, `cm-content`,
 `CodeMirror`, `THREE` and `createOnigScanner`. It matches `live-demo` twice,
 both inside flexsearch's worker URL, which has the CI checkout path baked in
 (`file:///home/runner/work/live-demo/live-demo/node_modules/...`) — the
 documented false positive, not plugin code.
 
 The alternatives both pay on that page: upstream fetches Monaco's
-`editor.main.js` (657.3 KB) plus `loader.js` (8.3 KB); v2.0.6 fetches Babel
-(532.1 KB) plus Rollup (110.7 KB). Neither page has anything to compile.
+`editor.main.js` (673.1 kB) plus `loader.js` (8.5 kB); v2.0.6 fetches Babel
+(544.9 kB) plus Rollup (113.4 kB). Neither page has anything to compile.
 
 ### The viewport gate
 
@@ -194,9 +194,9 @@ The alternatives both pay on that page: upstream fetches Monaco's
 
 | leg          | before scroll | after scroll |   delta |
 | ------------ | ------------: | -----------: | ------: |
-| **current**  |      421.5 KB |     427.9 KB | +6.4 KB |
-| **upstream** |     3081.3 KB |    3081.3 KB |       0 |
-| **v2.0.6**   |     2238.3 KB |    2238.3 KB |       0 |
+| **current**  |      431.7 kB |     438.2 kB | +6.5 kB |
+| **upstream** |     3155.3 kB |    3155.3 kB |       0 |
+| **v2.0.6**   |     2292.0 kB |    2292.0 kB |       0 |
 
 Current's delta is exactly one chunk, `432.ad24a44a49.js` (6,513 B), which
 greps `QRCodeSVG` ×2 — the below-the-fold demo's own import and nothing else.
@@ -236,17 +236,17 @@ Demo-specific cost (cheap-demo page minus no-demo page) against the previous
 
 | leg          | asset-size-3 | asset-size-2 |   drift |
 | ------------ | -----------: | -----------: | ------: |
-| **current**  |     235.4 KB |     236.1 KB | −0.7 KB |
-| **upstream** |    2232.1 KB |    2233.3 KB | −1.2 KB |
-| **v2.0.6**   |    1354.1 KB |    1355.4 KB | −1.3 KB |
+| **current**  |     241.0 kB |     241.8 kB | −0.8 kB |
+| **upstream** |    2285.7 kB |    2286.9 kB | −1.2 kB |
+| **v2.0.6**   |    1386.6 kB |    1387.9 kB | −1.3 kB |
 
-Within ~1.3 KB on all three legs, independently reproduced from cherry-picked
+Within ~1.3 kB on all three legs, independently reproduced from cherry-picked
 branches on a newer `main`. That's evidence the rig itself reproduces, not just
 that the plugins didn't change.
 
-Absolutes did move: the eager tax is now 187.1 KB against the previous run's
-194.4 KB, mostly because `main` replaced its PNG favicons with SVGs
-(`icon-dark.png` was 12.7 KB in every row; `icon-*.svg` are ~1.0 KB).
+Absolutes did move: the eager tax is now 191.6 kB against the previous run's
+199.1 kB, mostly because `main` replaced its PNG favicons with SVGs
+(`icon-dark.png` was 13.0 kB in every row; `icon-*.svg` are ~1.0 kB).
 
 ## Still current from earlier runs
 
@@ -263,12 +263,12 @@ The three sections below were **not re-measured in this run**.
 | README — "TypeScript w/o red squiggles" as a difference                              | **False; removed from README**     |
 
 **The Sucrase entry's Babel comparison was wrong.** Its Sucrase figures
-reproduce exactly (44.8 KB brotli, 196.3 KB uncompressed — chunk `554`, whose
-filename `554.561e42b916.js` and 196.3 KB raw size still match this run), but
-the Babel figures it compared them against (481.2 KB brotli, 2251.0 KB
+reproduce exactly (45.9 kB brotli, 201.0 kB uncompressed — chunk `554`, whose
+filename `554.561e42b916.js` and 201.0 kB raw size still match this run), but
+the Babel figures it compared them against (492.7 kB brotli, 2305.0 kB
 uncompressed) match no artifact reachable today: `@babel/standalone@7.28.3`,
-the version this plugin actually shipped, measures 531.8 KB brotli / 644.6 KB
-gzip / 3001.9 KB identity on jsdelivr. The entry now carries the measured
+the version this plugin actually shipped, measures 544.6 kB brotli / 660.1 kB
+gzip / 3073.9 kB identity on jsdelivr. The entry now carries the measured
 numbers; what the original 481.2 figure measured is unknown.
 
 The red-squiggles claim was never true of upstream either:
@@ -295,14 +295,14 @@ Production `main` against a branch preview, both the full untrimmed site:
 
 |                                      |   before |    after |    delta |
 | ------------------------------------ | -------: | -------: | -------: |
-| Demo page (`getStarted`) total       | 471.5 KB | 410.9 KB | −60.6 KB |
-| No-demo page (`customization`) total | 237.5 KB | 176.1 KB | −61.5 KB |
-| Demo-specific cost (demo − no-demo)  | 233.9 KB | 234.8 KB |  +0.9 KB |
+| Demo page (`getStarted`) total       | 482.8 kB | 420.8 kB | −62.1 kB |
+| No-demo page (`customization`) total | 243.2 kB | 180.3 kB | −63.0 kB |
+| Demo-specific cost (demo − no-demo)  | 239.5 kB | 240.4 kB |  +0.9 kB |
 
 **The demo-specific cost doesn't move.** The entire saving is on the shared
 eager side: the no-demo page gets 25.9% lighter.
 
-2.4 KB of it was CSS — the sitewide stylesheet went 16,566 → 14,086 B brotli
+2.5 kB of it was CSS — the sitewide stylesheet went 16,566 → 14,086 B brotli
 (84,978 → 70,351 raw). **Not Shiki's CSS**: both stylesheets still carry all 35
 `.shiki` selectors, which ordinary compile-time-highlighted code blocks need.
 What went is the CSS for _theme components the site never renders_, which the
@@ -313,7 +313,7 @@ export live pinned each component's stylesheet whether or not the site used the
 component.
 
 Build output dropped too: 190 of 322 async chunks were TextMate grammars
-(5.5 MB raw), emitted but never fetched. Dead deploy weight, not reader cost.
+(5.8 MB raw), emitted but never fetched. Dead deploy weight, not reader cost.
 
 **The part that isn't sealed.** `visitFilePaths` folds each demo's own imports
 into the same sitewide virtual module, so **one demo importing
@@ -325,37 +325,37 @@ only `react/jsx-runtime`.
 ### 2026-07-27: what's inside the CodeMirror bundle
 
 Not re-measured here, but **still the current chunk**: `899.a789894b09.js`,
-556,371 B raw, unchanged in this run (183.0 KB brotli). The relative weights
+556,371 B raw, unchanged in this run (187.4 kB brotli). The relative weights
 below still apply. Figures are **gzip** (`webpack-bundle-analyzer` `chartData`)
 and don't belong in a sentence with the brotli totals above.
 
 | Package                                      | Minified |    Gzip |
 | -------------------------------------------- | -------: | ------: |
-| `@codemirror/view`                           | 190.5 KB | 60.4 KB |
-| `@codemirror/lang-javascript`                | 108.3 KB | 40.9 KB |
-| `@uiw/react-codemirror` (React wrapper)      |  62.9 KB | 20.6 KB |
-| `@codemirror/state`                          |  47.4 KB | 15.7 KB |
-| `@codemirror/autocomplete`                   |  34.2 KB | 11.9 KB |
-| `react-resizable-panels`                     |  32.2 KB | 10.6 KB |
-| `@codemirror/language`                       |  24.6 KB |  8.9 KB |
-| `@lezer/common`                              |  20.2 KB |  6.9 KB |
-| `@lezer/highlight`                           |   6.8 KB |  2.7 KB |
-| `@mantine/hooks`                             |   5.5 KB |  2.4 KB |
-| `@uiw/codemirror-theme-vscode`               |   4.8 KB |  1.4 KB |
-| `@tabler/icons-react`                        |   2.5 KB |  1.7 KB |
-| `style-mod` + `crelt` (CodeMirror internals) |   2.7 KB |  1.5 KB |
-| `@babel/runtime`                             |   0.2 KB |  0.2 KB |
+| `@codemirror/view`                           | 195.1 kB | 61.8 kB |
+| `@codemirror/lang-javascript`                | 110.9 kB | 41.9 kB |
+| `@uiw/react-codemirror` (React wrapper)      |  64.4 kB | 21.1 kB |
+| `@codemirror/state`                          |  48.5 kB | 16.1 kB |
+| `@codemirror/autocomplete`                   |  35.0 kB | 12.2 kB |
+| `react-resizable-panels`                     |  33.0 kB | 10.9 kB |
+| `@codemirror/language`                       |  25.2 kB |  9.1 kB |
+| `@lezer/common`                              |  20.7 kB |  7.1 kB |
+| `@lezer/highlight`                           |   7.0 kB |  2.8 kB |
+| `@mantine/hooks`                             |   5.6 kB |  2.5 kB |
+| `@uiw/codemirror-theme-vscode`               |   4.9 kB |  1.4 kB |
+| `@tabler/icons-react`                        |   2.6 kB |  1.7 kB |
+| `style-mod` + `crelt` (CodeMirror internals) |   2.8 kB |  1.5 kB |
+| `@babel/runtime`                             |   0.2 kB |  0.2 kB |
 
-Per-module gzip sums to 185.8 KB against the chunk's real 180.3 KB — expected,
+Per-module gzip sums to 190.3 kB against the chunk's real 184.6 kB — expected,
 since gzip-ing each module separately misses cross-module redundancy.
 
 CodeMirror proper (`@codemirror/*` + `@lezer/*` + `style-mod` + `crelt`) is
-~149 KB gzip of the total. `@uiw/react-codemirror`, the React binding, adds
-another 20.6 KB over talking to CodeMirror directly. `@tabler/icons-react`
-tree-shakes to 1.7 KB — the two icons the control panel uses, not the icon set.
+~153 kB gzip of the total. `@uiw/react-codemirror`, the React binding, adds
+another 21.1 kB over talking to CodeMirror directly. `@tabler/icons-react`
+tree-shakes to 1.7 kB — the two icons the control panel uses, not the icon set.
 `react-error-boundary` has no line: it's inlined into `Core.mjs` at the
 package's `tsdown` build step, so the analyzer can't attribute it. Bounded
-regardless — the whole wrapper chunk it lives in is 5.9 KB.
+regardless — the whole wrapper chunk it lives in is 6.0 kB.
 
 ## Caveats
 
@@ -367,19 +367,19 @@ regardless — the whole wrapper chunk it lives in is 5.9 KB.
   raw chunk sizes used for attribution are a fourth — they exist to name what's
   in a chunk, never to total anything.
 - **Two different Babel builds appear across legs** —
-  `babel-standalone@7.22.20` (upstream, cdnjs, 377.1 KB) and
-  `@babel/standalone@7.28.3` (v2.0.6, jsdelivr, 532.1 KB). Different package,
-  version and CDN, not one dependency measured twice; the ~155 KB gap is not a
+  `babel-standalone@7.22.20` (upstream, cdnjs, 386.2 kB) and
+  `@babel/standalone@7.28.3` (v2.0.6, jsdelivr, 544.9 kB). Different package,
+  version and CDN, not one dependency measured twice; the ~159 kB gap is not a
   methodology inconsistency.
 - **Favicons are in every row.** Each page load got its own isolated browser
-  context, so they're fetched every time. Now SVG (~1.0 KB each) rather than the
-  12.7 KB PNGs of the previous run — uniform across all 12 cells, so it cancels,
+  context, so they're fetched every time. Now SVG (~1.0 kB each) rather than the
+  13.0 kB PNGs of the previous run — uniform across all 12 cells, so it cancels,
   but it's why absolutes shifted between runs.
 - **Monaco's duplicate worker fetches are counted once**, per the method's
   `immutable` rule. Both `workerMain.js` responses were **200, not 304** —
   two workers raced before either response was cached, so a real reader
-  plausibly paid 80.4 KB twice. Counting once understates upstream's demo pages
-  by ~80 KB; the ratios above are the conservative reading.
+  plausibly paid 82.3 kB twice. Counting once understates upstream's demo pages
+  by ~82 kB; the ratios above are the conservative reading.
 - **Reproducing this**: branches `asset-size-3/upstream` and
   `asset-size-3/v2.0.6` on `origin`, both cut from `main@eac341a`. For a newer
   `main`, cherry-pick each branch's single commit forward rather than rebasing

@@ -25,25 +25,25 @@ Root `CLAUDE.md` says ~22 weekly downloads, no known users, and that
 
 ### What was measured
 
-From `asset-size-comparison.md`'s 2026-08-02 run, real transferred bytes,
+From `asset-size-comparison.md`'s `asset-size-3` run (2026-08-02), real transferred bytes,
 brotli, untrimmed 9-page site on three deploys:
 
 |                                     |      current | `plugin-playground@2.0.18` | `@live-demo/rspress@2.0.6` |
 | ----------------------------------- | -----------: | -------------------------: | -------------------------: |
-| Demo page (`react` only), total     | **430.5 KB** |                  3090.8 KB |                  2251.0 KB |
-| Demo page (three.js), total         |    1311.1 KB |                  3086.2 KB |                  2246.2 KB |
-| No-demo page, total                 | **194.4 KB** |                   857.5 KB |                   895.6 KB |
-| Demo-specific cost (`react` only)   |     236.1 KB |                  2233.3 KB |                  1355.4 KB |
+| Demo page (`react` only), total     | **432.6 kB** |                  3155.8 kB |                  2293.0 kB |
+| Demo page (three.js), total         |    1334.3 kB |                  3151.5 kB |                  2288.1 kB |
+| No-demo page, total                 | **191.6 kB** |                   870.1 kB |                   906.3 kB |
+| Demo-specific cost (`react` only)   |     241.0 kB |                  2285.7 kB |                  1386.6 kB |
 | Loads a runtime on demo-free pages? |       **No** |                        Yes |                        Yes |
 
-~97% of the demo-specific cost is two dependencies — CodeMirror (183.0 KB)
-and Sucrase (45.0 KB) — so payload work outside those two is rounding error.
+~97% of the demo-specific cost is two dependencies — CodeMirror (187.3 kB)
+and Sucrase (45.8 kB) — so payload work outside those two is rounding error.
 "current" is also the only one of the three whose eager row is empty: both
 alternatives ship a working demo runtime to every page via a CDN request
 rather than a bundled chunk, invisible unless compared.
 
 The first two rows are the same claim from the other side. On current the
-three.js demo's page costs 880.6 KB more than the trivial demo's; on both
+three.js demo's page costs 901.7 kB more than the trivial demo's; on both
 alternatives the two pages are the same size, because each statically imports
 the union of every external used anywhere on the site.
 
@@ -118,7 +118,7 @@ re-measuring.
   than an interesting problem, it has failed on its own terms.
 - **Not every payload argument wins.** "Deliver site-wide `ui` once instead
   of per demo" was closed by this method: priced honestly, it saves a few
-  hundred bytes of options object against a 236.1 KB demo-specific cost,
+  hundred bytes of options object against a 241.0 kB demo-specific cost,
   and costs a second generated module and build seam.
 - **It also defers things.** The TS/JS view toggle doubles every demo's
   `files` payload, which is why it's Deferred rather than ranked.

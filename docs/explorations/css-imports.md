@@ -28,7 +28,7 @@ Adding CSS would have meant hand-writing a Rollup plugin whose entire body is
 "return the text wrapped in a `<style>` injection" — the same fifteen lines that
 now belong in `moduleRunner.ts`, minus Rollup.
 
-So: **bringing Rollup back buys nothing here.** It would re-add ~350 KB brotli
+So: **bringing Rollup back buys nothing here.** It would re-add ~358 kB brotli
 (ADR 0001's measured saving) to solve a problem it never solved and does not
 address. Closed.
 

@@ -14,7 +14,7 @@ to shrink the browser runtime; steps 2-4 were to try `@babel/core`, then oxc, th
 `@babel/core` was tried first and abandoned: it needs `@rsbuild/plugin-node-polyfill`
 plus hand-written shims in the _consuming site's_ build config (`node:assert`,
 `node:path`, `node:util` imports outside its browser-export stub), and under real
-brotli compression the saving was near zero — the ~90 KB headline was a gzip-only
+brotli compression the saving was near zero — the ~92 kB headline was a gzip-only
 artifact. That work is preserved at `git stash@{0}`.
 
 `@babel/standalone` was, at that point, the only candidate clearing every hard
@@ -32,7 +32,7 @@ requirement:
 
 oxc-transform failed requirement 1 (its wasm build needs COOP/COEP headers the
 consuming site would have to set) and requirement 3 (no CJS output mode).
-esbuild-wasm and `@swc/wasm-web` failed on size alone (13-18 MB raw). Sucrase's
+esbuild-wasm and `@swc/wasm-web` failed on size alone (13-19 MB raw). Sucrase's
 npm package failed requirement 4 as shipped: its public API is
 `{ transform, getFormattedTokens, getVersion }`, with no specifier or
 named-import access.
@@ -126,17 +126,17 @@ browser.
 
 | Chunk                        | Raw       | Brotli, live CDN |
 | ---------------------------- | --------- | ---------------- |
-| `@babel/standalone` (before) | 2251.0 KB | 481.2 KB         |
-| Sucrase (after)              | 196.3 KB  | 44.8 KB          |
+| `@babel/standalone` (before) | 2305.0 kB | 492.7 kB         |
+| Sucrase (after)              | 201.0 kB  | 45.9 kB          |
 
 An 11.5x reduction raw, 10.7x under real CDN brotli. (Earlier offline
-measurements undersold this: quality-11 `zlib` brotli measured Babel at 387.6 KB,
+measurements undersold this: quality-11 `zlib` brotli measured Babel at 396.9 kB,
 about 19% below its real deployed footprint — Cloudflare compresses live
 traffic at a lower quality than an offline max-quality pass.)
 
 Combined with [0001](0001-drop-rollup-for-cjs-require-loop.md)'s Rollup removal,
-the same demo page's compiler payload went from 827.6 KB to 50.0 KB brotli
-(827.6 KB → 50.0 KB, ~2.93 MB less raw) — for a plugin whose pitch is being
+the same demo page's compiler payload went from 847.5 kB to 51.2 kB brotli
+(847.5 kB → 51.2 kB, ~3.07 MB less raw) — for a plugin whose pitch is being
 leaner than `@rspress/plugin-playground`, that is close to the pitch itself.
 
 Verification: `pnpm run check:all` green — 211/211 vitest (was 186), 22/22
@@ -203,7 +203,7 @@ including every wrong turn, is in `./0002-extras--trinspiler-research.md`.
    populated (the first pass's claim was wrong), that specifier extraction
    needs no fork (`CJSImportProcessor.importInfoByPath` already exists,
    `transform()` just needs to return it), that the fork's size claim
-   (~85 KB raw) was optimistic by ~60% against a real build (~136 KB), and
+   (~87 kB raw) was optimistic by ~60% against a real build (~139 kB), and
    surfaced the one real gap neither pass had found — Sucrase doesn't
    validate JSX tag matching. Recommended `pnpm patch` over forking, ~100
    lines.

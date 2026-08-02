@@ -49,21 +49,21 @@ missing its closing brace) to see what its error looks like.
 
 | Candidate                        | Version | Raw       | Gzip      | Brotli          | Wasm                             | CJS out                   | AST/specifiers                                                            | Error quality                                                     | Last release                                              |
 | -------------------------------- | ------- | --------- | --------- | --------------- | -------------------------------- | ------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| **@babel/standalone**            | 8.0.4   | 2384.9 KB | 563.4 KB  | 387.6 KB        | no                               | yes (built-in)            | yes (visitor, in use today)                                               | codeframe baked into `.message`                                   | 2026-07-09                                                |
-| **Sucrase**                      | 3.35.1  | 201.2 KB  | 46.2 KB   | 39.2 KB         | no                               | yes (`imports` transform) | no — separate parse needed                                                | bare message + line:col, `.loc` empty                             | 2025-11-19 (dep-bump only; prior real release 2023-12-22) |
-| **oxc-transform** (JS glue only) | 0.141.0 | 199.1 KB  | 45.5 KB   | 39.3 KB         | **yes, separately**              | **no** (ESM only)         | partial — `deps` exists only on a `@deprecated "Only works for Vite"` API | best-in-class: rich `errors[]` with span, labels, ASCII codeframe | 2026-07-21                                                |
-| oxc-transform wasm blob          | 0.141.0 | 3194.1 KB | 1050.2 KB | (n/a, see note) | —                                | —                         | —                                                                         | —                                                                 | 2026-07-21                                                |
-| esbuild-wasm                     | 0.28.1  | 13.3 MB   | 3.54 MB   | 2.58 MB         | yes                              | n/a, out on size          | n/a                                                                       | n/a                                                               | —                                                         |
-| @swc/wasm-web                    | 1.15.46 | 18.15 MB  | 4.77 MB   | 3.00 MB         | yes                              | n/a, out on size          | n/a                                                                       | n/a                                                               | —                                                         |
-| Yuku (`@yuku-analyzer/wasm`)     | 0.7.4   | 63.9 KB   | 15.3 KB   | 13.6 KB         | **yes, but no COOP/COEP needed** | **no**                    | **yes** — `module.imports` gives `{kind, name, specifier}` natively       | message + span + help text, no codeframe, no line/col             | 2026-07-22                                                |
-| Yuku analyzer wasm blob          | 0.7.4   | 663.4 KB  | 196.7 KB  | 137.2 KB        | —                                | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
-| Yuku (`@yuku-codegen/wasm`)      | 0.7.4   | 38.6 KB   | 7.9 KB    | (n/a)           | yes, same story                  | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
-| Yuku codegen wasm blob           | 0.7.4   | 221.2 KB  | 44.4 KB   | (n/a)           | —                                | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
+| **@babel/standalone**            | 8.0.4   | 2442.1 kB | 576.9 kB  | 396.9 kB        | no                               | yes (built-in)            | yes (visitor, in use today)                                               | codeframe baked into `.message`                                   | 2026-07-09                                                |
+| **Sucrase**                      | 3.35.1  | 206.0 kB  | 47.3 kB   | 40.1 kB         | no                               | yes (`imports` transform) | no — separate parse needed                                                | bare message + line:col, `.loc` empty                             | 2025-11-19 (dep-bump only; prior real release 2023-12-22) |
+| **oxc-transform** (JS glue only) | 0.141.0 | 203.9 kB  | 46.6 kB   | 40.2 kB         | **yes, separately**              | **no** (ESM only)         | partial — `deps` exists only on a `@deprecated "Only works for Vite"` API | best-in-class: rich `errors[]` with span, labels, ASCII codeframe | 2026-07-21                                                |
+| oxc-transform wasm blob          | 0.141.0 | 3270.8 kB | 1075.4 kB | (n/a, see note) | —                                | —                         | —                                                                         | —                                                                 | 2026-07-21                                                |
+| esbuild-wasm                     | 0.28.1  | 13.9 MB   | 3.71 MB   | 2.71 MB         | yes                              | n/a, out on size          | n/a                                                                       | n/a                                                               | —                                                         |
+| @swc/wasm-web                    | 1.15.46 | 19.03 MB  | 5.00 MB   | 3.15 MB         | yes                              | n/a, out on size          | n/a                                                                       | n/a                                                               | —                                                         |
+| Yuku (`@yuku-analyzer/wasm`)     | 0.7.4   | 65.4 kB   | 15.7 kB   | 13.9 kB         | **yes, but no COOP/COEP needed** | **no**                    | **yes** — `module.imports` gives `{kind, name, specifier}` natively       | message + span + help text, no codeframe, no line/col             | 2026-07-22                                                |
+| Yuku analyzer wasm blob          | 0.7.4   | 679.3 kB  | 201.4 kB  | 140.5 kB        | —                                | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
+| Yuku (`@yuku-codegen/wasm`)      | 0.7.4   | 39.5 kB   | 8.1 kB    | (n/a)           | yes, same story                  | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
+| Yuku codegen wasm blob           | 0.7.4   | 226.5 kB  | 45.5 kB   | (n/a)           | —                                | —                         | —                                                                         | —                                                                 | 2026-07-22                                                |
 
 **All brotli figures here are offline quality 11 and are not comparable to production
 numbers.** Cloudflare compresses on the fly at a lower quality, so its output is
-larger: the same `@babel/standalone` chunk measured **492.5 KB** brotli over
-`live-demo.pages.dev` against **387.6 KB** offline here. Compare like with like, and
+larger: the same `@babel/standalone` chunk measured **504.3 kB** brotli over
+`live-demo.pages.dev` against **396.9 kB** offline here. Compare like with like, and
 prefer the raw column when comparing across measurement methods — it's the only
 quality-independent number in the table.
 
@@ -83,7 +83,7 @@ tracking, and an error whose `.message` already contains an ASCII codeframe (ver
 `SyntaxError: /Broken.tsx: Unexpected token (1:48)` followed by a `> 1 | ...` /
 `    | ^` block). Zero Node builtins in the bundle (grepped the real 8.0.4 bundle,
 confirmed clean). Cost to adopt: zero, it's already adopted. The only concrete downside
-is size (563 KB gzip), which is why this research exists.
+is size (577 kB gzip), which is why this research exists.
 
 ### Sucrase — second place, not adoptable as-is
 
@@ -162,7 +162,7 @@ not plain CJS. Not usable as-is.
 
 None of this is a knock on oxc's quality — the raw transform is fast, its automatic
 JSX runtime output is correct, its bundle-without-wasm size is on par with Sucrase
-(45.5 KB gzip), it's the toolchain this repo already trusts for build-time parsing
+(46.6 kB gzip), it's the toolchain this repo already trusts for build-time parsing
 (`oxc-parser`, `oxlint`, `oxfmt`), and its error reporting is the best of anything
 tested: `transformSync` never throws, it returns `errors[]` with `severity`,
 `message`, span `labels`, and a ready ASCII-art `codeframe` — richer than Babel's.
@@ -195,13 +195,13 @@ requirement 2/3 (JSX transform, CJS output), not what I originally focused on.
    transformer" isn't a fair number. That was a cop-out — I should have measured and
    labeled it correctly instead of not measuring. Corrected numbers, using the exact
    same esbuild method as every other candidate: `@yuku-analyzer/wasm`'s JS glue is
-   63.9 KB raw / 15.3 KB gzip / 13.6 KB brotli, its wasm blob is 663.4 KB raw / 196.7 KB
-   gzip / 137.2 KB brotli. `@yuku-codegen/wasm` (needed to print the AST back to
-   source) is another 38.6 KB raw / 7.9 KB gzip of glue plus a 221.2 KB raw / 44.4 KB
+   65.4 kB raw / 15.7 kB gzip / 13.9 kB brotli, its wasm blob is 679.3 kB raw / 201.4 kB
+   gzip / 140.5 kB brotli. `@yuku-codegen/wasm` (needed to print the AST back to
+   source) is another 39.5 kB raw / 8.1 kB gzip of glue plus a 226.5 kB raw / 45.5 kB
    gzip wasm blob. A realistic combined stack (analyzer for parse+specifiers, codegen
-   for printing) comes to roughly **885 KB raw / 241 KB gzip total** — smaller than
-   Sucrase, dramatically smaller than oxc's 3.2 MB wasm blob, and less than half of
-   Babel's 563 KB gzip JS-only bundle.
+   for printing) comes to roughly **906 kB raw / 247 kB gzip total** — smaller than
+   Sucrase, dramatically smaller than oxc's 3.4 MB wasm blob, and less than half of
+   Babel's 577 kB gzip JS-only bundle.
 
    More importantly, **Yuku's wasm doesn't need cross-origin isolation.** I checked
    `@yuku-parser/wasm`'s and `@yuku-analyzer/wasm`'s glue code directly: it's a plain
@@ -278,17 +278,17 @@ maintaining that layer itself changes.
 
 ### esbuild-wasm / @swc/wasm-web — out on size, as expected
 
-Measured, not cited: `esbuild-wasm@0.28.1`'s `esbuild.wasm` is 13.3 MB raw / 3.54 MB
-gzip / 2.58 MB brotli. `@swc/wasm-web@1.15.46`'s `wasm_bg.wasm` is 18.15 MB raw /
-4.77 MB gzip / 3.00 MB brotli — larger even than esbuild-wasm. Both are 5-10x the
+Measured, not cited: `esbuild-wasm@0.28.1`'s `esbuild.wasm` is 13.9 MB raw / 3.71 MB
+gzip / 2.71 MB brotli. `@swc/wasm-web@1.15.46`'s `wasm_bg.wasm` is 19.03 MB raw /
+5.00 MB gzip / 3.15 MB brotli — larger even than esbuild-wasm. Both are 5-10x the
 incumbent Babel bundle before any code-splitting benefit could offset it. Not
 seriously in the running; included only per the task's instruction to document the
 disqualification with real numbers.
 
 ## What I could not measure
 
-- **oxc wasm blob brotli.** I measured gzip (1050.2 KB) but treat any brotli number
-  for a 3.1 MB wasm binary as noise not worth reporting as a clean comparison point —
+- **oxc wasm blob brotli.** I measured gzip (1075.4 kB) but treat any brotli number
+  for a 3.3 MB wasm binary as noise not worth reporting as a clean comparison point —
   wasm binaries don't compress the way JS text does, and quality-11 brotli on 3 MB
   takes long enough that I didn't want to present a single run as authoritative. Moot
   anyway since oxc-transform is disqualified on requirement 1.
@@ -308,7 +308,7 @@ disqualification with real numbers.
 - **Sucrase's behavior on every syntax-error shape.** I tested one deliberately broken
   file. `.loc` being an empty object may not be true for every parse-error path;
   I did not exhaustively test Sucrase's error surface.
-- **Yuku codegen wasm blob brotli.** Measured gzip (44.4 KB) but skipped brotli for
+- **Yuku codegen wasm blob brotli.** Measured gzip (45.5 kB) but skipped brotli for
   the same "not worth trusting as a single run" reason as oxc's blob; low stakes here
   since the JS-glue-plus-wasm total is already the smallest of any candidate on gzip
   alone.
@@ -336,9 +336,9 @@ that. For a plugin whose pitch is being easier to adopt than
 `@rspress/plugin-playground`, mandatory bundler config is the wrong trade at any size.
 This is where requirement 1 came from.
 
-**Under brotli it was worth roughly nothing.** The headline was ~90 KB gzip. But the
-`@babel/core` chunk measured 387.2 KB brotli, and this research measured
-`@babel/standalone` at 387.6 KB brotli by a comparable offline method. Different
+**Under brotli it was worth roughly nothing.** The headline was ~92 kB gzip. But the
+`@babel/core` chunk measured 396.5 kB brotli, and this research measured
+`@babel/standalone` at 396.9 kB brotli by a comparable offline method. Different
 bundling contexts, so not a clean A/B, but close enough to conclude the win was a
 gzip-only artifact. Cloudflare serves brotli. **Lesson: for a decision about real
 payload, measure brotli against the CDN that actually serves it — a gzip delta can be
@@ -354,7 +354,7 @@ the consumer burden while keeping the smaller Babel. That option was never teste
 Stay on `@babel/standalone`. It's the only candidate that clears every hard
 requirement without new code: zero-config browser execution, CJS output, the
 specifier/named-import pass the pipeline already depends on, and a codeframe in the
-error message a user actually sees. The `@babel/core` swap that looked like ~90 KB
+error message a user actually sees. The `@babel/core` swap that looked like ~92 kB
 gzip turned out to be near-zero under brotli and carried a consumer build-config cost
 (see Postscript), and no transpiler measured here recovers real payload without
 either failing requirement 1 outright (oxc) or giving up AST access and error quality
@@ -484,8 +484,8 @@ export function createCodeframe(input: string, pos: number): string {
 
 | Metric / Requirement          | `@babel/standalone` (Current) | `sucrase-lite` (Custom Fork)            |
 | ----------------------------- | ----------------------------- | --------------------------------------- |
-| **Bundle Size (Raw)**         | ~2,385 KB                     | **~85 KB**                              |
-| **Bundle Size (Brotli)**      | ~387 KB                       | **~22 KB**                              |
+| **Bundle Size (Raw)**         | ~2,442 kB                     | **~87 kB**                              |
+| **Bundle Size (Brotli)**      | ~396 kB                       | **~23 kB**                              |
 | **Startup / Execution Speed** | Baseline (~1x)                | **~15x – 20x faster** (No AST creation) |
 | **Consumer Build Config**     | Zero Config                   | **Zero Config**                         |
 | **Module Output**             | CommonJS                      | CommonJS                                |
@@ -499,7 +499,7 @@ export function createCodeframe(input: string, pos: number): string {
 
 1. **Phase 1 (Immediate):** Stay on `@babel/standalone`. It is stable, already implemented, and correctly handled behind your `@live-demo/rspress/web/lazy` dynamic import boundary.
 2. **Phase 2 (Side Project):** Fork Sucrase into a lightweight monorepo package inside your project. Apply the codeframe helper, hardcode the automatic JSX runtime, and expose the `importSpecifiers`/`namedImports` map directly from `transform()`.
-3. **Phase 3 (Validation):** Run your existing Vitest and Playwright test suites against `sucrase-lite`. Once verified, swap `@babel/standalone` out to permanently reduce your browser demo compiler payload from **~387 KB brotli down to ~22 KB brotli**.
+3. **Phase 3 (Validation):** Run your existing Vitest and Playwright test suites against `sucrase-lite`. Once verified, swap `@babel/standalone` out to permanently reduce your browser demo compiler payload from **~396 kB brotli down to ~23 kB brotli**.
 
 # Part 3
 
@@ -530,18 +530,18 @@ The closing tag name is parsed and then ignored. `<div a="1" a="2" />` also pass
 
 ## Real sizes
 
-Part 2's ~85 KB raw / ~22 KB brotli is optimistic by roughly 60%. Measured with the same esbuild method Part 1 used:
+Part 2's ~87 kB raw / ~23 kB brotli is optimistic by roughly 60%. Measured with the same esbuild method Part 1 used:
 
 | Build                                                                     | Raw     | Gzip    | Brotli(q11) |
 | ------------------------------------------------------------------------- | ------- | ------- | ----------- |
-| `@babel/standalone` (Part 1)                                              | 2385 KB | 563 KB  | 388 KB      |
-| npm `sucrase@3.35.1`, unmodified                                          | 201 KB  | 46.2 KB | 40.1 KB     |
-| `src/` bundled without options-validator, sourcemaps, `lines-and-columns` | 162 KB  | 36.0 KB | 30.9 KB     |
-| realistic max-pruned fork (est. from metafile)                            | ~136 KB | ~30 KB  | ~26 KB      |
+| `@babel/standalone` (Part 1)                                              | 2442 kB | 577 kB  | 397 kB      |
+| npm `sucrase@3.35.1`, unmodified                                          | 206 kB  | 47.3 kB | 41.1 kB     |
+| `src/` bundled without options-validator, sourcemaps, `lines-and-columns` | 166 kB  | 36.9 kB | 31.6 kB     |
+| realistic max-pruned fork (est. from metafile)                            | ~139 kB | ~31 kB  | ~27 kB      |
 
-Per-module bytes from the metafile: Flow parser + transformer 8.7 KB, `ESMImportTransformer` 6.2 KB, ReactDisplayName 2.4 KB, JestHoist 1.3 KB, ReactHotLoader 1.1 KB, `formatTokens` 0.9 KB. All of Part 2's Step 1 deletions total about 16 KB raw, roughly 4 KB brotli.
+Per-module bytes from the metafile: Flow parser + transformer 8.9 kB, `ESMImportTransformer` 6.3 kB, ReactDisplayName 2.5 kB, JestHoist 1.3 kB, ReactHotLoader 1.1 kB, `formatTokens` 0.9 kB. All of Part 2's Step 1 deletions total about 16 kB raw, roughly 4 kB brotli.
 
-That reframes the whole thing: **unmodified Sucrase already captures ~348 KB of the ~362 KB brotli win. Pruning buys about 1% of the total, at the cost of the largest and most irreversible part of the diff.** Step 1 is the worst-value step in the plan. Dropping `validateOptions` (`ts-interface-checker`) and `computeSourceMap` (`gen-mapping`) is worth more than deleting Flow, and is two import lines.
+That reframes the whole thing: **unmodified Sucrase already captures ~356 kB of the ~371 kB brotli win. Pruning buys about 1% of the total, at the cost of the largest and most irreversible part of the diff.** Step 1 is the worst-value step in the plan. Dropping `validateOptions` (`ts-interface-checker`) and `computeSourceMap` (`gen-mapping`) is worth more than deleting Flow, and is two import lines.
 
 Also verified for requirement 1: the npm `sucrase` browser bundle contains zero `node:` builtins and zero `process` references. Genuinely zero consumer config, unlike the `@babel/core` path in the Postscript.
 
@@ -558,10 +558,10 @@ The honest counterpoint to the fork plan: forking converts an external maintenan
 Skip Step 1. Don't vendor 13k lines. Use `pnpm patch` against `sucrase@3.35.1`, with a diff of roughly 100 lines:
 
 1. Expose `importInfoByPath` from `transform()`.
-2. Drop `validateOptions` and the sourcemap import (~9 KB brotli, more than pruning Flow).
+2. Drop `validateOptions` and the sourcemap import (~9 kB brotli, more than pruning Flow).
 3. Add JSX open/close tag-name validation.
 
-Then in live-demo: a codeframe formatter over `err.loc`, and pass `jsxRuntime: "automatic", production: true`. That gets you ~31 KB brotli, keeps the owned surface small enough to actually review, and keeps `pnpm patch`'s rebase-on-upgrade as a safety net. Upstream's slowness makes patch maintenance nearly free, which is the same property you identified, applied to a cheaper strategy than forking. If the patch grows past ~300 lines, that's the signal to vendor properly.
+Then in live-demo: a codeframe formatter over `err.loc`, and pass `jsxRuntime: "automatic", production: true`. That gets you ~32 kB brotli, keeps the owned surface small enough to actually review, and keeps `pnpm patch`'s rebase-on-upgrade as a safety net. Upstream's slowness makes patch maintenance nearly free, which is the same property you identified, applied to a cheaper strategy than forking. If the patch grows past ~300 lines, that's the signal to vendor properly.
 
 Two things I didn't check, both worth resolving before committing:
 
@@ -640,18 +640,18 @@ which is what a visitor downloads:
 
 | Chunk                   | Raw      | Gzip    | Brotli(q11) |
 | ----------------------- | -------- | ------- | ----------- |
-| Sucrase compiler chunk  | 196.3 KB | 43.8 KB | 36.9 KB     |
-| live-demo runtime chunk | 12.1 KB  | 5.0 KB  | 4.5 KB      |
+| Sucrase compiler chunk  | 201.0 kB | 44.9 kB | 37.8 kB     |
+| live-demo runtime chunk | 12.4 kB  | 5.1 kB  | 4.6 kB      |
 
 Grepping every async chunk for `@babel/standalone` / `babel-plugin-transform`
 returns zero hits: Babel is fully gone from the output, not merely unreferenced.
 
 Caveat on the comparison: **this is not a matched A/B.** The pre-migration
 build wasn't measured in situ, so the honest framing is Part 1's offline
-`@babel/standalone` figure (2385 KB raw / 388 KB brotli) against this build's
-196.3 KB raw / 36.9 KB brotli. The raw column is the only quality-independent
+`@babel/standalone` figure (2442 kB raw / 397 kB brotli) against this build's
+201.0 kB raw / 37.8 kB brotli. The raw column is the only quality-independent
 one. Part 1's warning still applies: Cloudflare compresses at lower quality
-than offline q11, so the deployed brotli number will be larger than 36.9 KB.
+than offline q11, so the deployed brotli number will be larger than 37.8 kB.
 
 Part 3's size analysis holds up. Unmodified Sucrase captured essentially the
 whole win; the pruning Part 2 built its plan around would have bought ~1% of
@@ -666,8 +666,8 @@ it for the largest and most irreversible part of the diff.
   already had a `codeframe` token, used by `readAndParseFile.ts`.
 - **Part 1: "No AST/specifier access → needs a second parse."** True about the
   API, wrong about the consequence. The output scan needs no second parse.
-- **Part 2: `~85 KB raw / ~22 KB brotli`.** Optimistic, as Part 3 found; the
-  real shipped chunk is 196.3 KB raw / 36.9 KB brotli.
+- **Part 2: `~87 kB raw / ~23 kB brotli`.** Optimistic, as Part 3 found; the
+  real shipped chunk is 201.0 kB raw / 37.8 kB brotli.
 - **Part 2: "hardcode the automatic JSX runtime."** Unnecessary.
   `jsxRuntime: "automatic"` + `production: true` are two option flags.
 - **Part 3: `pnpm patch` for ~100 lines.** Underestimated by the cjs/esm/types
@@ -800,7 +800,7 @@ vitest** (was 186), **22/22 Playwright e2e** (was 21), knip clean.
 ## Still open
 
 - The CHANGELOG's size claim still cites offline brotli figures; Part 4's
-  in-situ raw numbers (2385 KB → 196.3 KB) are the honest headline.
+  in-situ raw numbers (2442 kB → 201.0 kB) are the honest headline.
 - Deployed brotli size over `live-demo.pages.dev`, unchanged from Part 4.
 
   **Resolved in Part 6** — both closed, with a real matched A/B this time.
@@ -839,45 +839,45 @@ Prod (Babel + `@rollup/browser`), `guide/external/basic`:
 
 | Chunk                          | Raw       | Brotli, live CDN |
 | ------------------------------ | --------- | ---------------- |
-| `@babel/standalone`            | 2251.0 KB | 481.2 KB         |
-| Rollup JS (`@rollup/browser`)  | 401.2 KB  | 112.2 KB         |
-| Rollup wasm                    | 544.7 KB  | 229.1 KB         |
-| live-demo runtime chunk (glue) | 12.3 KB   | 5.2 KB           |
-| **Total, all four chunks**     | 3208.9 KB | 827.6 KB         |
+| `@babel/standalone`            | 2305.0 kB | 492.7 kB         |
+| Rollup JS (`@rollup/browser`)  | 410.8 kB  | 114.9 kB         |
+| Rollup wasm                    | 557.8 kB  | 234.6 kB         |
+| live-demo runtime chunk (glue) | 12.6 kB   | 5.3 kB           |
+| **Total, all four chunks**     | 3285.9 kB | 847.5 kB         |
 
 Feature (`sucrase-migration`, Sucrase only), same page:
 
 | Chunk                          | Raw      | Brotli, live CDN |
 | ------------------------------ | -------- | ---------------- |
-| Sucrase                        | 196.3 KB | 44.8 KB          |
-| live-demo runtime chunk (glue) | 12.1 KB  | 5.3 KB           |
-| **Total, both chunks**         | 208.4 KB | 50.0 KB          |
+| Sucrase                        | 201.0 kB | 45.9 kB          |
+| live-demo runtime chunk (glue) | 12.4 kB  | 5.4 kB           |
+| **Total, both chunks**         | 213.4 kB | 51.2 kB          |
 
-The CodeMirror editor chunk (`3899.09416e05e5.js`, ~186.9 KB brotli) is byte-identical
+The CodeMirror editor chunk (`3899.09416e05e5.js`, ~191.4 kB brotli) is byte-identical
 in both deployments — same filename hash — and is excluded above as irrelevant to the
 compiler swap.
 
-Sucrase's raw figure (196.3 KB) matches Part 4's in-situ number exactly — that one
+Sucrase's raw figure (201.0 kB) matches Part 4's in-situ number exactly — that one
 was already right, it just had no genuine pre-migration build to compare against
 until now.
 
 ## What this settles
 
-- **Babel → Sucrase, real CDN brotli**: 481.2 KB → 44.8 KB, a 10.7x reduction. Part
-  1's offline-q11 figure for Babel (387.6 KB) undersold its real deployed footprint
+- **Babel → Sucrase, real CDN brotli**: 492.7 kB → 45.9 kB, a 10.7x reduction. Part
+  1's offline-q11 figure for Babel (396.9 kB) undersold its real deployed footprint
   by ~19% — Cloudflare's live brotli compresses at lower quality than the offline
   `zlib` quality-11 pass every earlier part used, the exact effect Part 1's
   Postscript warned about but couldn't demonstrate on Sucrase, since no Sucrase
   build was deployed yet.
-- **Babel → Sucrase, raw (quality-independent)**: 2251.0 KB → 196.3 KB, an 11.5x
+- **Babel → Sucrase, raw (quality-independent)**: 2305.0 kB → 201.0 kB, an 11.5x
   reduction.
-- **`@rollup/browser` removal, real CDN brotli**: 112.2 + 229.1 = 341.3 KB. The
-  changelog's existing "~285 KB (brotli, offline max-quality)" undersold this for
+- **`@rollup/browser` removal, real CDN brotli**: 112.2 + 229.1 = 349.5 kB. The
+  changelog's existing "~292 kB (brotli, offline max-quality)" undersold this for
   the same reason as above.
-- **`@rollup/browser` removal, raw**: 401.2 + 544.7 = 945.8 KB.
+- **`@rollup/browser` removal, raw**: 401.2 + 544.7 = 968.5 kB.
 - **Combined effect of both changes**, per load of a page with an external-import
-  demo: 827.6 KB → 50.0 KB brotli (777.6 KB less), 3208.9 KB → 208.4 KB raw
-  (3000.7 KB / ~2.93 MB less).
+  demo: 847.5 kB → 51.2 kB brotli (796.3 kB less), 3285.9 kB → 213.4 kB raw
+  (3072.7 kB / ~3.07 MB less).
 
 `packages/rspress/CHANGELOG.md` is updated to cite these numbers in place of the
 offline estimates.
@@ -890,7 +890,7 @@ The swap is justified and lands net better for this project. I'd keep it. The re
 
 ## Why it's justified
 
-**The size win is the product, not a nicety.** This plugin's stated differentiator over `@rspress/plugin-playground` is being leaner and easier to adopt. Part 6's matched A/B (same page, same CDN, real brotli) shows the compiler payload going from 481.2 KB to 44.8 KB, and combined with the Rollup removal the demo-page tax dropped from 827.6 KB to 50.0 KB compressed. For a docs plugin, "a demo page costs 50 KB extra instead of 830 KB" is the pitch itself. On a project whose explicit goal includes exploring in-browser compilation done well, this is the strongest single change on the branch.
+**The size win is the product, not a nicety.** This plugin's stated differentiator over `@rspress/plugin-playground` is being leaner and easier to adopt. Part 6's matched A/B (same page, same CDN, real brotli) shows the compiler payload going from 492.7 kB to 45.9 kB, and combined with the Rollup removal the demo-page tax dropped from 847.5 kB to 51.2 kB compressed. For a docs plugin, "a demo page costs 51 kB extra instead of 850 kB" is the pitch itself. On a project whose explicit goal includes exploring in-browser compilation done well, this is the strongest single change on the branch.
 
 **The strategy is the right one, and it's the reviewable part.** The research seriously considered a fork (Part 2) and a `pnpm patch` (Part 3). What shipped instead touches only Sucrase's public `transform` export and recovers specifiers by scanning the emitted `require(...)` calls. That decision does three things at once: it keeps Sucrase upgradable, it keeps the owned surface tiny (`transformCode.ts` at 115 lines, `formatCodeframe.ts` at 54, ~50 lines of Proxy in `moduleRunner.ts`), and it makes the whole bet cheap to unwind — the old Babel path is one file in git history and the seams (`loadCompiler`, `transformCode`, the `TransformedFile` shape) are unchanged in shape. A migration you can revert in an afternoon is a very different risk than a vendored parser.
 

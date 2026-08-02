@@ -60,10 +60,10 @@ Dependency `@rollup/browser` removed. Nothing added.
 
 Measured at implementation time, recorded in `packages/rspress/CHANGELOG.md`:
 
-- **~350 KB gzip / ~285 KB brotli** less to download on a page with a demo.
+- **~358 kB gzip / ~292 kB brotli** less to download on a page with a demo.
   The brotli figure is offline quality 11. Over Cloudflare, which compresses at
-  a lower quality, the two removed chunks measured 114.9 KB (Rollup JS) +
-  234.6 KB (wasm) = **~350 KB brotli** in production, so the real-world saving
+  a lower quality, the two removed chunks measured 117.7 kB (Rollup JS) +
+  240.2 kB (wasm) = **~358 kB brotli** in production, so the real-world saving
   is larger than the offline number suggests.
 - For `guide/external/basic`, the compiler payload drops from Babel + Rollup JS
   plus Rollup's wasm binary to Babel alone.
@@ -148,7 +148,7 @@ Steps 2-4 were to try `@babel/core`, then oxc, then Sucrase.
 
 - **`@babel/core`**: implemented and abandoned. It works, but the consuming
   site would have to add `@rsbuild/plugin-node-polyfill` plus two shims to its
-  own build config, and under brotli the saving was near zero (the ~90 KB was a
+  own build config, and under brotli the saving was near zero (the ~92 kB was a
   gzip artifact). Kept at `git stash@{0}`.
 - **oxc, Sucrase, Yuku, esbuild-wasm, swc-wasm**: all measured and run. None
   clears zero-consumer-config while matching CJS output, specifier access, and

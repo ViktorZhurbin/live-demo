@@ -69,9 +69,9 @@ Both plugins deployed to Cloudflare Pages from the same 9-page docs site, with j
 
 | page                              |      here | `plugin-playground@2.0.18` |
 | --------------------------------- | --------: | -------------------------: |
-| no demo at all                    |  187.1 KB |                   849.7 KB |
-| demo importing only `react`       |  422.5 KB |                  3081.8 KB |
-| demo importing the three.js graph | 1303.0 KB |                  3077.6 KB |
+| no demo at all                    |  191.6 kB |                   870.1 kB |
+| demo importing only `react`       |  432.6 kB |                  3155.8 kB |
+| demo importing the three.js graph | 1334.3 kB |                  3151.5 kB |
 
 Upstream preloads Monaco from a CDN on every page of the site, and its virtual
 module imports every external statically — which is why its two demo rows are

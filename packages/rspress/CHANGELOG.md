@@ -29,9 +29,9 @@ What browser downloads, measured on real Cloudflare Pages deploys of the same
 
 | page                        | 3.0                                                                           | `plugin-playground@2.0.18`                                                                        | `@live-demo/rspress@2.0.6`                                   |
 | --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| no demo                     | **187.1 KB** — site chrome only, zero plugin bytes                            | 849.7 KB — Monaco preloaded from a CDN on every page of the site                                  | 885.1 KB — Babel, Rollup's JS and a Shiki runtime, all eager |
-| demo importing only `react` | **422.5 KB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3081.8 KB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2239.2 KB — the same union chunk, plus Rollup's wasm binary  |
-| demo importing three.js     | **1303.0 KB** — plus three.js and `@react-three/*`, on this page only         | 3077.6 KB — unchanged; three.js was already on the page above                                     | 2234.5 KB — unchanged, same reason                           |
+| no demo                     | **191.6 kB** — site chrome only, zero plugin bytes                            | 870.1 kB — Monaco preloaded from a CDN on every page of the site                                  | 906.3 kB — Babel, Rollup's JS and a Shiki runtime, all eager |
+| demo importing only `react` | **432.6 kB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3155.8 kB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2293.0 kB — the same union chunk, plus Rollup's wasm binary  |
+| demo importing three.js     | **1334.3 kB** — plus three.js and `@react-three/*`, on this page only         | 3151.5 kB — unchanged; three.js was already on the page above                                     | 2288.1 kB — unchanged, same reason                           |
 
 Both alternatives statically import the union of every external any demo on the
 site uses, which is why their two demo rows are the same size and 3.0's aren't.
@@ -193,7 +193,7 @@ pill.
 
 The runtime compiler is now Sucrase instead of Babel. Same demo behavior
 (JSX, TypeScript, the automatic JSX runtime), roughly a tenth of the download:
-`@babel/standalone@7.28.3` is 531.8 KB brotli against Sucrase's 44.8 KB. No
+`@babel/standalone@7.28.3` is 544.6 kB brotli against Sucrase's 45.9 kB. No
 action needed for most demos.
 
 <details>
@@ -218,7 +218,7 @@ caches each module's `exports`. Same demo behavior.
 <details>
 <summary>Measured impact</summary>
 
-Rollup's JS and its wasm binary both go, leaving the compiler alone: 341.3 KB
+Rollup's JS and its wasm binary both go, leaving the compiler alone: 349.5 kB
 less on a page with a demo, measured when this landed with Babel still the
 compiler. Sucrase replaced Babel on top of that, above.
 

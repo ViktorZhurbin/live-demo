@@ -250,16 +250,18 @@ across Cloudflare and both CDNs, the fifth off by 32 B (0.02%, unexplained).
 `byKind` gives the JS-only subtotal for free, which is usually the number worth
 leading with.
 
-**Figures in this repo are KiB — bytes ÷ 1024, not ÷ 1000.** A 1,583,696 B
-chunk is 1546.6 KB, not 1583.7. Both readings look plausible in a table and the
-÷1000 slip is easy to make and hard to catch later; convert with a script
-rather than by eye.
+**Figures in this repo are kB — bytes ÷ 1000, not ÷ 1024.** A 1,583,696 B chunk
+is 1583.7 kB. This matches what Chrome DevTools reports, so a reader checking a
+published claim against their own network panel sees the same number instead of
+one 2.4% off. Write `kB`, not `KB` or `KiB`, and convert with a script rather
+than by eye — both readings look plausible in a table and neither is
+recoverable from a rounded figure later.
 
 ### Two gaps to close by hand
 
 **Worker-initiated fetches don't appear.** Resource timing only sees the main
 thread. Monaco pulls `workerMain.js`, `simpleWorker.nls.js` and `tsWorker.js`
-(800+ KB) from inside workers, and its codicon font doesn't show either. Get
+(800+ kB) from inside workers, and its codicon font doesn't show either. Get
 the full request list from the browser's network panel, diff it against
 `rows`, and curl whatever's missing:
 
@@ -328,7 +330,7 @@ Three checks that matter more than the totals:
    `main`'s. Anything plugin-shaped there is an architectural regression per
    ADR 0004, not a tradeoff.
 2. **Does the cheap-demo page pull the heavy demo's dependencies?** If the two
-   demo pages are within a few KB of each other, externals are being imported
+   demo pages are within a few kB of each other, externals are being imported
    statically as a union.
 3. **Does the below-the-fold demo cost anything before scrolling?** Then
    scroll and diff. The delta should be that demo's own imports and nothing
@@ -339,9 +341,9 @@ Ratios travel better than absolutes, since absolutes go stale with every
 
 **Demo-specific cost is the rig's self-check.** Demo page minus no-demo page,
 per leg. It cancels the site chrome, so it survives `main` moving underneath:
-across the `asset-size-2` and `asset-size-3` runs it held within 1.3 KB on all
-three legs while absolutes shifted ~7 KB (a PNG→SVG favicon swap on `main`). If
-it drifts more than a couple of KB between runs and no plugin version changed,
+across the `asset-size-2` and `asset-size-3` runs it held within 1.3 kB on all
+three legs while absolutes shifted ~7 kB (a PNG→SVG favicon swap on `main`). If
+it drifts more than a couple of kB between runs and no plugin version changed,
 suspect the rig before believing the result.
 
 ## 8. Write it up
@@ -369,7 +371,7 @@ files that both say "run of 2026-08-02" can't tell which numbers they have.
 
 When absolutes move against the previous run, find the shared-chrome cause
 before writing it off as noise — the 2026-08-02 favicon swap moved every cell
-by ~7 KB, and naming it is what makes the rest of the drift meaningful.
+by ~7 kB, and naming it is what makes the rest of the drift meaningful.
 
 State the basis every time. Body bytes and `transferSize` differ by 300 B per
 request, and older figures in this repo predate the isolated-context change
@@ -396,7 +398,9 @@ no artifact reachable today — only visible by trying to reproduce them.
   lands in a number meant to describe a passive reader.
 - Missing worker-initiated requests entirely.
 - Counting `blob:` worker bootstraps as network bytes.
-- Dividing bytes by 1000 and labelling the result KB.
+- Dividing bytes by 1024 and labelling the result kB — the repo is kB (÷1000),
+  matching DevTools. Figures written before 2026-08-02 were KiB under a `KB`
+  label and were converted in one pass; don't reintroduce the mix.
 - Comparing a gzip local preview against a brotli deploy.
 - Trusting `Content-Length`; it's absent on most of these responses.
 - `grep -c` on a minified bundle.
