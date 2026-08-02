@@ -4,6 +4,7 @@ import { liveDemoPluginRspress } from "@live-demo/rspress";
 import { defineConfig } from "@rspress/core";
 
 export default defineConfig({
+	llms: true,
 	root: path.join(__dirname, "docs"),
 
 	plugins: [
