@@ -58,5 +58,26 @@ https://live-demo.pages.dev/guide/getStarted
 
 This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). Differences:
 
-- Multi-file support
-- Small runtime that loads only when needed and only what's needed
+- Multi-file support: an external demo's entry file can import local siblings,
+  and each one gets its own editor tab. `@rspress/plugin-playground` compiles a
+  demo as a single standalone file.
+- Small runtime that loads only when needed and only what's needed.
+
+### Payload
+
+Both plugins deployed to Cloudflare Pages from the same 9-page docs site, same
+`@rspress/core@2.0.18`, brotli, real page loads:
+
+| page                              |      here | `plugin-playground@2.0.18` |
+| --------------------------------- | --------: | -------------------------: |
+| no demo at all                    |  194.4 KB |                   857.5 KB |
+| demo importing only `react`       |  430.5 KB |                  3090.8 KB |
+| demo importing the three.js graph | 1311.1 KB |                  3086.2 KB |
+
+Upstream's two demo rows are the same size because its virtual module imports
+every external statically — the three.js demo's dependencies land on the
+`react`-only demo's page too. Its no-demo page is not free either: Monaco is
+preloaded from a CDN on every page of the site.
+
+Method and full breakdown:
+[asset-size comparison](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/explorations/asset-size-comparison.md).

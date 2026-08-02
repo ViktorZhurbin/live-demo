@@ -25,20 +25,27 @@ Root `CLAUDE.md` says ~22 weekly downloads, no known users, and that
 
 ### What was measured
 
-From `asset-size-comparison.md`, real transferred bytes, brotli:
+From `asset-size-comparison.md`'s 2026-08-02 run, real transferred bytes,
+brotli, untrimmed 9-page site on three deploys:
 
-|                                     |      current | `plugin-playground` | `@live-demo/rspress@2.0.6` |
-| ----------------------------------- | -----------: | ------------------: | -------------------------: |
-| Demo page, total                    | **481.4 KB** |           2260.8 KB |                  1355.7 KB |
-| No-demo page, total                 | **234.8 KB** |            900.1 KB |                   878.3 KB |
-| Demo-specific cost                  |     246.6 KB |           1360.7 KB |                   477.4 KB |
-| Loads a runtime on demo-free pages? |       **No** |                 Yes |                        Yes |
+|                                     |      current | `plugin-playground@2.0.18` | `@live-demo/rspress@2.0.6` |
+| ----------------------------------- | -----------: | -------------------------: | -------------------------: |
+| Demo page (`react` only), total     | **430.5 KB** |                  3090.8 KB |                  2251.0 KB |
+| Demo page (three.js), total         |    1311.1 KB |                  3086.2 KB |                  2246.2 KB |
+| No-demo page, total                 | **194.4 KB** |                   857.5 KB |                   895.6 KB |
+| Demo-specific cost (`react` only)   |     236.1 KB |                  2233.3 KB |                  1355.4 KB |
+| Loads a runtime on demo-free pages? |       **No** |                        Yes |                        Yes |
 
-~92% of the demo-specific cost is two dependencies — CodeMirror (182.4 KB)
-and Sucrase (44.8 KB) — so payload work outside those two is rounding error.
+~97% of the demo-specific cost is two dependencies — CodeMirror (183.0 KB)
+and Sucrase (45.0 KB) — so payload work outside those two is rounding error.
 "current" is also the only one of the three whose eager row is empty: both
 alternatives ship a working demo runtime to every page via a CDN request
 rather than a bundled chunk, invisible unless compared.
+
+The first two rows are the same claim from the other side. On current the
+three.js demo's page costs 880.6 KB more than the trivial demo's; on both
+alternatives the two pages are the same size, because each statically imports
+the union of every external used anywhere on the site.
 
 ## Decision
 
@@ -48,8 +55,7 @@ Not a tiebreaker — a first-class axis alongside the others.
 
 ### 2. The eager invariant: a page with no demo loads zero plugin bytes
 
-Currently true, and the project's largest differentiator (4× margin on the
-no-demo row). **A change that puts plugin bytes on a demo-free page is an
+Currently true, and the project's largest differentiator. **A change that puts plugin bytes on a demo-free page is an
 architectural regression, not a tradeoff** — it's invisible from a demo
 page's own numbers.
 
@@ -94,8 +100,10 @@ re-measuring.
 - A payload claim needs a **real measurement on a real deploy** before it
   reaches README, CHANGELOG, or `docs/decisions/`. Local `rspress preview`
   serves gzip, not brotli — don't compare across the two.
-  `asset-size-comparison.md`'s Methodology/Caveats sections are the
-  procedure.
+  [`docs/measuring-payload.md`](../measuring-payload.md) is the procedure:
+  how to build the comparison branches, which pages to measure and why, the
+  collector script, and the traps. Follow it rather than reconstructing a rig
+  from a past run's write-up.
 - Never mix compression units in one sentence: per-package figures in that
   file are gzip, deploy totals are brotli.
 - Per-module gzip figures are relative weights, not additive — summing
@@ -110,7 +118,7 @@ re-measuring.
   than an interesting problem, it has failed on its own terms.
 - **Not every payload argument wins.** "Deliver site-wide `ui` once instead
   of per demo" was closed by this method: priced honestly, it saves a few
-  hundred bytes of options object against a 246.6 KB demo-specific cost,
+  hundred bytes of options object against a 236.1 KB demo-specific cost,
   and costs a second generated module and build seam.
 - **It also defers things.** The TS/JS view toggle doubles every demo's
   `files` payload, which is why it's Deferred rather than ranked.

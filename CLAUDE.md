@@ -50,6 +50,8 @@ it, and promote it when it turns out to outlive that tier.
 
 - **`docs/decisions/`** — ADRs. Durable, numbered, and binding on future work:
   they constrain what gets built and what was built.
+  Alongside them, unnumbered top-level files hold **procedures** — durable
+  like an ADR, but "how to do this again" rather than a decision.
 - **`docs/ongoing/`** — the ordered action list for the current initiative.
   Items get checked off and the file is eventually deleted, so **nothing
   durable should live here alone.** Do not reference it from durable docs
@@ -102,9 +104,3 @@ When 3.0 actually ships, `packages/rspress/README.md`'s and
 `website/docs/guide/getStarted.mdx`'s version-tag guidance (currently
 "v2 = current, install `@1` for Rspress v1") needs a row for whether 3.0
 tracks Rspress v2 and whether `@2` becomes the new legacy tag.
-
-Before releasing 3.0:
-
-- Verify Improvements over `@rspress/plugin-playground` section in README empirically.
-- Tidy up changelog - it should be an actual changelog
-- Review and clean up docs website

@@ -24,7 +24,12 @@ Maintaining this file:
 
 ## [Unreleased]
 
-Plugin runtime is smaller: ~**[VERIFY]** kB against v2 and ~**[VERIFY]** kB against `@rspress/plugin-playground`. It now loads lazily, only on pages with a demo, and only the dependencies that demo actually needs.
+The plugin no longer costs anything on a page without a demo: **701 KB less
+than v2** and **663 KB less than `@rspress/plugin-playground`**, which both load
+a working demo runtime on every page of the site. On a page with a demo, only
+that demo's own dependencies load, and only once the reader scrolls near it —
+1119 KB less than v2 and 1997 KB less than `@rspress/plugin-playground` for a
+demo importing nothing but `react`.
 
 ### Breaking
 
@@ -65,6 +70,9 @@ deployment (Cloudflare-served, brotli):
 
 - a page with no demo drops from 237.5 KB to 176.1 KB,
 - a page with a demo from 471.5 KB to 410.9 KB.
+
+This saving is already included in the 701 KB / 663 KB figures above — don't
+add it again.
 
 2.4 KB of that is CSS, not JS: keeping the barrel live also kept the styles
 for theme components the site never renders (`Banner`, `PageTabs`, the
@@ -164,9 +172,9 @@ error in the preview.
 
 The runtime compiler is now Sucrase instead of Babel. Same demo behavior
 (JSX, TypeScript, the automatic JSX runtime), roughly a tenth of the
-download. Measured on the real deployment (Cloudflare-served, brotli):
-`@babel/standalone` was 481.2 KB, Sucrase is 44.8 KB — 2251.0 KB and 196.3 KB
-uncompressed, respectively. No action needed for most demos.
+download. Measured brotli: `@babel/standalone@7.28.3` is 531.8 KB, Sucrase is
+44.8 KB — 3001.9 KB and 196.3 KB uncompressed, respectively. No action needed
+for most demos.
 
 <details>
 <summary>One difference to know about</summary>
@@ -414,28 +422,44 @@ since both would then claim the same fence keyword.
 
 </details>
 
-#### Per-page layout injection **[VERIFY]**
+#### Per-page layout injection
 
 <details>
 <summary>Details</summary>
 
 `@rspress/plugin-playground` registers the playground via
-`globalComponents`/`globalStyles`, meaning even a 404 page pays for the
-demo runtime — Monaco editor, Babel, every collected external. This
-plugin injects the layout import only on pages that actually have a demo.
+`globalComponents`/`globalStyles` and preloads Monaco from a CDN through
+`html.tags`, so even a 404 page pays for the demo runtime. This plugin injects
+the layout import only on pages that actually have a demo.
+
+Measured on the real deployment (Cloudflare-served, brotli), a page with no
+demo at all: 194.4 KB here against 857.5 KB for
+`@rspress/plugin-playground@2.0.18`, which fetches Monaco's loader and editor
+regardless, and 895.6 KB for v2.0.6, which fetches `@babel/standalone` and
+`@rollup/browser` regardless.
 
 </details>
 
-#### Lazy external imports **[VERIFY]**
+#### Lazy external imports
 
 <details>
 <summary>Details</summary>
 
-`@rspress/plugin-playground` virtual module imports every external statically,
-so each demo page downloads the union of externals used across _every_ demo
-on the site — a heavy dependency from a single demo loads on every demo
-page, even one using nothing but `useState`.
+`@rspress/plugin-playground`'s virtual module imports every external
+statically, so each demo page downloads the union of externals used across
+_every_ demo on the site — a heavy dependency from a single demo loads on every
+demo page, even one using nothing but `useState`.
 
-This plugin downloads only what a page's own demo actually needs.
+This plugin downloads only what a page's own demo actually needs. Measured on
+the real deployment (Cloudflare-served, brotli), on a docs site whose one heavy
+demo pulls three.js:
+
+| page                              |      here | `plugin-playground` |
+| --------------------------------- | --------: | ------------------: |
+| demo importing only `react`       |  430.5 KB |           3090.8 KB |
+| demo importing the three.js graph | 1311.1 KB |           3086.2 KB |
+
+Note upstream's two rows are the same size: the heavy demo's dependencies are
+already on the light demo's page.
 
 </details>
