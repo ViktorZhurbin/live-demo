@@ -43,6 +43,13 @@ export default defineConfig({
 	},
 
 	builderConfig: {
+		// rspress enables rspack's persistent cache by default (baked into its
+		// internal rsbuild config, not visible here) via performance.buildCache.
+		// It intermittently fails to save on macOS with ENOTEMPTY removing its
+		// .temp dir, so disable it — dev rebuilds still use the in-memory cache.
+		performance: {
+			buildCache: false,
+		},
 		tools: {
 			rspack: {
 				module: {
