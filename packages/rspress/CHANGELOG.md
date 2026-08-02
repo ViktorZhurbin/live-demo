@@ -29,9 +29,9 @@ What browser downloads, measured on real Cloudflare Pages deploys of the same
 
 | page                        | 3.0                                                                           | `plugin-playground@2.0.18`                                                                        | `@live-demo/rspress@2.0.6`                                   |
 | --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| no demo                     | **194.4 KB** — site chrome only, zero plugin bytes                            | 857.5 KB — Monaco preloaded from a CDN on every page of the site                                  | 895.6 KB — Babel, Rollup's JS and a Shiki runtime, all eager |
-| demo importing only `react` | **430.5 KB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3090.8 KB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2251.0 KB — the same union chunk, plus Rollup's wasm binary  |
-| demo importing three.js     | **1311.1 KB** — plus three.js and `@react-three/*`, on this page only         | 3086.2 KB — unchanged; three.js was already on the page above                                     | 2246.2 KB — unchanged, same reason                           |
+| no demo                     | **187.1 KB** — site chrome only, zero plugin bytes                            | 849.7 KB — Monaco preloaded from a CDN on every page of the site                                  | 885.1 KB — Babel, Rollup's JS and a Shiki runtime, all eager |
+| demo importing only `react` | **422.5 KB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3081.8 KB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2239.2 KB — the same union chunk, plus Rollup's wasm binary  |
+| demo importing three.js     | **1303.0 KB** — plus three.js and `@react-three/*`, on this page only         | 3077.6 KB — unchanged; three.js was already on the page above                                     | 2234.5 KB — unchanged, same reason                           |
 
 Both alternatives statically import the union of every external any demo on the
 site uses, which is why their two demo rows are the same size and 3.0's aren't.

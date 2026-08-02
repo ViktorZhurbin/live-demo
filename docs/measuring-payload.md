@@ -6,8 +6,8 @@ reach `README.md`, `CHANGELOG.md`, or `docs/decisions/` — including re-checkin
 numbers already there, since `main` keeps moving and the published comparison
 is the project's one falsifiable claim.
 
-Durable by design: it survives each run, unlike the run write-ups in
-`explorations/`. Last exercised 2026-08-02 —
+This file persists across runs; write-ups in `explorations/` don't. Last
+exercised 2026-08-02 —
 [asset-size-comparison.md](./explorations/asset-size-comparison.md) is that
 run's output and the worked example of everything below.
 
@@ -27,8 +27,6 @@ build a fourth branch for it.
 
 ## 2. Build the comparison branches
 
-This is where the time goes and where the comparison is won or lost.
-
 **Branch each alternative off `main` independently**, so each diff reads
 against `main` rather than against the previous branch.
 
@@ -36,13 +34,15 @@ against `main` rather than against the previous branch.
 `main`. Site chrome — the search index, route manifest, nav tree, per-page
 prose — is built from the whole page set, and a 3-page branch against a 9-page
 `main` contaminates every absolute total. Change only the plugin wiring and the
-minimum needed to make demos run. Specifically: **don't fix prose that becomes
-inaccurate** on a branch (a page documenting our own features will be wrong on
-the upstream branch — that's fine, it's a measurement rig, and editing it moves
-bytes).
+minimum needed to make demos run. **Don't fix prose that becomes inaccurate**
+on a branch — a page documenting our own features will be wrong on the
+upstream branch. Leave it; editing it moves bytes.
 
 Pin `@rspress/core` to the same exact version on every leg. A caret range
-re-resolves on a fresh install and shifts chrome bytes underneath you.
+re-resolves on a fresh install and shifts chrome bytes underneath you. An
+alternative plugin's own peer range can still drag a newer core in around an
+exact pin — after install, `pnpm why @rspress/core` in `website/` on each leg
+must show exactly one version.
 
 ### Getting the published version, not the workspace
 
@@ -66,8 +66,8 @@ There's no vendored copy of upstream in this repo. Install the version and read
 its `dist/` — for `@rspress/plugin-playground` that's `dist/cli/index.js` (the
 plugin: remark transform, `routeGenerated` scan, `builderConfig`) and
 `static/global-components/Playground.tsx` (the rendered component). Twenty
-minutes there tells you what adaptations the branch needs and, more usefully,
-_why_ the numbers come out how they do. `pnpm` nests real paths under
+minutes there tells you what adaptations the branch needs and why the numbers
+come out how they do. `pnpm` nests real paths under
 `node_modules/.pnpm/`; `website/node_modules/<pkg>` is a symlink.
 
 ### Adaptations, and the honesty rule
@@ -79,23 +79,62 @@ the alternative's numbers, say explicitly why there was no alternative.
 
 Worked example, from the 2026-08-02 run: upstream's `routeGenerated` scan
 can't see a `file=` fence's imports, so `include: [...]` had to be added by
-hand, which is exactly what puts three.js in its union chunk. State the
-mechanism, then confirm it independently on a page whose externals came only
-from upstream's own scan.
-
-**Find that independent confirmation.** Any adaptation carrying a fairness
-objection needs one page in the set where the objection doesn't apply and the
+hand — that's what puts three.js in its union chunk. State the mechanism, then
+confirm it on a page whose externals came only from upstream's own scan, with
+no `include` involved. **Every adaptation carrying a fairness objection needs
+one page like that in the set** — where the objection doesn't apply and the
 effect still shows.
+
+Make that confirmation an artifact check, not a totals check: show the clean
+page fetching **the same content-hashed chunk filename** as the page the
+objection is about, then grep that chunk (§6) for the dependency in question.
+Two pages having equal totals is circumstantial. A chunk that greps `THREE`
+×157 while being fetched by a page importing only `react` and `qrcode.react`
+is not.
 
 ### Pushing the branches
 
 A comparison branch won't pass `pnpm run verify` — it doesn't build against
-this repo's own package and the e2e suite expects this plugin's markup. Ask user to push with `git push --no-verify`; don't disable the husky hook, there's nothing to
-restore afterwards that way.
+this repo's own package and the e2e suite expects this plugin's markup. Ask
+user to push with `git push --no-verify`; don't disable the husky hook,
+there's nothing to restore afterwards that way.
 
-Keep the branches on `origin` when the run is done. Rerunning against a newer
-`main` is a rebase and a re-push, which mints fresh preview URLs — much cheaper
-than rebuilding the rig.
+Keep the branches on `origin` under their numbered name (`asset-size-N/<leg>`)
+when the run is done — write-ups reference branches by that name, so don't
+rebase one in place on a later run.
+
+### Rerunning against a newer main
+
+Don't rebuild the rig by hand. Check whether the old branch is exactly one
+commit past its merge-base:
+
+```sh
+git diff <merge-base>..<old-branch> --stat   # NOT git diff main <old-branch>
+```
+
+`git diff main <old-branch>` is misleading once `main` has moved: it diffs
+against the branch's stale base, so everything `main` changed since shows up
+as if the branch had rewritten it. Use the merge-base.
+
+If it's one commit, cherry-pick it onto a fresh branch cut from current
+`main`, bumping the numbered suffix (`asset-size-3/<leg>` follows
+`asset-size-2/<leg>`):
+
+```sh
+git switch -c asset-size-N/<leg> main && git cherry-pick <old-branch-commit>
+```
+
+Conflicts land wherever `main` moved prose or config the branch also touched.
+**Resolve every conflict by taking `main`'s side**, then reapply only the
+adaptation's mechanical transform (`live`→`playground`, `file=`→`<code src>`,
+etc). Taking the branch's side re-introduces stale prose — the same
+contamination as trimming the site, just harder to spot.
+
+After resolving, confirm parity before building: `git diff main..<new-branch>
+-- website/docs/` should show only the recorded adaptations, and the built
+page count should match `main`'s. Anything under `packages/rspress/src/**` or
+an asset (favicon, icon) delta in that diff means a conflict resolved the
+wrong way.
 
 ## 3. Choose the page set
 
@@ -109,18 +148,52 @@ them collapses a distinct finding:
 | demo importing something heavy     | as above, and it's the only page where we're not far ahead  |
 | a page with a below-the-fold demo  | the viewport gate                                           |
 
-**The cheap-demo/heavy-demo pair is the centrepiece.** On this plugin those two
+**The cheap-demo/heavy-demo pair decides the question.** On this plugin those two
 pages should differ by exactly the heavy demo's dependency graph; on a plugin
 that statically imports the union of all externals they'll be the same size.
 One page can't show that — the union of one demo is that demo.
 
-## 4. Verify every demo before trusting a byte
+### What a rerun can reuse
+
+An alternative pinned to a published version has **structural** properties that
+don't move between runs, and **absolute** byte counts that do — chrome comes
+from `@rspress/core`, the page set and the prose, all of which follow `main`.
+
+Re-measure every absolute that reaches a published table. Establish these once
+per pinned version and cite them:
+
+| property                               | established by                 | why it holds                           |
+| -------------------------------------- | ------------------------------ | -------------------------------------- |
+| neither alternative gates on viewport  | a scroll delta of 0            | neither has an `IntersectionObserver`  |
+| the union chunk carries every external | grepping the chunk for `THREE` | the chunk is content-hashed and pinned |
+| which URLs the worker gap misses       | one network-panel diff         | a property of Monaco's loader          |
+
+The worker gap's _sizes_ still get re-curl'd — brotli is third-party behavior
+and §5 says don't inherit it — but you don't have to rediscover _which_ URLs
+are missing.
+
+So on a rerun with both alternatives unchanged: the scroll pass on the
+alternatives is two zeroes you already know, and the below-the-fold page on
+whichever leg isn't carrying the fairness confirmation adds no byte information
+its cheap-demo page doesn't. **Keep the demo verification on every cell
+regardless** — that checks your rig, not the plugin, and the rig is new each
+run.
+
+## 4. Verify every demo — after snapshotting it, not before
 
 Click each one. A page whose demo silently renders nothing still produces a
 plausible total, and the hand-made adaptations from step 2 are exactly the kind
 of thing that breaks a demo quietly. Confirm state actually changes: a counter
 increments, a canvas gets a `data-engine` attribute, a QR code renders at its
 declared size.
+
+**Order matters inside a context.** Typing or clicking in an editor can trigger
+a compile that fetches chunks a passive reader never requests. Take §5's
+snapshot first, then interact. If verification then shows a dead demo, discard
+those numbers and redo that page in a fresh context.
+
+Reading a rendered attribute — `canvas[data-engine]`, an SVG's `height` — is
+passive, so it can ride along inside the snapshot call itself.
 
 ## 5. Measure
 
@@ -177,6 +250,11 @@ across Cloudflare and both CDNs, the fifth off by 32 B (0.02%, unexplained).
 `byKind` gives the JS-only subtotal for free, which is usually the number worth
 leading with.
 
+**Figures in this repo are KiB — bytes ÷ 1024, not ÷ 1000.** A 1,583,696 B
+chunk is 1546.6 KB, not 1583.7. Both readings look plausible in a table and the
+÷1000 slip is easy to make and hard to catch later; convert with a script
+rather than by eye.
+
 ### Two gaps to close by hand
 
 **Worker-initiated fetches don't appear.** Resource timing only sees the main
@@ -195,12 +273,19 @@ absent on most of these responses.
 
 Add +300 each to keep the basis uniform. A URL fetched by two workers is one
 cache-hit away from being counted twice — check `cache-control` and count it
-once if it's `immutable`, saying so in the write-up.
+once if it's `immutable`, saying so in the write-up. **Check the status codes
+too.** In the 2026-08-02 runs both `workerMain.js` requests returned 200, not
+304: two workers raced before either response was cached, so a real reader
+plausibly paid it twice. Counting once stays the conservative choice — say that
+it understates, and by how much.
+
+`blob:` rows are locally-created worker bootstraps. Zero network bytes, exclude
+them; they only distort a request count if you diff lists carelessly.
 
 **Confirm brotli on every origin, every run.** `content-encoding: br`, own
 origin and each CDN. Don't inherit it from a previous run; it's third-party
-behavior. Mixing a brotli CDN figure with a gzip own-origin figure inside one
-total is worse than reporting nothing.
+behavior. Don't mix a brotli CDN figure with a gzip own-origin figure in one
+total.
 
 **Never use `rspress preview` for a published number.** It serves gzip. Fine
 for a quick relative check, useless for anything comparative.
@@ -225,9 +310,9 @@ indicate the runtime highlighter.
 
 `grep -c` counts matching _lines_, and minified bundles are one line. Use
 `grep -o … | wc -l` for occurrences, and read the context of any surprising
-hit before drawing a conclusion from it: `main`'s eager chunk matches
-`live-demo` twice, both inside flexsearch's worker URL, which has the CI
-checkout path baked in. That looked like a violated invariant and wasn't.
+hit before drawing a conclusion: `main`'s eager chunk matches `live-demo`
+twice, both harmless — inside flexsearch's worker URL, which bakes in the CI
+checkout path.
 
 For a per-package breakdown inside one chunk, wire `webpack-bundle-analyzer`
 temporarily into `website/rspress.config.ts`'s `builderConfig.tools.rspack` (an
@@ -252,6 +337,13 @@ Three checks that matter more than the totals:
 Ratios travel better than absolutes, since absolutes go stale with every
 `main` commit while the shape of the difference persists.
 
+**Demo-specific cost is the rig's self-check.** Demo page minus no-demo page,
+per leg. It cancels the site chrome, so it survives `main` moving underneath:
+across the `asset-size-2` and `asset-size-3` runs it held within 1.3 KB on all
+three legs while absolutes shifted ~7 KB (a PNG→SVG favicon swap on `main`). If
+it drifts more than a couple of KB between runs and no plugin version changed,
+suspect the rig before believing the result.
+
 ## 8. Write it up
 
 - **Run write-up** → `docs/explorations/`. What was deployed, what had to be
@@ -271,24 +363,40 @@ Anything the run learned about the _method_ — a new trap, a correction to the
 `transferSize` basis, a branch-pushing detail — gets folded back into this file
 in the same pass, or the next run rediscovers it.
 
+Name the run by **branch generation**, not only by date (`asset-size-3`, cut
+from `main@<sha>`). Two runs can land on the same date; a reader holding two
+files that both say "run of 2026-08-02" can't tell which numbers they have.
+
+When absolutes move against the previous run, find the shared-chrome cause
+before writing it off as noise — the 2026-08-02 favicon swap moved every cell
+by ~7 KB, and naming it is what makes the rest of the drift meaningful.
+
 State the basis every time. Body bytes and `transferSize` differ by 300 B per
 request, and older figures in this repo predate the isolated-context change
 that put the favicon in every row. **If two numbers for the same page appear
 in one file on different bases, say so where the reader hits them** — and if
 one saving is a component of another, say that too, or it gets double-counted.
 
-Finally: re-derive the old numbers you're replacing. The 2026-08-02 run found
-the CHANGELOG's Babel figures matched no artifact reachable today, which is
-only visible if you try to reproduce them rather than assuming a stale number
-is merely stale.
+Finally: re-derive the old numbers you're replacing, don't assume they're
+merely stale. The 2026-08-02 run found the CHANGELOG's Babel figures matched
+no artifact reachable today — only visible by trying to reproduce them.
 
 ## Traps, in one list
 
 - Trimming the comparison site while `main` stays whole.
-- A caret-ranged `@rspress/core` re-resolving between legs.
+- A caret-ranged `@rspress/core` re-resolving between legs, or an exact pin
+  drifting anyway via an alternative plugin's own peer range.
 - A published-version range resolving to the workspace package.
+- Diffing a stale comparison branch against current `main` instead of its
+  merge-base — reads as the branch rewriting everything `main` since changed.
+- Resolving a rebase/cherry-pick conflict by keeping the branch's stale prose
+  instead of `main`'s.
 - Sharing one browser session across pages, so cache makes pages look free.
+- Interacting with a demo before snapshotting it, so a compile-triggered fetch
+  lands in a number meant to describe a passive reader.
 - Missing worker-initiated requests entirely.
+- Counting `blob:` worker bootstraps as network bytes.
+- Dividing bytes by 1000 and labelling the result KB.
 - Comparing a gzip local preview against a brotli deploy.
 - Trusting `Content-Length`; it's absent on most of these responses.
 - `grep -c` on a minified bundle.
