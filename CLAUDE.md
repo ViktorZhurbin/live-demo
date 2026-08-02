@@ -94,10 +94,6 @@ fails the docs build with "Could not parse expression with acorn: Unterminated
 regular expression". HTML comments aren't an escape hatch either (MDX parses
 `<!--` as JSX). Put the note in the code that depends on the markup instead.
 
-## Active initiative: major version upgrade
-
-This repo went dormant for ~7 months and is now being brought current: dev tooling reconsidered, dev + runtime dependencies bumped, source updated for any breaking changes. The goal is to improve on this foundation and eventually release a new major version. Code clarity, simplicity, maintainability would be important driving factors.
-
 ### 3.0.0 Release
 
 When 3.0 actually ships, `packages/rspress/README.md`'s and
