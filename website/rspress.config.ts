@@ -18,7 +18,7 @@ export default defineConfig({
 	],
 
 	title: "Live Demo",
-	icon: "/icon-dark.png",
+	icon: "/icon-dark.svg",
 
 	logoText: "Live Demo",
 	logo: {
