@@ -24,17 +24,29 @@ Maintaining this file:
 
 ## [3.0.0] - 2026-08-02
 
-What browser downloads, measured on real Cloudflare Pages deploys of the same
-9-page docs site (one page with a Three.js demo), brotli, `@rspress/core@2.0.18`:
+Plugin's v3 ships a lot less JS to the browser, loads lazily per page, and ships nothing when a page has no demo.
 
-| page                        | 3.0                                                                           | `plugin-playground@2.0.18`                                                                        | `@live-demo/rspress@2.0.6`                                   |
-| --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| no demo                     | **191.6 kB** — site chrome only, zero plugin bytes                            | 870.1 kB — Monaco preloaded from a CDN on every page of the site                                  | 906.3 kB — Babel, Rollup's JS and a Shiki runtime, all eager |
-| demo importing only `react` | **432.6 kB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3155.8 kB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2293.0 kB — the same union chunk, plus Rollup's wasm binary  |
-| demo importing three.js     | **1334.3 kB** — plus three.js and `@react-three/*`, on this page only         | 3151.5 kB — unchanged; three.js was already on the page above                                     | 2288.1 kB — unchanged, same reason                           |
+Measured on real Cloudflare Pages deploys of the same 9-page docs site (one page with a Three.js demo), brotli, `@rspress/core@2.0.18`:
 
-Both alternatives statically import the union of every external any demo on the
-site uses, which is why their two demo rows are the same size and 3.0's aren't.
+| page                        | `@live-demo/rspress@3.0.0` | `plugin-playground@2.0.18` | `@live-demo/rspress@2.0.6` |
+| --------------------------- | -------------------------- | -------------------------- | -------------------------- |
+| no demo                     | **191.6 kB**               | 870.1 kB                   | 906.3 kB                   |
+| demo importing only `react` | **432.6 kB**               | 3155.8 kB                  | 2293.0 kB                  |
+| demo importing three.js     | **1334.3 kB**              | 3151.5 kB                  | 2288.1 kB                  |
+
+Why:
+
+- **3.0** ships only site chrome when a page has no demo. A demo adds
+  CodeMirror + Sucrase, fetched once it nears the viewport; three.js and
+  `@react-three/*` are added only on the page that imports them.
+- **`plugin-playground@2.0.18`** preloads Monaco from a CDN on every page,
+  demo or not. Any demo adds Monaco's TypeScript worker, Babel, and a union
+  chunk of every external used site-wide — three.js is already inside that
+  chunk, so the three.js row doesn't grow further.
+- **`@live-demo/rspress@2.0.6`** ships Babel, Rollup's JS, and a Shiki
+  runtime eagerly on every page. Any demo adds the same site-wide union
+  chunk plus Rollup's wasm binary — again unchanged for three.js, same
+  reason.
 
 ### Breaking
 
