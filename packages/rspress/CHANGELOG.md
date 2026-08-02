@@ -108,7 +108,7 @@ panel, panel wrapping) is no longer possible. `options.ui` and `colors.css`
 still work as before.
 
 `@live-demo/rspress/web` drops from ten exports to two: `Button` and
-`LiveDemoStringifiedProps`. `Core`, `Editor`, `FileTabs`, `ControlPanel`,
+`LiveDemoStringifiedProps`. `LiveDemoRoot`, `Editor`, `FileTabs`, `ControlPanel`,
 `Preview`, `CodeRunner`, `ResizablePanels`, `Wrapper`, `LiveDemoProvider`,
 and `useLiveDemoContext` are no longer exported.
 

@@ -9,7 +9,7 @@
  * meant one visible area with two different loading treatments.
  *
  * Plain class names rather than a CSS module, for the reason in
- * `lazyFallback.css`: `web/lazy` renders this before `Core`'s chunk exists, so
+ * `lazyFallback.css`: `web/lazy` renders this before `LiveDemoRoot`'s chunk exists, so
  * the styles have to come from the eagerly-loaded `dist/web/index.css`. Both
  * call sites center their child, so this only stacks its own rows.
  */

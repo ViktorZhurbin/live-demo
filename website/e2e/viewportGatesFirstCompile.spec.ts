@@ -51,7 +51,7 @@ test("a below-the-fold demo loads neither the editor nor the compiler until scro
 	await expect(skeleton).toBeVisible();
 
 	// "Nothing requested yet" only means "the gate is shut" once the page has
-	// stopped fetching of its own accord — ungated, `Core`'s import fires
+	// stopped fetching of its own accord — ungated, `LiveDemoRoot`'s import fires
 	// during hydration, so both chunks would be part of that traffic.
 	await page.waitForLoadState("networkidle");
 	expect(requested).toEqual({ editor: false, compiler: false });

@@ -11,8 +11,8 @@ export type LiveDemoStringifiedProps = {
 
 /**
  * Shape shared by every hop in the lazy-load chain
- * (`LiveDemoLazy` → `Core` → `LiveDemoProvider`), each of which just adds its
- * own concerns on top (e.g. `children`).
+ * (`LiveDemoLazy` → `LiveDemoRoot` → `LiveDemoProvider`), each of which just
+ * adds its own concerns on top (e.g. `children`).
  */
 export type LiveDemoWidgetProps = {
 	isDark: boolean;

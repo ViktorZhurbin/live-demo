@@ -63,7 +63,7 @@ Held up by four mechanisms, treated as one invariant:
 
 - per-page layout injection, not a global component (`createLayoutImportNode.ts`)
 - the `React.lazy` boundary in `web/lazy.tsx`, which stops the consumer's
-  bundler from scope-hoisting `Core` into a shared chunk
+  bundler from scope-hoisting `LiveDemoRoot` into a shared chunk
 - `() => import(...)` thunks in the generated virtual module, so one page's
   externals aren't every page's
 - the compiler loaded by dynamic `import()` at `loadCompiler.ts`
@@ -78,10 +78,10 @@ it. **Check the emitted chunk graph, not the component tree** — a gate's
 value is decided by where the `import()` calls sit and how the bundler groups
 what they pull in, which the source's nesting doesn't show.
 
-Learned the expensive way: the viewport gate was first built inside `Core`,
+Learned the expensive way: the viewport gate was first built inside `LiveDemoRoot`,
 where it deferred the compiler and a demo's externals but not the editor,
-because rendering `<Core>` is what fires its `import()` and CodeMirror rides
-in that same chunk group. Since `Core` mounted unconditionally, both chunks
+because rendering `<LiveDemoRoot>` is what fires its `import()` and CodeMirror rides
+in that same chunk group. Since `LiveDemoRoot` mounted unconditionally, both chunks
 were fetched on page load regardless. Moving the gate above the `React.lazy`
 boundary in `web/lazy.tsx` withholds the editor as well — by the component
 sizes above, the difference between deferring Sucrase alone and deferring

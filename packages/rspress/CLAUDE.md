@@ -79,7 +79,7 @@ Two phases:
   virtual-modules bundle) still has to stay out of every page's chunk. That's
   what `src/web/lazy.tsx` is for — its own build entry
   (`@live-demo/rspress/web/lazy`), not an export of the `web` barrel. Layouts
-  render `LiveDemoLazy` from that subpath rather than importing `Core`
+  render `LiveDemoLazy` from that subpath rather than importing `LiveDemoRoot`
   directly; see its docblock for why and how.
 
 **Runtime (browser, `src/web/`)**
@@ -103,11 +103,11 @@ Two phases:
   named export) renders into the host page's React tree.
 
 - None of that — nor the editor — starts on page load. `lazy.tsx` withholds
-  `<Core>` until a one-shot `IntersectionObserver`
+  `<LiveDemoRoot>` until a one-shot `IntersectionObserver`
   (`observeEnteredViewport.ts`) sees its loading skeleton come within 400px
   of the viewport, so a demo the reader never scrolls to costs nothing
   beyond that skeleton (ADR 0004's payload axis). The gate can't move
-  deeper: rendering `<Core>` is what fires its `import()`, and the editor
+  deeper: rendering `<LiveDemoRoot>` is what fires its `import()`, and the editor
   rides in the same chunk group. See `lazy.tsx`'s docblock.
 
 ### Dependency gotchas

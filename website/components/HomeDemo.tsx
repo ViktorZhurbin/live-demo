@@ -10,7 +10,7 @@ import multiFileCode from "../docs/guide/external/snippets/multiFile/MultiFile.t
 /**
  * Hand-rolled demo on the docs homepage — outside the plugin's scan/remark
  * system, so it has to opt into the async boundary itself. `theme/index.tsx`
- * imports this synchronously for every route, so importing `Core` directly
+ * imports this synchronously for every route, so importing `LiveDemoRoot` directly
  * here would tax every page of the site (AUDIT.md F1).
  */
 export const HomeDemo = () => {

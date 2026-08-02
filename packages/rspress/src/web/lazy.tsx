@@ -16,8 +16,10 @@ import type { LiveDemoWidgetProps } from "./types";
  * an async chunk that loads once a demo actually mounts.
  */
 
-const Core = lazy(() =>
-	import("./ui/Core/Core").then((module) => ({ default: module.Core })),
+const LiveDemoRoot = lazy(() =>
+	import("./ui/LiveDemoRoot/LiveDemoRoot").then((module) => ({
+		default: module.LiveDemoRoot,
+	})),
 );
 
 // How far ahead of the viewport edge the demo starts loading. Enough lead
@@ -58,7 +60,7 @@ const LoadingFallback = ({
 				))}
 			</div>
 			{/* Same component `CodeRunner` renders into the real preview pane, so
-			    this slot doesn't change appearance when `Core` mounts and the
+			    this slot doesn't change appearance when `LiveDemoRoot` mounts and the
 			    wait continues through the first compile. */}
 			<div className="live-demo-fallback-preview">
 				<PreviewSkeleton />
@@ -71,12 +73,12 @@ const LoadingFallback = ({
  * Whether the mounted widget will render a toolbar, read straight off the
  * still-stringified props. `ControlPanel` returns null under
  * `ui.controlPanel.hide`, so a skeleton that always drew one would collapse by
- * its height the moment `Core` mounts — the jump this fallback exists to avoid.
+ * its height the moment `LiveDemoRoot` mounts — the jump this fallback exists to avoid.
  *
  * Parses `options` alone rather than going through `parseProps`, which would
  * also parse every file's full source here, on the path that has to paint
  * first. A malformed value resolves to "toolbar shown" instead of throwing:
- * `parseProps` raises `PROP_PARSE_FAILED` for it once `Core` mounts, and the
+ * `parseProps` raises `PROP_PARSE_FAILED` for it once `LiveDemoRoot` mounts, and the
  * loading skeleton is the wrong place to surface that.
  */
 const hasToolbar = (options: string | undefined): boolean => {
@@ -96,25 +98,25 @@ const ErrorFallback = () => (
 );
 
 /**
- * Rendering `<Core>` is what triggers its `import()`, so withholding it until
+ * Rendering `<LiveDemoRoot>` is what triggers its `import()`, so withholding it until
  * the demo nears the viewport is what keeps a page's demos off the critical
  * path: a reader who never scrolls to one downloads neither the editor nor
  * the compiler (ADR 0004's payload axis). This boundary is the only place
- * that works — the editor rides in `Core`'s own chunk group, so a gate
- * *inside* `Core` can only defer what `Core` itself loads lazily (Sucrase,
+ * that works — the editor rides in `LiveDemoRoot`'s own chunk group, so a gate
+ * *inside* `LiveDemoRoot` can only defer what `LiveDemoRoot` itself loads lazily (Sucrase,
  * the externals), with CodeMirror already downloaded by then.
  *
  * The skeleton is what's observed. It occupies the same box the real widget
  * will (`lazyFallback.css` mirrors `ResizablePanels`' height and breakpoint),
- * so its position is settled from first paint and nothing shifts when `Core`
+ * so its position is settled from first paint and nothing shifts when `LiveDemoRoot`
  * swaps in. It also renders on the server, unchanged from before: the gate
  * starts shut on both sides, so hydration still matches.
  *
  * `ErrorBoundary` wraps `Suspense`, not the reverse: `Suspense` only catches
  * the *pending* import promise. A *rejected* one (flaky network, or a stale
  * page referencing a chunk hash a redeploy removed) is re-thrown during
- * render — past `Core`'s own error boundary, which lives inside `Preview`
- * and never mounts when `Core` itself fails to load. `React.lazy` never
+ * render — past `LiveDemoRoot`'s own error boundary, which lives inside `Preview`
+ * and never mounts when `LiveDemoRoot` itself fails to load. `React.lazy` never
  * retries a rejected import, hence "reload the page" rather than a retry
  * affordance.
  */
@@ -146,7 +148,7 @@ export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 	return (
 		<ErrorBoundary fallback={<ErrorFallback />}>
 			<Suspense fallback={<LoadingFallback hasToolbar={toolbar} />}>
-				<Core {...props} />
+				<LiveDemoRoot {...props} />
 			</Suspense>
 		</ErrorBoundary>
 	);

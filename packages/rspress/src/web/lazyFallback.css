@@ -1,17 +1,17 @@
 /**
- * Fallback UI shown while `Core`'s chunk loads, or if it fails to load.
+ * Fallback UI shown while `LiveDemoRoot`'s chunk loads, or if it fails to load.
  *
  * Plain class names, not CSS modules: `web/lazy` renders these *before*
- * `Core`'s JS chunk exists, so it can't reach the hashed names a CSS module
+ * `LiveDemoRoot`'s JS chunk exists, so it can't reach the hashed names a CSS module
  * would generate. This file is pulled into the main entry's CSS graph (via
  * `src/web/index.ts`) so it lands in `dist/web/index.css` — which layouts
  * already import eagerly, i.e. it is present exactly when the fallback needs
  * it.
  *
  * The `--live-demo-*` custom properties below are defined in
- * `ui/Core/colors.css`, which only `Core.tsx` (the lazily loaded chunk)
+ * `ui/LiveDemoRoot/colors.css`, which only `LiveDemoRoot.tsx` (the lazily loaded chunk)
  * imports. This works today because tsdown merges the whole web config's
- * CSS into one `index.css`, so Core's variables ship eagerly too. Splitting
+ * CSS into one `index.css`, so LiveDemoRoot's variables ship eagerly too. Splitting
  * CSS per-chunk would silently unstyle this fallback.
  */
 
@@ -60,7 +60,7 @@
 /* `PreviewSkeleton`'s own rows. Lives here rather than in a CSS module because
    that component is also rendered by `web/lazy`, before any hashed class name
    exists — see its docblock. Both call sites (the pane above, and `Preview`'s
-   wrapper once `Core` has mounted) already center their child, so this only
+   wrapper once `LiveDemoRoot` has mounted) already center their child, so this only
    has to size and stack itself. */
 .live-demo-fallback-preview-body {
 	display: flex;
@@ -79,7 +79,7 @@
 
 /* Mirrors ResizablePanels' own 550px switch to a stacked, taller layout
    (`VERTICAL_THRESHOLD` / `.vertical`), so the skeleton doesn't change shape,
-   height, or pane order when Core mounts on a narrow screen.
+   height, or pane order when LiveDemoRoot mounts on a narrow screen.
 
    `column-reverse`, not `column`: stacked, ResizablePanels renders the
    *preview* first (`isVertical ? previewPanel : editorPanel`), so matching it

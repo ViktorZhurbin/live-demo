@@ -6,12 +6,12 @@ import { ResizablePanels } from "~web/ui/ResizablePanels/ResizablePanels";
 import { Wrapper } from "~web/ui/Wrapper/Wrapper";
 
 /**
- * Top-level layout for one demo instance: wraps the widget tree in
- * `LiveDemoProvider` (the shared files/activeFile state) and renders the
- * control panel above the resizable editor/preview split. This is what
- * `static/LiveDemo.tsx` renders per `<LiveDemo />` in an MDX file.
+ * Root of the tree rendered for one demo instance: sets up `LiveDemoProvider`
+ * (the shared files/activeFile state) and renders the control panel above the
+ * resizable editor/preview split beneath it. This is what `static/LiveDemo.tsx`
+ * renders per `<LiveDemo />` in an MDX file.
  */
-export const Core = (props: LiveDemoWidgetProps) => {
+export const LiveDemoRoot = (props: LiveDemoWidgetProps) => {
 	return (
 		<LiveDemoProvider {...props}>
 			<Wrapper>

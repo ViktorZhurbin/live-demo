@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // network, or a stale page referencing a chunk hash a redeploy removed),
 // which Suspense alone does not catch (see that file's docblock).
 //
-// The chunk that lazy-loads Core (`import("./index")`) is content-hashed, so
+// The chunk that lazy-loads LiveDemoRoot (`import("./index")`) is content-hashed, so
 // its filename isn't stable across builds. Instead of hardcoding a hash,
 // every async chunk request is fetched and inspected for a string unique to
 // that module (a LiveDemoProvider error message) and only that one request
