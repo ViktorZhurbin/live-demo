@@ -24,12 +24,17 @@ Maintaining this file:
 
 ## [Unreleased]
 
-The plugin no longer costs anything on a page without a demo: **701 KB less
-than v2** and **663 KB less than `@rspress/plugin-playground`**, which both load
-a working demo runtime on every page of the site. On a page with a demo, only
-that demo's own dependencies load, and only once the reader scrolls near it —
-1119 KB less than v2 and 1997 KB less than `@rspress/plugin-playground` for a
-demo importing nothing but `react`.
+What browser downloads, measured on real Cloudflare Pages deploys of the same
+9-page docs site (one page with a Three.js demo), brotli, `@rspress/core@2.0.18`:
+
+| page                        | 3.0                                                                           | `plugin-playground@2.0.18`                                                                        | `@live-demo/rspress@2.0.6`                                   |
+| --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| no demo                     | **194.4 KB** — site chrome only, zero plugin bytes                            | 857.5 KB — Monaco preloaded from a CDN on every page of the site                                  | 895.6 KB — Babel, Rollup's JS and a Shiki runtime, all eager |
+| demo importing only `react` | **430.5 KB** — CodeMirror + Sucrase, fetched once the demo nears the viewport | 3090.8 KB — Monaco's TypeScript worker, Babel, and a union chunk of every external used site-wide | 2251.0 KB — the same union chunk, plus Rollup's wasm binary  |
+| demo importing three.js     | **1311.1 KB** — plus three.js and `@react-three/*`, on this page only         | 3086.2 KB — unchanged; three.js was already on the page above                                     | 2246.2 KB — unchanged, same reason                           |
+
+Both alternatives statically import the union of every external any demo on the
+site uses, which is why their two demo rows are the same size and 3.0's aren't.
 
 ### Breaking
 
@@ -64,17 +69,14 @@ unaffected.
 Demos used to resolve `@rspress/core/theme` without listing it anywhere; now
 only `react` and `react/jsx-runtime` do.
 
-Reasoning: `@rspress/core/theme` is a barrel — importing it pulls
-Shiki into the eager bundle of every page on the site, not just the page holding the demo. This plugin does not use Shiki at all. A demo can still import it explicitly, just beware of the cost. Measured on the real
-deployment (Cloudflare-served, brotli):
+Reasoning: `@rspress/core/theme` is a barrel — importing it pulls Shiki into
+the eager bundle of every page on the site, not just the page holding the
+demo. This plugin does not use Shiki at all. A demo can still import it
+explicitly, just beware of the cost: dropping it made a page with no demo
+about a quarter lighter, and it's the largest part of the eager row in the
+table above.
 
-- a page with no demo drops from 237.5 KB to 176.1 KB,
-- a page with a demo from 471.5 KB to 410.9 KB.
-
-This saving is already included in the 701 KB / 663 KB figures above — don't
-add it again.
-
-2.4 KB of that is CSS, not JS: keeping the barrel live also kept the styles
+Some of that was CSS, not JS: keeping the barrel live also kept the styles
 for theme components the site never renders (`Banner`, `PageTabs`, the
 llms.txt buttons, `Steps`, `SourceCode`). Shiki's own code-block CSS stays —
 compile-time highlighting still needs it.
@@ -171,10 +173,9 @@ error in the preview.
 #### `@babel/standalone` replaced with `sucrase`
 
 The runtime compiler is now Sucrase instead of Babel. Same demo behavior
-(JSX, TypeScript, the automatic JSX runtime), roughly a tenth of the
-download. Measured brotli: `@babel/standalone@7.28.3` is 531.8 KB, Sucrase is
-44.8 KB — 3001.9 KB and 196.3 KB uncompressed, respectively. No action needed
-for most demos.
+(JSX, TypeScript, the automatic JSX runtime), roughly a tenth of the download:
+`@babel/standalone@7.28.3` is 531.8 KB brotli against Sucrase's 44.8 KB. No
+action needed for most demos.
 
 <details>
 <summary>One difference to know about</summary>
@@ -198,11 +199,9 @@ caches each module's `exports`. Same demo behavior.
 <details>
 <summary>Measured impact</summary>
 
-Measured on the real deployment (Cloudflare-served, brotli) when this landed,
-with Babel still the compiler: 341.3 KB less to download on a page with a
-demo (945.8 KB uncompressed) — for `guide/external/basic`, Rollup's JS
-(112.2 KB) and wasm binary (229.1 KB) both go, leaving the compiler alone.
-Sucrase replaced Babel on top of that, above.
+Rollup's JS and its wasm binary both go, leaving the compiler alone: 341.3 KB
+less on a page with a demo, measured when this landed with Babel still the
+compiler. Sucrase replaced Babel on top of that, above.
 
 </details>
 
@@ -430,13 +429,8 @@ since both would then claim the same fence keyword.
 `@rspress/plugin-playground` registers the playground via
 `globalComponents`/`globalStyles` and preloads Monaco from a CDN through
 `html.tags`, so even a 404 page pays for the demo runtime. This plugin injects
-the layout import only on pages that actually have a demo.
-
-Measured on the real deployment (Cloudflare-served, brotli), a page with no
-demo at all: 194.4 KB here against 857.5 KB for
-`@rspress/plugin-playground@2.0.18`, which fetches Monaco's loader and editor
-regardless, and 895.6 KB for v2.0.6, which fetches `@babel/standalone` and
-`@rollup/browser` regardless.
+the layout import only on pages that actually have a demo. That's the no-demo
+row of the table at the top of this release.
 
 </details>
 
@@ -450,16 +444,8 @@ statically, so each demo page downloads the union of externals used across
 _every_ demo on the site — a heavy dependency from a single demo loads on every
 demo page, even one using nothing but `useState`.
 
-This plugin downloads only what a page's own demo actually needs. Measured on
-the real deployment (Cloudflare-served, brotli), on a docs site whose one heavy
-demo pulls three.js:
-
-| page                              |      here | `plugin-playground` |
-| --------------------------------- | --------: | ------------------: |
-| demo importing only `react`       |  430.5 KB |           3090.8 KB |
-| demo importing the three.js graph | 1311.1 KB |           3086.2 KB |
-
-Note upstream's two rows are the same size: the heavy demo's dependencies are
-already on the light demo's page.
+This plugin downloads only what a page's own demo actually needs — the two
+demo rows of the table at the top of this release, where upstream's are the
+same size as each other and this one's differ by exactly the three.js graph.
 
 </details>

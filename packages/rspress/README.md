@@ -65,8 +65,7 @@ This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plu
 
 ### Payload
 
-Both plugins deployed to Cloudflare Pages from the same 9-page docs site, same
-`@rspress/core@2.0.18`, brotli, real page loads:
+Both plugins deployed to Cloudflare Pages from the same 9-page docs site, with just one page having a Three.js demo. Same `@rspress/core@2.0.18`, brotli, real page loads:
 
 | page                              |      here | `plugin-playground@2.0.18` |
 | --------------------------------- | --------: | -------------------------: |
@@ -74,10 +73,12 @@ Both plugins deployed to Cloudflare Pages from the same 9-page docs site, same
 | demo importing only `react`       |  430.5 KB |                  3090.8 KB |
 | demo importing the three.js graph | 1311.1 KB |                  3086.2 KB |
 
-Upstream's two demo rows are the same size because its virtual module imports
-every external statically — the three.js demo's dependencies land on the
-`react`-only demo's page too. Its no-demo page is not free either: Monaco is
-preloaded from a CDN on every page of the site.
+Upstream preloads Monaco from a CDN on every page of the site, and its virtual
+module imports every external statically — which is why its two demo rows are
+the same size: the three.js demo's dependencies land on the `react`-only demo's
+page too.
 
-Method and full breakdown:
+Full breakdown:
 [asset-size comparison](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/explorations/asset-size-comparison.md).
+Method:
+[measuring reader payload](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/measuring-payload.md).

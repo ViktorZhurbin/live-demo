@@ -87,6 +87,16 @@ from upstream's own scan.
 objection needs one page in the set where the objection doesn't apply and the
 effect still shows.
 
+### Pushing the branches
+
+A comparison branch won't pass `pnpm run verify` — it doesn't build against
+this repo's own package and the e2e suite expects this plugin's markup. Ask user to push with `git push --no-verify`; don't disable the husky hook, there's nothing to
+restore afterwards that way.
+
+Keep the branches on `origin` when the run is done. Rerunning against a newer
+`main` is a rebase and a re-push, which mints fresh preview URLs — much cheaper
+than rebuilding the rig.
+
 ## 3. Choose the page set
 
 Four pages, minimum. Each answers a different question, and dropping any of
@@ -159,8 +169,13 @@ then run this in the page:
 `transferSize` is real bytes off the wire for that load: compression included,
 cache hits as 0, cross-origin included (both CDNs used here send
 `timing-allow-origin: *`). It carries a flat **+300 B per request** of header
-allowance — subtract `300 × n` for body-only bytes. `byKind` gives the JS-only
-subtotal for free, which is usually the number worth leading with.
+allowance — subtract `300 × n` for body-only bytes. That allowance was
+cross-checked in the 2026-08-02 run against
+`curl -H "Accept-Encoding: br, gzip" -w "%{size_download}"` on the same URLs:
+`transferSize − 300` matched curl's body count exactly on four of five samples
+across Cloudflare and both CDNs, the fifth off by 32 B (0.02%, unexplained).
+`byKind` gives the JS-only subtotal for free, which is usually the number worth
+leading with.
 
 ### Two gaps to close by hand
 
@@ -174,6 +189,9 @@ the full request list from the browser's network panel, diff it against
 curl -s -o /dev/null -H 'Accept-Encoding: br, gzip' -w '%{size_download}' "$URL"
 curl -sI -H 'Accept-Encoding: br, gzip' "$URL" | grep -i content-encoding
 ```
+
+Read the size off `%{size_download}`, not `Content-Length` — the header is
+absent on most of these responses.
 
 Add +300 each to keep the basis uniform. A URL fetched by two workers is one
 cache-hit away from being counted twice — check `cache-control` and count it
@@ -236,12 +254,22 @@ Ratios travel better than absolutes, since absolutes go stale with every
 
 ## 8. Write it up
 
-- **Run write-up** → `docs/explorations/`. Setup, adaptations, method,
-  results, caveats. Supersede the previous run's file rather than appending to
-  it; keep any section the new run didn't re-measure, marked as such.
+- **Run write-up** → `docs/explorations/`. What was deployed, what had to be
+  adapted, the numbers, and the caveats that don't generalize past this run.
+  **Not the method** — that's this file, and the write-up should link here
+  instead of restating why isolated contexts or brotli or the untrimmed site
+  matter. The test for a paragraph: is it needed to _read a number in the
+  write-up_ (keep, stated flatly), or to _run the next measurement_ (it belongs
+  here), or neither (delete). Supersede the previous run's file rather than
+  appending to it; keep any section the new run didn't re-measure, marked as
+  such.
 - **Headline figures** → `README.md` / `CHANGELOG.md`, with the deploy basis
   named.
 - **A rule that constrains future work** → an ADR.
+
+Anything the run learned about the _method_ — a new trap, a correction to the
+`transferSize` basis, a branch-pushing detail — gets folded back into this file
+in the same pass, or the next run rediscovers it.
 
 State the basis every time. Body bytes and `transferSize` differ by 300 B per
 request, and older figures in this repo predate the isolated-context change
@@ -262,6 +290,7 @@ is merely stale.
 - Sharing one browser session across pages, so cache makes pages look free.
 - Missing worker-initiated requests entirely.
 - Comparing a gzip local preview against a brotli deploy.
+- Trusting `Content-Length`; it's absent on most of these responses.
 - `grep -c` on a minified bundle.
 - Quoting emitted-but-never-fetched build output as reader cost.
 - Summing per-module gzip figures as if additive — gzip misses cross-module

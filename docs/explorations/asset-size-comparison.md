@@ -13,9 +13,22 @@ ship every external used anywhere on the site to every page that has a demo.
 Only on the one page whose demo genuinely needs three.js does the gap narrow —
 and current is still 1.7–2.4× lighter there.
 
+Run of 2026-08-02. The method is [`measuring-payload.md`](../measuring-payload.md);
+this file carries only what was deployed, what had to be adapted, the numbers,
+and the caveats specific to this run.
+
+**Basis**, everywhere except the two dated sections at the end: `transferSize`
+from each page's own resource timing, one isolated browser context per
+(deploy × page), brotli confirmed on all three origins. It includes a flat
++300 B/request of headers — subtract 300 × the request count for body bytes
+(the curl cross-check behind that constant is in `measuring-payload.md`).
+Monaco's worker fetches and its codicon font never appear in resource timing;
+those four were measured by curl and added on the same +300 basis.
+
 ## Setup
 
-Three deploys of the same 9-page site:
+Three deploys of the same untrimmed 9-page site, `@rspress/core` pinned to
+exact `2.0.18` on all three:
 
 | Leg          | Deploy                                      | What it runs                                      |
 | ------------ | ------------------------------------------- | ------------------------------------------------- |
@@ -23,145 +36,91 @@ Three deploys of the same 9-page site:
 | **upstream** | `asset-size-2-upstream.live-demo.pages.dev` | `@rspress/plugin-playground@2.0.18`               |
 | **v2.0.6**   | `asset-size-2-v2-0-6.live-demo.pages.dev`   | published `@live-demo/rspress@2.0.6` from npm     |
 
-Branches: `asset-size-2/upstream` and `asset-size-2/v2.0.6`, both cut from
-`main` independently so each diff reads against `main` directly.
+Branches `asset-size-2/upstream` and `asset-size-2/v2.0.6`, each cut from
+`main` independently. All 9 pages and all prose stay byte-identical to `main`
+on both, so site chrome and the sitewide virtual module's demo set are
+comparable across legs.
 
-**The site is not trimmed.** All 9 pages and all prose stay byte-identical to
-`main` on both branches, so the search index, route manifest, nav tree and
-per-page prose — everything that makes up site chrome — are comparable across
-legs. Keeping the full site also means the sitewide virtual module holds the
-same set of demos everywhere.
+### The four pages
 
-`@rspress/core` is pinned to exact `2.0.18` on all three.
+| page                    | demo on it                                                                 | what it isolates                           |
+| ----------------------- | -------------------------------------------------------------------------- | ------------------------------------------ |
+| `guide/customization`   | none                                                                       | the eager tax — ADR 0004's invariant       |
+| `guide/getStarted`      | one `.tsx` file demo: `react` + this plugin's `Button`                     | the cheapest possible demo                 |
+| `guide/external/goWild` | one `.jsx` file demo: three.js, `@react-three/{fiber,drei,postprocessing}` | the expensive demo                         |
+| `guide/usage`           | two inline ` ```jsx live ` demos, the second ~2900px down                  | inline vs. external, and the viewport gate |
 
-### The four pages, and why each is there
+`getStarted` against `goWild` is the pair that decides the question: on current
+those two pages should differ by exactly the three.js graph, and on the other
+two legs they should not differ at all.
 
-- **`guide/customization`** — no demo at all. Isolates "does the runtime load
-  even when nothing on the page needs it." This is the row ADR 0004's eager
-  invariant is about.
-- **`guide/getStarted`** — one `.tsx` demo importing only `react` and this
-  plugin's `Button`. The cheapest possible demo.
-- **`guide/external/goWild`** — one `.jsx` demo importing three.js,
-  `@react-three/{fiber,drei,postprocessing}`. The expensive demo.
-- **`guide/usage`** — two inline ` ```jsx live ` demos, one at the top and one
-  ~2900px down. Catches both inline-vs-external and above-vs-below-the-fold.
-
-`getStarted` against `goWild` is the pair that matters: on current those two
-pages should differ by exactly the three.js graph, and on the other two legs
-they should not differ at all.
+Every demo was clicked on all three deploys before any byte was trusted:
+`getStarted`, `basic` and `multiFile` counters increment, `goWild` renders a
+live `three.js r182` canvas, `usage`'s inline counter increments and its QR
+code renders at 128×128.
 
 ### Per-branch adaptations
 
-The three plugins aren't drop-in compatible. Full reasoning is in each
-branch's commit message; what matters for reading the numbers:
+The three plugins aren't drop-in compatible. Full reasoning is in each branch's
+commit message; what matters for reading the numbers:
 
 **upstream (`@rspress/plugin-playground@2.0.18`)**
 
-- meta word `live` → `playground`, on real demo fences only. Illustrative
-  fences inside ` ```` ` blocks are left alone — they aren't demos and
-  changing them would move bytes for no reason.
-- Demos need an explicit `export default`; the `Runner` errors with "No
-  default export" otherwise.
+- Meta word `live` → `playground`, on real demo fences only. Illustrative
+  fences inside ` ```` ` blocks are left alone.
+- Demos need an explicit `export default`; the `Runner` errors otherwise.
 - This plugin's `Button` → a plain `<button>`.
 - **No local sibling imports.** `./Imported` was inlined into `MultiFile.tsx`
-  and `./Atom` into `ReactEllipseCurve.jsx`. `Imported.tsx` and `Atom.jsx` are
-  still on disk, unimported and route-excluded, contributing nothing — don't
-  read their presence as upstream handling the import.
-- `HomeDemo.tsx` dropped (uses this plugin's `web/lazy` API directly).
-- The `ui` plugin option dropped (no upstream equivalent).
+  and `./Atom` into `ReactEllipseCurve.jsx`. Both files are still on disk,
+  unimported and route-excluded — don't read their presence as upstream
+  handling the import.
+- `HomeDemo.tsx` dropped (uses this plugin's `web/lazy` API directly), and the
+  `ui` plugin option dropped (no upstream equivalent).
 - **`include: ["@react-three/drei", "@react-three/fiber",
-"@react-three/postprocessing", "three"]` was required.** Upstream's
-  `routeGenerated` scan parses raw MDX with its own processor and collects
-  imports from inline ` ```jsx playground ` fences and `<code src>` elements.
-  A `file=` fence's body is still **empty** in that raw MDX —
-  `@rspress/core`'s `remarkFileCodeBlock` fills it during a later compile the
-  scan never sees — so a `file=` demo's imports are structurally invisible to
-  it. Without `include`, `goWild` throws "Module @react-three/fiber not found",
-  and there is no upstream-supported alternative.
-
-  **The `usage` page settles whether that mattered.** Its two demos are inline
-  fences importing `react` and `qrcode.react`, both collected by upstream's own
-  scan with no `include` involvement — and it still pulls the full 887.9 KB
-  union chunk carrying three.js. The union behavior is upstream's, not
-  something the config produced.
+"@react-three/postprocessing", "three"]` was required** — see below.
 
 **v2.0.6 (published `@live-demo/rspress@2.0.6`)**
 
-- `file=` reverted to the deprecated `<code src>` — 2.0.6 predates `file=`;
-  its remark transform reads a `src` attribute for external demos.
+- `file=` reverted to the deprecated `<code src>`; 2.0.6 predates `file=`.
 - `HomeDemo.tsx` dropped here too: no `./web/lazy` in 2.0.6's `exports`.
-- `ui.resizablePanels.defaultPanelSizes` takes numbers in 2.0.6, not `"55%"`
-  strings.
+- `ui.resizablePanels.defaultPanelSizes` takes numbers, not `"55%"` strings.
 - `includeModules: ["qrcode.react"]` — 2.0.6 doesn't scan inline
   ` ```lang live ` blocks for their own imports, so `usage`'s QR demo can't
   resolve it otherwise. External demos _are_ scanned, so three.js needs no
-  entry. (This option's removal, and why it's no longer needed, is the
-  CHANGELOG's `includeModules` entry.)
-- `Button` and the local sibling imports stay — 2.0.6 exported `Button` from
-  its ten-export barrel and did support multi-file demos.
+  entry. (Its removal is the CHANGELOG's `includeModules` entry.)
+- `Button` and the local sibling imports stay — 2.0.6 exported `Button` and did
+  support multi-file demos.
+- Installed as `"npm:@live-demo/rspress@2.0.6"`, verified against the installed
+  `exports` map (only `.`, `./web`, `./web/index.css` — no `./web/lazy`), since
+  a plain `"2.0.6"` range resolves to the local workspace source instead.
 
-**The pinning conflict**: `packages/rspress/package.json`
-still reads `"2.0.6"`, so a plain `"@live-demo/rspress": "2.0.6"` in
-`website/package.json` satisfies pnpm's workspace-link range and silently
-resolves to the _local unreleased_ source. `"npm:@live-demo/rspress@2.0.6"`
-forces the registry tarball — verified by checking the installed package's
-`exports` map has only `.`, `./web` and `./web/index.css`, with no `./web/lazy`.
+#### Why upstream's `include` doesn't rig the comparison
 
-### Every demo was clicked
+Upstream's `routeGenerated` scan parses raw MDX with its own processor and
+collects imports from inline ` ```jsx playground ` fences and `<code src>`
+elements. A `file=` fence's body is still **empty** in that raw MDX —
+`@rspress/core`'s `remarkFileCodeBlock` fills it during a later compile the
+scan never sees — so a `file=` demo's imports are structurally invisible to it.
+Without `include`, `goWild` throws "Module @react-three/fiber not found", and
+there is no upstream-supported alternative.
 
-On all three deploys, in a real browser: `getStarted`, `basic` and `multiFile`
-counters increment; `goWild` renders a live `three.js r182` canvas; `usage`'s
-inline counter increments and its QR code renders at 128×128. A page whose demo
-silently renders nothing would still produce a plausible byte total.
-
-## Methodology
-
-Each of the 12 (deploy × page) combinations was loaded in its **own isolated
-browser context**, so every request is a cold fetch — no cross-page cache
-carry-over, which is what would otherwise make the second page of a session
-look free.
-
-Bytes come from the page's own `performance.getEntriesByType('resource')` plus
-the `navigation` entry for the HTML document, read as **`transferSize`**: actual
-bytes off the wire for that load, compression included, cache hits counted as 0.
-
-Two things to know about that number:
-
-- **It includes a flat 300 B/request header allowance.** Cross-checked against
-  `curl -H "Accept-Encoding: br, gzip" -w "%{size_download}"` on the same URLs:
-  `transferSize − 300` matched curl's body byte count **exactly on four of five
-  samples**, across Cloudflare and both third-party CDNs. The fifth (`899`, the
-  CodeMirror chunk) came back 32 B larger from curl than `transferSize` — a
-  0.02% discrepancy with no explanation chased down. Subtract 300 × the request
-  count in the tables below for body-only bytes, give or take that.
-- **Brotli end-to-end.** `content-encoding: br` confirmed on every response
-  counted, including `cdnjs.cloudflare.com` and `cdn.jsdelivr.net`. Both CDNs
-  serve brotli by default, so the totals below have no unit mismatch between
-  own-origin and CDN bytes.
-
-**Monaco's workers are the one gap.** Resource timing only sees main-thread
-requests, so upstream's worker-initiated fetches (`workerMain.js`,
-`simpleWorker.nls.js`, `tsWorker.js`) and the codicon font don't appear there.
-Those four were measured by curl and added, +300 each to keep the basis uniform.
-`workerMain.js` and `simpleWorker.nls.js` are each requested twice (two workers)
-and counted once — both responses carry `cache-control: immutable,
-max-age=30672000`, so the second is a cache hit. If that's wrong, upstream's
-demo-page numbers are 80.4 KB higher still, which changes nothing.
-
-Local `rspress preview` was **not** used for any number: it serves gzip, not
-brotli, which would put a gzip own-bundle against a brotli CDN inside the same
-total.
+**The `usage` page settles whether that mattered.** Its two demos are inline
+fences importing `react` and `qrcode.react`, both collected by upstream's own
+scan with no `include` involvement — and it still pulls the full 887.9 KB union
+chunk carrying three.js. The union behavior is upstream's, not something the
+config produced.
 
 ## Results
 
 ### Total transferred bytes, all resource types
 
-| page                                   |   **current** | **upstream** | **v2.0.6** |
-| -------------------------------------- | ------------: | -----------: | ---------: |
-| `customization` — no demo              |  **194.4 KB** |     857.5 KB |   895.6 KB |
-| `getStarted` — demo needs `react` only |  **430.5 KB** |    3090.8 KB |  2251.0 KB |
-| `goWild` — demo needs three.js         | **1311.1 KB** |    3086.2 KB |  2246.2 KB |
-| `usage` — two inline demos †           |  **429.7 KB** |    3090.2 KB |  2250.1 KB |
+| page                                   |                  **current** |             **upstream** |               **v2.0.6** |
+| -------------------------------------- | ---------------------------: | -----------------------: | -----------------------: |
+| _the plugin's share is_                | _CodeMirror + Sucrase, lazy_ | _Monaco + Babel + union_ | _Babel + Rollup + union_ |
+| `customization` — no demo              |                 **194.4 KB** |                 857.5 KB |                 895.6 KB |
+| `getStarted` — demo needs `react` only |                 **430.5 KB** |                3090.8 KB |                2251.0 KB |
+| `goWild` — demo needs three.js         |                **1311.1 KB** |                3086.2 KB |                2246.2 KB |
+| `usage` — two inline demos †           |                 **429.7 KB** |                3090.2 KB |                2250.1 KB |
 
 † **The `usage` row is cost on arrival, and the three legs aren't doing the same
 work for it.** Its second demo sits ~2900px down. Upstream and v2.0.6 load both
@@ -172,24 +131,13 @@ gap — but don't read 429.7 against 2250.1 as "same page, same content."
 Requests: current 12 / 16 / 20 / 16, upstream 14 / 24 / 24 / 24, v2.0.6
 14 / 16 / 16 / 17.
 
-### JavaScript only
+**JS is essentially the whole difference.** Everything else barely moves across
+legs — CSS 14.1–16.1 KB, images 14.7 KB, the HTML document 3.8–9.0 KB, the
+search index 5.4 KB. The two non-JS exceptions are each one leg's own: Monaco's
+36.7 KB codicon font on upstream, Rollup's 282.4 KB wasm binary on v2.0.6, both
+on every demo page and both in the tables below.
 
-JS accounts for essentially all of the difference:
-
-| page            |   **current** | **upstream** | **v2.0.6** |
-| --------------- | ------------: | -----------: | ---------: |
-| `customization` |  **154.3 KB** |     818.5 KB |   853.5 KB |
-| `getStarted`    |  **388.0 KB** |    2997.3 KB |  1923.3 KB |
-| `goWild`        | **1273.2 KB** |    2997.2 KB |  1923.0 KB |
-| `usage`         |  **389.5 KB** |    2998.7 KB |  1924.5 KB |
-
-Everything that isn't JS is close to identical across all three legs and doesn't
-move with the plugin: CSS 14.1–16.1 KB, images 14.7 KB, the HTML document
-3.8–9.0 KB, the search index 5.4 KB. Two exceptions, each specific to one leg:
-upstream adds a **36.7 KB codicon font** (Monaco's icon set) on every demo page,
-and v2.0.6 adds Rollup's **282.4 KB wasm binary** on every demo page.
-
-### Read the two middle rows together
+### The pair that decides it
 
 `getStarted` and `goWild` are the same site, the same chrome, and demos at
 opposite ends of the dependency spectrum.
@@ -200,15 +148,13 @@ opposite ends of the dependency spectrum.
 | `goWild` total     |     1311.1 KB |   3086.2 KB |   2246.2 KB |
 | difference         | **+880.6 KB** | **−4.6 KB** | **−4.8 KB** |
 
-On current, the three.js demo costs 880.6 KB more than the trivial one, because
+On current the three.js demo costs 880.6 KB more than the trivial one, because
 that's what three.js weighs and only that page loads it. On upstream and v2.0.6
 the two pages are the _same size to within page prose_ — the heavy demo's
 dependencies are already on the cheap demo's page. That difference is the whole
 "lazy external imports" claim, measured.
 
-## Per-branch breakdown
-
-### current (`main`)
+### Where the bytes go — current (`main`)
 
 | chunk                                     |    bytes | loads on                      |
 | ----------------------------------------- | -------: | ----------------------------- |
@@ -225,36 +171,19 @@ dependencies are already on the cheap demo's page. That difference is the whole
 | `@react-three/fiber` (`248`)              |  48.2 KB | `goWild` only                 |
 | demo glue (`207`)                         |   2.5 KB | `goWild` only                 |
 
-Chunks identified by fetching each uncompressed and grepping for distinguishing
-strings (`jsxPragma` → Sucrase, `cm-content`/`CodeMirror` → the editor,
-`THREE`/`EffectComposer`/`useFrame` → the three.js family), since the filenames
-are content hashes.
+**The eager row is empty.** 194.4 KB on `customization` is rspress core and the
+page's own prose; the plugin contributes nothing until a demo is about to be
+seen. Sucrase measures 45.0 KB here against the CHANGELOG's independently
+measured 44.8 KB.
 
-Sucrase measures 45.0 KB here against the CHANGELOG's independently-measured
-44.8 KB.
+**Viewport gating, measured.** Loading `usage` and stopping at the top costs
+429.7 KB. Scrolling to the second demo adds **exactly one 6.4 KB chunk**
+(`qrcode.react`) and nothing else — the editor, compiler and wrapper came down
+with the first demo, so a second demo on an already-loaded page costs only its
+own imports. On upstream and v2.0.6 both demos render without scrolling at all;
+there is nothing to gate.
 
-**The eager row is empty.** 194.4 KB on `customization` is rspress core and
-the page's own prose; the plugin contributes nothing until a demo is about to
-be seen.
-
-Grepping `main`'s always-loaded vendor chunk (`922`) for `LiveDemo` returns
-nothing, and its two hits for `live-demo` are both inside one string —
-flexsearch's worker URL, which has the CI checkout path
-`/home/runner/work/live-demo/live-demo/node_modules/…` baked into it. Not
-plugin code; expect the same two hits on a rerun.
-
-#### Viewport gating, measured
-
-`usage` has a second demo ~2900px down the page. Loading `usage` and stopping
-there costs 429.7 KB. Scrolling to that second demo adds **exactly one 6.4 KB
-chunk** (`qrcode.react`) and nothing else — the editor, compiler and wrapper
-were already down from the first demo, so a second demo on an already-loaded
-page costs only its own imports.
-
-On upstream and v2.0.6 both demos on `usage` render without any scrolling at
-all. There is nothing to gate.
-
-### upstream (`@rspress/plugin-playground@2.0.18`)
+### Where the bytes go — upstream (`@rspress/plugin-playground@2.0.18`)
 
 |                                              |    demo page | no-demo page |
 | -------------------------------------------- | -----------: | -----------: |
@@ -271,25 +200,21 @@ all. There is nothing to gate.
 
 Monaco's loader and editor are registered through `html.tags` as
 `<link rel="preload">` in the plugin's `builderConfig` — unconditionally, on
-every page of the site. That's the 665.6 KB the no-demo page pays. Babel is
-_not_ eager: it's fetched on demand when a `Runner` first compiles.
+every page of the site. That's what the no-demo page pays. Babel is _not_
+eager: it's fetched when a `Runner` first compiles.
 
-**The 887.9 KB union chunk is on all three demo pages, unchanged.** It's the
-generated `_rspress_playground_imports` virtual module, which does
-`import * as i_n from '<pkg>'` statically for every package any demo anywhere on
-the site uses. `getStarted`, whose demo imports `react`, downloads all of
-three.js through it.
+The 887.9 KB union chunk is the generated `_rspress_playground_imports` virtual
+module, which does `import * as i_n from '<pkg>'` statically for every package
+any demo anywhere on the site uses. It's identical on all three demo pages, so
+`getStarted`, whose demo imports `react`, downloads all of three.js through it.
 
-#### A `.jsx` demo does not avoid the TypeScript worker
+**A `.jsx` demo does not avoid the TypeScript worker.** `goWild` is `.jsx` and
+still loads `tsWorker.js` (807.0 KB), upstream's single biggest line item; the
+only difference from `getStarted` is `basic-languages/javascript/javascript.js`
+in place of the TypeScript equivalent, 2.6 KB against 2.7 KB. Monaco implements
+JavaScript language support _through_ the TypeScript worker.
 
-Upstream's single biggest line item is Monaco's TypeScript language service.
-`goWild` is `.jsx`, and it still loads `tsWorker.js` (807.0 KB) — the only
-difference from `getStarted` is `basic-languages/javascript/javascript.js` in
-place of the TypeScript equivalent, 2.6 KB against 2.7 KB. Monaco implements
-JavaScript language support _through_ the TypeScript worker, so there is no
-`.jsx` discount.
-
-### v2.0.6 (published `@live-demo/rspress`)
+### Where the bytes go — v2.0.6 (published `@live-demo/rspress`)
 
 |                                                     |    demo page | no-demo page |
 | --------------------------------------------------- | -----------: | -----------: |
@@ -302,46 +227,39 @@ JavaScript language support _through_ the TypeScript worker, so there is no
 | **Total**                                           | **~2251 KB** | **895.6 KB** |
 
 Both Babel and Rollup's _JS_ load on every page; only Rollup's wasm is properly
-lazy — matching the CHANGELOG's `@rollup/browser` entry.
+lazy, matching the CHANGELOG's `@rollup/browser` entry. `6834` is the same
+shape of problem as upstream's `994`: the web runtime plus every external any
+demo on the site imports, in one chunk, on every demo page — `getStarted` pays
+for three.js here too.
 
-`6834` is the same shape of problem as upstream's `994`: the plugin's web
-runtime plus every external any demo on the site imports, in one chunk, on every
-demo page. `getStarted` pays for three.js here too.
+**The eager `470` chunk still carries Shiki.** It is 394.5 KB uncompressed /
+126.8 KB brotli, against 218.8 / 73.2 KB for the equivalent chunk on `main` and
+217.5 / 72.8 KB on upstream — 53.6 KB brotli of extra weight on every page, demo
+or not. `470` contains `createOnigScanner`, `codeToTokens` and TextMate grammar
+handling, plus 62 references to `@rspress/core/theme` component classes. `main`
+and upstream have none of it; their only `shiki` hits are the `.shiki` CSS class
+names compile-time highlighting emits anyway.
 
-#### v2.0.6's eager shared chunk still carries Shiki
+The grep proves Shiki and the theme barrel are in `470` and absent from the
+other two; it does not prove they account for the entire 53.6 KB. What's
+established: this chunk is 53.6 KB heavier on every page, and this is what's in
+it that isn't in the others. Either way it's the `@rspress/core/theme`
+default-external cost, independently reproduced — the 2026-08-01 section below
+found it as a before/after on `main`; this measures it against the published
+version, on a different deploy, by a different method.
 
-Its always-loaded vendor chunk `470` is 394.5 KB uncompressed / 126.8 KB brotli,
-against 218.8 KB / 73.2 KB for the equivalent chunk on `main` and 217.5 KB /
-72.8 KB on upstream — 53.6 KB brotli of extra weight on every page, demo or not.
-Grepping all three:
-`470` contains `createOnigScanner`, `codeToTokens` and TextMate grammar
-handling, plus 62 references to `@rspress/core/theme` component classes
-(`rp-prompt`, `rp-llms`, `PageTabs`). `main` and upstream have none of it —
-their only `shiki` hits are the `.shiki` CSS class names that compile-time
-highlighting emits anyway.
+## What the `[VERIFY]` markers resolved to
 
-53.6 KB is the whole delta between `470` and its counterparts. The grep proves
-Shiki and the theme barrel are in `470` and absent from the other two; it does
-not prove they account for the entire 53.6 KB. What's established: this chunk
-is 53.6 KB heavier on every page, and this is what's in it that isn't in the
-others.
+| claim                                                                                | verdict                            |
+| ------------------------------------------------------------------------------------ | ---------------------------------- |
+| CHANGELOG — "plugin runtime is smaller: ~X against v2, ~Y against plugin-playground" | Conflated two numbers; now a table |
+| CHANGELOG — "Per-page layout injection"                                              | **Confirmed**                      |
+| CHANGELOG — "Lazy external imports"                                                  | **Confirmed**                      |
+| CHANGELOG — Sucrase entry's Babel figures                                            | **Wrong; entry re-measured**       |
+| README — "TypeScript w/o red squiggles" as a difference                              | **False; removed from README**     |
 
-Either way it's the `@rspress/core/theme` default-external cost, independently
-reproduced: the 2026-08-01 section below found it as a before/after on `main`;
-this measures it against the published version, on a different deploy, by a
-different method.
-
-## Resolving the `[VERIFY]` markers
-
-| claim                                                                                | verdict                          |
-| ------------------------------------------------------------------------------------ | -------------------------------- |
-| CHANGELOG — "plugin runtime is smaller: ~X against v2, ~Y against plugin-playground" | Two different numbers, see below |
-| CHANGELOG — "Per-page layout injection"                                              | **Confirmed**                    |
-| CHANGELOG — "Lazy external imports"                                                  | **Confirmed**                    |
-| README — "TypeScript w/o red squiggles" as a difference                              | **False; removed from README**   |
-
-**The top-line CHANGELOG figure conflates two measurements** and needs one
-number per clause:
+The single top-line CHANGELOG figure was two different measurements. It's now
+the per-page table at the top of the Unreleased section; as deltas, those are:
 
 - _Eager tax_ — what a page with no demo pays: current 194.4 KB against
   v2.0.6's 895.6 KB (**−701 KB**) and upstream's 857.5 KB (**−663 KB**).
@@ -349,42 +267,37 @@ number per clause:
   current 236.1 KB against v2.0.6's 1355.4 KB (**−1119 KB**) and upstream's
   2233.3 KB (**−1997 KB**).
 
-**Per-page layout injection** — confirmed directly. `customization` on upstream
-fetches Monaco's `loader.js` and `editor.main.js`; on v2.0.6 it fetches
-`@babel/standalone` and `@rollup/browser`; on current it fetches nothing
-plugin-related at all.
+**The Sucrase entry's Babel comparison was wrong.** Its Sucrase figures
+reproduce exactly (44.8 KB brotli, 196.3 KB
+uncompressed — chunk `554`), but the Babel figures it compared them against
+(481.2 KB brotli, 2251.0 KB uncompressed) match no artifact reachable today:
+`@babel/standalone@7.28.3`, the version this plugin actually shipped, measures
+531.8 KB brotli / 644.6 KB gzip / 3001.9 KB identity on jsdelivr. The entry now
+carries the measured numbers; what the original 481.2 figure measured is
+unknown.
 
-**Lazy external imports** — confirmed, and stronger than the entry claims. It
-isn't only that a page downloads the union: on both other legs the heavy demo's
-page and the trivial demo's page are the _same size_.
-
-**The README's red-squiggles claim is false and has been removed.**
-`@rspress/plugin-playground`'s own `Playground.tsx` calls
+The red-squiggles claim was never true of upstream either:
+`@rspress/plugin-playground`'s `Playground.tsx` calls
 `monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions` with
 `noSemanticValidation`, `noSyntaxValidation` and `noSuggestionDiagnostics` all
-`true`. Confirmed in-browser on the deploy: zero `.squiggly-*` elements in the
-editor. Upstream has no squiggles either; this was never a difference.
+`true`, and the deploy shows zero `.squiggly-*` elements in the editor.
 
 ## 2026-08-01: dropping the `@rspress/core/theme` default external
 
-The mechanism below is corroborated from the other direction by "v2.0.6's
-eager shared chunk still carries Shiki" above.
+Not re-measured in this run; corroborated from the other direction by the `470`
+finding above. Figures here are `curl -w "%{size_download}"` body bytes, **not**
+`transferSize` — deltas are comparable, absolutes aren't.
 
 `@rspress/core/theme` was in the plugin's `defaultModules`, so every demo could
 import it without declaring it. It's a barrel: making it an external marks all
 of its exports live, `CodeBlockRuntime` included, which pulls in Shiki and ~30
 TextMate grammars. The site's layout needs that same barrel eagerly, so the
 bundler merged the two — putting a runtime syntax highlighter into the initial
-chunk of **every page**, demo or not.
+chunk of **every page**, demo or not. A stock `create-rspress@latest --template
+basic` site on the same `@rspress/core@2.0.18` ships no Shiki runtime at all, so
+this was ours, not core's.
 
-A stock `create-rspress@latest --template basic` site on the same
-`@rspress/core@2.0.18` ships no Shiki runtime at all (checked: no chunk
-containing `createOnigScanner` or `codeToTokensBase`). So this was ours, not
-core's: a Shiki chunk in an Rspress build otherwise reads as something Rspress
-added.
-
-Measured then as production `main` against a branch preview, both the full
-untrimmed site:
+Production `main` against a branch preview, both the full untrimmed site:
 
 |                                      |   before |    after |    delta |
 | ------------------------------------ | -------: | -------: | -------: |
@@ -392,48 +305,35 @@ untrimmed site:
 | No-demo page (`customization`) total | 237.5 KB | 176.1 KB | −61.5 KB |
 | Demo-specific cost (demo − no-demo)  | 233.9 KB | 234.8 KB |  +0.9 KB |
 
-Those figures are on the old `size_download` basis (body bytes, no header
-allowance) and aren't directly comparable to this run's `transferSize` numbers;
-the delta is the point.
-
 **The demo-specific cost doesn't move.** The entire saving is on the shared
-eager side: it's the no-demo page that gets 25.9% lighter.
+eager side: the no-demo page gets 25.9% lighter.
 
-### 2.4 KB of it was CSS
-
-The sitewide stylesheet went 16,566 → 14,086 B brotli (84,978 → 70,351 raw).
-**Not Shiki's CSS** — both stylesheets still carry all 35 `.shiki` selectors,
-since compile-time highlighting emits `.shiki` markup for ordinary code blocks
-and always needed those rules.
-
+2.4 KB of it was CSS — the sitewide stylesheet went 16,566 → 14,086 B brotli
+(84,978 → 70,351 raw). **Not Shiki's CSS**: both stylesheets still carry all 35
+`.shiki` selectors, which ordinary compile-time-highlighted code blocks need.
 What went is the CSS for _theme components the site never renders_, which the
-barrel kept alive. 151 selectors dropped: `rp-prompt` 50 (the "Copy Prompt"
-agent block), `rp-llms` 22, `rp-page` 21 (`PageTabs`), `rp-banner` 6,
-`rp-source` 5, `rp-steps` 4, `rp-outline` 2, and 41 keyframes and one-offs.
-Marking every export live pinned each component's stylesheet whether or not the
-site used the component — the same failure in a second dimension.
+barrel kept alive — 151 selectors: `rp-prompt` 50 (the "Copy Prompt" agent
+block), `rp-llms` 22, `rp-page` 21 (`PageTabs`), `rp-banner` 6, `rp-source` 5,
+`rp-steps` 4, `rp-outline` 2, and 41 keyframes and one-offs. Marking every
+export live pinned each component's stylesheet whether or not the site used the
+component.
 
-Build output dropped too: 190 of 322 async chunks were TextMate grammars (5.5 MB
-raw), emitted but never fetched. Dead deploy weight, not reader cost — don't
-quote it as a payload win.
+Build output dropped too: 190 of 322 async chunks were TextMate grammars
+(5.5 MB raw), emitted but never fetched. Dead deploy weight, not reader cost.
 
-### The part that isn't sealed
+**The part that isn't sealed.** `visitFilePaths` folds each demo's own imports
+into the same sitewide virtual module, so **one demo importing
+`@rspress/core/theme` brings the whole cost back for every page.** Removing it
+from the defaults only stops the plugin imposing it unprompted. Nothing in the
+source currently records this — `plugin.ts`'s `defaultModules` docblock covers
+only `react/jsx-runtime`.
 
-`visitFilePaths` folds each demo's own imports into the same sitewide virtual
-module, so **one demo importing `@rspress/core/theme` brings the whole cost back
-for every page.** Removing it from the defaults only stops the plugin imposing
-it unprompted. `usage.mdx` warns demo authors, and `plugin.ts`'s
-`defaultModules` docblock records why it must not return.
+## 2026-07-27: what's inside the CodeMirror bundle
 
-## What's inside the CodeMirror bundle
-
-Measured 2026-07-27 and not re-measured here. The chunk was
-`3899.09416e05e5.js`; it's now `899.a789894b09.js` (556,371 B raw, 183.0 KB
-brotli), so read these figures as relative weights, not current absolutes.
-Produced with `webpack-bundle-analyzer` wired temporarily into
-`builderConfig.tools.rspack`, parsing the report's embedded `chartData`.
-
-Per-package, minified and gzip:
+Not re-measured here. The chunk was `3899.09416e05e5.js`; it's now
+`899.a789894b09.js` (556,371 B raw, 183.0 KB brotli), so read these as relative
+weights, not current absolutes. Figures are **gzip** (`webpack-bundle-analyzer`
+`chartData`) and don't belong in a sentence with the brotli totals above.
 
 | Package                                      | Minified |    Gzip |
 | -------------------------------------------- | -------: | ------: |
@@ -459,40 +359,29 @@ CodeMirror proper (`@codemirror/*` + `@lezer/*` + `style-mod` + `crelt`) is
 ~149 KB gzip of the total. `@uiw/react-codemirror`, the React binding, adds
 another 20.6 KB over talking to CodeMirror directly. `@tabler/icons-react`
 tree-shakes to 1.7 KB — the two icons the control panel uses, not the icon set.
-
-`react-error-boundary` has no line here: it's inlined into `Core.mjs` at the
+`react-error-boundary` has no line: it's inlined into `Core.mjs` at the
 package's `tsdown` build step, so the analyzer can't attribute it. Bounded
 regardless — the whole wrapper chunk it lives in is 5.9 KB.
 
-## Caveats for reproducing this
+## Caveats
 
 - **`current` is unreleased and will keep moving.** These are a snapshot of one
   branch point. Rerun before quoting them anywhere permanent.
-- **`transferSize` includes 300 B/request of headers.** Subtract 300 × the
-  request count for body bytes. Don't mix these figures with the 2026-08-01
-  section's, which are `curl -w "%{size_download}"` body bytes.
+- **Three bases appear in this file.** `transferSize` (everything above the
+  dated sections, +300 B/request), `size_download` body bytes (2026-08-01), and
+  gzip per-module figures (2026-07-27). Don't combine them.
 - **Two different Babel builds appear across legs** —
   `babel-standalone@7.22.20` (upstream, cdnjs, 377.1 KB) and
   `@babel/standalone@7.28.3` (v2.0.6, jsdelivr, 532.1 KB). Different package,
   version and CDN, not one dependency measured twice; the ~155 KB gap is not a
   methodology inconsistency.
-- **The CHANGELOG's Sucrase entry's Babel figures were inaccurate.** Its
-  Sucrase figures reproduce exactly (44.8 KB brotli, 196.3 KB uncompressed —
-  chunk `554`), but its Babel figures (481.2 KB brotli, 2251.0 KB uncompressed)
-  match no artifact reachable today: `@babel/standalone@7.28.3`, the version
-  this plugin actually shipped, measures 531.8 KB brotli / 644.6 KB gzip /
-  3001.9 KB identity on jsdelivr. The entry now carries the measured numbers;
-  what the original 481.2 figure measured is unknown.
-- **`icon-dark.png` (12.7 KB) is in every row.** Because every page load got its
-  own isolated browser context, the favicon is fetched every time instead of
-  appearing only on whichever page loaded first. Uniform across all 12 cells, so
-  it cancels — but it's in the totals.
-- **Monaco's duplicate worker fetches are counted once.** See Methodology.
-- **The two non-`main` branches don't pass `pnpm run verify`** — they don't
-  build against this repo's own package and the e2e suite expects this plugin's
-  markup. Push them with `git push --no-verify`; don't disable the husky hook,
-  there's nothing to restore afterwards that way.
-- **Reproducing this**: branches `asset-size-2/upstream` and
-  `asset-size-2/v2.0.6` on `origin`, both off `main`. Rebase on newer `main` and
-  re-push for fresh preview URLs, then rerun the resource-timing pass above.
-  Don't trust `Content-Length` — it's absent on most of these responses.
+- **`icon-dark.png` (12.7 KB) is in every row.** Each page load got its own
+  isolated browser context, so the favicon is fetched every time. Uniform across
+  all 12 cells, so it cancels — but it's in the totals.
+- **Monaco's duplicate worker fetches are counted once.** `workerMain.js` and
+  `simpleWorker.nls.js` are requested by two workers each; both responses carry
+  `cache-control: immutable, max-age=30672000`, so the second is a cache hit. If
+  that's wrong, upstream's demo-page numbers are 80.4 KB higher still.
+- **Reproducing this**: branches `asset-size-2/upstream` and `asset-size-2/v2.0.6`
+  on `origin`, both off `main`. Rebase on newer `main` and re-push for fresh
+  preview URLs, then rerun the collector from `measuring-payload.md`.
