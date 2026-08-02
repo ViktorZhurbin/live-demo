@@ -22,7 +22,7 @@ Maintaining this file:
   that only made an error message or edge case more correct is Fixed.
 -->
 
-## [Unreleased]
+## [3.0.0] - 2026-08-02
 
 What browser downloads, measured on real Cloudflare Pages deploys of the same
 9-page docs site (one page with a Three.js demo), brotli, `@rspress/core@2.0.18`:

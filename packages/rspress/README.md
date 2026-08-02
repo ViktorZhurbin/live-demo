@@ -12,6 +12,9 @@ npm install @live-demo/rspress
 
 # Rspress v1
 npm install @live-demo/rspress@1
+
+# Not ready for 3.0's breaking changes yet?
+npm install @live-demo/rspress@2
 ```
 
 ### Register
