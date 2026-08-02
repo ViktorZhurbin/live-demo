@@ -1,6 +1,6 @@
 # Live Demo - Interactive Examples for Rspress
 
-![demo](https://github.com/user-attachments/assets/70744765-a147-41bf-96d8-93f30aded8fb)
+https://github.com/user-attachments/assets/5cabccfc-2357-4d7f-bb3d-76195a065e1e
 
 ## Quick start
 
