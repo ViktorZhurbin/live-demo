@@ -18,9 +18,9 @@
 .live-demo-fallback {
 	border: var(--live-demo-layout-border);
 	background-color: var(--live-demo-colors-surface1);
-	border-radius: 6px;
+	border-radius: var(--live-demo-radius);
 	margin-block: 10px;
-	font-size: 0.85rem;
+	font-size: var(--rp-code-font-size, 0.875rem);
 	overflow: hidden;
 
 	/* Queried below. Matches what ResizablePanels measures: the widget's own
@@ -32,12 +32,39 @@
 	display: flex;
 	gap: 8px;
 	padding: 8px;
+	background-color: var(--live-demo-colors-surface2);
 	border-bottom: var(--live-demo-layout-border);
 }
 
 .live-demo-fallback-panels {
 	display: flex;
 	height: 400px;
+}
+
+/* Mirrors ResizablePanels' editor `Panel`, which stacks FileTabs above the
+   editor *inside* the panel box. So the tab strip costs no height at this
+   level — but it is a filled `surface2` band, and without it the skeleton's
+   code lines would sit where the strip is about to be. */
+.live-demo-fallback-editor-pane {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.live-demo-fallback-tabs {
+	padding: 4px 12px;
+	background-color: var(--live-demo-colors-surface2);
+	border-bottom: var(--live-demo-layout-border);
+}
+
+/* One tab, sized like a short filename. FileTabs' own padding and line-height
+   set the strip's height; matching that here means matching the box, not the
+   text. */
+.live-demo-fallback-tab {
+	width: 96px;
+	height: 25px;
+	border-radius: var(--live-demo-radius-control);
 }
 
 .live-demo-fallback-editor {
@@ -73,7 +100,7 @@
 
 .live-demo-fallback-preview-label {
 	color: var(--live-demo-colors-clickable);
-	font-size: 0.85rem;
+	font-size: var(--rp-code-font-size, 0.875rem);
 	margin-bottom: 2px;
 }
 
@@ -113,7 +140,7 @@
 .live-demo-fallback-button {
 	width: 28px;
 	height: 28px;
-	border-radius: 6px;
+	border-radius: var(--live-demo-radius-control);
 }
 
 .live-demo-fallback-line {
@@ -124,10 +151,10 @@
 .live-demo-fallback-error {
 	border: var(--live-demo-layout-border);
 	background-color: var(--live-demo-colors-surface1);
-	border-radius: 6px;
+	border-radius: var(--live-demo-radius);
 	margin-block: 10px;
 	padding: 16px;
-	font-size: 0.85rem;
+	font-size: var(--rp-code-font-size, 0.875rem);
 	color: var(--live-demo-colors-clickable);
 }
 

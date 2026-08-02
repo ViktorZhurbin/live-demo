@@ -3,18 +3,28 @@
 	align-items: center;
 }
 
-.button {
-	&:first-of-type {
+/* Scoped through `.wrapper` for specificity, not just readability. These
+   longhand corner resets have to beat `Button.module.css`'s `border-radius`
+   shorthand; as a bare `.button` they'd tie with it and win only because this
+   module happens to be emitted later in `dist/web/index.css`. Change the import
+   order and the segmented control silently reverts to three separate pills. */
+.wrapper .button {
+	&:not(:first-of-type) {
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+		/* Collapse the doubled border between adjacent segments into one line. */
+		margin-left: -1px;
+	}
+
+	&:not(:last-of-type) {
 		border-top-right-radius: 0;
 		border-bottom-right-radius: 0;
 	}
 
-	&:not(&:first-of-type, &:last-of-type) {
-		border-radius: 0;
-	}
-
-	&:last-of-type {
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
+	/* Above the negative margin, so the active segment's stronger border isn't
+	   clipped by whichever neighbour paints after it. */
+	&[data-active="true"] {
+		position: relative;
+		z-index: 1;
 	}
 }

@@ -34,9 +34,11 @@ const EDITOR_SKELETON_LINE_WIDTHS = ["70%", "90%", "40%", "80%", "55%"];
 const LoadingFallback = ({
 	ref,
 	hasToolbar,
+	hasFileTabs,
 }: {
 	ref?: Ref<HTMLDivElement>;
 	hasToolbar: boolean;
+	hasFileTabs: boolean;
 }) => (
 	<div ref={ref} className="live-demo-fallback">
 		{hasToolbar && (
@@ -50,14 +52,21 @@ const LoadingFallback = ({
 			</div>
 		)}
 		<div className="live-demo-fallback-panels">
-			<div className="live-demo-fallback-editor">
-				{EDITOR_SKELETON_LINE_WIDTHS.map((width) => (
-					<div
-						key={width}
-						className="live-demo-fallback-shape live-demo-fallback-line"
-						style={{ width }}
-					/>
-				))}
+			<div className="live-demo-fallback-editor-pane">
+				{hasFileTabs && (
+					<div className="live-demo-fallback-tabs">
+						<div className="live-demo-fallback-shape live-demo-fallback-tab" />
+					</div>
+				)}
+				<div className="live-demo-fallback-editor">
+					{EDITOR_SKELETON_LINE_WIDTHS.map((width) => (
+						<div
+							key={width}
+							className="live-demo-fallback-shape live-demo-fallback-line"
+							style={{ width }}
+						/>
+					))}
+				</div>
 			</div>
 			{/* Same component `CodeRunner` renders into the real preview pane, so
 			    this slot doesn't change appearance when `LiveDemoRoot` mounts and the
@@ -70,24 +79,37 @@ const LoadingFallback = ({
 );
 
 /**
- * Whether the mounted widget will render a toolbar, read straight off the
- * still-stringified props. `ControlPanel` returns null under
- * `ui.controlPanel.hide`, so a skeleton that always drew one would collapse by
- * its height the moment `LiveDemoRoot` mounts — the jump this fallback exists to avoid.
+ * Which bands the mounted widget will draw, read straight off the
+ * still-stringified props. Both `ControlPanel` and `FileTabs` return null under
+ * their own `hide` option, so a skeleton that always drew them would lose those
+ * bands the moment `LiveDemoRoot` mounts — the jump this fallback exists to avoid.
  *
  * Parses `options` alone rather than going through `parseProps`, which would
  * also parse every file's full source here, on the path that has to paint
- * first. A malformed value resolves to "toolbar shown" instead of throwing:
+ * first. A malformed value resolves to "both shown" instead of throwing:
  * `parseProps` raises `PROP_PARSE_FAILED` for it once `LiveDemoRoot` mounts, and the
  * loading skeleton is the wrong place to surface that.
+ *
+ * `hideSingleTab` is treated as "no strip": the file count it depends on lives
+ * in `files`, which this path won't parse, and erring this way keeps the
+ * common single-file case exact.
  */
-const hasToolbar = (options: string | undefined): boolean => {
-	if (!options) return true;
+const readBands = (
+	options: string | undefined,
+): { hasToolbar: boolean; hasFileTabs: boolean } => {
+	const shown = { hasToolbar: true, hasFileTabs: true };
+	if (!options) return shown;
 
 	try {
-		return JSON.parse(options)?.controlPanel?.hide !== true;
+		const ui = JSON.parse(options);
+
+		return {
+			hasToolbar: ui?.controlPanel?.hide !== true,
+			hasFileTabs:
+				ui?.fileTabs?.hide !== true && ui?.fileTabs?.hideSingleTab !== true,
+		};
 	} catch {
-		return true;
+		return shown;
 	}
 };
 
@@ -123,7 +145,7 @@ const ErrorFallback = () => (
 export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 	const [isNearViewport, setIsNearViewport] = useState(false);
 	const skeletonRef = useRef<HTMLDivElement>(null);
-	const toolbar = hasToolbar(props.pluginProps.options);
+	const bands = readBands(props.pluginProps.options);
 
 	useEffect(() => {
 		const skeleton = skeletonRef.current;
@@ -142,12 +164,12 @@ export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 	}, []);
 
 	if (!isNearViewport) {
-		return <LoadingFallback ref={skeletonRef} hasToolbar={toolbar} />;
+		return <LoadingFallback ref={skeletonRef} {...bands} />;
 	}
 
 	return (
 		<ErrorBoundary fallback={<ErrorFallback />}>
-			<Suspense fallback={<LoadingFallback hasToolbar={toolbar} />}>
+			<Suspense fallback={<LoadingFallback {...bands} />}>
 				<LiveDemoRoot {...props} />
 			</Suspense>
 		</ErrorBoundary>

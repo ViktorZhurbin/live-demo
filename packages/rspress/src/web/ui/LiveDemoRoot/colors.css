@@ -1,26 +1,49 @@
+/**
+ * Widget chrome derives from Rspress's own theme variables; see
+ * docs/decisions/0005-widget-chrome-from-rspress-vars.md.
+ *
+ * `html.dark`, not `html.rp-dark`: Rspress's `applyThemeToDOM` toggles both, and
+ * `dark` is the class the docs tell people to key their overrides off.
+ */
 html {
-	/* Colors copied from Sandpack theme
-  https://github.com/codesandbox/sandpack/blob/main/sandpack-react/src/themes/index.ts
-   */
-	--live-demo-colors-surface1: #ffffff;
-	--live-demo-colors-surface2: #efefef;
-	--live-demo-colors-surface3: #f3f3f3;
-	--live-demo-colors-disabled: #c5c5c5;
-	--live-demo-colors-base: #323232;
-	--live-demo-colors-clickable: #808080;
-	--live-demo-colors-hover: #4d4d4d;
-	--live-demo-colors-accent: #3973e0;
+	--live-demo-colors-surface1: var(--rp-c-bg, #ffffff);
+	--live-demo-colors-surface2: var(--rp-code-title-bg, #f8f8f9);
+	--live-demo-colors-surface3: var(--rp-c-bg-mute, #f1f1f1);
+	--live-demo-colors-selected: var(--rp-c-bg, #ffffff);
+	--live-demo-colors-disabled: var(--rp-c-text-3, rgba(60, 60, 60, 0.33));
+	--live-demo-colors-base: var(--rp-c-divider, rgba(0, 0, 0, 0.25));
+	--live-demo-colors-clickable: var(--rp-c-text-2, rgba(0, 0, 0, 0.7));
+	--live-demo-colors-hover: var(--rp-c-text-1, #242424);
+	--live-demo-colors-accent: var(--rp-c-text-0, #000000);
+
+	--live-demo-layout-border: var(
+		--rp-code-block-border,
+		1px solid rgba(0, 0, 0, 0.12)
+	);
 
 	&.dark {
-		--live-demo-colors-surface1: #151515;
-		--live-demo-colors-surface2: #252525;
-		--live-demo-colors-surface3: #2f2f2f;
-		--live-demo-colors-disabled: #4d4d4d;
-		--live-demo-colors-base: #808080;
-		--live-demo-colors-clickable: #999999;
-		--live-demo-colors-hover: #c5c5c5;
-		--live-demo-colors-accent: #e5e5e5;
+		--live-demo-colors-surface1: var(--rp-c-bg, #121212);
+		--live-demo-colors-surface2: var(--rp-code-title-bg, #191919);
+		--live-demo-colors-surface3: var(--rp-c-bg-mute, #343a46);
+		/* Not `--rp-c-bg`: dark chrome (`surface2`, #191919) is *lighter* than the
+		   dark page background, so a raised element has to go lighter still to
+		   read as raised. Rspress's own Tabs make the same swap. */
+		--live-demo-colors-selected: var(--rp-c-bg-soft, #292e37);
+		--live-demo-colors-disabled: var(--rp-c-text-3, rgba(235, 235, 235, 0.38));
+		--live-demo-colors-base: var(--rp-c-divider, rgba(84, 84, 84, 0.65));
+		--live-demo-colors-clickable: var(--rp-c-text-2, rgba(255, 255, 245, 0.65));
+		--live-demo-colors-hover: var(--rp-c-text-1, rgba(255, 255, 245, 0.93));
+		--live-demo-colors-accent: var(--rp-c-text-0, #ffffff);
+
+		--live-demo-layout-border: var(
+			--rp-code-block-border,
+			1px solid rgba(84, 84, 84, 0.48)
+		);
 	}
 
-	--live-demo-layout-border: 1px solid var(--live-demo-colors-surface2);
+	/* Mode-independent, so outside both blocks. `--rp-radius` is Rspress's
+	   container radius (code blocks, Tabs); the control radius is what its Tabs
+	   use for a tab label. */
+	--live-demo-radius: var(--rp-radius, 1rem);
+	--live-demo-radius-control: calc(1.5 * var(--rp-radius-small, 0.5rem));
 }

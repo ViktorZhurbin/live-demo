@@ -1,8 +1,11 @@
 .wrapper {
 	border: var(--live-demo-layout-border);
 	background-color: var(--live-demo-colors-surface1);
-	border-radius: 6px;
-	font-size: 0.85rem;
+	border-radius: var(--live-demo-radius);
+	/* The toolbar and tab strip paint their own background to the widget's edge,
+	   so without this their square corners sit outside the rounded border. */
+	overflow: hidden;
+	font-size: var(--rp-code-font-size, 0.875rem);
 	display: flex;
 	flex-direction: column;
 	height: 100%;

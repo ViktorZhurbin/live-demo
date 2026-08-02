@@ -1,3 +1,9 @@
+/* Stays bordered on purpose. ToggleButtonGroup joins these into a segmented
+   control by zeroing the inner corners, and that only reads as one group if the
+   segments have visible edges. It's also what separates the view selector (a
+   mode switch) from FileTabs (a content switch), which is borderless — see
+   FileTabs.module.css. */
+
 .button {
 	display: flex;
 	align-items: center;
@@ -17,12 +23,18 @@
 	box-sizing: border-box;
 	height: 28px;
 	width: unset;
-	border-radius: 6px;
+	border-radius: var(--live-demo-radius-control);
 	padding: 4px 8px;
 
 	color: var(--live-demo-colors-clickable);
-	background-color: var(--live-demo-colors-surface2);
-	border: 1px solid var(--live-demo-colors-surface3);
+	/* Transparent, not a surface of its own: the toolbar underneath is already
+	   `surface2`, and any of the near-neighbour surfaces would flatten against
+	   it in light mode. The border alone carries the segment edges. */
+	background-color: transparent;
+	border: var(--live-demo-layout-border);
+	transition:
+		color 0.2s ease-out,
+		background-color 0.2s ease-out;
 
 	&:disabled {
 		cursor: default;
@@ -41,12 +53,8 @@
 
 	&[data-active="true"] {
 		color: var(--live-demo-colors-accent);
-		background-color: var(--live-demo-colors-surface3);
-		border: 1px solid var(--live-demo-colors-base);
-
-		&:hover {
-			background-color: var(--live-demo-colors-surface2);
-		}
+		background-color: var(--live-demo-colors-selected);
+		border-color: var(--live-demo-colors-base);
 	}
 
 	svg {

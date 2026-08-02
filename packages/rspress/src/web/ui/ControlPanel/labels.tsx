@@ -4,7 +4,7 @@ import { PanelsView } from "~web/constants/settings";
 export const getPanelViewsValues = (showIcons?: boolean) => [
 	{
 		value: PanelsView.Split,
-		label: showIcons ? <IconBrandVscode /> : PanelsView.Split,
+		label: showIcons ? <IconBrandVscode stroke={1.5} /> : PanelsView.Split,
 	},
 	{
 		value: PanelsView.Preview,

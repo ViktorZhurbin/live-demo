@@ -3,8 +3,9 @@ title: Customization
 ---
 
 Two ways to customize how demos look and behave: the `ui` plugin option
-(what shows, and CodeMirror config), and CSS custom properties (colors).
-Both apply site-wide, to every demo — there's no per-demo override.
+(what shows, and CodeMirror config), and CSS custom properties (colors,
+border, and corner radius). Both apply site-wide, to every demo — there's
+no per-demo override.
 
 ## `ui` option
 
@@ -76,19 +77,27 @@ export default defineConfig({
 
 Colors come from CSS custom properties, defined for light mode on `html`
 and overridden under `html.dark` — the class Rspress's own theme toggle
-applies:
+applies.
 
-```css
---live-demo-colors-surface1
---live-demo-colors-surface2
---live-demo-colors-surface3
---live-demo-colors-disabled
---live-demo-colors-base
---live-demo-colors-clickable
---live-demo-colors-hover
---live-demo-colors-accent
---live-demo-layout-border
-```
+Each one resolves to an Rspress theme variable, so a demo picks up your
+site's theme without any configuration. The literal after the comma is
+Rspress's own value for that mode, used only when its theme CSS isn't
+loaded at all:
+
+| Property                       | Resolves to                            | Used for                              |
+| ------------------------------ | -------------------------------------- | ------------------------------------- |
+| `--live-demo-colors-surface1`  | `--rp-c-bg`                            | Widget background, editor and preview |
+| `--live-demo-colors-surface2`  | `--rp-code-title-bg`                   | Toolbar and file-tab strip            |
+| `--live-demo-colors-surface3`  | `--rp-c-bg-mute`                       | Hover background                      |
+| `--live-demo-colors-selected`  | `--rp-c-bg` / `--rp-c-bg-soft` in dark | Active tab and active toggle          |
+| `--live-demo-colors-disabled`  | `--rp-c-text-3`                        | Disabled text                         |
+| `--live-demo-colors-base`      | `--rp-c-divider`                       | Active borders and the tab's ring     |
+| `--live-demo-colors-clickable` | `--rp-c-text-2`                        | Idle text                             |
+| `--live-demo-colors-hover`     | `--rp-c-text-1`                        | Hovered text                          |
+| `--live-demo-colors-accent`    | `--rp-c-text-0`                        | Active text                           |
+| `--live-demo-layout-border`    | `--rp-code-block-border`               | Every divider and button border       |
+| `--live-demo-radius`           | `--rp-radius`                          | The widget's outer corners            |
+| `--live-demo-radius-control`   | `calc(1.5 * var(--rp-radius-small))`   | Buttons and file tabs                 |
 
 To restyle, set these under both `html` and `html.dark` (or a selector at
 least as specific) so your override stays in sync with the site's own
@@ -103,3 +112,8 @@ html.dark {
   --live-demo-colors-accent: #818cf8;
 }
 ```
+
+An override replaces the Rspress variable entirely for that property — the
+rest keep tracking the theme. `--live-demo-radius` is the one to reach for
+first if the demo box looks rounder than the surrounding page: it follows
+`--rp-radius`, which Rspress also uses for code blocks and tabs.

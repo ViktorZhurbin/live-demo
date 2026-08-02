@@ -170,6 +170,25 @@ error in the preview.
 
 ### Changed
 
+#### Widget colors now follow the Rspress theme
+
+Every `--live-demo-colors-*` property resolves to an Rspress theme variable
+(`--rp-c-bg`, `--rp-code-title-bg`, `--rp-c-text-0`, …) instead of a fixed
+palette, so a demo matches the site it's on. The most visible default change:
+in light mode the active file tab and view toggle are now `--rp-c-text-0`
+rather than blue. Overriding `--live-demo-colors-accent` restores a brand
+color, as documented.
+
+New properties: `--live-demo-colors-selected` (the active tab's raised
+surface) and `--live-demo-radius` / `--live-demo-radius-control`, which follow
+`--rp-radius` — the widget's corners now match Rspress code blocks and tabs.
+
+#### File tabs no longer look like the view selector
+
+File tabs are styled as an Rspress-style tab strip; the Split/Preview/Editor
+toggle stays a segmented control. Previously both rendered the same active
+pill.
+
 #### `@babel/standalone` replaced with `sucrase`
 
 The runtime compiler is now Sucrase instead of Babel. Same demo behavior

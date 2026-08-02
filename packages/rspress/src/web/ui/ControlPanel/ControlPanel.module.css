@@ -2,6 +2,10 @@
 	display: flex;
 	gap: 16px;
 	padding: 8px;
+	/* Same band as FileTabs' strip and Rspress's own code-block title bar, so the
+	   widget's chrome and its content surfaces separate the way a code block's
+	   do. */
+	background-color: var(--live-demo-colors-surface2);
 	border-bottom: var(--live-demo-layout-border);
 
 	flex-wrap: wrap;

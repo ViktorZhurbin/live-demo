@@ -1,7 +1,5 @@
 import { useLiveDemoContext } from "~web/context/LiveDemoProvider";
 
-import { Button } from "../Button/Button";
-
 import styles from "./FileTabs.module.css";
 
 export const FileTabs = () => {
@@ -17,8 +15,9 @@ export const FileTabs = () => {
 		<div className={styles.wrapper}>
 			{fileNames.map((name) => {
 				return (
-					<Button
+					<button
 						key={name}
+						type="button"
 						className={styles.tab}
 						data-active={name === activeFile}
 						onClick={() => {
@@ -26,7 +25,7 @@ export const FileTabs = () => {
 						}}
 					>
 						{name}
-					</Button>
+					</button>
 				);
 			})}
 		</div>

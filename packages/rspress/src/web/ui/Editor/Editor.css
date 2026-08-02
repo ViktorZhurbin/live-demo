@@ -5,6 +5,12 @@
 	.cm-editor {
 		height: 100%;
 
+		/* The vscode themes hardcode their own backgrounds: #ffffff, which already
+		   equals `--rp-c-bg`, and #1e1e1e, which doesn't — dark would leave the
+		   largest surface in the widget lighter than the chrome around it. Override
+		   the surface only; the theme's syntax colors are the reason it's here. */
+		background-color: var(--live-demo-colors-surface1);
+
 		&.cm-focused {
 			outline: unset;
 		}

@@ -1,17 +1,66 @@
+/* Mirrors Rspress's own `<Tabs>` label strip: a `--rp-code-title-bg` band with
+   borderless labels, the selected one raised onto `selected` with a soft ring.
+   File tabs pick one of N files, the same "switch which content is shown"
+   meaning Rspress tabs have — which is also what keeps them visually distinct
+   from ControlPanel's view selector, a mode switch that stays a segmented
+   control. */
+
 .wrapper {
 	display: flex;
-	gap: 8px;
-	padding: 8px;
-	overflow: auto;
+	gap: 4px;
+	padding: 4px 12px;
+	overflow-x: auto;
 	min-height: max-content;
+	background-color: var(--live-demo-colors-surface2);
 	border-bottom: var(--live-demo-layout-border);
+
+	/* Many tabs overflow horizontally; a scrollbar under the strip would sit on
+	   the editor's top edge. */
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
+/* Not the shared `Button`: that one is bordered so ToggleButtonGroup can join
+   segments into a group, which is exactly the look a tab must not have. */
 .tab {
-	border: unset;
+	appearance: none;
+	margin: 0;
+	border: none;
 	background-color: transparent;
+	font: inherit;
+	letter-spacing: inherit;
+	text-transform: none;
+
+	box-sizing: border-box;
+	padding: 4px 12px;
+	border-radius: var(--live-demo-radius-control);
+	cursor: pointer;
+	user-select: none;
+	word-break: keep-all;
+	white-space: nowrap;
+
+	color: var(--live-demo-colors-clickable);
+	transition:
+		color 0.2s ease-out,
+		background-color 0.2s ease-out;
 
 	&:hover:not([data-active="true"]) {
+		color: var(--live-demo-colors-hover);
+		background-color: var(--live-demo-colors-surface3);
+	}
+
+	&[data-active="true"] {
 		color: var(--live-demo-colors-accent);
+		background-color: var(--live-demo-colors-selected);
+		box-shadow: 0 0 3px 0 var(--live-demo-colors-base);
+	}
+
+	&:focus,
+	&:focus-visible {
+		outline: revert;
 	}
 }
