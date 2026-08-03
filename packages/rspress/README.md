@@ -55,7 +55,7 @@ export const App = () => {
 
 ## Docs
 
-https://live-demo.pages.dev/guide/getStarted
+https://live-demo.vktrz.workers.dev/guide/getStarted
 
 ## Compared to `@rspress/plugin-playground`
 
