@@ -1,0 +1,8 @@
+{
+	"name": "live-demo",
+	"compatibility_date": "2026-08-03",
+	"assets": {
+		"directory": "./doc_build/",
+		"not_found_handling": "404-page",
+	},
+}

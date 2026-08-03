@@ -93,10 +93,11 @@ jobs:
           name: website-build
           path: doc_build
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           packageManager: npm
-          command: pages deploy doc_build --project-name=live-demo --branch=main
+          wranglerVersion: "4"
+          command: deploy
