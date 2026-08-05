@@ -91,7 +91,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: website-build
-          path: doc_build
+          path: website/doc_build
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v4
