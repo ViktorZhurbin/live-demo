@@ -7,9 +7,7 @@ numbers already there, since `main` keeps moving and the published comparison
 is the project's one falsifiable claim.
 
 This file persists across runs; write-ups in `explorations/` don't. Last
-exercised 2026-08-02 —
-[asset-size-comparison.md](./explorations/asset-size-comparison.md) is that
-run's output and the worked example of everything below.
+exercised 2026-08-02.
 
 Budget: about half a day end to end, most of it in setup, not measurement.
 
@@ -36,7 +34,7 @@ prose — is built from the whole page set, and a 3-page branch against a 9-page
 `main` contaminates every absolute total. Change only the plugin wiring and the
 minimum needed to make demos run. **Don't fix prose that becomes inaccurate**
 on a branch — a page documenting our own features will be wrong on the
-upstream branch. Leave it; editing it moves bytes.
+plugin-playground branch. Leave it; editing it moves bytes.
 
 Pin `@rspress/core` to the same exact version on every leg. A caret range
 re-resolves on a fresh install and shifts chrome bytes underneath you. An
@@ -62,7 +60,7 @@ confirm it lacks a subpath the local source has.
 
 ### Reading an alternative plugin's actual behavior
 
-There's no vendored copy of upstream in this repo. Install the version and read
+There may be no vendored copy of plugin-playground in this repo. Check `.claude/source-code/` first - if it's not there, install the version and read
 its `dist/` — for `@rspress/plugin-playground` that's `dist/cli/index.js` (the
 plugin: remark transform, `routeGenerated` scan, `builderConfig`) and
 `static/global-components/Playground.tsx` (the rendered component). Twenty
@@ -77,11 +75,11 @@ rigged in this plugin's favor. **Record every one in the branch's commit
 message and in the write-up's setup section**, and for anything that inflates
 the alternative's numbers, say explicitly why there was no alternative.
 
-Worked example, from the 2026-08-02 run: upstream's `routeGenerated` scan
-can't see a `file=` fence's imports, so `include: [...]` had to be added by
+Worked example, from the 2026-08-02 run: plugin-playground's `routeGenerated`
+scan can't see a `file=` fence's imports, so `include: [...]` had to be added by
 hand — that's what puts three.js in its union chunk. State the mechanism, then
-confirm it on a page whose externals came only from upstream's own scan, with
-no `include` involved. **Every adaptation carrying a fairness objection needs
+confirm it on a page whose externals came only from plugin-playground's own
+scan, with no `include` involved. **Every adaptation carrying a fairness objection needs
 one page like that in the set** — where the objection doesn't apply and the
 effect still shows.
 
@@ -141,12 +139,12 @@ wrong way.
 Four pages, minimum. Each answers a different question, and dropping any of
 them collapses a distinct finding:
 
-| page                               | answers                                                     |
-| ---------------------------------- | ----------------------------------------------------------- |
-| no demo at all                     | the eager tax — ADR 0004's invariant                        |
-| demo importing one trivial package | with the row below: does a page pay for other pages' demos? |
-| demo importing something heavy     | as above, and it's the only page where we're not far ahead  |
-| a page with a below-the-fold demo  | the viewport gate                                           |
+| page                               | answers                                                                                                                                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| no demo at all                     | the eager tax — ADR 0004's invariant                                                                                                                                                |
+| demo importing one trivial package | with the row below: does a page pay for other pages' demos?                                                                                                                         |
+| demo importing something heavy     | proves the union claim; not a headline figure — few readers put something like three.js in a demo, so this page's totals don't belong in the write-up's headline or its ratio table |
+| a page with a below-the-fold demo  | the viewport gate                                                                                                                                                                   |
 
 **The cheap-demo/heavy-demo pair decides the question.** On this plugin those two
 pages should differ by exactly the heavy demo's dependency graph; on a plugin
@@ -289,6 +287,33 @@ origin and each CDN. Don't inherit it from a previous run; it's third-party
 behavior. Don't mix a brotli CDN figure with a gzip own-origin figure in one
 total.
 
+**Test eagerness per component, not per leg.** "Does this plugin load its
+editor/compiler on every page?" is really several separate questions — one
+per piece of the stack — and they can have different answers. The
+2026-08-02 run found plugin-playground's editor shell (`editor.main.js` +
+`loader.js`) present on a no-demo page while its compiler and worker-fetched
+extras were absent from that same page, and v2's compiler was present on a
+no-demo page while its editor's presence there was never checked. Diff the
+no-demo page's request list against each named component individually;
+don't infer one component's load timing from another's, and don't infer a
+whole leg is "eager" or "lazy" from a single component that happened to get
+checked.
+
+**A wasm-based compiler needs its wasm binary checked separately.** Rollup,
+esbuild-wasm, and swc-wasm can ship a JS entry that's cheap and a wasm
+binary that's not, and the two can load at different times — the JS entry
+eagerly, the wasm binary only once a bundle actually runs. Curling the
+no-demo page catches only what's eager; confirm the wasm binary's load
+timing the same way §5 confirms Monaco's worker gap, with a network-panel
+diff on a page that has a demo.
+
+**Reconcile a page-total-minus-chrome figure against directly curled
+components before publishing both.** They describe the same bytes two
+ways, and if they don't agree within a couple of kB, something in the rig
+is unaccounted for — don't pick whichever number is more convenient. Say
+the gap out loud and what's not yet attributed, rather than let the two
+silently disagree in the same document.
+
 **Never use `rspress preview` for a published number.** It serves gzip. Fine
 for a quick relative check, useless for anything comparative.
 
@@ -348,15 +373,76 @@ suspect the rig before believing the result.
 
 ## 8. Write it up
 
-- **Run write-up** → `docs/explorations/`. What was deployed, what had to be
-  adapted, the numbers, and the caveats that don't generalize past this run.
-  **Not the method** — that's this file, and the write-up should link here
-  instead of restating why isolated contexts or brotli or the untrimmed site
-  matter. The test for a paragraph: is it needed to _read a number in the
-  write-up_ (keep, stated flatly), or to _run the next measurement_ (it belongs
-  here), or neither (delete). Supersede the previous run's file rather than
-  appending to it; keep any section the new run didn't re-measure, marked as
-  such.
+- **Run write-up** → `docs/explorations/`. Written for a reader of the
+  plugin, not for whoever runs the next measurement — plain language, short.
+  Use this skeleton; adapt section count to what the run actually found and
+  don't pad a section that has nothing to say:
+
+  1. **Title** — `Reader payload: <subject>`, e.g. "v3 vs. v2 vs.
+     plugin-playground".
+  2. **Terms** — one line per release/alternative naming its exact package
+     and pinned version (see the bullet below on names).
+  3. **Headline paragraph**, right under Terms — the plugin's own payload
+     (not page total) on the two pages that matter most: no-demo and
+     one-cheap-demo. Numbers first, two or three sentences, plus the
+     measurement basis in one clause (e.g. "measured on real Cloudflare
+     Pages deploys").
+  4. **What loads, and when** — the eager-tax story, broken into three
+     parts: what's confirmed present on the no-demo page per leg (a table),
+     what's confirmed absent there but present once a demo loads (another
+     table), and what wasn't established this run — a bulleted list, each
+     item naming what would confirm it, since an unflagged gap gets
+     silently assumed away by the next reader.
+  5. **Results** — the page × leg total table (§3's page set, each cell
+     net of that leg's own chrome per the rule below), immediately followed
+     by the breakdown table the rule below requires: editor / compiler /
+     other demos' dependencies / this demo's own code / residual.
+  6. **Anything the totals don't explain** — one short paragraph per
+     structural finding that doesn't fit a table cell (a shared-union
+     chunk, a viewport gate). Cut this section on a run with nothing like
+     that.
+  7. **Basis** — one closing paragraph: deploy basis (real network,
+     compression algorithm confirmed), and a link back to this file for
+     method and reproduction steps. Nothing else belongs here.
+
+  Content rules that apply within that skeleton:
+  - Define terms once, near the top: which release is being compared
+    (`v3`, `v2`, ...) and what the third-party alternative is called — name
+    the package (`plugin-playground`), not a role (`upstream`, `the
+official plugin`). Use those names consistently after that.
+  - **Report the plugin's payload, not the page total.** A page total folds
+    in Rspress's own chrome, which is identical on every leg and isn't any
+    plugin's doing — quoting it makes a plugin that ships zero bytes look
+    like it ships 191.6 kB, and makes a ratio between two legs smaller than
+    the thing being compared. Net out the no-demo page total of the leg
+    proven to ship no plugin code, and say that's what you did.
+  - Headline the common case, not the extreme one. If one test page exists
+    only to prove a structural claim (e.g. a three.js demo proving pages
+    share a bundled union) and most readers won't hit that case, its numbers
+    stay out of the headline and the ratio table — state them once, as
+    evidence for the claim they support, and no more.
+  - Show _why_ before showing totals: a short table of what each leg
+    actually loads to run a demo — editor and compiler, **each with its
+    measured kB** — before the results table. Naming the stack without
+    sizes still leaves the totals unexplained; the point is that the
+    reader meets "Monaco 681.6 kB + workers 946.8 kB" before meeting any
+    page total, so the total reads as a consequence.
+  - Break the results down, don't just total them. Every headline figure
+    needs a companion table splitting it into editor / compiler / other
+    demos' dependencies / this demo's own code. An unbroken four-digit kB
+    figure is the failure mode this section exists to prevent. Where a
+    component wasn't measured separately, fold it into a residual row and
+    say so rather than estimating it.
+  - Leave out anything that's about running the measurement rather than
+    reading its result: commit SHAs, branch names, methodology rationale,
+    caveats about the rig, previous-run deltas. That's this file's job —
+    the write-up links here instead of restating it. The test for a
+    paragraph: is it needed to _read a number in the write-up_ (keep,
+    stated flatly), or to _run the next measurement_ (belongs here), or
+    neither (delete).
+  - Supersede the previous run's file rather than appending to it; keep any
+    section the new run didn't re-measure, marked as such.
+
 - **Headline figures** → `README.md` / `CHANGELOG.md`, with the deploy basis
   named.
 - **A rule that constrains future work** → an ADR.
