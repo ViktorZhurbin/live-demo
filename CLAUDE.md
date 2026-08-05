@@ -32,7 +32,7 @@ the README, the changelog, or `docs/decisions/`.
 
 ### Origins
 
-The project started based off of the official plugins: `@rspress/plugin-playground` and `@rspress/plugin-preview`. Source of both is available in `.claude/source-code/` as an upstream reference (each has a `docs-api.md` file reflecting their v2 API). See `README.md` for differences. `resources/issues-analysis.md` is an attempt to analyze the long standing issues that users face with the official plugins (needs further digging)
+The project started based off of the official plugins: `@rspress/plugin-playground` and `@rspress/plugin-preview`. Source of both may be available in `.claude/source-code/` (git-ignored, so may be missing on some machines) as an upstream reference (each has a `docs-api.md` file reflecting their v2 API). See `README.md` for differences. `resources/issues-analysis.md` is an attempt to analyze the long standing issues that users face with the official plugins (needs further digging)
 
 ## Monorepo layout
 
