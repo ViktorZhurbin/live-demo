@@ -26,8 +26,8 @@
 	},
 	"devDependencies": {
 		"husky": "^9.1.7",
-		"oxfmt": "^0.59.0",
-		"oxlint": "^1.74.0",
+		"oxfmt": "^0.62.0",
+		"oxlint": "^1.77.0",
 		"typescript": "^6.0.3"
 	},
 	"packageManager": "pnpm@11.16.0"
