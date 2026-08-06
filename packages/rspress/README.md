@@ -59,12 +59,15 @@ https://live-demo.vktrz.workers.dev/guide/getStarted
 
 ## Compared to `@rspress/plugin-playground`
 
-This plugin is based off of [@rspress/plugin-playground](https://rspress.dev/plugin/official-plugins/playground). Differences:
+This plugin is based off of [@rspress/plugin-playground](https://rspress.rs/plugin/official-plugins/playground). Differences:
 
-- Multi-file support: an external demo's entry file can import local siblings,
-  and each one gets its own editor tab. `@rspress/plugin-playground` compiles a
-  demo as a single standalone file.
-- Small runtime that loads only when needed and only what's needed.
+- **Multi-file demos.** An external demo's entry file can import local
+  siblings, and each one gets its own editor tab. `@rspress/plugin-playground`
+  compiles a demo as a single standalone file.
+- **Smaller runtime** (see "Payload" below)
+- **Nothing loads until it's needed.** A page with no demo gets no plugin
+  bytes; a page with one loads the editor and compiler when the demo nears the
+  viewport, and pulls only that demo's own dependencies.
 
 Migrating: `playground` is accepted as an alias for `live`, so existing
 fences keep working unchanged — swapping the plugin registration is the whole
@@ -73,18 +76,31 @@ same fence keyword.
 
 ### Payload
 
-Both plugins deployed to Cloudflare Pages from the same 9-page docs site, with just one page having a Three.js demo. Same `@rspress/core@2.0.18`, brotli, real page loads:
+All three deployed to Cloudflare Workers from the same docs site, on
+`@rspress/core@2.0.18`. Figures are each plugin's own payload — the 196.3 kB
+Rspress baseline is netted out. v3's total runtime cost is about a ninth of
+plugin-playground's and a fifth of v2.0.6's, and — unlike either — it's zero
+on a page with no demo.
 
-| page                              |      here | `plugin-playground@2.0.18` |
-| --------------------------------- | --------: | -------------------------: |
-| no demo at all                    |  191.6 kB |                   870.1 kB |
-| demo importing only `react`       |  432.6 kB |                  3155.8 kB |
-| demo importing the three.js graph | 1334.3 kB |                  3151.5 kB |
+**Runtime cost, kB**
 
-Upstream preloads Monaco on every page and imports every external statically
-— full reasoning in the breakdown below.
+|                  |        v3 | plugin-playground |      v2.0.6 |
+| ---------------- | --------: | ----------------: | ----------: |
+| editor           |     192.6 |             762.4 |      ~192.6 |
+| editor's workers |         — |             909.2 |           — |
+| compiler         |      48.4 |             386.2 |       947.4 |
+| **total**        | **241.0** |        **2057.8** | **~1140.0** |
+
+**Confirmed present even on a page with no demo, kB**
+
+|                                                      |  v3 | plugin-playground | v2.0.6 |
+| ---------------------------------------------------- | --: | ----------------: | -----: |
+| Monaco editor shell (`editor.main.js` + `loader.js`) |   — |             681.6 |      — |
+| Babel + Rollup JS (compiler)                         |   — |                 — |  658.2 |
+| `@rspress/core/theme` barrel pulled into site chrome |   — |                 — |   58.3 |
 
 Full breakdown:
-[asset-size comparison](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/explorations/asset-size-comparison.md).
+[asset-size comparison](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/explorations/asset-size-4-comparison.md).
+
 Method:
 [measuring reader payload](https://github.com/ViktorZhurbin/live-demo/blob/main/docs/measuring-payload.md).

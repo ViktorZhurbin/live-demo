@@ -7,7 +7,7 @@ numbers already there, since `main` keeps moving and the published comparison
 is the project's one falsifiable claim.
 
 This file persists across runs; write-ups in `explorations/` don't. Last
-exercised 2026-08-02.
+exercised 2026-08-06 (`asset-size-4`).
 
 Budget: about half a day end to end, most of it in setup, not measurement.
 
@@ -63,10 +63,9 @@ confirm it lacks a subpath the local source has.
 There may be no vendored copy of plugin-playground in this repo. Check `.claude/source-code/` first - if it's not there, install the version and read
 its `dist/` — for `@rspress/plugin-playground` that's `dist/cli/index.js` (the
 plugin: remark transform, `routeGenerated` scan, `builderConfig`) and
-`static/global-components/Playground.tsx` (the rendered component). Twenty
-minutes there tells you what adaptations the branch needs and why the numbers
-come out how they do. `pnpm` nests real paths under
-`node_modules/.pnpm/`; `website/node_modules/<pkg>` is a symlink.
+`static/global-components/Playground.tsx` (the rendered component). `pnpm`
+nests real paths under `node_modules/.pnpm/`; `website/node_modules/<pkg>` is
+a symlink.
 
 ### Adaptations, and the honesty rule
 
@@ -193,11 +192,29 @@ those numbers and redo that page in a fresh context.
 Reading a rendered attribute — `canvas[data-engine]`, an SVG's `height` — is
 passive, so it can ride along inside the snapshot call itself.
 
+**Assert on a property only the demo's own output can produce** — the QR's
+`viewBox="0 0 29 29"`, the canvas's `data-engine` — not a selector like
+`[data-testid="…"] svg`, which matches the first SVG in the container (an
+editor toolbar icon on this plugin's legs). The asset-size-4 run read
+`width="24"` against a demo declaring `size={128}` on two of three legs
+before catching it. When a check fails, dump every candidate: the failure is
+as likely in the selector as in the demo.
+
 ## 5. Measure
 
 **One isolated browser context per (deploy × page).** Every request is then a
 cold fetch. Without this, the second page of a session inherits the first's
 cache and reads as nearly free.
+
+If driving the browser via the Playwright MCP tools, the ordinary navigate/tab
+tools share one browser profile — cache and all — across every call, which
+defeats isolation silently. `browser_run_code_unsafe` gets around this: it
+hands you the live `page` object, so `page.context().browser().newContext()`
+gives a genuinely fresh, cold context per (deploy × page), and
+`context.newCDPSession()` on the page created from it gives a `Network`
+domain listener that sees requests resource timing can't (§ below). Close the
+context after each page; a leaked context is a leaked cold-cache guarantee
+for whatever runs next.
 
 Load the page, wait for the demo to settle (6–12s; three.js is the slow one),
 then run this in the page:
@@ -259,9 +276,24 @@ recoverable from a rounded figure later.
 
 **Worker-initiated fetches don't appear.** Resource timing only sees the main
 thread. Monaco pulls `workerMain.js`, `simpleWorker.nls.js` and `tsWorker.js`
-(800+ kB) from inside workers, and its codicon font doesn't show either. Get
-the full request list from the browser's network panel, diff it against
-`rows`, and curl whatever's missing:
+(900+ kB) from inside workers, and its codicon font doesn't show either.
+Confirmed twice now, in the 2026-08-02 and asset-size-4 runs.
+
+**Get that list with a context-level request listener, not a page-level CDP
+session.** `context.on("request", ...)` reports worker-initiated requests. A
+CDP `Network.enable` on the _page_ session doesn't — dedicated workers are
+separate targets, requiring their own `Target.setAutoAttach` wiring. A
+page-level session's silence is not evidence of absence: the asset-size-4
+run used the page-session approach, saw no worker URLs, and understated
+plugin-playground by 946.8 kB before catching it. Cross-check any "the gap
+closed" result against `context.on("request")` or the network panel.
+
+**Diff against the union of every snapshot taken on that page, not the first
+one.** If the page has a scroll-triggered fetch (the below-the-fold check),
+diffing the request list against a stale pre-scroll snapshot manufactures a
+fake gap for whatever the scroll itself fetched.
+
+Then curl whatever's genuinely missing:
 
 ```sh
 curl -s -o /dev/null -H 'Accept-Encoding: br, gzip' -w '%{size_download}' "$URL"
@@ -282,10 +314,17 @@ it understates, and by how much.
 `blob:` rows are locally-created worker bootstraps. Zero network bytes, exclude
 them; they only distort a request count if you diff lists carelessly.
 
-**Confirm brotli on every origin, every run.** `content-encoding: br`, own
-origin and each CDN. Don't inherit it from a previous run; it's third-party
-behavior. Don't mix a brotli CDN figure with a gzip own-origin figure in one
-total.
+**Confirm the compression algorithm on every origin, every run — and check
+each origin separately.** `content-encoding`, own origin _and each CDN_.
+Don't inherit it from a previous run; it's third-party behavior and it
+changes: the 2026-08-02 run measured brotli everywhere, asset-size-4 found
+the deploy origins on `zstd` (Cloudflare now prefers it when Chrome
+advertises support) while cdnjs still served `br`. `transferSize` is real
+wire bytes whichever algorithm produced them, so a mixed run's totals stay
+valid — but say so, and don't summarise a run as "brotli" or "zstd" from one
+origin's header. Do keep curl's `Accept-Encoding` list matched to what the
+browser sent, or a hand-curled figure lands on a different algorithm than the
+`transferSize` it's being added to.
 
 **Test eagerness per component, not per leg.** "Does this plugin load its
 editor/compiler on every page?" is really several separate questions — one
@@ -336,8 +375,13 @@ highlighting emits that markup. Only `createOnigScanner` / `codeToTokens`
 indicate the runtime highlighter.
 
 `grep -c` counts matching _lines_, and minified bundles are one line. Use
-`grep -o … | wc -l` for occurrences, and read the context of any surprising
-hit before drawing a conclusion: `main`'s eager chunk matches `live-demo`
+`grep -o … | wc -l` for occurrences. **Re-derive an occurrence count rather
+than carrying one forward** — the asset-size-4 write-up quoted `THREE` ×144
+for a chunk that greps ×157, the same count the previous run recorded for the
+same filename. A content hash that hasn't changed means the count can't have
+either; a count that moved without the filename moving is a transcription
+error, not a finding. Read the context of any surprising hit before drawing a
+conclusion: `main`'s eager chunk matches `live-demo`
 twice, both harmless — inside flexsearch's worker URL, which bakes in the CI
 checkout path.
 
@@ -346,6 +390,27 @@ temporarily into `website/rspress.config.ts`'s `builderConfig.tools.rspack` (an
 array entry, gated on `!isServer`) and parse the report's `chartData`. Revert
 it afterwards; it's never committed. Those figures are gzip, deploy totals are
 brotli — never put the two in one sentence.
+
+`@rsdoctor/rspack-plugin` is the rspack-native alternative (`tools.rspack` as
+a function `(config, { isServer }) => {...}`, same gate, same never-committed
+rule) and it's what to reach for when a component can't be isolated as its
+own chunk on the leg you actually need it for — the asset-size-4 run used it
+to estimate v2.0.6's CodeMirror weight, which ships bundled inside that leg's
+externals union with no separate URL to curl. The technique: confirm the
+lockfiles resolve the component's packages to the identical version on both
+legs (not just a compatible range — the literal resolved version string),
+then build both with rsdoctor and diff the component's modules by parsed
+size. A match within a percent or so is noise, not a real difference, and
+licenses using the _other_ leg's real deploy figure for the component as the
+estimate — state it as estimated, not measured, everywhere it appears.
+
+Read `.rsdoctor/.rsdoctor/moduleGraph/0` as `zlib.decompress(base64.b64decode(raw))`,
+not as plain JSON. **Dedupe its `modules` array by file path before summing
+anything.** A module gets one entry per _chunk_ it appears in, not per file
+— on this plugin, where each demo gets its own chunk, a shared dependency
+like CodeMirror shows up once per demo page with identical sizes. Summing
+without deduping silently doubles (or triples) a component that's actually
+one file loaded once per page.
 
 ## 7. Interpret
 
@@ -371,6 +436,23 @@ three legs while absolutes shifted ~7 kB (a PNG→SVG favicon swap on `main`). I
 it drifts more than a couple of kB between runs and no plugin version changed,
 suspect the rig before believing the result.
 
+**Know how small the real noise floor is, or you'll excuse an error as
+variance.** A compressed response isn't byte-identical between edges, but the
+spread is tens of bytes, not kB: across the asset-size-4 verification pass the
+same content-hashed 935 kB chunk came back 40 B apart on two loads, and
+`lib-react` varied by 62 B across four. So **a kB-scale disagreement between
+two measurements of an artifact whose content hash didn't change is a
+transcription or attribution error, not edge variance** — chase it. The
+asset-size-4 write-up had three: a union chunk quoted 1.8 kB below its measured
+transfer, and two three.js-page cells ~2 kB light.
+
+The union-chunk one shows how that hides: its breakdown table still summed to
+the right total, because the missing 1.8 kB had been absorbed into the
+residual row. **Never close a breakdown by adjusting the residual.** A residual
+is what you didn't attribute, so it can only be computed once, from measured
+components — if it moves to make a column add up, the error is now invisible
+and the table looks more trustworthy than it is.
+
 ## 8. Write it up
 
 - **Run write-up** → `docs/explorations/`. Written for a reader of the
@@ -386,7 +468,15 @@ suspect the rig before believing the result.
      (not page total) on the two pages that matter most: no-demo and
      one-cheap-demo. Numbers first, two or three sentences, plus the
      measurement basis in one clause (e.g. "measured on real Cloudflare
-     Pages deploys").
+     Pages deploys"). **If an alternative bundles a site-wide externals
+     union** (§7's check 2 is how you'd know), its per-page total is partly
+     a statement about what _other_ pages on this site import, not about the
+     plugin — headline the runtime-only figure instead (editor + compiler,
+     no externals; see the bullet below) and demote the per-page table to a
+     supporting section that says why it isn't the headline. The
+     asset-size-4 run is the worked example: v3 vs. plugin-playground's
+     "react-only demo" page totals both include a slice of a three.js demo
+     on a third page neither reader is looking at.
   4. **What loads, and when** — the eager-tax story, broken into three
      parts: what's confirmed present on the no-demo page per leg (a table),
      what's confirmed absent there but present once a demo loads (another
@@ -411,11 +501,35 @@ suspect the rig before believing the result.
     the package (`plugin-playground`), not a role (`upstream`, `the
 official plugin`). Use those names consistently after that.
   - **Report the plugin's payload, not the page total.** A page total folds
-    in Rspress's own chrome, which is identical on every leg and isn't any
-    plugin's doing — quoting it makes a plugin that ships zero bytes look
-    like it ships 191.6 kB, and makes a ratio between two legs smaller than
-    the thing being compared. Net out the no-demo page total of the leg
-    proven to ship no plugin code, and say that's what you did.
+    in Rspress's own chrome, which isn't any plugin's doing — quoting it
+    makes a plugin that ships zero bytes look like it ships ~196 kB, and
+    makes a ratio between two legs smaller than the thing being compared.
+    Net out the no-demo page total of the leg proven to ship no plugin code,
+    and say that's what you did.
+
+    Two things that baseline is _not_, both of which the asset-size-4 run
+    had to state explicitly rather than let ride: it isn't the same page as
+    the one being measured, so the measured page's own prose and search-index
+    entry (~3.4 kB here) sit inside every leg's "plugin payload" — identical
+    across legs, so comparisons survive, but no single total is purely plugin
+    bytes. And chrome isn't necessarily identical across legs: check each
+    leg's own-origin chunks against the baseline leg's before assuming a
+    difference is the plugin's. When it _is_ the plugin's — v2.0.6's 54 kB
+    came from the plugin importing `@rspress/core/theme`, confirmed in the
+    published tarball — that's a finding, not noise to net away.
+
+  - **When an alternative bundles a site-wide externals union, prefer a
+    runtime-only headline over a per-page one.** Sum just the editor and
+    compiler — no externals, no other demos' dependencies, no site chrome —
+    for each leg. This number is immune to two confounds a per-page total
+    always carries: which page got netted out as the baseline (its own
+    prose leaks into every total), and what _other_ demos exist on the
+    site (their externals leak into a shared union chunk). A component that
+    isn't its own chunk on some leg (§6's `@rsdoctor/rspack-plugin` note)
+    still goes in this table — estimated, clearly marked as such — rather
+    than being dropped because it can't be read off that leg's deploy
+    directly. Keep the per-page table too; it's a real, separate finding
+    about the union-bundling strategy itself, just not the headline.
   - Headline the common case, not the extreme one. If one test page exists
     only to prove a structural claim (e.g. a three.js demo proving pages
     share a bundled union) and most readers won't hit that case, its numbers
@@ -423,10 +537,8 @@ official plugin`). Use those names consistently after that.
     evidence for the claim they support, and no more.
   - Show _why_ before showing totals: a short table of what each leg
     actually loads to run a demo — editor and compiler, **each with its
-    measured kB** — before the results table. Naming the stack without
-    sizes still leaves the totals unexplained; the point is that the
-    reader meets "Monaco 681.6 kB + workers 946.8 kB" before meeting any
-    page total, so the total reads as a consequence.
+    measured kB** — before the results table. Naming the stack without sizes
+    leaves the totals unexplained.
   - Break the results down, don't just total them. Every headline figure
     needs a companion table splitting it into editor / compiler / other
     demos' dependencies / this demo's own code. An unbroken four-digit kB
