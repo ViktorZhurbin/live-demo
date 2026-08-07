@@ -57,6 +57,12 @@ export const errorMessages: LiveDemoErrorMessages = {
 		hint: "Fix the syntax error in this file.",
 	}),
 
+	MODULE_NOT_TRANSPILED: ({ filePath }) => ({
+		title: "Module wasn't compiled",
+		message: `\`${filePath}\` is part of this demo, but nothing the entry file imports leads to it, so it was never compiled.`,
+		hint: "A dynamic `import()` only resolves a file some static import already pulled in. Import it normally, or use the value the static import gives you.",
+	}),
+
 	NO_DEFAULT_EXPORT: ({ entryFileName }) => ({
 		title: "No default export",
 		message: entryFileName

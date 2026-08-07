@@ -33,11 +33,14 @@ export type LiveDemoPropsFromPlugin = {
 export type ResizablePanelsOptions = {
 	/** Used for auto saving the panel sizes in local storage */
 	autoSaveId?: string;
-	/** Default panel sizes. Percentage strings (e.g. `"50%"`) or pixel numbers. */
+	/**
+	 * Default panel sizes. Percentage strings (e.g. `"50%"`) or pixel numbers.
+	 * @defaultValue `{ editor: "50%", preview: "50%" }`
+	 */
 	defaultPanelSizes?: {
-		/** @defaultValue `"50%"` */
+		/** If omitted, gets whatever space `preview` doesn't claim. */
 		editor?: string | number;
-		/** @defaultValue `"50%"` */
+		/** If omitted, gets whatever space `editor` doesn't claim. */
 		preview?: string | number;
 	};
 };

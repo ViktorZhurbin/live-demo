@@ -151,6 +151,67 @@ describe("createModuleRunner", () => {
 		expect(exports.default).toBe(42);
 	});
 
+	/**
+	 * A key present in `files` but absent from `transpiled` can only happen when
+	 * something resolves a file `runCode`'s walk never visited — in practice a
+	 * dynamic `import()`, since the walk follows Sucrase's *emitted* requires.
+	 * This used to evaluate an empty body and hand back a module exporting
+	 * nothing, which then failed somewhere else with an unrelated message.
+	 */
+	it("throws MODULE_NOT_TRANSPILED for a file the walk never compiled", () => {
+		const files: LiveDemoFiles = { "App.tsx": "", "Lazy.tsx": "" };
+		// `Lazy.tsx` is in `files` and resolvable, but has no transpiled entry.
+		const runner = run(files, {
+			"App.tsx": `exports.default = require("./Lazy.tsx");`,
+		});
+
+		let thrown: unknown;
+		try {
+			runner.evaluate("App.tsx");
+		} catch (error) {
+			thrown = error;
+		}
+
+		expect(thrown).toBeInstanceOf(LiveDemoError);
+		expect((thrown as LiveDemoError).payload.code).toBe(
+			"MODULE_NOT_TRANSPILED",
+		);
+		expect((thrown as Error).message).toMatch(
+			/`Lazy\.tsx` is part of this demo/,
+		);
+	});
+
+	/**
+	 * Guards the ordering inside `evaluate`: the missing-entry check has to run
+	 * before the cache is seeded. Seeding first left a `{ exports: {} }` behind
+	 * for the next `require` of the same file to find, so only the first one
+	 * threw and every later one got the empty module the throw exists to
+	 * prevent — two `import()`s of one target is all it takes.
+	 */
+	it("throws again on a second require of the same never-compiled file", () => {
+		const files: LiveDemoFiles = { "App.tsx": "", "Lazy.tsx": "" };
+		const runner = run(files, {
+			"App.tsx": `
+				exports.outcomes = [];
+				for (let i = 0; i < 2; i++) {
+					try {
+						require("./Lazy.tsx");
+						exports.outcomes.push("no throw");
+					} catch (error) {
+						exports.outcomes.push(error.payload.code);
+					}
+				}
+			`,
+		});
+
+		const { exports } = runner.evaluate("App.tsx");
+
+		expect(exports.outcomes).toEqual([
+			"MODULE_NOT_TRANSPILED",
+			"MODULE_NOT_TRANSPILED",
+		]);
+	});
+
 	// The virtual module is generated source and can't import LiveDemoError, so
 	// it throws a plain Error. Re-throwing it here is what gets the preview to
 	// render the title and hint instead of a bare message.

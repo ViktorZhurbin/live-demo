@@ -39,7 +39,7 @@ named-import access.
 
 The full comparison, including a wrong-then-corrected evaluation of Yuku
 (`@yuku-analyzer/wasm` / `@yuku-codegen/wasm`), is in
-`./0002-extras--trinspiler-research.md`.
+`./0006-extras--trinspiler-research.md`.
 
 ## Decision
 
@@ -190,7 +190,7 @@ this diff in git history, not an unwind of vendored code.
 ## History: how the decision was reached
 
 Recorded because the false starts are the reusable part. Full detail,
-including every wrong turn, is in `./0002-extras--trinspiler-research.md`.
+including every wrong turn, is in `./0006-extras--trinspiler-research.md`.
 
 1. **Initial survey** measured six candidates (Babel, Sucrase, oxc-transform,
    Yuku, esbuild-wasm, swc-wasm) against the six requirements above and
@@ -239,7 +239,7 @@ every accepted gap with a test and a doc rather than a comment.
 **Every remaining step of [0001](0001-drop-rollup-for-cjs-require-loop.md)'s
 four-step compiler plan has now been tried.** Step 1 (drop Rollup) and step 4
 (Sucrase) shipped; step 2 (`@babel/core`) and step 3 (oxc) were tried and
-abandoned, both recorded above and in `./0002-extras--trinspiler-research.md`.
+abandoned, both recorded above and in `./0006-extras--trinspiler-research.md`.
 
 **The revisit triggers, if this ever needs to change again:** Sucrase shipping
 a real, sustained release cadence again (weakens the maintenance-risk

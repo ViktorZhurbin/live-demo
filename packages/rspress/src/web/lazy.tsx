@@ -11,9 +11,10 @@ import type { LiveDemoWidgetProps } from "./types";
  * Published as its own build entry (`@live-demo/rspress/web/lazy`), separate
  * from the main barrel. A *static* import of the barrel would get
  * scope-hoisted into a chunk shared by every page, dragging in CodeMirror
- * and the virtual-modules bundle even on pages with no demo. Consumers must
- * reach this module only via dynamic import, so the bundler code-splits it into
- * an async chunk that loads once a demo actually mounts.
+ * and the virtual-modules bundle even on pages with no demo. The code-splitting
+ * comes from this file's own `lazy()` + `import()` of `LiveDemoRoot` below,
+ * combined with `static/LiveDemo.tsx` — the only consumer of this module —
+ * being imported only into pages that actually contain a demo.
  */
 
 const LiveDemoRoot = lazy(() =>

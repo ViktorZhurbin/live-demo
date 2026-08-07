@@ -87,18 +87,29 @@ export const createModuleRunner = (
 		const cached = cache.get(filePath);
 		if (cached) return cached;
 
+		// `runCode`'s walk writes an entry for every file it reaches, so a miss
+		// here means `resolveLocalImport` matched a key the walk never visited —
+		// reachable through `files` but not through Sucrase's *emitted* imports.
+		// A dynamic `import()` is the way in today. Defaulting to an empty body
+		// made that look like a module exporting nothing, which surfaces as a
+		// confusing error somewhere else entirely (React's "Element type is
+		// invalid", a TypeError on the missing export) rather than here.
+		//
+		// Ahead of the cache seed below, or the second `require` of the same
+		// file finds that seeded `{ exports: {} }` and gets the empty module
+		// back instead of this throw.
+		const code = transpiled.get(filePath);
+		if (code === undefined) {
+			throw new LiveDemoError("MODULE_NOT_TRANSPILED", { filePath });
+		}
+
 		const module = { exports: {} as Record<string, unknown> };
 		// Seed the cache before running the body: a cycle's `require` call
 		// back into this module gets this (still-filling-in) object instead of
 		// recursing, which is what lets it terminate.
 		cache.set(filePath, module);
 
-		const run = new Function(
-			"require",
-			"module",
-			"exports",
-			transpiled.get(filePath) ?? "",
-		) as (
+		const run = new Function("require", "module", "exports", code) as (
 			require: (specifier: string) => unknown,
 			module: { exports: Record<string, unknown> },
 			exports: Record<string, unknown>,

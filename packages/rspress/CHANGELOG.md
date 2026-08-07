@@ -22,6 +22,18 @@ Maintaining this file:
   that only made an error message or edge case more correct is Fixed.
 -->
 
+## [Unreleased]
+
+### Fixed
+
+- A file that belongs to a demo but isn't reached when compiling it — in
+  practice, one only a dynamic `import()` refers to — now fails with
+  `MODULE_NOT_TRANSPILED`. It previously evaluated as an empty module, so the
+  demo failed later with an unrelated message (React's "Element type is
+  invalid", or a `TypeError` on the missing export). The error surfaces wherever
+  the demo consumes the `import()` promise: in the preview when React re-throws
+  it during render (`React.lazy`), in the console when nothing awaits it.
+
 ## [3.0.0] - 2026-08-02
 
 Plugin's v3 ships a lot less JS to the browser, loads lazily per page, and ships nothing when a page has no demo.

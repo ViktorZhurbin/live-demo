@@ -18,13 +18,24 @@ These apply to **demo code**, not to your docs site.
   each demo's own source when the site builds, so typing a brand-new import
   while editing a demo in the browser — for a package no demo's source
   mentions anywhere — won't resolve.
-- **Static imports only.** `import()` in a demo isn't resolved.
+- **Prefer static imports.** A dynamic `import()` only resolves a file **this
+  same demo** already pulled in through a static import the compiler kept — so
+  `React.lazy(() => import("./Thing.tsx"))` works when something else in the
+  demo imports and uses `./Thing.tsx` too. Anything else fails: another demo
+  importing a package doesn't count, and **in an inline demo nothing resolves**,
+  since an inline demo is a single file with nothing else to pull anything in.
+  Where you see the failure depends on how the demo uses the promise:
+  `React.lazy` reports it in the preview like any other error, while a bare
+  `import(...)` whose result is never rendered only logs to the browser console.
 - **No Node.js APIs.** Demos run in the browser.
 - **An extensionless `file=` doesn't work** (`file="./Button"`); see
   [Usage](./usage#external-demo).
 - **An import kept only for its side effects is dropped** if its binding is
   never used — `import X from "pkg"` with no use of `X`. A bare
-  `import "pkg"` is kept.
+  `import "pkg"` is kept. The unused one still costs your readers the download,
+  though: the build step collects it and the demo fetches it on load even
+  though the compiled code no longer refers to it. Delete imports you don't
+  use.
 
 ## Compilation
 

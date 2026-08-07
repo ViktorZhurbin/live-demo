@@ -10,6 +10,7 @@ const sampleTokens: { [K in ErrorCode]: ErrorTokens[K] } = {
 	UNSUPPORTED_FILE_PREFIX: { importPath: "Button.tsx" },
 	FILE_META_EXTENSION_REQUIRED: { importPath: "./Button" },
 	PARSE_FAILED: { filePath: "Button.tsx", errorMessage: "Unexpected token" },
+	MODULE_NOT_TRANSPILED: { filePath: "Lazy.tsx" },
 	NO_DEFAULT_EXPORT: { entryFileName: "App.tsx" },
 	PROP_PARSE_FAILED: { key: "files" },
 	PROVIDER_MISSING: undefined,

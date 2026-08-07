@@ -93,10 +93,3 @@ rewrites `*` as `_`, so a `{/* … */}` comment becomes `{/_ … _/}` — which 
 fails the docs build with "Could not parse expression with acorn: Unterminated
 regular expression". HTML comments aren't an escape hatch either (MDX parses
 `<!--` as JSX). Put the note in the code that depends on the markup instead.
-
-### 3.0.0 Release
-
-When 3.0 actually ships, `packages/rspress/README.md`'s and
-`website/docs/guide/getStarted.mdx`'s version-tag guidance (currently
-"v2 = current, install `@1` for Rspress v1") needs a row for whether 3.0
-tracks Rspress v2 and whether `@2` becomes the new legacy tag.

@@ -132,6 +132,28 @@ Every unit test on either half can pass while a demo renders nothing.
 
 Note that build time deliberately does _not_ bundle: see `collectDemoFiles.ts` for why.
 
+**The second contract: both sides must discover the same files.** Keying is only
+half of it. Each side finds a demo's imports by its own mechanism — build time
+walks the oxc AST (`extractSourcePath.ts`), the runtime regexes Sucrase's
+_emitted_ output (`transformCode.ts`'s `REQUIRE_RE`) — and each has good reasons
+for it, documented at each site. Nothing forces them to agree, so an oxc or
+Sucrase upgrade can drift them apart while every unit test on both halves stays
+green: `buildToRuntime.test.ts` proves the runtime can resolve what the build
+side found, not that the two find the same thing.
+
+Two divergences exist on purpose today:
+
+- **Dynamic `import()`** — neither side sees it. `extractSourcePath` skips
+  `ImportExpression`, and Sucrase emits the require mid-line where `REQUIRE_RE`
+  won't match. See the Limitations entry for what that means for demo authors.
+- **An unused value import** — build sees it, the runtime doesn't, because
+  Sucrase elides the binding. The file still lands in `files`, which is what
+  makes `MODULE_NOT_TRANSPILED` reachable at all.
+
+Before "fixing" either, note that teaching the build side to skip unused
+bindings means reimplementing Sucrase's elision rules against the oxc AST —
+more of exactly this drift, not less.
+
 **Everything crossing that seam is JSON.** `remarkPlugin.ts` `JSON.stringify`s
 every prop into an MDX attribute and `parseProps.ts` parses it back, so
 nothing but JSON-serializable data can reach the runtime — **functions,
@@ -207,13 +229,38 @@ right extension and the wrong syntax.
 
 Test `web/` components against the actual `website/` through the preview build.
 
+### The `ui` options have no behavioral coverage
+
+`controlPanel.hide`, `fileTabs.hide`, `fileTabs.hideSingleTab` and
+`editor.tabSize` are documented in `customization.mdx` and rendered by no test.
+`remarkPlugin.test.ts` asserts only that one of them survives the build→runtime
+transport as a forwarded attribute.
+
+That's structural, not a backlog item. `ui` is a **site-wide** plugin option, so
+`website/` can only ever build with one configuration — asserting `hide: true`
+would mean hiding that band on the real docs site. The unit suite can't reach
+them either: `environment: "node"`, no DOM, and `.tsx` deliberately excluded
+from coverage (see `vitest.config.ts`'s comment). Closing the gap means a DOM
+test environment or a second Playwright project with its own rspress config,
+both judged out of proportion to four options at this project's scale.
+
+So: treat these four as unverified when you change anything they touch, and
+check them by hand.
+
 ## Limitations (of demo code, not the plugin's own source)
 
 These are consequences of the "no bundler" commitment, not independent
 choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
 
 - No CSS in live demos: inline styles or global CSS only
-- No dynamic imports: all imports must be static
+- Dynamic `import()` resolves only what a _surviving_ static import already
+  pulled in. Neither collector sees the specifier (see "The second contract"
+  above), so the target has to already be in `files` and walked. In an
+  **inline** demo it can never resolve: `files` holds the single MDX block and
+  nothing else. Where a failure shows up depends on the demo's shape —
+  `React.lazy(() => import(...))` re-throws during render into `Preview`'s
+  `ErrorBoundary` and gets the overlay; a fire-and-forget `import()` rejects in
+  a microtask after `runCode` has returned, so it only reaches the console.
 - No Node.js APIs: demos run in the browser
 - Only `.js(x)`/`.ts(x)` files are resolvable as imports
 - `file=` can't be extensionless (`file="./Button"`), unlike the deprecated
@@ -247,7 +294,12 @@ choices — see [ADR 0003](../../docs/decisions/0003-scope-boundary.md).
   `.js`/`.jsx` as well as TypeScript, because the `typescript` transform runs
   unconditionally (see `transformCode.ts`). Bare `import './styles.css'` is
   kept, so this only bites `import X from 'pkg'` where `X` is unused and
-  `pkg` was wanted for its side effects.
+  `pkg` was wanted for its side effects. The build side keeps it either way, so
+  an unused external still reaches the virtual module and this demo's
+  `externalImports`; `CodeRunner`'s prefetch then downloads it for every
+  reader who scrolls to the demo — a package that nothing then uses. Cheap to
+  avoid (drop the import). See "The second contract" above for why the build
+  side doesn't detect it.
 
 ## Deliberately not handled
 
@@ -329,6 +381,12 @@ virtual module instead of importing the class.
   Deliberate: same surfacing point as `IMPORT_NOT_RESOLVED`, and a broken
   file on disk should fail loudly rather than ship a page whose demo
   explains the problem only after it loads.
+
+- **`MODULE_NOT_TRANSPILED`**: a file in `files` was reached at evaluation time
+  that `runCode`'s walk never compiled. The walk follows Sucrase's _emitted_
+  requires, so this means something resolved a file that no surviving static
+  import leads to — a dynamic `import()`, in practice. See `moduleRunner.ts`'s
+  `evaluate`.
 
 - **`PROP_PARSE_FAILED`**: the plugin's `JSON.stringify`d props and the
   runtime's `JSON.parse` are out of sync. Check `parseProps.ts`.

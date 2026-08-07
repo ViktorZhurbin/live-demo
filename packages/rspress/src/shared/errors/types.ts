@@ -47,6 +47,13 @@ export type ErrorTokens = {
 	 */
 	FILE_META_EXTENSION_REQUIRED: ImportResolutionTokens;
 	PARSE_FAILED: { filePath: string; errorMessage: string; codeframe?: string };
+	/**
+	 * A file `runCode` never transpiled was reached at evaluation time. Only
+	 * possible when something resolves against `files` that the walk over
+	 * Sucrase's *emitted* imports didn't visit — see `moduleRunner.ts`'s
+	 * `evaluate`.
+	 */
+	MODULE_NOT_TRANSPILED: { filePath: string };
 	/** Optional: getEntryResult is callable without an entry file name (tests, direct use). */
 	NO_DEFAULT_EXPORT: { entryFileName?: string };
 	PROP_PARSE_FAILED: { key: string };
