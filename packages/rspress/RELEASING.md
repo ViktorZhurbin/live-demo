@@ -3,6 +3,9 @@
 First, update and tidy up `CHANGELOG.md`.
 
 ```sh
+# Run all checks
+pnpm verify
+
 # Bumps "version" in package.json, commits ("v3.1.0"), and tags the commit
 # to match. Run from packages/rspress/ (or add --filter @live-demo/rspress
 # from the repo root).
@@ -10,10 +13,11 @@ First, update and tidy up `CHANGELOG.md`.
 # Other bump types: major | minor | patch | premajor | preminor | prepatch |
 # prerelease. You can also pass an explicit version instead, e.g.
 # `pnpm version 3.1.0`.
-pnpm version minor
+pnpm --filter '@live-demo/rspress' version minor
 
 # Builds the package and publishes it to npm. Needs an interactive terminal —
 # the registry requires an OTP and pnpm can't prompt for one non-interactively.
+npm login
 pnpm release
 
 # Pushes the commit and the tag pnpm version just created.
