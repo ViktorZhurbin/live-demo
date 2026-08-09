@@ -8,7 +8,7 @@ import {
 } from "react";
 import { LiveDemoError } from "~shared/errors";
 import type { LiveDemoFiles, LiveDemoPropsFromPlugin } from "~shared/types";
-import type { LiveDemoWidgetProps } from "~web/types";
+import type { LiveDemoRootProps } from "~web/types";
 
 import { parseProps } from "./parseProps";
 
@@ -26,19 +26,21 @@ type LiveDemoContextValue = {
 	options: LiveDemoPropsFromPlugin["options"];
 	entryFileName: LiveDemoPropsFromPlugin["entryFileName"];
 	externalImports: LiveDemoPropsFromPlugin["externalImports"];
+	initialWidth: number | undefined;
 };
 
 const LiveDemoContext = createContext<LiveDemoContextValue | undefined>(
 	undefined,
 );
 
-type LiveDemoProviderProps = LiveDemoWidgetProps & {
+type LiveDemoProviderProps = LiveDemoRootProps & {
 	children: React.ReactNode;
 };
 
 function LiveDemoProvider({
 	isDark,
 	children,
+	initialWidth,
 	pluginProps: rawPluginProps,
 }: LiveDemoProviderProps) {
 	const fullscreen = useFullscreenElement();
@@ -74,6 +76,7 @@ function LiveDemoProvider({
 
 				fullscreen,
 				isDark,
+				initialWidth,
 
 				options: pluginProps.options,
 				entryFileName: pluginProps.entryFileName,

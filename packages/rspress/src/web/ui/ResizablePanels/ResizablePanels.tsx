@@ -34,10 +34,18 @@ const noopStorage: Pick<Storage, "getItem" | "setItem"> = {
 // the two in sync, strictness included: that file uses `@container (width <
 // 550px)` to match this `<` exactly, since CSS `max-width` would also fire
 // at 550 itself.
+//
+// This duplication can't be collapsed into one CSS-only source of truth:
+// `Group` writes its own `flex-direction` as an inline style keyed off the
+// `orientation` prop below (verified in `react-resizable-panels@4.12.2`'s
+// compiled source), and its own types document that style as
+// non-overridable. `orientation` has to stay JS; the skeleton's CSS has to
+// be able to run before any JS exists. Don't reach for a container-query
+// refactor here expecting to fix that -- it can't reach the actual mechanism.
 const VERTICAL_THRESHOLD = 550;
 
 export const ResizablePanels = () => {
-	const { options } = useLiveDemoContext();
+	const { options, initialWidth } = useLiveDemoContext();
 
 	const { autoSaveId, defaultPanelSizes = { editor: "50%", preview: "50%" } } =
 		options?.resizablePanels ?? {};
@@ -91,7 +99,14 @@ export const ResizablePanels = () => {
 	});
 
 	const wrapperSize = useElementSize();
-	const isVertical = wrapperSize.width < VERTICAL_THRESHOLD;
+	// `useElementSize` starts every ref at `width: 0` and only corrects it once
+	// `ResizeObserver` reports in (one `requestAnimationFrame` later, in this
+	// hook's own implementation) -- one frame where `isVertical` reads true
+	// regardless of actual width. `initialWidth` (the skeleton's real,
+	// pre-measured width, from context) covers exactly that gap; once
+	// `ResizeObserver` delivers a real value, `wrapperSize.width` takes over.
+	const width = wrapperSize.width > 0 ? wrapperSize.width : (initialWidth ?? 0);
+	const isVertical = width < VERTICAL_THRESHOLD;
 
 	const wrapperClass = clsx(styles.wrapper, {
 		[styles.vertical]: isVertical,
@@ -153,7 +168,6 @@ export const ResizablePanels = () => {
 				disabled={!isSplitView}
 				defaultLayout={defaultLayout}
 				onLayoutChanged={onLayoutChanged}
-				style={{ flexDirection: isVertical ? "column" : "row" }}
 				orientation={isVertical ? "vertical" : "horizontal"}
 			>
 				{/*

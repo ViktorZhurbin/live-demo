@@ -26,6 +26,10 @@ Maintaining this file:
 
 ### Fixed
 
+- The demo widget no longer briefly renders its narrow, stacked, icon-only
+  layout on mount at every viewport width before correcting itself one frame
+  later. It now measures its real width before first paint instead of
+  starting from zero.
 - A file that belongs to a demo but isn't reached when compiling it — in
   practice, one only a dynamic `import()` refers to — now fails with
   `MODULE_NOT_TRANSPILED`. It previously evaluated as an empty module, so the

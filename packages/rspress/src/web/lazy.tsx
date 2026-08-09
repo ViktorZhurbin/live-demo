@@ -133,7 +133,10 @@ const ErrorFallback = () => (
  * will (`lazyFallback.css` mirrors `ResizablePanels`' height and breakpoint),
  * so its position is settled from first paint and nothing shifts when `LiveDemoRoot`
  * swaps in. It also renders on the server, unchanged from before: the gate
- * starts shut on both sides, so hydration still matches.
+ * starts shut on both sides, so hydration still matches. Its measured width
+ * is passed to `LiveDemoRoot` as `initialWidth` for the same reason: it's the
+ * real width the widget is about to render at, available before `ResizablePanels`'
+ * own `useElementSize` has one.
  *
  * `ErrorBoundary` wraps `Suspense`, not the reverse: `Suspense` only catches
  * the *pending* import promise. A *rejected* one (flaky network, or a stale
@@ -145,6 +148,16 @@ const ErrorFallback = () => (
  */
 export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 	const [isNearViewport, setIsNearViewport] = useState(false);
+	// Read once, right as the skeleton is about to be swapped out: it's a real,
+	// laid-out element occupying the exact box the widget is about to take
+	// (see the docblock above), so this is a free, accurate first-render width
+	// for `ResizablePanels`/`ControlPanel` -- no `ResizeObserver` round trip needed.
+	// `getBoundingClientRect().width` is the border box, a couple px wider than
+	// what those two measure (their own wrapper, nested inside this border) --
+	// close enough that it only matters within ~2px of either threshold.
+	const [initialWidth, setInitialWidth] = useState<number | undefined>(
+		undefined,
+	);
 	const skeletonRef = useRef<HTMLDivElement>(null);
 	const bands = readBands(props.pluginProps.options);
 
@@ -156,6 +169,7 @@ export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 		return observeEnteredViewport(
 			skeleton,
 			() => {
+				setInitialWidth(skeleton.getBoundingClientRect().width);
 				setIsNearViewport(true);
 			},
 			{
@@ -171,7 +185,7 @@ export const LiveDemoLazy = (props: LiveDemoWidgetProps) => {
 	return (
 		<ErrorBoundary fallback={<ErrorFallback />}>
 			<Suspense fallback={<LoadingFallback {...bands} />}>
-				<LiveDemoRoot {...props} />
+				<LiveDemoRoot {...props} initialWidth={initialWidth} />
 			</Suspense>
 		</ErrorBoundary>
 	);

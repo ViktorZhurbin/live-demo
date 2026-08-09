@@ -18,3 +18,15 @@ export type LiveDemoWidgetProps = {
 	isDark: boolean;
 	pluginProps: LiveDemoStringifiedProps;
 };
+
+/**
+ * `LiveDemoRoot`'s own props: `LiveDemoWidgetProps` plus the width
+ * `LiveDemoLazy` measured off the loading skeleton right before swapping it
+ * for the real widget. `ResizablePanels`/`ControlPanel` seed their first
+ * render's width branch from this (via context) instead of the 0
+ * `useElementSize` starts every ref at, which is what used to render the
+ * narrow/stacked layout for one frame at every viewport width.
+ */
+export type LiveDemoRootProps = LiveDemoWidgetProps & {
+	initialWidth: number | undefined;
+};

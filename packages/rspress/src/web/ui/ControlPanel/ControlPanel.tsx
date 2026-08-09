@@ -12,10 +12,15 @@ import styles from "./ControlPanel.module.css";
 const NARROW_THRESHOLD = 340;
 
 export const ControlPanel = () => {
-	const { options } = useLiveDemoContext();
+	const { options, initialWidth } = useLiveDemoContext();
 	const wrapperEl = useElementSize();
 
-	const isNarrow = wrapperEl.width < NARROW_THRESHOLD;
+	// See `ResizablePanels.tsx`'s identical comment: `useElementSize` starts at
+	// `width: 0` for one frame, which would otherwise always render icon-only
+	// buttons on first paint. `initialWidth` (the skeleton's pre-measured
+	// width, from context) covers that frame.
+	const width = wrapperEl.width > 0 ? wrapperEl.width : (initialWidth ?? 0);
+	const isNarrow = width < NARROW_THRESHOLD;
 
 	const [panelsView, setPanelsView] = useLocalStorageView();
 
