@@ -22,7 +22,7 @@ Maintaining this file:
   that only made an error message or edge case more correct is Fixed.
 -->
 
-## [Unreleased]
+## [3.0.2] - 2026-08-09
 
 ### Fixed
 
