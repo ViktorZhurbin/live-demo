@@ -1,6 +1,6 @@
 {
 	"name": "@live-demo/rspress",
-	"version": "3.0.1",
+	"version": "3.0.2",
 	"description": "Rspress plugin for interactive code examples.",
 	"keywords": [
 		"@rspress/core",
